@@ -1,3 +1,4 @@
+package com.auction.server.models;
 public class Electronics extends Item {
     private final int warrantyMonths;
     public Electronics(String id, String name, String description, double startingPrice, int warrantyMonths) {

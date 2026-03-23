@@ -1,3 +1,4 @@
+package com.auction.server.models;
 public abstract class Item {
     private final String id;
     private final String name;

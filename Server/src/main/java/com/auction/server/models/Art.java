@@ -1,3 +1,4 @@
+package com.auction.server.models;
 public class Art extends Item {
 
     private final String artist;

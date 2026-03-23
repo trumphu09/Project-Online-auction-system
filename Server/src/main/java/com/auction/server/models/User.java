@@ -1,3 +1,4 @@
+package com.auction.server.models;
 // Dùng 'abstract' vì ta không bao giờ tạo ra một "User" chung chung.
 // Ta chỉ tạo ra Bidder, Seller hoặc Admin.
 public abstract class User {

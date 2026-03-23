@@ -1,3 +1,4 @@
+package com.auction.server.models;
 import java.time.LocalDateTime;
 
 public class BidTransaction {

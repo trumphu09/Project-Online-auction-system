@@ -1,3 +1,4 @@
+package com.auction.server.models;
 // AuctionStatus.java
 public enum AuctionStatus {
     OPEN,       // Vừa tạo xong, chờ người vào

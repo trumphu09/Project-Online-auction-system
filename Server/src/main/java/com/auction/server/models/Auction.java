@@ -1,4 +1,4 @@
-package Server.src.main.java.com.auction.server.models;
+package com.auction.server.models;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
