@@ -2,50 +2,49 @@ package com.auction.server.models;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
 public class Auction {
     private final String auctionId;
 
     // Các đối tượng liên kết
-    private final Item item;
-    private final User seller;
+    private final com.auction.server.models.Item item;
+    private final com.auction.server.models.User seller;
     private final LocalDateTime endTime;
 
     // Tích hợp Enum thay vì String
-    private AuctionStatus status;
+    private com.auction.server.models.AuctionStatus status;
 
     // Danh sách lưu lịch sử đặt giá
-    private final List<BidTransaction> bidHistory;
+    private final List<com.auction.server.models.BidTransaction> bidHistory;
 
     // Constructor: Khởi tạo phiên đấu giá
-    public Auction(String auctionId, Item item, User seller, LocalDateTime endTime) {
+    public Auction(String auctionId, com.auction.server.models.Item item, com.auction.server.models.User seller, LocalDateTime endTime) {
         this.auctionId = auctionId;
         this.item = item;
         this.seller = seller;
         this.endTime = endTime;
 
         // Mặc định khi vừa tạo ra, trạng thái sẽ là OPEN
-        this.status = AuctionStatus.OPEN;
+        this.status = com.auction.server.models.AuctionStatus.OPEN;
         this.bidHistory = new ArrayList<>();
     }
 
     // --- GETTER & SETTER CHO ENUM ---
 
-    public AuctionStatus getStatus() {
+    public com.auction.server.models.AuctionStatus getStatus() {
         return status;
     }
 
     // Set trạng thái giờ đây không cần if-else dài dòng kiểm tra lỗi chính tả nữa
-    public void setStatus(AuctionStatus newStatus) {
+    public void setStatus(com.auction.server.models.AuctionStatus newStatus) {
         this.status = newStatus;
         System.out.println(">> CẬP NHẬT: Phiên đấu giá [" + this.auctionId + "] đã chuyển trạng thái thành -> " + this.status);
     }
 
     // --- LOGIC ĐẶT GIÁ ---
 
-    public void placeBid(Bidder bidder, double amount) {
+    public void placeBid(com.auction.server.models.Bidder bidder, double amount) {
         // Ưu điểm của Enum: Dùng dấu == hoặc != để so sánh rất nhanh và an toàn
-        if (this.status != AuctionStatus.OPEN && this.status != AuctionStatus.RUNNING) {
+        if (this.status != com.auction.server.models.AuctionStatus.OPEN && this.status != com.auction.server.models.AuctionStatus.RUNNING) {
             System.out.println("Từ chối: Phiên đấu giá không mở. Trạng thái hiện tại: " + this.status);
             return;
         }
@@ -54,7 +53,7 @@ public class Auction {
 
         // Kiểm tra xem tiền đặt có lớn hơn giá hiện tại và lớn hơn giá khởi điểm không
         if (amount > highestBid && amount >= item.getStartingPrice()) {
-            BidTransaction newBid = new BidTransaction(bidder, amount);
+            com.auction.server.models.BidTransaction newBid = new com.auction.server.models.BidTransaction(bidder, amount);
             bidHistory.add(newBid); // Lưu vào lịch sử
             System.out.println("Thành công! [" + bidder.getUsername() + "] đã chốt giá: $" + amount);
         } else {
@@ -72,15 +71,19 @@ public class Auction {
     }
 
     // Thêm hàm lấy Item để sau này tiện in thông tin ra màn hình
-    public Item getItem() {
+    public com.auction.server.models.Item getItem() {
         return item;
     }
 
-    public User getSeller() {
+    public com.auction.server.models.User getSeller() {
         return seller;
     }
 
     public LocalDateTime getEndTime() {
         return endTime;
+    }
+
+    public String getAuctionId() {
+        return auctionId;
     }
 }

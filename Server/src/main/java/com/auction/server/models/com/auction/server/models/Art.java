@@ -1,5 +1,5 @@
 package com.auction.server.models;
-public class Art extends Item {
+public class Art extends com.auction.server.models.Item {
 
     private final String artist;
     private final int creationYear;
