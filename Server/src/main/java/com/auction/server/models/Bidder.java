@@ -21,4 +21,12 @@ public class Bidder extends com.auction.server.models.User {
             System.out.println("Số dư không đủ để đặt mức giá này!");
         }
     }
+    public boolean deductMoney(double amount) {
+        if (this.accountBalance >= amount) {
+            this.accountBalance -= amount;
+            System.out.println("[-] Bidder [" + getUsername() + "] đã thanh toán: -" + amount + "$. Số dư: " + this.accountBalance + "$");
+            return true;
+        }
+        return false;
+    }
 }

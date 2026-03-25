@@ -20,7 +20,13 @@ public class Admin extends com.auction.server.models.User {
     }
 
     public void banUser(com.auction.server.models.User user) {
+        user.setActive(false);
         System.out.println("Admin [" + getUsername() + "] đã khóa tài khoản của: " + user.getUsername());
+    }
+
+    public void unbanUser(User user) {
+        user.setActive(true);
+        System.out.println("MỞ KHÓA: Admin [" + getUsername() + "] đã khôi phục tài khoản cho: " + user.getUsername());
     }
 
     // Ghi đè phương thức rỗng của lớp cha
