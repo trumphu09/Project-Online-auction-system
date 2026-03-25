@@ -13,7 +13,7 @@ public class DatabaseConnection {
     private final String URL = "jdbc:mysql://localhost:3306/auction_db";
     private final String USER = "root"; 
     // CHÚ Ý: Đổi chữ "mat_khau_cua_ban" thành mật khẩu root bạn vừa cài lúc nãy!
-    private final String PASSWORD = "123456"; 
+    private final String PASSWORD = ""; 
 
     // 3. Constructor được để ở chế độ private để ngăn tạo đối tượng lung tung
     private DatabaseConnection() {
