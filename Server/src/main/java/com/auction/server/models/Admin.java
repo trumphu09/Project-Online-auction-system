@@ -1,5 +1,5 @@
 package com.auction.server.models;
-public class Admin extends com.auction.server.models.User {
+public class Admin extends User {
 
     // Thuộc tính riêng: Phân cấp quyền (ví dụ: SuperAdmin, Moderator)
     private String adminRole;
@@ -16,10 +16,10 @@ public class Admin extends com.auction.server.models.User {
         System.out.println("CẢNH BÁO: Admin [" + getUsername() + "] đã cưỡng chế HỦY phiên đấu giá!");
 
         // Cú pháp dùng Enum: TênEnum.GIA_TRI
-        targetAuction.setStatus(com.auction.server.models.AuctionStatus.CANCELED);
+        targetAuction.setStatus(AuctionStatus.CANCELED);
     }
 
-    public void banUser(com.auction.server.models.User user) {
+    public void banUser(User user) {
         System.out.println("Admin [" + getUsername() + "] đã khóa tài khoản của: " + user.getUsername());
     }
 

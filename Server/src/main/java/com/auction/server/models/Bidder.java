@@ -1,5 +1,5 @@
 package com.auction.server.models;
-public class Bidder extends com.auction.server.models.User {
+public class Bidder extends User {
 
     private final double accountBalance;
 

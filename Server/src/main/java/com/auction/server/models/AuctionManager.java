@@ -5,8 +5,8 @@ import java.util.List;
 public class AuctionManager {
 
     private static AuctionManager instance;
-    private final List<com.auction.server.models.User> users;
-    private final List<com.auction.server.models.Auction> auctions;
+    private final List<User> users;
+    private final List<Auction> auctions;
 
     private AuctionManager() {
         users = new ArrayList<>();
@@ -21,12 +21,12 @@ public class AuctionManager {
         return instance;
     }
 
-    public void registerUser(com.auction.server.models.User user) {
+    public void registerUser(User user) {
         users.add(user);
         System.out.println("Đã đăng ký người dùng vào hệ thống: " + user.getUsername());
     }
 
-    public void createAuction(com.auction.server.models.Auction auction) {
+    public void createAuction(Auction auction) {
         auctions.add(auction);
         System.out.println("Đã đưa lên sàn phiên đấu giá: [" + auction.getAuctionId() + "] - " + auction.getItem().getName());
     }

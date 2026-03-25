@@ -6,25 +6,25 @@ public class Auction {
     private final String auctionId;
 
     // Các đối tượng liên kết
-    private final com.auction.server.models.Item item;
-    private final com.auction.server.models.User seller;
+    private final Item item;
+    private final User seller;
     private final LocalDateTime endTime;
 
     // Tích hợp Enum thay vì String
-    private com.auction.server.models.AuctionStatus status;
+    private AuctionStatus status;
 
     // Danh sách lưu lịch sử đặt giá
-    private final List<com.auction.server.models.BidTransaction> bidHistory;
+    private final List<BidTransaction> bidHistory;
 
     // Constructor: Khởi tạo phiên đấu giá
-    public Auction(String auctionId, com.auction.server.models.Item item, com.auction.server.models.User seller, LocalDateTime endTime) {
+    public Auction(String auctionId, Item item, User seller, LocalDateTime endTime) {
         this.auctionId = auctionId;
         this.item = item;
         this.seller = seller;
         this.endTime = endTime;
 
         // Mặc định khi vừa tạo ra, trạng thái sẽ là OPEN
-        this.status = com.auction.server.models.AuctionStatus.OPEN;
+        this.status = AuctionStatus.OPEN;
         this.bidHistory = new ArrayList<>();
     }
 
@@ -42,22 +42,24 @@ public class Auction {
 
     // --- LOGIC ĐẶT GIÁ ---
 
-    public void placeBid(com.auction.server.models.Bidder bidder, double amount) {
+    public boolean placeBid(Bidder bidder, double amount) {
         // Ưu điểm của Enum: Dùng dấu == hoặc != để so sánh rất nhanh và an toàn
-        if (this.status != com.auction.server.models.AuctionStatus.OPEN && this.status != com.auction.server.models.AuctionStatus.RUNNING) {
+        if (this.status != AuctionStatus.OPEN && this.status != AuctionStatus.RUNNING) {
             System.out.println("Từ chối: Phiên đấu giá không mở. Trạng thái hiện tại: " + this.status);
-            return;
+            return false;
         }
 
         double highestBid = getHighestBid();
 
         // Kiểm tra xem tiền đặt có lớn hơn giá hiện tại và lớn hơn giá khởi điểm không
         if (amount > highestBid && amount >= item.getStartingPrice()) {
-            com.auction.server.models.BidTransaction newBid = new com.auction.server.models.BidTransaction(bidder, amount);
+            BidTransaction newBid = new BidTransaction(bidder, amount);
             bidHistory.add(newBid); // Lưu vào lịch sử
             System.out.println("Thành công! [" + bidder.getUsername() + "] đã chốt giá: $" + amount);
+            return true;
         } else {
             System.out.println("Lỗi: Giá đặt ($" + amount + ") phải cao hơn giá hiện tại ($" + highestBid + ").");
+            return false;
         }
     }
 
@@ -67,15 +69,15 @@ public class Auction {
             return 0; // Trả về 0 nếu chưa ai đặt giá
         }
         // Trả về số tiền của giao dịch cuối cùng trong danh sách
-        return bidHistory.getLast().getBidAmount();
+        return bidHistory.get(bidHistory.size() - 1).getBidAmount();
     }
 
     // Thêm hàm lấy Item để sau này tiện in thông tin ra màn hình
-    public com.auction.server.models.Item getItem() {
+    public Item getItem() {
         return item;
     }
 
-    public com.auction.server.models.User getSeller() {
+    public User getSeller() {
         return seller;
     }
 

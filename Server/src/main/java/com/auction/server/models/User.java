@@ -34,6 +34,7 @@ public abstract class User {
 
     public String getId() { return id; }
     public String getEmail() { return email; }
+    public String getPassword() { return password; }
 
     // TRỪU TƯỢNG (Abstraction): Một phương thức rỗng, ép các lớp con phải tự viết nội dung
     public abstract void showDashboard();
