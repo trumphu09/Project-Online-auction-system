@@ -1,7 +1,7 @@
 package com.auction.server.models;
 public class Bidder extends User {
 
-    private final double accountBalance;
+    private double accountBalance;
 
     public Bidder(String id, String username, String password, String email, double accountBalance) {
         super(id, username, password, email);
@@ -20,5 +20,13 @@ public class Bidder extends User {
         } else {
             System.out.println("Số dư không đủ để đặt mức giá này!");
         }
+    }
+    public boolean deductMoney(double amount) {
+        if (this.accountBalance >= amount) {
+            this.accountBalance -= amount;
+            System.out.println("[-] Bidder [" + getUsername() + "] đã thanh toán: -" + amount + "$. Số dư: " + this.accountBalance + "$");
+            return true;
+        }
+        return false;
     }
 }

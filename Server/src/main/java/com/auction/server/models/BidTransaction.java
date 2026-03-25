@@ -14,5 +14,12 @@ public class BidTransaction {
 
     public double getBidAmount() { return bidAmount; }
     public Bidder getBidder() { return bidder; }
+<<<<<<< HEAD
     public LocalDateTime getTimestamp() { return timestamp; }
+=======
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+>>>>>>> 85ba655fc51de033a36d9a4f780f43763fc41b25
 }

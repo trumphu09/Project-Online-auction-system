@@ -28,13 +28,12 @@ public class Auction {
         this.bidHistory = new ArrayList<>();
     }
 
-    // --- GETTER & SETTER CHO ENUM ---
+
 
     public com.auction.server.models.AuctionStatus getStatus() {
         return status;
     }
 
-    // Set trạng thái giờ đây không cần if-else dài dòng kiểm tra lỗi chính tả nữa
     public void setStatus(com.auction.server.models.AuctionStatus newStatus) {
         this.status = newStatus;
         System.out.println(">> CẬP NHẬT: Phiên đấu giá [" + this.auctionId + "] đã chuyển trạng thái thành -> " + this.status);
@@ -71,6 +70,39 @@ public class Auction {
         // Trả về số tiền của giao dịch cuối cùng trong danh sách
         return bidHistory.get(bidHistory.size() - 1).getBidAmount();
     }
+    // Viết thêm hàm này vào class Auction
+    public void processPayment() {
+        // 1. Kiểm tra xem phiên đấu giá đã kết thúc chưa
+        if (this.getStatus() != AuctionStatus.FINISHED) {
+            System.out.println("Chưa thể thanh toán! Phiên đấu giá chưa kết thúc.");
+            return;
+        }
+
+        // 2. Tìm người trả giá cao nhất
+        if (bidHistory.isEmpty()) {
+            System.out.println("Phiên đấu giá kết thúc mà không có ai mua.");
+            this.setStatus(AuctionStatus.CANCELED);
+            return;
+        }
+
+        // Lấy ra giao dịch cuối cùng (giá cao nhất)
+        BidTransaction winningBid = bidHistory.get(bidHistory.size() - 1);
+        Bidder winner = winningBid.getBidder();
+        double finalPrice = winningBid.getBidAmount();
+
+        // 3. Thực hiện chuyển tiền
+        System.out.println("\n=== BẮT ĐẦU XỬ LÝ THANH TOÁN ===");
+        if (winner.deductMoney(finalPrice)) {
+            // Nếu trừ tiền người mua thành công -> Chuyển tiền cho người bán
+            ((Seller) this.getSeller()).receiveMoney(finalPrice);
+            
+            // 4. Chuyển trạng thái sang PAID (Hoàn tất)
+            this.setStatus(AuctionStatus.PAID);
+            System.out.println(">> Giao dịch thành công! Sản phẩm thuộc về: " + winner.getUsername());
+        } else {
+            System.out.println(">> Giao dịch thất bại: Người mua không đủ tiền thanh toán!");
+        }
+    }
 
     // Thêm hàm lấy Item để sau này tiện in thông tin ra màn hình
     public Item getItem() {
@@ -89,3 +121,4 @@ public class Auction {
         return auctionId;
     }
 }
+

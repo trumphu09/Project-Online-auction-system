@@ -9,6 +9,7 @@ public abstract class User {
     private String username;
     private String password;
     private final String email;
+    private boolean isActive;
 
     // Constructor: Dùng để khởi tạo dữ liệu khi tạo đối tượng mới
     public User(String id, String username, String password, String email) {
@@ -16,6 +17,7 @@ public abstract class User {
         this.username = username;
         this.password = password;
         this.email = email;
+        this.isActive = true; // Mặc định tài khoản mới là active
     }
 
     // GETTER / SETTER: Cánh cửa duy nhất để đọc hoặc sửa đổi dữ liệu an toàn
@@ -40,5 +42,11 @@ public abstract class User {
     public abstract void showDashboard();
     public void setUsername(String newUsername) {
         this.username = newUsername;
+    }
+    public boolean isActive() {
+        return isActive;
+    }
+    public void setActive(boolean active) {
+        this.isActive = active;
     }
 }
