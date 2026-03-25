@@ -42,11 +42,11 @@ public class Auction {
 
     // --- LOGIC ĐẶT GIÁ ---
 
-    public void placeBid(com.auction.server.models.Bidder bidder, double amount) {
+    public boolean placeBid(Bidder bidder, double amount) {
         // Ưu điểm của Enum: Dùng dấu == hoặc != để so sánh rất nhanh và an toàn
         if (this.status != com.auction.server.models.AuctionStatus.OPEN && this.status != com.auction.server.models.AuctionStatus.RUNNING) {
             System.out.println("Từ chối: Phiên đấu giá không mở. Trạng thái hiện tại: " + this.status);
-            return;
+            return false;
         }
 
         double highestBid = getHighestBid();
@@ -59,6 +59,7 @@ public class Auction {
         } else {
             System.out.println("Lỗi: Giá đặt ($" + amount + ") phải cao hơn giá hiện tại ($" + highestBid + ").");
         }
+        return false;
     }
 
     // Lấy giá cao nhất hiện tại

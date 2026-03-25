@@ -2,7 +2,7 @@ package com.auction.server.models;
 public class Admin extends com.auction.server.models.User {
 
     // Thuộc tính riêng: Phân cấp quyền (ví dụ: SuperAdmin, Moderator)
-    private String adminRole;
+    private final String adminRole;
 
     public Admin(String id, String username, String password, String email, String adminRole) {
         super(id, username, password, email);
