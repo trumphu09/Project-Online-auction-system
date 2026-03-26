@@ -28,7 +28,7 @@ public class AuctionManager {
 
     public void createAuction(Auction auction) {
         auctions.add(auction);
-        System.out.println("Đã đưa lên sàn phiên đấu giá: [" + auction.getAuctionId() + "] - " + auction.getItem().getName());
+        System.out.println("Đã đưa lên sàn phiên đấu giá: [" + auction.getId() + "] - " + auction.getItem().getName());
     }
 
     public List<Auction> getAllAuctions() {
@@ -37,32 +37,22 @@ public class AuctionManager {
 
     public Auction getAuctionById(String auctionId) {
         for (Auction a : auctions) {
-            if (a.getAuctionId().equals(auctionId)) {
+            if (a.getId().equals(auctionId)) {
                 return a; // Tìm thấy
             }
         }
         return null; // Không tìm thấy
     }
 
-<<<<<<< HEAD
-    public boolean processBidRequest(String auctionId, Bidder bidder, double amount) {
-        Auction auction = getAuctionById(auctionId);
-        if (auction != null) {
-=======
     // Controller đứng ra nhận lệnh đặt giá
     public boolean processBidRequest(String auctionId, Bidder bidder, double amount) {
         Auction auction = getAuctionById(auctionId);
         if (auction != null) {
             // Chuyển việc xử lý chi tiết cho class Auction tự lo
->>>>>>> main
             return auction.placeBid(bidder, amount);
         } else {
             System.out.println("Lỗi: Không tìm thấy phiên đấu giá " + auctionId);
             return false;
         }
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> main
