@@ -1,21 +1,22 @@
 package com.auction.server.models;
 // Dùng 'abstract' vì ta không bao giờ tạo ra một "User" chung chung.
 // Ta chỉ tạo ra Bidder, Seller hoặc Admin.
-public abstract class User {
+public abstract class User extends Entity {
 
     // ĐÓNG GÓI (Encapsulation): Mọi dữ liệu phải là 'private'
     // Không ai ở bên ngoài được phép gọi thẳng user.username để sửa.
-    private final String id;
     private String username;
     private String password;
     private final String email;
+    private boolean isActive;
 
     // Constructor: Dùng để khởi tạo dữ liệu khi tạo đối tượng mới
     public User(String id, String username, String password, String email) {
-        this.id = id;
+        super(id);
         this.username = username;
         this.password = password;
         this.email = email;
+        this.isActive = true; // Mặc định tài khoản mới là active
     }
 
     // GETTER / SETTER: Cánh cửa duy nhất để đọc hoặc sửa đổi dữ liệu an toàn
@@ -32,12 +33,18 @@ public abstract class User {
         }
     }
 
-    public String getId() { return id; }
     public String getEmail() { return email; }
+    public String getPassword() { return password; }
 
     // TRỪU TƯỢNG (Abstraction): Một phương thức rỗng, ép các lớp con phải tự viết nội dung
     public abstract void showDashboard();
     public void setUsername(String newUsername) {
         this.username = newUsername;
+    }
+    public boolean isActive() {
+        return isActive;
+    }
+    public void setActive(boolean active) {
+        this.isActive = active;
     }
 }
