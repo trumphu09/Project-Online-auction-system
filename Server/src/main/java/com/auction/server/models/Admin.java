@@ -19,12 +19,7 @@ public class Admin extends User {
         targetAuction.setStatus(AuctionStatus.CANCELED);
     }
 
-<<<<<<< HEAD
     public void banUser(User user) {
-=======
-    public void banUser(com.auction.server.models.User user) {
-        user.setActive(false);
->>>>>>> 85ba655fc51de033a36d9a4f780f43763fc41b25
         System.out.println("Admin [" + getUsername() + "] đã khóa tài khoản của: " + user.getUsername());
     }
 
