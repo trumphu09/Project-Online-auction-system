@@ -2,8 +2,7 @@ package com.auction.server.models;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-public class Auction {
-    private final String auctionId;
+public class Auction extends Entity {
 
     // Các đối tượng liên kết
     private final Item item;
@@ -17,8 +16,8 @@ public class Auction {
     private final List<BidTransaction> bidHistory;
 
     // Constructor: Khởi tạo phiên đấu giá
-    public Auction(String auctionId, Item item, User seller, LocalDateTime endTime) {
-        this.auctionId = auctionId;
+    public Auction(String id, Item item, User seller, LocalDateTime endTime) {
+        super(id);
         this.item = item;
         this.seller = seller;
         this.endTime = endTime;
@@ -36,7 +35,7 @@ public class Auction {
 
     public void setStatus(com.auction.server.models.AuctionStatus newStatus) {
         this.status = newStatus;
-        System.out.println(">> CẬP NHẬT: Phiên đấu giá [" + this.auctionId + "] đã chuyển trạng thái thành -> " + this.status);
+        System.out.println(">> CẬP NHẬT: Phiên đấu giá [" + this.getId() + "] đã chuyển trạng thái thành -> " + this.status);
     }
 
     // --- LOGIC ĐẶT GIÁ ---
@@ -52,7 +51,7 @@ public class Auction {
 
         // Kiểm tra xem tiền đặt có lớn hơn giá hiện tại và lớn hơn giá khởi điểm không
         if (amount > highestBid && amount >= item.getStartingPrice()) {
-            BidTransaction newBid = new BidTransaction(bidder, amount);
+            BidTransaction newBid = new BidTransaction("bid-" + System.currentTimeMillis(), bidder, amount);
             bidHistory.add(newBid); // Lưu vào lịch sử
             System.out.println("Thành công! [" + bidder.getUsername() + "] đã chốt giá: $" + amount);
             return true;
@@ -115,10 +114,6 @@ public class Auction {
 
     public LocalDateTime getEndTime() {
         return endTime;
-    }
-
-    public String getAuctionId() {
-        return auctionId;
     }
 }
 
