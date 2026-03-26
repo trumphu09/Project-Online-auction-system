@@ -1,12 +1,13 @@
 package com.auction.server.models;
 import java.time.LocalDateTime;
 
-public class BidTransaction {
+public class BidTransaction extends Entity {
     private final Bidder bidder;
     private final double bidAmount;
     private final LocalDateTime timestamp;
 
-    public BidTransaction(Bidder bidder, double bidAmount) {
+    public BidTransaction(String id, Bidder bidder, double bidAmount) {
+        super(id);
         this.bidder = bidder;
         this.bidAmount = bidAmount;
         this.timestamp = LocalDateTime.now();
