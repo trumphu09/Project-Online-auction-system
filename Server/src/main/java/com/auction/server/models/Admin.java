@@ -4,7 +4,7 @@ public class Admin extends User {
     // Thuộc tính riêng: Phân cấp quyền (ví dụ: SuperAdmin, Moderator)
     private final String adminRole;
 
-    public Admin(String id, String username, String password, String email, String adminRole) {
+    public Admin(int id, String username, String password, String email, String adminRole) {
         super(id, username, password, email);
         this.adminRole = adminRole;
     }

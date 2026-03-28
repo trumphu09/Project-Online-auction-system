@@ -9,7 +9,7 @@ public class Seller extends com.auction.server.models.User {
     private final List<Item> myProducts;
     private double accountBalance;
 
-    public Seller(String id, String username, String password, String email) {
+    public Seller(int id, String username, String password, String email) {
         super(id, username, password, email); // Kéo dữ liệu từ lớp User xuống
         this.sellerRating = 5.0; // Mặc định tài khoản mới được 5 sao
         this.myProducts = new ArrayList<>(); // Khởi tạo kho hàng rỗng

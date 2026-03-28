@@ -1,7 +1,7 @@
 package com.auction.server.models;
 public class Electronics extends com.auction.server.models.Item {
     private final int warrantyMonths;
-    public Electronics(String id, String name, String description, double startingPrice, int warrantyMonths) {
+    public Electronics(int id, String name, String description, double startingPrice, int warrantyMonths) {
         super(id, name, description, startingPrice);
         this.warrantyMonths = warrantyMonths;
     }

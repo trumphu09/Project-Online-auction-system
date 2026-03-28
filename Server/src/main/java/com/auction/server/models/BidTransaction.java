@@ -6,7 +6,7 @@ public class BidTransaction extends Entity {
     private final double bidAmount;
     private final LocalDateTime timestamp;
 
-    public BidTransaction(String id, Bidder bidder, double bidAmount) {
+    public BidTransaction(int id, Bidder bidder, double bidAmount) {
         super(id);
         this.bidder = bidder;
         this.bidAmount = bidAmount;

@@ -1,13 +1,22 @@
 package com.auction.server.models;
 
 public abstract class Entity {
-    protected final String id;
+    protected int id;
 
-    public Entity(String id) {
+    public Entity(){
+        this.id = 0;
+    }
+    public Entity(int id) {
         this.id = id;
     }
 
-    public String getId() {
+    public int getId(){
         return id;
+    } 
+
+    public void setId(int id){
+        this.id = id;
     }
+
 }
+ 

@@ -4,7 +4,7 @@ public abstract class Item extends Entity {
     private final String description;
     private final double startingPrice;
 
-    public Item(String id, String name, String description, double startingPrice) {
+    public Item(int id, String name, String description, double startingPrice) {
         super(id);
         this.name = name;
         this.description = description;

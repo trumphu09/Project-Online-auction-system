@@ -28,16 +28,16 @@ public class AuctionManager {
 
     public void createAuction(Auction auction) {
         auctions.add(auction);
-        System.out.println("Đã đưa lên sàn phiên đấu giá: [" + auction.getAuctionId() + "] - " + auction.getItem().getName());
+        System.out.println("Đã đưa lên sàn phiên đấu giá: [" + auction.getId() + "] - " + auction.getItem().getName());
     }
 
     public List<Auction> getAllAuctions() {
         return auctions;
     }
 
-    public Auction getAuctionById(String auctionId) {
+    public Auction getAuctionById(int auctionId) {
         for (Auction a : auctions) {
-            if (a.getAuctionId().equals(auctionId)) {
+            if (a.getId() == auctionId) {
                 return a; // Tìm thấy
             }
         }
@@ -45,7 +45,7 @@ public class AuctionManager {
     }
 
     // Controller đứng ra nhận lệnh đặt giá
-    public boolean processBidRequest(String auctionId, Bidder bidder, double amount) {
+    public boolean processBidRequest(int auctionId, Bidder bidder, double amount) {
         Auction auction = getAuctionById(auctionId);
         if (auction != null) {
             // Chuyển việc xử lý chi tiết cho class Auction tự lo

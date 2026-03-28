@@ -16,7 +16,7 @@ public class Auction extends Entity {
     private final List<BidTransaction> bidHistory;
 
     // Constructor: Khởi tạo phiên đấu giá
-    public Auction(String id, Item item, User seller, LocalDateTime endTime) {
+    public Auction(int id, Item item, User seller, LocalDateTime endTime) {
         super(id);
         this.item = item;
         this.seller = seller;
@@ -51,7 +51,8 @@ public class Auction extends Entity {
 
         // Kiểm tra xem tiền đặt có lớn hơn giá hiện tại và lớn hơn giá khởi điểm không
         if (amount > highestBid && amount >= item.getStartingPrice()) {
-            BidTransaction newBid = new BidTransaction("bid-" + System.currentTimeMillis(), bidder, amount);
+            int bidId = bidHistory.size() + 1; // Tạo ID dựa trên số lượng bids
+            BidTransaction newBid = new BidTransaction(bidId, bidder, amount);
             bidHistory.add(newBid); // Lưu vào lịch sử
             System.out.println("Thành công! [" + bidder.getUsername() + "] đã chốt giá: $" + amount);
             return true;
@@ -114,6 +115,10 @@ public class Auction extends Entity {
 
     public LocalDateTime getEndTime() {
         return endTime;
+    }
+
+    public int getAuctionId() {
+        return this.getId(); // Kế thừa từ lớp Entity
     }
 }
 

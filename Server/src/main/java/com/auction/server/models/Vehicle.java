@@ -4,7 +4,7 @@ public class Vehicle extends Item {
     private final int mileage;
     private final String condition;
 
-    public Vehicle(String id, String name, String description, double startingPrice,
+    public Vehicle(int id, String name, String description, double startingPrice,
                    String brand, int mileage, String condition) {
         super(id, name, description, startingPrice);
         this.brand = brand;
