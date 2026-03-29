@@ -2,7 +2,7 @@ package com.auction.server.models;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Seller extends com.auction.server.models.User {
+public class Seller extends User {
 
     // Thuộc tính riêng: Điểm uy tín và Danh sách hàng hóa của người này
     private double sellerRating;
