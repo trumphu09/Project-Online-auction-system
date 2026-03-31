@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import com.auction.server.models.Bidder;
 
 public class UserDAO {
 
@@ -40,7 +41,7 @@ public class UserDAO {
         Connection conn = DatabaseConnection.getInstance().getConnection();
         try (PreparedStatement pstmt = conn.prepareStatement(sql)){
             pstmt.setString(1, email);
-            pstmt.setString(2,password);
+            pstmt.setString(2, password);
 
             try (java.sql.ResultSet rs = pstmt.executeQuery()){
                 if (rs.next()){
@@ -48,8 +49,8 @@ public class UserDAO {
                 }
             }
 
-        }catch(SQLException e){
-        System.err.println("user doesn't exist" + e.getMessage());
+        } catch(SQLException e){
+            System.err.println("user doesn't exist: " + e.getMessage());
         }
         return null;
     }
@@ -101,7 +102,7 @@ public class UserDAO {
                         
                         user.setId(newIdFromDB); // Cập nhật số ID này vào cái Object đang nằm trong RAM
                         
-                        return true; // Báo cáo thành công!
+                        return true; 
                     }
                 }
             }
@@ -113,17 +114,55 @@ public class UserDAO {
     }
 
     // --- HÀM MAIN ĐỂ CHẠY TEST ---
+    // --- HÀM MAIN ĐỂ CHẠY TEST LIÊN HOÀN ---
     public static void main(String[] args) {
         UserDAO dao = new UserDAO();
         
-        boolean test1 = dao.registerUser("thanh_bidder_1", "123456","pt0907@gmail.com", "BIDDER");
-        boolean test2 = dao.registerUser("dai_seller_1", "123456","dai123@gmail.com", "SELLER");
-        boolean test3 = dao.registerUser("toan_admin_1", "admin123","tingre123@gmail.com", "ADMIN");
+        System.out.println("========== BẮT ĐẦU TEST CASE UserDAO ==========");
 
-        if (test1 && test2 && test3) {
-            System.out.println("-> Tuyet voi! Da bom thanh cong 3 tai khoan vao Database!");
-        } else {
-            System.out.println("-> Xong! Co tai khoan da ton tai hoac co loi xay ra.");
-        }
+        // Dùng timestamp để tạo chuỗi ngẫu nhiên, tránh lỗi Duplicate Entry khi chạy nhiều lần
+        long time = System.currentTimeMillis(); 
+        String testUser = "test_user_" + time;
+        String testEmail = "test" + time + "@gmail.com";
+        String testPass = "123456";
+
+        // [Test 1] Đăng ký tài khoản (Dùng String)
+        System.out.println("\n[1] Đang test hàm Đăng ký (String)...");
+        boolean isRegistered = dao.registerUser(testUser, testPass, testEmail, "BIDDER");
+        System.out.println("-> Kết quả: " + (isRegistered ? "PASSED ✅" : "FAILED ❌"));
+
+        // [Test 2] Đăng nhập với thông tin vừa tạo (Pass chuẩn)
+        System.out.println("\n[2] Đang test hàm Đăng nhập (Mật khẩu đúng)...");
+        String roleSuccess = dao.loginUser(testEmail, testPass);
+        System.out.println("-> Kết quả: " + ("BIDDER".equals(roleSuccess) ? "PASSED ✅ (Role: " + roleSuccess + ")" : "FAILED ❌"));
+
+        // [Test 3] Đăng nhập với mật khẩu sai
+        System.out.println("\n[3] Đang test hàm Đăng nhập (Mật khẩu sai)...");
+        String roleFail = dao.loginUser(testEmail, "mat_khau_bay_ba");
+        System.out.println("-> Kết quả: " + (roleFail == null ? "PASSED ✅ (Đã chặn được)" : "FAILED ❌"));
+
+        // [Test 4] Đổi mật khẩu
+        System.out.println("\n[4] Đang test hàm Đổi mật khẩu...");
+        String newPass = "mat_khau_sieu_cap_vip_pro";
+        boolean isUpdated = dao.updatePassword(testEmail, newPass);
+        System.out.println("-> Kết quả đổi MK: " + (isUpdated ? "PASSED ✅" : "FAILED ❌"));
+
+        // [Test 5] Đăng nhập lại bằng Mật khẩu MỚI
+        System.out.println("\n[5] Đang test Đăng nhập bằng Mật khẩu MỚI...");
+        String roleAfterUpdate = dao.loginUser(testEmail, newPass);
+        System.out.println("-> Kết quả: " + ("BIDDER".equals(roleAfterUpdate) ? "PASSED ✅" : "FAILED ❌"));
+
+        // [Test 6] Đăng ký bằng OBJECT 
+        System.out.println("\n[6] Đang test hàm Đăng ký bằng Đối tượng (OOP)...");
+        
+        long oop_time = System.currentTimeMillis();
+        Bidder oopBidder = new Bidder(0, "oop_user_" + oop_time, "oop_pass_123", "oop_test_" + oop_time + "@gmail.com", 1000.0);
+        
+        System.out.println("-> ID trước khi lưu DB: " + oopBidder.getId()); // Sẽ in ra 0
+        boolean isOopRegistered = dao.registerUser(oopBidder, "BIDDER");
+        System.out.println("-> Kết quả lưu Object: " + (isOopRegistered ? "PASSED ✅" : "FAILED ❌"));
+        System.out.println("-> ID sau khi lưu DB (Đã được MySQL cấp): " + oopBidder.getId()); // Sẽ in ra số xịn
+        
+        System.out.println("\n================ KẾT THÚC TEST ================");
     }
 }
