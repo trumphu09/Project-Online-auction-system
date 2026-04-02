@@ -98,7 +98,7 @@ public class BidderDAO {
         if(amount < 0){
             amount = Math.abs(amount);
         }
-        String sql = "UPDATE bidders SET account_balance = account balance - ? WHERE user_id = ? AND account_amount > amount"
+        String sql = "UPDATE bidders SET account_balance = account balance - ? WHERE user_id = ? AND account_balance > ?";
 
         Connection conn = DatabaseConnection.getInstance().getConnection();
         try(PreparedStatement pstmt = conn.prepareStatement(sql)){
