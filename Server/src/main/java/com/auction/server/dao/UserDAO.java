@@ -29,7 +29,6 @@ public class UserDAO {
             return rowsInserted > 0; 
 
         } catch (SQLException e) {
-            System.err.println("-> [Loi] Khong the them nguoi dung (" + username + "): " + e.getMessage());
             return false;
         }
     }
@@ -50,7 +49,7 @@ public class UserDAO {
             }
 
         } catch(SQLException e){
-            System.err.println("user doesn't exist: " + e.getMessage());
+            return null;
         }
         return null;
     }
@@ -71,7 +70,6 @@ public class UserDAO {
             return rowsUpdated > 0; 
             
         } catch (SQLException e) {
-            System.err.println("-> [Lỗi] Không thể đổi mật khẩu cho User ID " + email + ": " + e.getMessage());
             return false;
         }
     }
@@ -108,7 +106,7 @@ public class UserDAO {
             }
 
         } catch (SQLException e) {
-            System.err.println("-> [Lỗi] Không thể đăng ký User (" + user.getUsername() + "): " + e.getMessage());
+            return false;
         }
         return false;
     }

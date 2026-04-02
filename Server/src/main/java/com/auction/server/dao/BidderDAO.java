@@ -35,13 +35,12 @@ public class BidderDAO {
                 return rowsInserted > 0; // Trả về true nếu chèn thành công
 
             } catch (SQLException e) {
-                System.err.println("-> [Lỗi] Không thể thêm vào bảng bidders: " + e.getMessage());
-                // Lưu ý: Đáng lẽ ở đây phải có lệnh Rollback xóa User nếu lỗi, nhưng để đơn giản ta cứ báo lỗi trước.
+                return false;
             }
         }
         return false;
     }
-    
+
     // ==========================================
     // CÁCH 2: Dùng String rời rạc (Dành cho UI gọi cho lẹ)
     // ==========================================
@@ -53,4 +52,67 @@ public class BidderDAO {
         // Quăng cho Cách 1 xử lý. Nó sẽ vứt cái ID 0 kia đi và đè ID xịn từ MySQL vào!
         return registerBidder(tempBidder); 
     }
+
+    // lay thong tin cua bidder
+    public Bidder getBidderById(int bidderId){
+        String sql = "SELLECT u.id, u.username, u.password, u.email, b.accountbalance"+
+                     "FROM users u JOIN bidders b ON u.id = b.user_id WHERE u.id = ?";   
+
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+        try(PreparedStatement pstmt = conn.prepareStatement(sql)){
+            pstmt.setInt(1,bidderId);
+            try(java.sql.ResultSet rs = pstmt.executeQuery()){
+                if(rs.next()){
+                    int id = rs.getInt("id");
+                    String username = rs.getString("username");
+                    String password = rs.getString("password");
+                    String email = rs.getString("email");
+                    double accountbalance = rs.getDouble("account_balance");
+                    return new Bidder(id, username, password, email, accountbalance);
+                }
+            }
+        }catch(SQLException e){
+            return null;
+        }
+        return null;
+    }
+
+    // update account_balance
+    // add money to balance
+    public boolean updateBalance(int userid, double amount){
+        String sql = "UPDATE bidders SET account_balance = accout_balance + ? WHERE user_id = ?";
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+        try(PreparedStatement pstmt = conn.prepareStatement(sql)){
+            pstmt.setDouble(1,amount);
+            pstmt.setInt(2,userid);
+            
+            int rowsUpdated = pstmt.executeUpdate();
+            return rowsUpdated > 0; 
+        }catch(SQLException e){
+            return false;
+        }
+    }
+
+    //deduct Balance
+    public boolean deductBalance(int userId, double amount){
+        if(amount < 0){
+            amount = Math.abs(amount);
+        }
+        String sql = "UPDATE bidders SET account_balance = account balance - ? WHERE user_id = ? AND account_amount > amount"
+
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+        try(PreparedStatement pstmt = conn.prepareStatement(sql)){
+            pstmt.setDouble(1, amount);
+            pstmt.setInt(2, userId);
+            pstmt.setDouble(3, amount);
+
+            int rowsUpdated = pstmt.executeUpdate();
+
+            return rowsUpdated > 0;
+        }catch(SQLException e){
+            return false;
+        }
+    }
+
+
 }
