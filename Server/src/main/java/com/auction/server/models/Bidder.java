@@ -3,6 +3,11 @@ public class Bidder extends User {
 
     private double accountBalance;
 
+    public Bidder(int id, String username, String password, String email) {
+        super(id, username, password, email);
+        this.accountBalance = 0.0;
+    }
+
     public Bidder(int id, String username, String password, String email, double accountBalance) {
         super(id, username, password, email);
         this.accountBalance = accountBalance;
@@ -29,4 +34,13 @@ public class Bidder extends User {
         }
         return false;
     }
+
+    //getters 
+    public double getAccountBalance() {
+        return accountBalance;
+    }
+
+
+    
+
 }
