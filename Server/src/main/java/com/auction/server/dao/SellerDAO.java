@@ -18,7 +18,7 @@ public class SellerDAO {
 
         if (isUserCreated) {
             
-            String sql = "INSERT INTO bidders (user_id, account_balance) VALUES (?, 0.0)";
+            String sql = "INSERT INTO sellers (user_id, account_balance) VALUES (?, 0.0)";
             Connection conn = DatabaseConnection.getInstance().getConnection();
 
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -38,7 +38,7 @@ public class SellerDAO {
     // ==========================================
     // CÁCH 2: Dùng String rời rạc (Dành cho UI gọi cho lẹ)
     // ==========================================
-    public boolean registerBidder(String username, String password, String email) {
+    public boolean registerSeller(String username, String password, String email) {
         
         // Nhét số 0 vào làm ID giả, số 0.0 làm tiền mặc định để chiều lòng cái Constructor của bạn!
         Seller tempSeller = new Seller(0, username, password, email);
@@ -48,8 +48,8 @@ public class SellerDAO {
     }
 
     // lay seller tu id
-    public Seller getBidderById(int sellerId){
-        String sql = "SELLECT u.id, u.username, u.password, u.email, s.accountbalance, s.total_rating, s.sale_count"+
+    public Seller getSellerById(int sellerId){
+        String sql = "SELECT u.id, u.username, u.password, u.email, s.account_balance, s.total_rating, s.sale_count "+
                      "FROM users u JOIN sellers s ON u.id = s.user_id WHERE u.id = ?";   
 
         Connection conn = DatabaseConnection.getInstance().getConnection();

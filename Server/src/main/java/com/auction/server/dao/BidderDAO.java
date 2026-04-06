@@ -55,7 +55,7 @@ public class BidderDAO {
 
     // lay thong tin cua bidder
     public Bidder getBidderById(int bidderId){
-        String sql = "SELLECT u.id, u.username, u.password, u.email, b.accountbalance"+
+        String sql = "SELECT u.id, u.username, u.password, u.email, b.account_balance "+
                      "FROM users u JOIN bidders b ON u.id = b.user_id WHERE u.id = ?";   
 
         Connection conn = DatabaseConnection.getInstance().getConnection();
@@ -80,7 +80,7 @@ public class BidderDAO {
     // update account_balance
     // add money to balance
     public boolean updateBalance(int userid, double amount){
-        String sql = "UPDATE bidders SET account_balance = accout_balance + ? WHERE user_id = ?";
+        String sql = "UPDATE bidders SET account_balance = account_balance + ? WHERE user_id = ?";
         Connection conn = DatabaseConnection.getInstance().getConnection();
         try(PreparedStatement pstmt = conn.prepareStatement(sql)){
             pstmt.setDouble(1,amount);
