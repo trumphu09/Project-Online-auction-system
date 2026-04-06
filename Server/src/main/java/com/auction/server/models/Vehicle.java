@@ -1,12 +1,15 @@
 package com.auction.server.models;
+
+import java.time.LocalDateTime;
+
 public class Vehicle extends Item {
     private final String brand;
     private final int mileage;
     private final String condition;
 
-    public Vehicle(int id, String name, String description, double startingPrice,
+    public Vehicle(int id, String name, String description, double startingPrice, LocalDateTime startTime, LocalDateTime endTime,
                    String brand, int mileage, String condition) {
-        super(id, name, description, startingPrice);
+        super(id, name, description, startingPrice, startTime, endTime, "VEHICLE");
         this.brand = brand;
         this.mileage = mileage;
         this.condition = condition;

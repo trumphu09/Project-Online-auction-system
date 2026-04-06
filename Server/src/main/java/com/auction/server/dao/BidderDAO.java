@@ -1,11 +1,8 @@
 package com.auction.server.dao;
 
-import com.auction.server.models.User;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import com.auction.server.models.Bidder;
 public class BidderDAO {
     // Kéo chuyên gia UserDAO vào để làm thuê phần bảng cha
