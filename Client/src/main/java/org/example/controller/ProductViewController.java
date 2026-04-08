@@ -16,7 +16,7 @@ public class ProductViewController {
     @FXML
     public void initialize() {
         // Tạo thử 8 ô sản phẩm
-        for (int i = 1; i <= 8; i++) {
+        for (int i = 1; i <= 12; i++) {
             // Tạo một cái khung VBox cho từng sản phẩm
             VBox productCard = new VBox();
             productCard.setPrefSize(180, 250); // Kích thước mỗi ô
