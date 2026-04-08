@@ -20,17 +20,6 @@ public class RegisterController {
     @FXML private TextField regUsername;
     @FXML private PasswordField regPassword;
 
-    @FXML
-    private void handleSignUpSeller(ActionEvent event) {
-        processSignUp("SELLER");
-    }
-
-    // Nút dành cho Bidder
-    @FXML
-    private void handleSignUpBidder(ActionEvent event) {
-        processSignUp("BIDDER");
-    }
-
     // Hàm xử lý logic chung (Không cần @FXML vì nó chỉ dùng nội bộ)
     private void processSignUp(String role) {
         String user = regUsername.getText();
@@ -55,14 +44,24 @@ public class RegisterController {
 
         // Hiển thị thông báo linh hoạt theo Role
         if (role.equals("SELLER")) {
-            showAlert("Thành công", "Đã tạo tài khoản Người Bán thành công!");
+            showAlert("Thành công", "Đã tạo tài khoản Người Bán thành công! Quay trở lại màn hình Login để đăng nhập vào tài khoản");
         } else {
-            showAlert("Thành công", "Đã tạo tài khoản Người Mua thành công!");
+            showAlert("Thành công", "Đã tạo tài khoản Người Mua thành công! Quay trở lại màn hình Login để đăng nhập vào tài khoản");
         }
 
         // 4. Xóa trắng ô nhập sau khi đăng ký
         regUsername.clear();
         regPassword.clear();
+    }
+
+    @FXML
+    private void handleSignUpSeller(ActionEvent event) {
+        processSignUp("SELLER");
+    }
+
+    @FXML
+    private void handleSignUpBidder(ActionEvent event) {
+        processSignUp("BIDDER");
     }
 
     // Bạn phải tự viết hàm này để Controller hiểu nó là gì
