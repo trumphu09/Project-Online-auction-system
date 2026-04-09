@@ -4,23 +4,50 @@ import java.time.LocalDateTime;
 
 public class Art extends Item {
 
-    private final String artist;
-    private final int creationYear;
-    private final String material;
+    private String artist;
+    private int creation_year;
+    private String material;
 
-    public Art(int id, String name, String description, double startingPrice, LocalDateTime startTime, LocalDateTime endTime,
-               String artist, int creationYear, String material) {
-        super(id, name, description, startingPrice, startTime, endTime, "ART");
+    public Art(int id,int sellerId, String name, String description, double startingPrice, LocalDateTime startTime, LocalDateTime endTime,
+               String artist, int creation_year, String material) {
+        super(id,sellerId, name, description, startingPrice, startTime, endTime, "ART" );
         this.artist = artist;
-        this.creationYear = creationYear;
+        this.creation_year = creation_year;
+        this.material = material;
+    }
+    // constructor co day du tat ca thuoc tinh
+    public Art(int id,int sellerId, String name, String description, double startingPrice, double currentPrice, LocalDateTime startTime, LocalDateTime endTime, AuctionStatus status, int highestBidderId,
+               String artist, int creation_year, String material) {
+        super(id,sellerId, name, description, startingPrice, currentPrice, startTime, endTime, status, highestBidderId,"ART" );
+        this.artist = artist;
+        this.creation_year = creation_year;
         this.material = material;
     }
 
+    public String getArtist() {
+        return artist;
+    }
+    public int getCreationYear() {
+        return creation_year;
+    }
+    public String getMaterial() {
+        return material;
+    }
+
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
+    public void setCreationYear(int creation_year) {
+        this.creation_year = creation_year;
+    }
+    public void setMaterial(String material) {
+        this.material = material;
+    }
     @Override
     public void printInfo() {
         System.out.println("--- Tác phẩm nghệ thuật ---");
         System.out.println("Tên tác phẩm: " + getName() + " | Tác giả: " + artist);
-        System.out.println("Năm: " + creationYear + " | Chất liệu: " + material);
+        System.out.println("Năm: " + creation_year + " | Chất liệu: " + material);
         System.out.println("Giá khởi điểm: $" + getStartingPrice());
     }
 }

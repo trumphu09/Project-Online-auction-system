@@ -72,7 +72,7 @@ public class ItemDAO {
         String category = rs.getString("category");
         
         // Tạo item dựa trên category - sử dụng constructor thứ 2 của Item
-        Item item = new Item(id, sellerId, name, description, startingPrice, currentMaxPrice, startTime, endTime, status) {
+        Item item = new Item(id, sellerId, name, description, startingPrice, startTime, endTime, category) {
             @Override
             public void printInfo() {
                 System.out.println("Item: " + name);
@@ -80,7 +80,42 @@ public class ItemDAO {
         };
         
         item.setHighestBidderId(highestBidderId);
-        item.setCategory(category);
+        item.setCurrentMaxPrice(currentMaxPrice);
+        item.setStatus(status);
         return item;
     }
+
+    // thay doi trang thai cua item
+    public boolean updateStatus(int id, AuctionStatus newStatus){
+        String sql = "UPDATE items SET status = ? WHERE id = ?";
+        Connection conn  = DatabaseConnection.getInstance().getConnection();
+        try(PreparedStatement pstmt = conn.prepareStatement(sql)){
+            pstmt.setInt(1,id);
+            pstmt.setString(2, newStatus.name());
+
+            int rowsUpdated = pstmt.executeUpdate();
+            return rowsUpdated > 0;
+        }catch(SQLException e){
+            return false;
+        }
+    }
+
+    public boolean updateCurrentMaxPrice(int itemId, double newPrice, int bidderId){
+        String sql = "UPDATE items SET current_max_price = ?, highest_bidder_id = ? WHERE id = ?"+
+                        "AND current_max_price < ? AND status = 'RUNNING'";
+
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+        try(PreparedStatement pstmt = conn.prepareStatement(sql)){
+            pstmt.setDouble(1, newPrice);
+            pstmt.setInt(2, bidderId);
+            pstmt.setInt(3, itemId);
+            pstmt.setDouble(4, newPrice);
+
+            int rowsUpdated = pstmt.executeUpdate();
+            return rowsUpdated > 0;
+        }catch(SQLException e){
+            return false;
+        }
+    }
+
 }

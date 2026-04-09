@@ -8,12 +8,13 @@ public abstract class Item extends Entity {
     private double currentMaxPrice;
     private int highestBidderId;
     private AuctionStatus status;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    protected LocalDateTime startTime;
+    protected LocalDateTime endTime;
     private String category;
 
-    public Item(int id, String name, String description, double startingPrice, LocalDateTime startTime, LocalDateTime endTime, String category) {
+    public Item(int id,int sellerId, String name, String description, double startingPrice, LocalDateTime startTime, LocalDateTime endTime, String category) {
         super(id);
+        this.sellerId = sellerId;
         this.name = name;
         this.description = description;
         this.startingPrice = startingPrice;
@@ -35,7 +36,7 @@ public abstract class Item extends Entity {
     }
 
     // --- CONSTRUCTOR CHO DAO LẤY LÊN TỪ DATABASE ---
-    public Item(int id, int sellerId, String name, String description, double startingPrice, double currentPrice, LocalDateTime startTime, LocalDateTime endTime, AuctionStatus status) {
+    public Item(int id, int sellerId, String name, String description, double startingPrice, double currentPrice, LocalDateTime startTime, LocalDateTime endTime, AuctionStatus status, int highestBidderId, String category) {
         this.id = id;
         this.sellerId = sellerId;
         this.name = name;
@@ -45,6 +46,8 @@ public abstract class Item extends Entity {
         this.startTime = startTime;
         this.endTime = endTime;
         this.status = status;
+        this.highestBidderId = highestBidderId;
+        this.category = category;
     }
 
     public double getCurrentMaxPrice() { return currentMaxPrice; }
