@@ -2,9 +2,9 @@ package com.auction.server.models;
 import java.time.LocalDateTime;
 
 public class BidTransaction extends Entity {
-    private final Bidder bidder;
-    private final double bidAmount;
-    private final LocalDateTime timestamp;
+    private Bidder bidder;
+    private double bidAmount;
+    private LocalDateTime timestamp;
 
     public BidTransaction(int id, Bidder bidder, double bidAmount) {
         super(id);
