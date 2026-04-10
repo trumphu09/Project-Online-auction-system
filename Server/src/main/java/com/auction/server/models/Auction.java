@@ -2,18 +2,27 @@ package com.auction.server.models;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 public class Auction extends Entity {
 
     // Các đối tượng liên kết
     private final Item item;
     private final User seller;
-    private final LocalDateTime endTime;
+    private LocalDateTime endTime;
 
     // Tích hợp Enum thay vì String
     private AuctionStatus status;
 
     // Danh sách lưu lịch sử đặt giá
     private final List<BidTransaction> bidHistory;
+
+    // Auto-bidding support
+    private final List<AutoBid> autoBids;
+
+    // Auction extension settings
+    private final int extensionMinutes = 5; // Gia hạn 5 phút nếu có bid trong 5 phút cuối
+    private boolean hasExtended = false;
 
     // Constructor: Khởi tạo phiên đấu giá
     public Auction(int id, Item item, User seller, LocalDateTime endTime) {
@@ -25,6 +34,7 @@ public class Auction extends Entity {
         // Mặc định khi vừa tạo ra, trạng thái sẽ là OPEN
         this.status = AuctionStatus.OPEN;
         this.bidHistory = new ArrayList<>();
+        this.autoBids = new CopyOnWriteArrayList<>(); // Thread-safe cho concurrent access
     }
 
 
@@ -40,7 +50,7 @@ public class Auction extends Entity {
 
     // --- LOGIC ĐẶT GIÁ ---
 
-    public boolean placeBid(Bidder bidder, double amount) {
+    public synchronized boolean placeBid(Bidder bidder, double amount) {
         // Ưu điểm của Enum: Dùng dấu == hoặc != để so sánh rất nhanh và an toàn
         if (this.status != AuctionStatus.OPEN && this.status != AuctionStatus.RUNNING) {
             System.out.println("Từ chối: Phiên đấu giá không mở. Trạng thái hiện tại: " + this.status);
@@ -55,6 +65,13 @@ public class Auction extends Entity {
             BidTransaction newBid = new BidTransaction(bidId, bidder, amount);
             bidHistory.add(newBid); // Lưu vào lịch sử
             System.out.println("Thành công! [" + bidder.getUsername() + "] đã chốt giá: $" + amount);
+
+            // Auction extension logic
+            checkAndExtendAuction();
+
+            // Trigger auto-bids
+            processAutoBids();
+
             return true;
         } else {
             System.out.println("Lỗi: Giá đặt ($" + amount + ") phải cao hơn giá hiện tại ($" + highestBid + ").");
@@ -69,6 +86,69 @@ public class Auction extends Entity {
         }
         // Trả về số tiền của giao dịch cuối cùng trong danh sách
         return bidHistory.get(bidHistory.size() - 1).getBidAmount();
+    }
+
+    // Auto-bidding methods
+    public void addAutoBid(AutoBid autoBid) {
+        autoBids.add(autoBid);
+        System.out.println("Auto-bid added for [" + autoBid.getBidder().getUsername() + "] - Max: $" + autoBid.getMaxBidAmount());
+    }
+
+    public void removeAutoBid(Bidder bidder) {
+        autoBids.removeIf(autoBid -> autoBid.getBidder().equals(bidder));
+        System.out.println("Auto-bid removed for [" + bidder.getUsername() + "]");
+    }
+
+    private void processAutoBids() {
+        double currentHighest = getHighestBid();
+
+        for (AutoBid autoBid : autoBids) {
+            if (autoBid.canAutoBid(currentHighest)) {
+                double nextBidAmount = autoBid.getNextAutoBidAmount(currentHighest);
+                if (nextBidAmount > currentHighest) {
+                    // Create automatic bid
+                    int bidId = bidHistory.size() + 1;
+                    BidTransaction autoBidTransaction = new BidTransaction(bidId, autoBid.getBidder(), nextBidAmount);
+                    bidHistory.add(autoBidTransaction);
+                    System.out.println("AUTO-BID: [" + autoBid.getBidder().getUsername() + "] tự động đặt giá: $" + nextBidAmount);
+
+                    // Update current highest for next auto-bid processing
+                    currentHighest = nextBidAmount;
+
+                    // Check if max bid reached
+                    if (nextBidAmount >= autoBid.getMaxBidAmount()) {
+                        autoBid.deactivate();
+                        System.out.println("AUTO-BID: [" + autoBid.getBidder().getUsername() + "] đã đạt giới hạn tối đa!");
+                    }
+                }
+            }
+        }
+    }
+
+    // Auction extension methods
+    private void checkAndExtendAuction() {
+        if (!hasExtended && isNearEndTime()) {
+            extendAuction();
+        }
+    }
+
+    private boolean isNearEndTime() {
+        LocalDateTime now = LocalDateTime.now();
+        return now.isAfter(endTime.minusMinutes(extensionMinutes)) && now.isBefore(endTime);
+    }
+
+    private void extendAuction() {
+        endTime = endTime.plusMinutes(extensionMinutes);
+        hasExtended = true;
+        System.out.println("AUCTION EXTENDED: Phiên đấu giá [" + getId() + "] được gia hạn thêm " + extensionMinutes + " phút!");
+    }
+
+    public List<AutoBid> getAutoBids() {
+        return new ArrayList<>(autoBids);
+    }
+
+    public List<BidTransaction> getBidHistory() {
+        return new ArrayList<>(bidHistory);
     }
     // Viết thêm hàm này vào class Auction
     public void processPayment() {

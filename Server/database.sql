@@ -79,16 +79,15 @@ CREATE TABLE bids (
     FOREIGN KEY (bidder_id) REFERENCES bidders(user_id)
 );
 
--- 9. Payments (thanh toán)
-CREATE TABLE payments (
+-- 10. Auto-bids (đặt giá tự động)
+CREATE TABLE auto_bids (
     id INT AUTO_INCREMENT PRIMARY KEY,
     item_id INT NOT NULL,
-    from_bidder_id INT NOT NULL,
-    to_seller_id INT NOT NULL,
-    amount DOUBLE NOT NULL,
-    status ENUM('PENDING', 'COMPLETED', 'FAILED') DEFAULT 'PENDING',
-    payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    bidder_id INT NOT NULL,
+    max_bid_amount DOUBLE NOT NULL,
+    increment_amount DOUBLE NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (item_id) REFERENCES items(id),
-    FOREIGN KEY (from_bidder_id) REFERENCES bidders(user_id),
-    FOREIGN KEY (to_seller_id) REFERENCES sellers(user_id)
+    FOREIGN KEY (bidder_id) REFERENCES bidders(user_id)
 );

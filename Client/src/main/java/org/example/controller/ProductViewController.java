@@ -1,12 +1,20 @@
 package org.example.controller;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.TilePane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.layout.VBox;
-import javafx.scene.control.Label;
 import javafx.geometry.Pos;
+import javafx.stage.Stage;
+import java.io.IOException;
 
 public class ProductViewController {
 
@@ -36,11 +44,34 @@ public class ProductViewController {
             Label label = new Label("Sản phẩm " + i);
             label.setStyle("-fx-font-weight: bold; -fx-padding: 10 0 0 0;");
 
-            productCard.getChildren().addAll(mockImage, label);
+            // Add bid history button
+            Button bidHistoryBtn = new Button("View Bid History");
+            bidHistoryBtn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-padding: 5 10 5 10;");
+            bidHistoryBtn.setOnAction(event -> viewBidHistory(event, i));
+
+            productCard.getChildren().addAll(mockImage, label, bidHistoryBtn);
             // them anh va label
 
             productGridContainer.getChildren().add(productCard);
             // Thêm cái thẻ vừa tạo vào TilePane
+        }
+    }
+
+    private void viewBidHistory(ActionEvent event, int auctionId) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BidHistoryView.fxml"));
+            Parent root = loader.load();
+
+            // Pass auction ID to controller
+            BidHistoryController controller = loader.getController();
+            // Note: In real implementation, you'd set the auction ID programmatically
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root, 1000, 700));
+            stage.setTitle("Bid History - Auction " + auctionId);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
