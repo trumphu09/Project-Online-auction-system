@@ -4,12 +4,12 @@ import com.auction.server.models.Electronics;
 import java.sql.*;
 import java.time.LocalDateTime;
 public class ElectronicsDAO {
-    private ItemDAO itemDAO;
+    private ItemDAO itemDAO = new ItemDAO();
     // them mot san pham moi vao itemsdatabase va them vao bang electronics
     public boolean addElectronicsItem(Electronics electronics){
         boolean itemAdded = itemDAO.addItem(electronics); // id se tu tang trong ItemDAO
         if (itemAdded){
-            String sql = "INSERT INTO electronics (id, warranty) VALUES (?, ?)";
+            String sql = "INSERT INTO electronics (item_id, warranty) VALUES (?, ?)";
             Connection conn = DatabaseConnection.getInstance().getConnection();
             try (PreparedStatement pstmt = conn.prepareStatement(sql)){
                 pstmt.setInt(1, electronics.getId()); // Dùng ID đã được tạo trong ItemDAO

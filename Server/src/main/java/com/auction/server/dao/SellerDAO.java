@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.auction.server.models.Seller;
+import com.auction.server.models.SellerDTO;
 public class SellerDAO {
     // Kéo chuyên gia UserDAO vào để làm thuê phần bảng cha
     private UserDAO userDAO = new UserDAO();
@@ -44,23 +45,22 @@ public class SellerDAO {
     }
 
     // lay seller tu id
-    public Seller getSellerById(int sellerId){
-        String sql = "SELECT u.id, u.username, u.password, u.email, s.account_balance, s.total_rating, s.sale_count "+
-                     "FROM users u JOIN sellers s ON u.id = s.user_id WHERE u.id = ?";   
+    public SellerDTO getSellerById(int sellerId){
+        String sql = "SELECT u.id, u.username, u.email, s.account_balance, s.total_rating, s.sale_count "+
+                    "FROM users u JOIN sellers s ON u.id = s.user_id WHERE u.id = ?";   
 
         Connection conn = DatabaseConnection.getInstance().getConnection();
         try(PreparedStatement pstmt = conn.prepareStatement(sql)){
-            pstmt.setInt(1,sellerId);
+            pstmt.setInt(1, sellerId);
             try(java.sql.ResultSet rs = pstmt.executeQuery()){
                 if(rs.next()){
                     int id = rs.getInt("id");
                     String username = rs.getString("username");
-                    String password = rs.getString("password");
                     String email = rs.getString("email");
-                    double accountbalance = rs.getDouble("account_balance");
-                    int sale_count = rs.getInt("sale_count");
-                    double total_rating = rs.getDouble("total_rating");
-                    return new Seller(id, username, password, email,total_rating, accountbalance, sale_count);
+                    double accountBalance = rs.getDouble("account_balance");
+                    int saleCount = rs.getInt("sale_count");
+                    double totalRating = rs.getDouble("total_rating");
+                    return new SellerDTO(id, username, email, accountBalance, totalRating, saleCount);  // ✅ DTO
                 }
             }
         }catch(SQLException e){
@@ -76,7 +76,7 @@ public class SellerDAO {
         if (newScore > 5.0) newScore = 5.0;
         
         String sql = "UPDATE sellers " +
-                     "SET seller_rating = ((seller_rating * sale_count) + ?) / (sale_count + 1), " +
+                     "SET total_rating = ((total_rating * sale_count) + ?) / (sale_count + 1), " +
                      "sale_count = sale_count + 1 " +
                      "WHERE user_id = ?"; 
         Connection conn = DatabaseConnection.getInstance().getConnection();

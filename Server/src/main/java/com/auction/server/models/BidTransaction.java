@@ -13,6 +13,13 @@ public class BidTransaction extends Entity {
         this.timestamp = LocalDateTime.now();
     }
 
+    public BidTransaction(int id, Bidder bidder, double bidAmount, LocalDateTime timestamp) {
+        super(id);
+        this.bidder = bidder;
+        this.bidAmount = bidAmount;
+        this.timestamp = timestamp;
+    }
+
     public double getBidAmount() { return bidAmount; }
     public Bidder getBidder() { return bidder; }
 

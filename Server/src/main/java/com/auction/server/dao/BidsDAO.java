@@ -2,9 +2,17 @@ package com.auction.server.dao;
 
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-public class BidDAO {
+import com.auction.server.models.AuctionStatus;
+import com.auction.server.models.BidTransaction;
+import com.auction.server.models.BidTransactionDTO;
+import com.auction.server.models.Bidder;
+import com.auction.server.models.BidderDTO;
 
+public class BidsDAO {
+    // Thực hiện đặt giá mới
     public boolean executeBid(int itemId, int newBidderId, double newBidAmount) {
         Connection conn = DatabaseConnection.getInstance().getConnection();
 
@@ -85,5 +93,30 @@ public class BidDAO {
         }
     }
     
+    // get bid history cua item
+    public List<BidTransactionDTO> getBidHistoryByItemId(int itemId) { 
+    List<BidTransactionDTO> history = new ArrayList<>();
+    String sql = "SELECT b.id, b.bidder_id, u.username, b.bid_amount, b.bid_time " +
+                 "FROM bids b JOIN users u ON b.bidder_id = u.id WHERE b.item_id = ? ORDER BY b.bid_time DESC";
+    
+    Connection conn = DatabaseConnection.getInstance().getConnection();
+    try(PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        pstmt.setInt(1, itemId);
+        try(ResultSet rs = pstmt.executeQuery()) {
+            while(rs.next()) {  // ✅ Lặp tất cả dòng
+                int id = rs.getInt("id");
+                int bidderId = rs.getInt("bidder_id");
+                String bidderUsername = rs.getString("username");
+                double bidAmount = rs.getDouble("bid_amount");
+                LocalDateTime timestamp = rs.getTimestamp("bid_time").toLocalDateTime();
+                history.add(new BidTransactionDTO(id, bidderId, bidderUsername, bidAmount, timestamp));
+            }
+        }
+    } catch(SQLException e) {
+        e.printStackTrace();
+    }
+    return history; 
+    }
+
 
 }

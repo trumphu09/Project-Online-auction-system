@@ -10,7 +10,7 @@ public class VehicleDAO {
     public boolean addVehicleItem(Vehicle vehicle){
         boolean itemAdded = itemDAO.addItem(vehicle); // id se tu tang trong ItemDAO
         if (itemAdded){
-            String sql = "INSERT INTO electronics (id,brand,mileage,condition_status ) VALUES (?, ?, ?, ?)";
+            String sql = "INSERT INTO vehicles (item_id,brand,mileage,condition_status ) VALUES (?, ?, ?, ?)";
             Connection conn = DatabaseConnection.getInstance().getConnection();
             try (PreparedStatement pstmt = conn.prepareStatement(sql)){
                 pstmt.setInt(1, vehicle.getId()); // Dùng ID đã được tạo trong ItemDAO

@@ -1,9 +1,10 @@
 package com.auction.server.dao;
 
 import com.auction.server.models.User;
-import com.auction.server.models.Bidder;
-import com.auction.server.models.Seller;
-import com.auction.server.models.Admin;
+import com.auction.server.models.BidderDTO;
+import com.auction.server.models.SellerDTO;
+import com.auction.server.models.AdminDTO;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,45 +12,44 @@ import java.util.List;
 public class AdminDAO {
     // lay danh sach tat ca nguoi dung
     public List<User> getAllUsers() {   
-        List<User> users = new ArrayList<>();
-        String sql = "SELECT id, username, email, role FROM users";
+    List<User> users = new ArrayList<>();
+    String sql = "SELECT id, username, email, role FROM users";
 
-        Connection conn = DatabaseConnection.getInstance().getConnection();
-        try (Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+    Connection conn = DatabaseConnection.getInstance().getConnection();
+    try (Statement stmt = conn.createStatement();
+         ResultSet rs = stmt.executeQuery(sql)) {
 
-            while (rs.next()) {
-                int id = rs.getInt("id");
-                String username = rs.getString("username");
-                String email = rs.getString("email");
-                String role = rs.getString("role");
+        while (rs.next()) {
+            int id = rs.getInt("id");
+            String username = rs.getString("username");
+            String email = rs.getString("email");
+            String role = rs.getString("role");
 
-                User user = null;
-                if ("BIDDER".equalsIgnoreCase(role)) {
-                    user = new Bidder(id, username, null, email, 0.0);
-                } else if ("SELLER".equalsIgnoreCase(role)) {
-                    user = new Seller(id, username, null, email);
-                } else if ("ADMIN".equalsIgnoreCase(role)) {
-                    user = new Admin(id, username, null, email, "ADMIN");
-                }
-                
-                if (user != null) {
-                    users.add(user);
-                }
+            Object user = null;
+            if ("BIDDER".equalsIgnoreCase(role)) {
+                user = new BidderDTO(id, username, email, 0.0);  // DTO
+            } else if ("SELLER".equalsIgnoreCase(role)) {
+                user = new SellerDTO(id, username, email, 0.0, 5.0, 0);  // DTO
+            } else if ("ADMIN".equalsIgnoreCase(role)) {
+                user = new AdminDTO(id, username, email, "ADMIN");  // DTO
             }
-
-        } catch (SQLException e) {
+            
+            if (user != null) {
+                users.add((User) user);  
+            }
+        }
+    } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            try {
+    } finally {
+        try {
                 if (conn != null && !conn.isClosed()) {
                     conn.close();
                 }
-            } catch (SQLException e) {
+        } catch (SQLException e) {
                 e.printStackTrace();
             }
-        }
-        return users;
+    }
+    return users;
     }
 
     // xoa nguoi dung theo id

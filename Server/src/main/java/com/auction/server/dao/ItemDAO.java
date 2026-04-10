@@ -90,8 +90,8 @@ public class ItemDAO {
         String sql = "UPDATE items SET status = ? WHERE id = ?";
         Connection conn  = DatabaseConnection.getInstance().getConnection();
         try(PreparedStatement pstmt = conn.prepareStatement(sql)){
-            pstmt.setInt(1,id);
-            pstmt.setString(2, newStatus.name());
+            pstmt.setInt(2,id);
+            pstmt.setString(1, newStatus.name());
 
             int rowsUpdated = pstmt.executeUpdate();
             return rowsUpdated > 0;

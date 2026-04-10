@@ -1,16 +1,15 @@
 package com.auction.server.dao;
 import com.auction.server.models.AuctionStatus;
-import com.auction.server.models.Electronics;
 import com.auction.server.models.Art;
 import java.sql.*;
 import java.time.LocalDateTime;
 public class ArtworkDAO {
     ItemDAO itemDAO = new ItemDAO();
     // add new artwork to database
-    public boolean addElectronicsItem(Art artwork){
+    public boolean addArtworkItem(Art artwork){
         boolean itemAdded = itemDAO.addItem(artwork); // id se tu tang trong ItemDAO
         if (itemAdded){
-            String sql = "INSERT INTO artworks (id, artist, creation_year, material ) VALUES (?, ?, ?, ?)";
+            String sql = "INSERT INTO artworks (item_id, artist, creation_year, material ) VALUES (?, ?, ?, ?)";
             Connection conn = DatabaseConnection.getInstance().getConnection();
             try (PreparedStatement pstmt = conn.prepareStatement(sql)){
                 pstmt.setInt(1, artwork.getId()); // Dùng ID đã được tạo trong ItemDAO
@@ -31,7 +30,7 @@ public class ArtworkDAO {
                                   String artist, int creation_year, String material){
         Art artwork = new Art(id, sellerId,name, description, startingPrice,currentPrice, startTime, endTime, status, highestBidderId,
                    artist,  creation_year,  material);
-        return addElectronicsItem(artwork);
+        return addArtworkItem(artwork);
     }
 
     // get artwork by id
