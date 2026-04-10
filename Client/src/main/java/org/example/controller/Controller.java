@@ -1,4 +1,5 @@
 package org.example.controller;
+import javafx.scene.control.RadioButton;
 import org.example.model.User;
 
 import javafx.event.ActionEvent;
@@ -27,6 +28,9 @@ public class Controller implements Initializable {
 
     @FXML
     private PasswordField txtPassword;
+
+    @FXML
+    private RadioButton rbBidder;
 
     @FXML
     private StackPane leftPane;
@@ -72,55 +76,68 @@ public class Controller implements Initializable {
             System.out.println("Không tìm thấy file Register.fxml!");
         }
     }
-//    private void handleRegister(ActionEvent event) {
-//
-//        String user = txtUsername.getText();
-//        String pass = txtPassword.getText();
-//
-//        if (!user.endsWith("@gmail.com")) {
-//            showAlert("Thông báo", "Tên đăng nhập phải là tài khoản Gmail (@gmail.com)!");
-//            return; // Dừng hàm, không lưu vào database nữa
-//        }
-//        for (User u : userDatabase){
-//            if (u.getUsername().equals(user)) {
-//                showAlert("Thông báo", "Tai khoan da ton tai");
-//                return;
-//
-//            }else if(u.getPassword().equals(pass)){
-//                showAlert("Thông báo", "mat khau da ton tai");
-//                return;
-//            }
-//
-//        }
-//
-//        // Nếu đúng thì mới tiếp tục lưu
-//        userDatabase.add(new User(user, pass));
-//        showAlert("Thành công", "Đã tạo tài khoản Gmail thành công!");
-//
-//        // Xóa trắng ô nhập sau khi đăng ký
-//        txtUsername.clear();
-//        txtPassword.clear();
-//    }
 
     @FXML
     private void handleLogin(ActionEvent event) {
         String user = txtUsername.getText();
         String pass = txtPassword.getText();
+        String role = "";
+
+        if (rbBidder.isSelected()) {
+            role = "BIDDER";
+        } else {
+            role = "SELLER";
+        }
+        // code sau này dùng để đăng nhập vào BIDDER hoặc SELLER
 
         boolean isValid = false;
         for (User u : userDatabase){
             if (u.getUsername().equals(user) && u.getPassword().equals(pass)) {
-                 showAlert("Thông báo", "Đăng nhập thành công!");
                  isValid = true;
+                 if (role.equals("BIDDER")) {
+                    showAlert("Thông báo", "Đăng nhập thành công! Chào mừng Người mua!");
+                    navigateToBidderDashboard(event);
+                 } else {
+                    showAlert("Thông báo", "Đăng nhập thành công! Chào mừng Người bán!");
+                    navigateToSellerDashboard(event);
+                 }
+                 return;
 
             }else if(u.getUsername().equals(user) && !u.getPassword().equals(pass)){
                 showAlert("Thông báo", "Sai mat khau!");
                 isValid = true;
+                return;
             }
 
         }
         if(!isValid){
             showAlert("thong bao", "tai khoan chua ton tai");}
+    }
+
+    private void navigateToBidderDashboard(ActionEvent event) {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/view/Product.fxml"));
+//  Khởi tạo đối tượng Parent bằng cách nạp (load) tệp cấu hình giao diện FXML từ tài nguyên (resources).
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root, 900, 600));
+            stage.setTitle("Chợ Đấu Giá - Người mua");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void navigateToSellerDashboard(ActionEvent event) {
+        try {
+            // Giả sử bạn đã có file SellerView.fxml
+            Parent root = FXMLLoader.load(getClass().getResource("/view/SellerView.fxml"));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root, 1000, 700)); // Giao diện Seller thường rộng hơn để quản lý
+            stage.setTitle("Quản lý tài sản - Người bán");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void showAlert(String title, String content) {
@@ -131,3 +148,6 @@ public class Controller implements Initializable {
         alert.showAndWait();
     }
 }
+// có thể dùng DIP và OCP để codetrong handlelogin chỉ cần làm nhiệm vụ và dễ dàng mở rộng sau này
+
+

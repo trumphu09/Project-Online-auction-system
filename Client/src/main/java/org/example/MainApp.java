@@ -23,3 +23,31 @@ public class MainApp extends Application {
         launch();
     }
 }
+//import javafx.application.Application;
+//import javafx.fxml.FXMLLoader;
+//import javafx.scene.Parent;
+//import javafx.scene.Scene;
+//import javafx.stage.Stage;
+//
+//public class MainApp extends Application {
+//
+//    @Override
+//    public void start(Stage stage) throws Exception {
+//        // 1. Nạp file FXML từ thư mục resources/view/
+//        Parent root = FXMLLoader.load(getClass().getResource("/view/Product.fxml"));
+//
+//        // 2. Tạo Scene với kích thước phù hợp
+//        Scene scene = new Scene(root, 900, 600);
+//
+//        // 3. Thiết lập tiêu đề và gắn scene vào stage
+//        stage.setTitle("Hệ thống Đấu giá - Danh sách sản phẩm");
+//        stage.setScene(scene);
+//
+//        // 4. Hiển thị cửa sổ
+//        stage.show();
+//    }
+//
+//    public static void main(String[] args) {
+//        launch(args);
+//    }
+//}

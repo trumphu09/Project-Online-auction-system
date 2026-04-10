@@ -1,12 +1,13 @@
 package com.auction.server.dao;
 
-import com.auction.server.models.User;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.time.LocalDateTime;
+
+import com.auction.server.models.BidTransactionDTO;
 import com.auction.server.models.Bidder;
+import com.auction.server.models.BidderDTO;
 public class BidderDAO {
     // Kéo chuyên gia UserDAO vào để làm thuê phần bảng cha
     private UserDAO userDAO = new UserDAO();
@@ -54,33 +55,31 @@ public class BidderDAO {
     }
 
     // lay thong tin cua bidder
-    public Bidder getBidderById(int bidderId){
-        String sql = "SELLECT u.id, u.username, u.password, u.email, b.accountbalance"+
-                     "FROM users u JOIN bidders b ON u.id = b.user_id WHERE u.id = ?";   
+    public BidderDTO getBidderById(int bidderId){
+    String sql = "SELECT u.id, u.username, u.email, b.account_balance "+
+                 "FROM users u JOIN bidders b ON u.id = b.user_id WHERE u.id = ?";   
 
-        Connection conn = DatabaseConnection.getInstance().getConnection();
-        try(PreparedStatement pstmt = conn.prepareStatement(sql)){
-            pstmt.setInt(1,bidderId);
-            try(java.sql.ResultSet rs = pstmt.executeQuery()){
-                if(rs.next()){
-                    int id = rs.getInt("id");
-                    String username = rs.getString("username");
-                    String password = rs.getString("password");
-                    String email = rs.getString("email");
-                    double accountbalance = rs.getDouble("account_balance");
-                    return new Bidder(id, username, password, email, accountbalance);
-                }
+    Connection conn = DatabaseConnection.getInstance().getConnection();
+    try(PreparedStatement pstmt = conn.prepareStatement(sql)){
+        pstmt.setInt(1, bidderId);
+        try(java.sql.ResultSet rs = pstmt.executeQuery()){
+            if(rs.next()){
+                int id = rs.getInt("id");
+                String username = rs.getString("username");
+                String email = rs.getString("email");
+                double accountBalance = rs.getDouble("account_balance");
+                return new BidderDTO(id, username, email, accountBalance);  // ✅ DTO thay vì Bidder
             }
-        }catch(SQLException e){
-            return null;
         }
+    }catch(SQLException e){
         return null;
     }
-
+    return null;
+    }
     // update account_balance
     // add money to balance
     public boolean updateBalance(int userid, double amount){
-        String sql = "UPDATE bidders SET account_balance = accout_balance + ? WHERE user_id = ?";
+        String sql = "UPDATE bidders SET account_balance = account_balance + ? WHERE user_id = ?";
         Connection conn = DatabaseConnection.getInstance().getConnection();
         try(PreparedStatement pstmt = conn.prepareStatement(sql)){
             pstmt.setDouble(1,amount);
@@ -98,7 +97,7 @@ public class BidderDAO {
         if(amount < 0){
             amount = Math.abs(amount);
         }
-        String sql = "UPDATE bidders SET account_balance = account balance - ? WHERE user_id = ? AND account_balance > ?";
+        String sql = "UPDATE bidders SET account_balance = account_balance - ? WHERE user_id = ? AND account_balance > ?";
 
         Connection conn = DatabaseConnection.getInstance().getConnection();
         try(PreparedStatement pstmt = conn.prepareStatement(sql)){

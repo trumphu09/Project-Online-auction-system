@@ -7,6 +7,7 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     role ENUM('BIDDER', 'SELLER', 'ADMIN') NOT NULL,
+    isActive BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -22,6 +23,7 @@ CREATE TABLE sellers (
     user_id INT PRIMARY KEY,
     total_rating DOUBLE DEFAULT 0,
     sale_count INT DEFAULT 0,
+    account_balance DOUBLE DEFAULT 0,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
