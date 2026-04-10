@@ -1,5 +1,6 @@
-package com.auction.server.dao;
+package controller;
 
+import com.auction.server.dao.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

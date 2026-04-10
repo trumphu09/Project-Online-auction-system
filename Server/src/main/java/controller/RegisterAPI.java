@@ -1,8 +1,10 @@
-package com.auction.server.dao;
+package controller;
 
+import com.auction.server.dao.DatabaseConnection;
+import com.auction.server.dao.UserDAO;
 import com.auction.server.models.User;
 import com.auction.server.models.Bidder;
-import com.auction.server.models.Seller;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
