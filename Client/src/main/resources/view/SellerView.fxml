@@ -1,0 +1,80 @@
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.TilePane?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.HBox?>
+
+<BorderPane prefHeight="600.0" prefWidth="1100.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controller.SellerController">
+
+    <left>
+        <VBox spacing="15" prefWidth="300.0" style="-fx-background-color: #f8f9fa; -fx-padding: 20; -fx-border-color: #dee2e6; -fx-border-width: 0 1 0 0;">
+            <children>
+
+                <Label text="ĐĂNG SẢN PHẨM MỚI" style="-fx-font-weight: bold; -fx-font-size: 14; -fx-text-fill: #2c3e50;" />
+
+                <GridPane vgap="10" hgap="10">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="80" prefWidth="80" />
+                        <ColumnConstraints hgrow="ALWAYS" />
+                    </columnConstraints>
+
+                    <children>
+                        <Label text="Tên SP:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+<!--                        GridPane.rowIndex="0" GridPane.columnIndex="0" hang 0 cot 0-->
+                        <TextField fx:id="txtItemName" promptText="Nhập tên..." GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+                        <Label text="Giá đầu:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                        <TextField fx:id="txtStartingPrice" promptText="VNĐ" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+                        <Label text="Bước giá:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                        <TextField fx:id="txtPriceStep" promptText="Số tiền tối thiểu" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+                        <Label text="Mô tả:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+                        <TextArea fx:id="txtDescription" prefHeight="80" wrapText="true" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+
+                        <Label text="Hình ảnh:" GridPane.rowIndex="4" GridPane.columnIndex="0" />
+                        <HBox spacing="10" GridPane.rowIndex="4" GridPane.columnIndex="1">
+                            <children>
+                                <Button text="Chọn ảnh" onAction="#handleSelectImage" />
+                                <Label fx:id="lblFileName" text="Chưa chọn file" style="-fx-text-fill: #7f8c8d; -fx-font-style: italic;" />
+                            </children>
+                        </HBox>
+
+                    </children>
+                </GridPane>
+
+                <Button fx:id="btnPostItem" onAction="#handlePostItem" maxWidth="Infinity"
+                        text="ĐĂNG BÁN NGAY"
+                        style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10; -fx-cursor: hand;" />
+
+                <Separator />
+
+            </children>
+        </VBox>
+    </left>
+
+    <center>
+        <ScrollPane fitToWidth="true">
+            <content>
+                <TilePane fx:id="inventoryGrid" hgap="10" vgap="10" style="-fx-padding: 20;" />
+            </content>
+        </ScrollPane>
+    </center>
+
+    <right>
+        <VBox spacing="10" style="-fx-padding: 20; -fx-background-color: #f9f9f9;" prefWidth="250">
+            <Label text="LỊCH SỬ GIAO DỊCH" style="-fx-font-weight: bold;" />
+            <ListView fx:id="historyList" prefHeight="300" />
+            <Label text="THỐNG KÊ DOANH THU" style="-fx-font-weight: bold;" />
+        </VBox>
+    </right>
+
+</BorderPane>

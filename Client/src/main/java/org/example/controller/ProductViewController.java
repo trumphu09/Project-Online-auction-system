@@ -39,39 +39,30 @@ public class ProductViewController {
             // Tạo một cái hình chữ nhật giả làm ảnh
             Rectangle mockImage = new Rectangle(150, 150);
             mockImage.setFill(Color.LIGHTSTEELBLUE);
+            mockImage.setArcWidth(15); // Bo góc cho ảnh đẹp hơn
+            mockImage.setArcHeight(15);
 
             // Thêm chữ để phân biệt
             Label label = new Label("Sản phẩm " + i);
             label.setStyle("-fx-font-weight: bold; -fx-padding: 10 0 0 0;");
 
-            // Add bid history button
-            Button bidHistoryBtn = new Button("View Bid History");
-            bidHistoryBtn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-padding: 5 10 5 10;");
-            bidHistoryBtn.setOnAction(event -> viewBidHistory(event, i));
+            // Tạo thêm giá tiền cho giống thật
+            Label priceLabel = new Label("Giá khởi điểm : " + (i * 100) + "k VNĐ");
+            priceLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
 
-            productCard.getChildren().addAll(mockImage, label, bidHistoryBtn);
-            // them anh va label
+            // tạo thêm phí tham gia
+            Label participationFee = new Label("Phí tham gia : 100k VNĐ");
+            participationFee.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
 
+            // --- ĐÂY LÀ PHẦN QUAN TRỌNG ĐẠI ĐANG THIẾU ---
+
+            // Bước A: Thêm ảnh và các Label vào trong khung VBox
+            productCard.getChildren().addAll(mockImage, label, priceLabel, participationFee);
+
+            // Bước B: Thêm cả cái khung VBox đã hoàn thiện vào lưới TilePane (cái lưới lớn trên màn hình)
             productGridContainer.getChildren().add(productCard);
-            // Thêm cái thẻ vừa tạo vào TilePane
+
         }
     }
 
-    private void viewBidHistory(ActionEvent event, int auctionId) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BidHistoryView.fxml"));
-            Parent root = loader.load();
-
-            // Pass auction ID to controller
-            BidHistoryController controller = loader.getController();
-            // Note: In real implementation, you'd set the auction ID programmatically
-
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root, 1000, 700));
-            stage.setTitle("Bid History - Auction " + auctionId);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }
