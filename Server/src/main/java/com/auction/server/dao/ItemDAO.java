@@ -2,6 +2,9 @@ package com.auction.server.dao;
 import com.auction.server.models.Item;
 import com.auction.server.models.AuctionStatus;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
 public class ItemDAO {
     // TODO: Thêm các phương thức để thao tác với bảng Item trong Database
     // add item, get item by id, update item, delete item, list all items are bidding, etc.
@@ -116,6 +119,31 @@ public class ItemDAO {
         }catch(SQLException e){
             return false;
         }
+    }
+    // Import cái này ở đầu file ItemDAO.java nếu chưa có
+    // import java.util.List;
+    // import java.util.ArrayList;
+
+    // Hàm lấy danh sách tất cả sản phẩm
+    public List<Item> getAllItems() {
+        List<Item> itemList = new ArrayList<>();
+        // Lấy tất cả, sắp xếp theo ID giảm dần (đồ mới thêm sẽ lên đầu)
+        String sql = "SELECT * FROM items ORDER BY id DESC";
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            // Duyệt qua từng dòng trong Database
+            while (rs.next()) {
+                // Tận dụng lại luôn cái hàm mapRowToItem thần thánh của bạn mày!
+                Item item = mapRowToItem(rs);
+                itemList.add(item);
+            }
+        } catch (SQLException e) {
+            System.err.println("✗ [Lỗi lấy danh sách Item] " + e.getMessage());
+        }
+        return itemList;
     }
 
 }

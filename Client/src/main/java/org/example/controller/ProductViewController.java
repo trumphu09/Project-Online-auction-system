@@ -47,7 +47,8 @@ public class ProductViewController {
             // Add bid history button
             Button bidHistoryBtn = new Button("View Bid History");
             bidHistoryBtn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-padding: 5 10 5 10;");
-            bidHistoryBtn.setOnAction(event -> viewBidHistory(event, i));
+            int finalI = i;
+            bidHistoryBtn.setOnAction(event -> viewBidHistory(event, finalI));
 
             productCard.getChildren().addAll(mockImage, label, bidHistoryBtn);
             // them anh va label
