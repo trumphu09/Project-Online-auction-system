@@ -12,6 +12,7 @@
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.HBox?>
 
+<?import javafx.scene.control.DatePicker?>
 <BorderPane prefHeight="600.0" prefWidth="1100.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controller.SellerController">
 
     <left>
@@ -48,6 +49,19 @@
                             </children>
                         </HBox>
 
+                        <Label text="Bắt đầu:" GridPane.rowIndex="5" GridPane.columnIndex="0" />
+                        <HBox spacing="10" GridPane.rowIndex="5" GridPane.columnIndex="1">
+                            <DatePicker fx:id="dateStart" prefWidth="150" promptText="Chọn ngày" />
+                            <TextField fx:id="txtTimeStart" prefWidth="80" promptText="HH:mm" text="08:00" />
+                        </HBox>
+<!--                        DatePicker luôn trả về một định dạng chuẩn xác (kiểu LocalDate), giong 1 ban lich-->
+
+                        <Label text="Kết thúc:" GridPane.rowIndex="6" GridPane.columnIndex="0" />
+                        <HBox spacing="10" GridPane.rowIndex="6" GridPane.columnIndex="1">
+                            <DatePicker fx:id="dateEnd" prefWidth="150" promptText="Chọn ngày" />
+                            <TextField fx:id="txtTimeEnd" prefWidth="80" promptText="HH:mm" text="20:00" />
+                        </HBox>
+
                     </children>
                 </GridPane>
 
@@ -70,7 +84,7 @@
     </center>
 
     <right>
-        <VBox spacing="10" style="-fx-padding: 20; -fx-background-color: #f9f9f9;" prefWidth="250">
+        <VBox spacing="10" style="-fx-padding: 20; -fx-background-color: #f9f9f9;" prefWidth="240">
             <Label text="LỊCH SỬ GIAO DỊCH" style="-fx-font-weight: bold;" />
             <ListView fx:id="historyList" prefHeight="300" />
             <Label text="THỐNG KÊ DOANH THU" style="-fx-font-weight: bold;" />
