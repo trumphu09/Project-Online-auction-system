@@ -11,8 +11,8 @@ import java.util.List;
 
 public class AdminDAO {
     // lay danh sach tat ca nguoi dung
-    public List<User> getAllUsers() {   
-    List<User> users = new ArrayList<>();
+    public List<Object> getAllUsers() {   
+    List<Object> users = new ArrayList<>();
     String sql = "SELECT id, username, email, role FROM users";
 
     Connection conn = DatabaseConnection.getInstance().getConnection();
@@ -35,7 +35,7 @@ public class AdminDAO {
             }
             
             if (user != null) {
-                users.add((User) user);  
+                users.add(user);
             }
         }
     } catch (SQLException e) {
