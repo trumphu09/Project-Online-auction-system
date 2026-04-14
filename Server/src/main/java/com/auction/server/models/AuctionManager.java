@@ -44,11 +44,7 @@ public class AuctionManager {
 
     public Auction getAuctionById(int auctionId) {
         for (Auction a : auctions) {
-<<<<<<< HEAD
-            if (a.getId().equals(auctionId)) {
-=======
             if (a.getId() == auctionId) {
->>>>>>> origin/main
                 return a; // Tìm thấy
             }
         }
@@ -59,10 +55,6 @@ public class AuctionManager {
     public boolean processBidRequest(int auctionId, Bidder bidder, double amount) {
         Auction auction = getAuctionById(auctionId);
         if (auction != null) {
-<<<<<<< HEAD
-            // Chuyển việc xử lý chi tiết cho class Auction tự lo
-            return auction.placeBid(bidder, amount);
-=======
             // Process bid asynchronously for better concurrency
             auctionExecutor.submit(() -> {
                 boolean success = auction.placeBid(bidder, amount);
@@ -72,7 +64,6 @@ public class AuctionManager {
                 }
             });
             return true; // Return immediately, actual result will be handled async
->>>>>>> origin/main
         } else {
             System.out.println("Lỗi: Không tìm thấy phiên đấu giá " + auctionId);
             return false;
@@ -115,4 +106,3 @@ public class AuctionManager {
         System.out.println("AuctionManager shutdown completed.");
     }
 }
->>>>>>> origin/main
