@@ -10,19 +10,35 @@ public abstract class User extends Entity {
     private final String email;
     private boolean isActive;
 
-    // Constructor: Dùng để khởi tạo dữ liệu khi tạo đối tượng mới
-    public User(String id, String username, String password, String email) {
-        super(id);
+    // ==========================================
+    // CONSTRUCTOR 1: Dùng khi TẠO TÀI KHOẢN MỚI (Từ Giao diện)
+    // Không cho phép truyền ID vào đây!
+    // ==========================================
+    public User(String username, String password, String email) {
+        super(); // Gọi constructor trống của Entity (ID sẽ mặc định là 0)
         this.username = username;
         this.password = password;
         this.email = email;
         this.isActive = true; // Mặc định tài khoản mới là active
     }
 
+    // ==========================================
+    // CONSTRUCTOR 2: Dùng khi LẤY DỮ LIỆU TỪ DATABASE LÊN (Tầng DAO dùng)
+    // Phải có ID chuẩn từ MySQL truyền vào!
+    // ==========================================
+    public User(int id, String username, String password, String email) {
+        super(id); // Chuyền thẳng cái ID xịn này lên cho class cha Entity giữ
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.isActive = true; 
+    }
+
     // GETTER / SETTER: Cánh cửa duy nhất để đọc hoặc sửa đổi dữ liệu an toàn
     public String getUsername() {
         return username;
     }
+
 
     // Ví dụ: Khi đổi mật khẩu, ta có thể kiểm tra độ dài ở đây trước khi lưu
     public void setPassword(String password) {

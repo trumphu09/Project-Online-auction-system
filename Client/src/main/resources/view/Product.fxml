@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.TilePane?>
+
+<AnchorPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controller.ProductViewController">
+    <children>
+        <ScrollPane fitToWidth="true" prefHeight="600.0" prefWidth="900.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <content>
+                <TilePane fx:id="productGridContainer"
+                          prefColumns="4"
+                          hgap="20.0"
+                          vgap="20.0"
+                          style="-fx-padding: 30; -fx-background-color: #eeeeee;" />
+            </content>
+        </ScrollPane>
+    </children>
+</AnchorPane>
+        <!-- prefColumns="4": cho toi da 4 san pham tren 1 hang-->
+<!-- TilePane chính là một "Khuôn đúc ô gạch" tự động dàn hàng và cột cho các sản phẩm mà không cần phải tính toán tọa độ X, Y thủ công. Cứ mỗi khi bạn thêm một sản phẩm mới, nó sẽ tự tìm ô trống tiếp theo để đặt vào.-->
