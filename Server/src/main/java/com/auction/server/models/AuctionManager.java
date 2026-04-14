@@ -69,9 +69,6 @@ public class AuctionManager {
             return false;
         }
     }
-<<<<<<< HEAD
-}
-=======
 
     // Realtime update methods
     public void addUpdateListener(AuctionUpdateListener listener) {
