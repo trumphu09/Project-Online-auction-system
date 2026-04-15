@@ -1,4 +1,4 @@
-package org.example.controller;
+package com.auction.client.controllers;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -58,6 +58,15 @@ public class ProductViewController {
 
             // Bước A: Thêm ảnh và các Label vào trong khung VBox
             productCard.getChildren().addAll(mockImage, label, priceLabel, participationFee);
+
+            // 1. Cài đặt sự kiện click cho TỪNG cái khung một
+//            productCard.setOnMouseClicked(event -> {
+//                System.out.println("Đại vừa bấm vào: " + label.getText());
+//                navigateToBiddingRoom(event);
+//            });
+//            // 2. Hiệu ứng bàn tay cho TỪNG cái khung
+//            productCard.setStyle(productCard.getStyle() + "-fx-cursor: hand;");
+            // dung de bien ca box thành 1 button khi ấn chạy ra màn hình đấu giá
 
             // Bước B: Thêm cả cái khung VBox đã hoàn thiện vào lưới TilePane (cái lưới lớn trên màn hình)
             productGridContainer.getChildren().add(productCard);

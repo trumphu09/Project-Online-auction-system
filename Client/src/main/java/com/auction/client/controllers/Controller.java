@@ -1,7 +1,7 @@
-package org.example.controller;
-import javafx.scene.control.RadioButton;
-import org.example.model.User;
+package com.auction.client.controllers;
 
+import javafx.scene.control.RadioButton;
+import com.auction.client.model.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -25,13 +25,10 @@ public class Controller implements Initializable {
 
     @FXML
     private TextField txtUsername;
-
     @FXML
     private PasswordField txtPassword;
-
     @FXML
     private RadioButton rbBidder;
-
     @FXML
     private StackPane leftPane;
 
@@ -91,27 +88,42 @@ public class Controller implements Initializable {
         // code sau này dùng để đăng nhập vào BIDDER hoặc SELLER
 
         boolean isValid = false;
-        for (User u : userDatabase){
-            if (u.getUsername().equals(user) && u.getPassword().equals(pass)) {
-                 isValid = true;
-                 if (role.equals("BIDDER")) {
-                    showAlert("Thông báo", "Đăng nhập thành công! Chào mừng Người mua!");
-                    navigateToBidderDashboard(event);
-                 } else {
-                    showAlert("Thông báo", "Đăng nhập thành công! Chào mừng Người bán!");
-                    navigateToSellerDashboard(event);
-                 }
-                 return;
+        for (User u : userDatabase) {
+            // 1. Tìm đúng tên người dùng trước
+            if (u.getUsername().equals(user)) {
+                isValid = true; // Đã tìm thấy tài khoản tồn tại
 
-            }else if(u.getUsername().equals(user) && !u.getPassword().equals(pass)){
-                showAlert("Thông báo", "Sai mat khau!");
-                isValid = true;
-                return;
+                // 2. Kiểm tra mật khẩu của người đó
+                if (u.getPassword().equals(pass)) {
+
+                    // 3. Kiểm tra vai trò
+                    if (u.getRole().equals(role)) {
+                        if (role.equals("BIDDER")) {
+                            showAlert("Thông báo", "Chào mừng Người mua!");
+                            navigateToBidderDashboard(event);
+                        } else {
+                            showAlert("Thông báo", "Chào mừng Người bán!");
+                            navigateToSellerDashboard(event);
+                        }
+                        return; // Thoát hàm vì đã thành công
+                    } else {
+                        // Đúng pass nhưng sai Role (người bán cố vào người mua)
+                        showAlert("Thông báo", "Tài khoản không có quyền truy cập vai trò này!");
+                        return;
+                    }
+
+                } else {
+                    // Đúng tên nhưng sai mật khẩu
+                    showAlert("Thông báo", "Sai mật khẩu!");
+                    return;
+                }
             }
-
         }
-        if(!isValid){
-            showAlert("thong bao", "tai khoan chua ton tai");}
+
+// 4. Nếu chạy hết vòng lặp mà isValid vẫn là false
+        if (!isValid) {
+            showAlert("Thông báo", "Tài khoản chưa tồn tại!");
+        }
     }
 
     private void navigateToBidderDashboard(ActionEvent event) {
@@ -129,7 +141,6 @@ public class Controller implements Initializable {
 
     private void navigateToSellerDashboard(ActionEvent event) {
         try {
-            // Giả sử bạn đã có file SellerView.fxml
             Parent root = FXMLLoader.load(getClass().getResource("/view/SellerView.fxml"));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root, 1000, 700)); // Giao diện Seller thường rộng hơn để quản lý

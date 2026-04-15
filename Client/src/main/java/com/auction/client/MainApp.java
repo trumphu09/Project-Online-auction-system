@@ -1,4 +1,4 @@
-package org.example;
+package com.auction.client;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;

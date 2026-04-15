@@ -1,4 +1,4 @@
-package org.example.controller;
+package com.auction.client.controllers;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.DatePicker;
@@ -10,7 +10,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
-import org.example.model.ItemDTO;
+import com.auction.client.model.ItemDTO;
 
 import javafx.event.ActionEvent;
 import java.io.File;

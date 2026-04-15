@@ -1,5 +1,5 @@
-package org.example.controller;
-import org.example.model.User;
+package com.auction.client.controllers;
+import com.auction.client.model.User;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
@@ -14,7 +14,7 @@ import javafx.stage.Stage;
 import javafx.scene.Node;
 import java.io.IOException;
 
-import static org.example.controller.Controller.userDatabase;
+import static com.auction.client.controllers.Controller.userDatabase;
 
 public class RegisterController {
     @FXML private TextField regUsername;

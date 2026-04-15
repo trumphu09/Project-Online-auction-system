@@ -1,4 +1,4 @@
-package org.example.model;
+package com.auction.client.model;
 
 public class User {
     private String username;

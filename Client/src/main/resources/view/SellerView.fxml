@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.HBox?>
 
 <?import javafx.scene.control.DatePicker?>
-<BorderPane prefHeight="600.0" prefWidth="1100.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controller.SellerController">
+<BorderPane prefHeight="600.0" prefWidth="1100.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.SellerController">
 
     <left>
         <VBox spacing="15" prefWidth="300.0" style="-fx-background-color: #f8f9fa; -fx-padding: 20; -fx-border-color: #dee2e6; -fx-border-width: 0 1 0 0;">
