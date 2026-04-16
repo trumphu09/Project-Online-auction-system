@@ -1,161 +1,126 @@
 package com.auction.client.controllers;
 
-import javafx.fxml.FXML;
-import javafx.scene.control.DatePicker;
+import com.auction.client.model.ItemDTO;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
-import com.auction.client.model.ItemDTO;
-
+import com.auction.client.model.ItemDTO;// Import lớp vừa tạo
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.layout.TilePane;
+import javafx.stage.FileChooser;
 import java.io.File;
 import java.time.LocalDate;
 
-public class SellerController {
+public class SellerController extends BaseController {
 
-    @FXML
-    private TextField txtItemName;
-    @FXML private TextField txtStartingPrice;
-    @FXML private TextField txtPriceStep;
+    @FXML private TextField txtItemName, txtStartingPrice, txtPriceStep, txtTimeStart, txtTimeEnd;
     @FXML private TextArea txtDescription;
-    @FXML private Label lblFileName; // Cái label hiện tên file ảnh
-    @FXML private DatePicker dateStart;
-    @FXML private TextField txtTimeStart;
-    @FXML private DatePicker dateEnd;
-    @FXML private TextField txtTimeEnd;
-
-    private String currentImagePath = ""; // Biến tạm lưu đường dẫn ảnh
-    private int currentSellerId = 1; // ID giả lập của Đại (sau này lấy từ login)
+    @FXML private Label lblFileName;
+    @FXML private DatePicker dateStart, dateEnd;
     @FXML private TilePane inventoryGrid;
+
+    private String currentImagePath = "";
+
     @FXML
-    // ham xu li hinh anh
+    private void handlePostItem(ActionEvent event) {
+        try {
+            // TÍNH TRỪU TƯỢNG (Abstraction): Giấu việc đóng gói dữ liệu vào hàm riêng
+            ItemDTO newItem = packData();
+
+            // KIỂM TRA ĐÓNG GÓI (Dùng hàm của BaseController)
+            if (newItem.getName().isEmpty() || newItem.getStartingPrice() <= 0) {
+                showAlert("Lỗi", "Đại ơi, nhập tên và giá hợp lệ nhé!");
+                return;
+            }
+
+            // HIỂN THỊ: Cực kỳ ngắn gọn nhờ lớp ItemCard
+            ItemCard card = new ItemCard(newItem);
+            inventoryGrid.getChildren().add(card);
+
+            clearFields();
+            showAlert("Thành công", "Đã đăng sản phẩm thành công!");
+
+        } catch (Exception e) {
+            showAlert("Lỗi", "Có gì đó sai sai: " + e.getMessage());
+        }
+    }
+
+    // Hàm đóng gói dữ liệu (Vẫn nên có để handlePostItem sạch sẽ)
+    private ItemDTO packData() {
+        String fullStart = (dateStart.getValue() != null) ? dateStart.getValue().toString() + " " + txtTimeStart.getText() : "";
+        String fullEnd = (dateEnd.getValue() != null) ? dateEnd.getValue().toString() + " " + txtTimeEnd.getText() : "";
+
+        return new ItemDTO(
+                txtItemName.getText().trim(),
+                Double.parseDouble(txtStartingPrice.getText()),
+                Double.parseDouble(txtPriceStep.getText()),
+                txtDescription.getText().trim(),
+                currentImagePath,
+                1, // Giả lập SellerID
+                fullStart,
+                fullEnd
+        );
+    }
+
+    private void clearFields() {
+        txtItemName.clear();
+        txtStartingPrice.clear();
+        txtPriceStep.clear();
+        txtDescription.clear();
+        dateStart.setValue(null);
+        dateEnd.setValue(null);
+        lblFileName.setText("Chưa chọn ảnh");
+        currentImagePath = "";
+    }
+
+    @FXML
     private void handleSelectImage(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Chọn ảnh sản phẩm");
-        // FileChooser dung de mo cua so chon file, setTitle la ten tren cung cua so
-
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif")
-        );
-        // loc file anh
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"));
 
         File selectedFile = fileChooser.showOpenDialog(null);
-        // fileChooser.showOpenDialog(...): mở cửa sổ chọn file (Open File Dialog). Khi chạy, nó sẽ hiện một cửa sổ cho user duyệt file trong máy
-        // howOpenDialog(null): Hiện ra độc lập ở giữa màn hình, có thể click chuột quay lại cửa sổ chính phía sau
-
         if (selectedFile != null) {
-            currentImagePath = selectedFile.getAbsolutePath(); // Lấy đường dẫn đầy đủ
-            lblFileName.setText(selectedFile.getName()); // Hiển thị tên file lên giao diện
+            currentImagePath = selectedFile.getAbsolutePath();
+            lblFileName.setText(selectedFile.getName());
         }
     }
+}
 
-    @FXML
-    // dong goi san pham nhap vao
-    private void handlePostItem(ActionEvent event) {
-        System.out.println("--- Đang xử lý đăng sản phẩm mới ---");
+// TÍNH KẾ THỪA: Thừa hưởng mọi thứ của VBox
+class ItemCard extends VBox {
 
-        try {
-            // 1. LẤY THÔNG TIN TỪ GIAO DIỆN
-            String name = txtItemName.getText().trim();
-            String priceStr = txtStartingPrice.getText().trim();
-            String stepStr = txtPriceStep.getText().trim();
-            String description = txtDescription.getText().trim();
-            LocalDate startDay = dateStart.getValue();
-            LocalDate endDay = dateEnd.getValue();
+    public ItemCard(ItemDTO item) {
+        // Cấu hình khung bên ngoài (Thay cho setStyle rườm rà)
+        this.setSpacing(10);
+        this.setAlignment(Pos.CENTER);
+        this.setPrefWidth(200);
+        this.setStyle("-fx-border-color: #ddd; -fx-padding: 10; -fx-background-color: white; -fx-border-radius: 5;");
 
-            // lay du lieu cho cac kieu Double
-            if (name.isEmpty() || priceStr.isEmpty() || stepStr.isEmpty()) {
-                System.out.println("Lỗi: Bạn quên chưa nhập Tên, Giá đầu hoặc Bước giá kìa!");
-                // Sau này Đại có thể dùng Alert để hiện thông báo popup
-                return;
-            }
-            // Du lieu nhap vao la String nen can doi sang double
-            double startingPrice = Double.parseDouble(priceStr);
-            double priceStep = Double.parseDouble(stepStr);
-
-            // lay du lieu cho thoi gian dau gia
-            String sTime = txtTimeStart.getText(); // ví dụ "08:00"
-            String eTime = txtTimeEnd.getText();   // ví dụ "20:00"
-
-            if (startDay == null || endDay == null) {
-                System.out.println("Lỗi: Đại ơi, chọn ngày đã nhé!");
-                return;
-            }
-
-            //Gộp lại thành chuỗi hoàn chỉnh
-            String fullStart = startDay.toString() + " " + sTime;
-            String fullEnd = endDay.toString() + " " + eTime;
-            // startDay.toString(): tra ve ding dang XXXX-YY-ZZ
-
-            //ĐÓNG GÓI VÀO DTO (Cái "thùng hàng" mình vừa tạo)
-            ItemDTO newItem = new ItemDTO();
-            newItem.setName(name);
-            newItem.setStartingPrice(startingPrice);
-            newItem.setPriceStep(priceStep);
-            newItem.setDescription(description);
-            newItem.setImagePath(currentImagePath); // Đường dẫn ảnh từ hàm chọn ảnh
-            newItem.setSellerId(currentSellerId);
-            newItem.setStartTime(fullStart);
-            newItem.setEndTime(fullEnd);
-
-            // resert dữ liệu nhập vào
-            txtItemName.clear(); // Reset các ô nhập văn bản
-            txtStartingPrice.clear();
-            txtPriceStep.clear();
-            txtDescription.clear();
-            dateStart.setValue(null);  // Reset lịch (DatePicker)
-            dateEnd.setValue(null);
-            currentImagePath = null; // Reset biến lưu đường dẫn ảnh (nếu có)
-
-            // 4. KIỂM TRA KẾT QUẢ (In ra Console để xem thử)
-            System.out.println(newItem.toString());
-
-            displayItem(newItem);
-            System.out.println("Đã hiển thị sản phẩm mới lên màn hình!");
-
-        } catch (NumberFormatException e) {
-            System.out.println("Lỗi: Giá tiền và Bước giá phải nhập bằng số (ví dụ: 500000)!");
-        } catch (Exception e) {
-            System.out.println("Có lỗi xảy ra: " + e.getMessage());
-        }
-    }
-
-    // day thu len center ben canh
-    private void displayItem(ItemDTO item) {
-        // 1. Tạo một cái khung dọc (VBox) cho mỗi sản phẩm (Card)
-        VBox itemCard = new VBox(10); // khoang cach padding = 10
-        itemCard.setStyle("-fx-border-color: #ddd; -fx-padding: 10; -fx-background-color: white; -fx-border-radius: 5;");
-        itemCard.setPrefWidth(200); // Đặt kích thước cố định cho các ô gạch
-
-        // 2. Thêm ảnh
+        // 1. Xử lý ảnh
         ImageView imageView = new ImageView();
-        if (item.getImagePath() != null) {
+        if (item.getImagePath() != null && !item.getImagePath().isEmpty()) {
             imageView.setImage(new Image("file:" + item.getImagePath()));
         }
         imageView.setFitWidth(180);
-        imageView.setFitHeight(150);
-        imageView.setPreserveRatio(true); // luôn giữ đúng cái dáng của tấm ảnh gốc
+        imageView.setFitHeight(120);
+        imageView.setPreserveRatio(true);
 
-        // 3. Thông tin sản phẩm
-        Label lblName = new Label(item.getName());
-        lblName.setStyle("-fx-font-weight: bold;");
+        // 2. Thông tin
+        Label nameLabel = new Label(item.getName());
+        nameLabel.setStyle("-fx-font-weight: bold;");
 
-        Label lblPrice = new Label("Giá khởi điểm: " + item.getStartingPrice());
+        Label priceLabel = new Label("Giá: " + String.format("%,.0f", item.getStartingPrice()) + " VNĐ");
 
-        Label lblTimeStart = new Label("Bắt đầu: " + item.getStartTime());
-        lblTimeStart.setStyle("-fx-font-size: 10px; -fx-text-fill: red;");
-        Label lblTimeEnd = new Label("Kết thúc: " + item.getEndTime());
-        lblTimeEnd.setStyle("-fx-font-size: 10px; -fx-text-fill: red;");
+        // Đóng gói các thành phần vào chính nó (this)
+        this.getChildren().addAll(imageView, nameLabel, priceLabel);
 
-        // 4. Cho vào Card và "ném" vào Grid
-        itemCard.getChildren().addAll(imageView, lblName, lblPrice, lblTimeStart, lblTimeEnd);
-
-        // ĐÂY LÀ DÒNG QUAN TRỌNG: Thêm vào TilePane
-        inventoryGrid.getChildren().add(itemCard);
+        // Có thể thêm hiệu ứng di chuột tại đây để dùng chung cho cả App
+        this.setOnMouseEntered(e -> this.setStyle(this.getStyle() + "-fx-border-color: #2196F3;"));
+        this.setOnMouseExited(e -> this.setStyle(this.getStyle().replace("-fx-border-color: #2196F3;", "-fx-border-color: #ddd;")));
     }
 }

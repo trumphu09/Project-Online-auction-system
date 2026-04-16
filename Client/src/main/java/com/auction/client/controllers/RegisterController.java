@@ -1,55 +1,41 @@
 package com.auction.client.controllers;
-import com.auction.client.model.User;
 
+import com.auction.client.model.User;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.scene.control.PasswordField;
-import javafx.scene.control.Alert; // Phải import cái này
-import javafx.scene.control.Alert.AlertType;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
-import javafx.scene.Node;
-import java.io.IOException;
-
 import static com.auction.client.controllers.Controller.userDatabase;
 
-public class RegisterController {
+// KẾ THỪA: Thừa hưởng mọi "phép thuật" từ BaseController
+public class RegisterController extends BaseController {
+
     @FXML private TextField regUsername;
     @FXML private PasswordField regPassword;
 
-    // Hàm xử lý logic chung (Không cần @FXML vì nó chỉ dùng nội bộ)
+    // TÍNH ĐÓNG GÓI: Hàm xử lý nội bộ, che giấu logic đăng ký phức tạp
     private void processSignUp(String role) {
         String user = regUsername.getText();
         String pass = regPassword.getText();
 
-        // 1. Kiểm tra tính hợp lệ của Email
         if (!user.endsWith("@gmail.com")) {
-            showAlert("Thông báo", "Tên đăng nhập phải là tài khoản Gmail (@gmail.com)!");
+            showAlert("Thông báo", "Tên đăng nhập phải là tài khoản Gmail!");
             return;
         }
 
-        // 2. Kiểm tra trùng Username (Đã xóa đoạn kiểm tra trùng Password)
         for (User u : userDatabase) {
             if (u.getUsername().equals(user)) {
-                showAlert("Thông báo", "Tài khoản (Username) đã tồn tại!");
+                showAlert("Thông báo", "Tài khoản đã tồn tại!");
                 return;
             }
         }
 
-        // 3. Nếu đúng hết thì lưu vào database kèm theo Role
         userDatabase.add(new User(user, pass, role));
 
-        // Hiển thị thông báo linh hoạt theo Role
-        if (role.equals("SELLER")) {
-            showAlert("Thành công", "Đã tạo tài khoản Người Bán thành công! Quay trở lại màn hình Login để đăng nhập vào tài khoản");
-        } else {
-            showAlert("Thành công", "Đã tạo tài khoản Người Mua thành công! Quay trở lại màn hình Login để đăng nhập vào tài khoản");
-        }
+        // ĐA HÌNH (nhẹ): Tùy biến thông báo dựa trên tham số truyền vào
+        String message = "Đã tạo tài khoản " + (role.equals("SELLER") ? "Người Bán" : "Người Mua") + " thành công!";
+        showAlert("Thành công", message + " Quay trở lại màn hình Login để đăng nhập.");
 
-        // 4. Xóa trắng ô nhập sau khi đăng ký
         regUsername.clear();
         regPassword.clear();
     }
@@ -64,33 +50,9 @@ public class RegisterController {
         processSignUp("BIDDER");
     }
 
-    // Bạn phải tự viết hàm này để Controller hiểu nó là gì
-    private void showAlert(String title, String content) {
-        Alert alert = new Alert(AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null); // Không hiển thị tiêu đề phụ
-        alert.setContentText(content);
-        alert.showAndWait();
-    }
-
+    @FXML
     public void handleBackToLogin(ActionEvent event) {
-        try {
-            // 1. Tải file FXML của màn hình Login
-            // Đảm bảo đường dẫn đúng với cấu trúc thư mục của bạn (thường là "/org/example/login.fxml")
-            Parent loginRoot = FXMLLoader.load(getClass().getResource("/view/View.fxml"));
-
-            // 2. Lấy Stage hiện tại từ sự kiện Click chuột
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            // 3. Tạo Scene mới với màn hình Login và đặt vào Stage
-            Scene scene = new Scene(loginRoot);
-            stage.setScene(scene);
-            stage.show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert("Lỗi", "Không thể quay lại màn hình đăng nhập!");
-        }
-
+        // TÁI SỬ DỤNG: Dùng hàm của lớp cha, không cần try-catch rườm rà ở đây nữa
+        switchScene(event, "/view/View.fxml", "Đăng nhập hệ thống", 800, 500);
     }
 }
