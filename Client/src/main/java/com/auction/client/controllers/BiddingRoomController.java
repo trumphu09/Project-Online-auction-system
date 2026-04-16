@@ -50,6 +50,21 @@ public class BiddingRoomController {
         // Sau đó gửi lên Server cho Toản/Thành xử lý
     }
 
+    // ham test thu trc khi co du lieu
+    public void setData(String productName) {
+        // 1. Cập nhật tên sản phẩm ở Center (nếu có Label) hoặc Left
+        lblDescription.setText("Mô tả: Đây là thông tin chi tiết của " + productName);
+
+        // 2. Cập nhật giá khởi điểm giả lập dựa trên tên sản phẩm để test
+        lblStartPrice.setText("Giá khởi điểm: " + productName.split(" ")[1] + "00.000 VNĐ");
+
+        // 3. Set giá hiện tại ban đầu
+        lblCurrentPrice.setText(productName.split(" ")[1] + "00.000 VNĐ");
+        // Sau này khi dùng AuctionDTO, Đại chỉ cần:
+        // this.currentAuction = auction;
+        // lblCurrentPrice.setText(String.valueOf(auction.getCurrentPrice()));
+    }
+
     private void showAlert(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
