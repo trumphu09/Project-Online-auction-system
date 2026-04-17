@@ -1,5 +1,6 @@
 package com.auction.client.controllers;
 
+import com.auction.client.util.BaseController;
 import javafx.scene.control.RadioButton;
 import com.auction.client.model.User;
 import javafx.event.ActionEvent;
@@ -22,32 +23,6 @@ import java.util.ResourceBundle;
 import javafx.stage.Stage;
 import java.io.IOException;
 import javafx.event.Event;
-
-abstract class BaseController {
-    // Hàm chuyển cảnh dùng chung (Chỉ cần truyền path và tiêu đề)
-    protected void switchScene(Event event, String fxmlPath, String title, int width, int height) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent root = loader.load();
-
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root, width, height));
-            stage.setTitle(title);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Lỗi không tìm thấy file FXML: " + fxmlPath);
-        }
-    }
-    protected void showAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
-    }
-}
-// dung abstract class de tai su dung code
 
 public class Controller extends BaseController implements Initializable { // KẾ THỪA TỪ BaseController
 
@@ -87,7 +62,7 @@ public class Controller extends BaseController implements Initializable { // K�
 
                         // Chuyển màn hình cực gọn
                         if (role.equals("BIDDER")) {
-                            switchScene(event, "/view/Product.fxml", "Chợ Đấu Giá", 900, 600);
+                            switchScene(event, "/view/Product.fxml", "Chợ Đấu Giá", 800, 500);
                         } else {
                             switchScene(event, "/view/SellerView.fxml", "Quản lý tài sản", 1000, 700);
                         }

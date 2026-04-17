@@ -1,74 +1,81 @@
 package com.auction.client.controllers;
 
+import com.auction.client.model.ItemDTO;
+import com.auction.client.util.BaseController;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
-public class BiddingRoomController {
+// 1. TÍNH KẾ THỨA: Kế thừa để dùng chung showAlert và các tiện ích khác
+public class BiddingRoomController extends BaseController {
 
-    // --- LEFT PANE ---
     @FXML private ImageView imgProduct;
     @FXML private Label lblDescription, lblSeller, lblStartPrice, lblStepPrice, lblStartTime, lblEndTime;
+    @FXML private Label lblTimer, lblCurrentPrice, lblHighestBidder;
+    @FXML private LineChart<String, Number> chartHistory;
+    @FXML private TextField txtBidAmount;
+    @FXML private Button btnBid;
 
-    // --- CENTER PANE ---
-    @FXML private Label lblTimer;        // Đồng hồ đếm ngược
-    @FXML private Label lblCurrentPrice; // Giá hiện tại
-    @FXML private Label lblHighestBidder;// Tên người đang thắng
-
-    // --- RIGHT PANE ---
-    @FXML private LineChart<String, Number> chartHistory; // Biểu đồ
-    @FXML private TextField txtBidAmount;                // Ô nhập giá
-    @FXML private Button btnBid;                          // Nút BID
+    private ItemDTO currentItem; // Biến lưu trữ đối tượng đang đấu giá (Encapsulation)
 
     @FXML
     public void initialize() {
-        // Khởi tạo biểu đồ giả lập để Đại nhìn cho đẹp
+        // Khởi tạo biểu đồ trống
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         series.setName("Lịch sử giá");
-        series.getData().add(new XYChart.Data<>("10:00", 100));
-        series.getData().add(new XYChart.Data<>("10:05", 150));
         chartHistory.getData().add(series);
 
-        // Gợi ý: Đại nên cho lblTimer có font to và màu đỏ
         lblTimer.setStyle("-fx-font-size: 40px; -fx-text-fill: red; -fx-font-weight: bold;");
+    }
+
+    // 2. SỬA HÀM setData: Nhận đầu vào là ItemDTO xịn từ ProductViewController
+    public void setData(ItemDTO item) {
+        this.currentItem = item; // Lưu lại để dùng cho nút BID
+
+        // Đổ dữ liệu từ "thùng hàng" DTO ra các Label
+        lblDescription.setText(item.getDescription());
+        lblStartPrice.setText(String.format("%,.0f VNĐ", item.getStartingPrice()));
+        lblStepPrice.setText(String.format("%,.0f VNĐ", item.getPriceStep()));
+        lblStartTime.setText("Bắt đầu: " + item.getStartTime());
+        lblEndTime.setText("Kết thúc: " + item.getEndTime());
+
+        // Giá hiện tại lúc mới mở phòng chính là giá khởi điểm
+        lblCurrentPrice.setText(String.format("%,.0f VNĐ", item.getStartingPrice()));
+        lblHighestBidder.setText("Chưa có người ra giá");
+
+        // Cập nhật ảnh nếu có
+        if (item.getImagePath() != null && !item.getImagePath().isEmpty()) {
+            imgProduct.setImage(new Image("file:" + item.getImagePath()));
+        }
     }
 
     @FXML
     private void handleBidAction() {
-        String amount = txtBidAmount.getText();
-        if (amount.isEmpty()) {
-            showAlert("Lỗi", "Vui lòng nhập số tiền!");
+        String amountStr = txtBidAmount.getText().trim();
+
+        // Sử dụng lại tài sản của cha (BaseController)
+        if (amountStr.isEmpty()) {
+            showAlert("Thông báo", "Đại ơi, nhập số tiền muốn đấu giá nhé!");
             return;
         }
 
-        // Tạm thời in ra để test nút
-        System.out.println("Đại vừa trả giá: " + amount);
+        try {
+            double bidAmount = Double.parseDouble(amountStr);
 
-        // Logic sau này: Kiểm tra giá nhập > giá hiện tại + bước giá
-        // Sau đó gửi lên Server cho Toản/Thành xử lý
-    }
+            // TÍNH ĐÓNG GÓI: Logic kiểm tra giá đấu
+            if (bidAmount <= currentItem.getStartingPrice()) {
+                showAlert("Lỗi", "Giá đấu phải cao hơn giá hiện tại!");
+                return;
+            }
 
-    // ham test thu trc khi co du lieu
-    public void setData(String productName) {
-        // 1. Cập nhật tên sản phẩm ở Center (nếu có Label) hoặc Left
-        lblDescription.setText("Mô tả: Đây là thông tin chi tiết của " + productName);
+            System.out.println("Gửi lệnh BID: " + bidAmount + " cho sản phẩm: " + currentItem.getName());
+            // Sau này gọi Socket gửi dữ liệu cho Thành/Toản ở đây
 
-        // 2. Cập nhật giá khởi điểm giả lập dựa trên tên sản phẩm để test
-        lblStartPrice.setText("Giá khởi điểm: " + productName.split(" ")[1] + "00.000 VNĐ");
-
-        // 3. Set giá hiện tại ban đầu
-        lblCurrentPrice.setText(productName.split(" ")[1] + "00.000 VNĐ");
-        // Sau này khi dùng AuctionDTO, Đại chỉ cần:
-        // this.currentAuction = auction;
-        // lblCurrentPrice.setText(String.valueOf(auction.getCurrentPrice()));
-    }
-
-    private void showAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setContentText(content);
-        alert.showAndWait();
+        } catch (NumberFormatException e) {
+            showAlert("Lỗi", "Số tiền phải là con số nhé Đại!");
+        }
     }
 }

@@ -1,105 +1,79 @@
 package com.auction.client.controllers;
 
-import com.auction.client.model.AuctionDTO;
-import javafx.event.ActionEvent;
+import com.auction.client.controllers.BiddingRoomController;
+import com.auction.client.model.ItemDTO;
+import com.auction.client.util.BaseController;
+import com.auction.client.util.ItemCard; // Dùng linh kiện đã tách riêng
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.layout.TilePane;
+import javafx.event.Event;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.TilePane;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.geometry.Pos;
 import javafx.stage.Stage;
+import javafx.scene.Node;
 import java.io.IOException;
-import javafx.event.Event;
 
-public class ProductViewController {
+// 1. TÍNH KẾ THỨA: Kế thừa BaseController để dùng switchScene và showAlert
+public class ProductViewController extends BaseController {
 
     @FXML
     private TilePane productGridContainer;
 
     @FXML
     public void initialize() {
-        // Tạo thử 8 ô sản phẩm
+        // Giả lập danh sách sản phẩm (Sau này sẽ lấy từ Server)
         for (int i = 1; i <= 12; i++) {
-            // Tạo một cái khung VBox cho từng sản phẩm
-            String nameOfProduct = "Sản phẩm " + i;
-            VBox productCard = new VBox();
-            productCard.setPrefSize(180, 250); // Kích thước mỗi ô
-            productCard.setStyle("-fx-background-color: white; " +
-                    "-fx-border-color: #ccc; " +
-                    "-fx-border-radius: 10; " +
-                    "-fx-background-radius: 10; " +
-                    "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);");
-            productCard.setAlignment(Pos.CENTER);
-            //căn lề các thành phần con (như ảnh, tên sản phẩm, giá tiền) vào chính giữa cái khung VBox
+            ItemDTO item = new ItemDTO();
+            item.setName("Sản phẩm " + i);
+            item.setStartingPrice(i * 100000.0);
+            // item.setImagePath(...); // Đại có thể set ảnh thật ở đây
 
-            // Tạo một cái hình chữ nhật giả làm ảnh
-            Rectangle mockImage = new Rectangle(150, 150);
-            mockImage.setFill(Color.LIGHTSTEELBLUE);
-            mockImage.setArcWidth(15); // Bo góc cho ảnh đẹp hơn
-            mockImage.setArcHeight(15);
+            // 2. TÁI SỬ DỤNG: Dùng ItemCard thay vì tự vẽ VBox, Label...
+            // Truyền tham số x=150, y=150 như Đại đã sửa ở ItemCard
+            ItemCard productCard = new ItemCard(item, 150, 150);
 
-            // Thêm chữ để phân biệt
-            Label label = new Label("Sản phẩm " + i);
-            label.setStyle("-fx-font-weight: bold; -fx-padding: 10 0 0 0;");
-
-            // Tạo thêm giá tiền cho giống thật
-            Label priceLabel = new Label("Giá khởi điểm : " + (i * 100) + "k VNĐ");
-            priceLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
-
-            // tạo thêm phí tham gia
-            Label participationFee = new Label("Phí tham gia : 100k VNĐ");
-            participationFee.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
-
-            // Bước A: Thêm ảnh và các Label vào trong khung VBox
-            productCard.getChildren().addAll(mockImage, label, priceLabel, participationFee);
-
-            //Cai dat su kien cho cac san pham(su kien nhan nut chuot, khi nhan se chay cac cau lenh ben duoi)
-            productCard.setUserData(nameOfProduct);
-            productCard.setOnMouseClicked(event -> {
-                // Gọi hàm mở phòng và truyền chính cái event đó đi
-                openBiddingRoom(event);
-            });
-            // 2. Hiệu ứng bàn tay cho TỪNG cái khung
-            productCard.setStyle(productCard.getStyle() + "-fx-cursor: hand;");
-            // dung de bien ca box thành 1 button khi ấn chạy ra màn hình đấu giá
-
-            // Bước B: Thêm cả cái khung VBox đã hoàn thiện vào lưới TilePane (cái lưới lớn trên màn hình)
+            // ĐÓNG GÓI: Cất dữ liệu vào túi ngầm để lát nữa dùng
+            productCard.setUserData(item);
+            // cai dat hieu ung ban tay khi an
+            productCard.setCursor(javafx.scene.Cursor.HAND);
+            // Cài đặt sự kiện click
+            productCard.setOnMouseClicked(event -> openBiddingRoom(event));
+            // Thêm vào lưới hiển thị
             productGridContainer.getChildren().add(productCard);
-
         }
     }
+
     public void openBiddingRoom(Event event) {
         try {
+            // 1. Lấy dữ liệu từ túi ngầm (ItemDTO)
             Node sourceNode = (Node) event.getSource();
-            // lay ra thong tin cua san pham voi tung su kien
-            // sau nay codu lieu doi kieu String thanh object
+            ItemDTO selectedItem = (ItemDTO) sourceNode.getUserData();
 
-            String selectedName = (String) sourceNode.getUserData();
-            System.out.println("Đang mở phòng cho: " + selectedName);
-
+            // 2. Tự nạp FXML thủ công để lấy Controller (Vì hàm switchScene của cha chưa hỗ trợ truyền data)
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BiddingRoomView.fxml"));
             Parent root = loader.load();
 
-            // 3. Lấy Controller của màn hình mới
+            // 3. BƠM DỮ LIỆU: Lấy Controller của màn hình mới và truyền item sang
             BiddingRoomController controller = loader.getController();
+            controller.setData(selectedItem); // Truyền đối tượng ItemDTO xịn sang
 
-            // 4. TRUYỀN DỮ LIỆU SANG: Gọi hàm setData vừa viết ở trên
-            controller.setData(selectedName);
-
-            // Hiển thị màn hình
+            // 4. TẬN DỤNG stage từ event (Giống logic trong BaseController)
             Stage stage = (Stage) sourceNode.getScene().getWindow();
-            stage.setScene(new Scene(root));
+
+            // 5. THIẾT LẬP GIAO DIỆN (Sử dụng các thông số giống như switchScene của cha)
+            stage.setScene(new Scene(root, 900, 600)); // Cố định kích thước như Đại muốn
+            stage.setTitle("Phòng đấu giá: " + selectedItem.getName());
             stage.show();
+
+            System.out.println("Đã mở phòng đấu giá thành công!");
+
         } catch (IOException e) {
+            // SỬ DỤNG LẠI TÀI SẢN CHA: Gọi showAlert thay vì System.out.println
+            showAlert("Lỗi hệ thống", "Không thể nạp giao diện phòng đấu giá!");
             e.printStackTrace();
         }
     }
-
 }
