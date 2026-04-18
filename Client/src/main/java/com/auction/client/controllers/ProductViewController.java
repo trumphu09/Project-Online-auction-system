@@ -1,6 +1,7 @@
 package com.auction.client.controllers;
 
 import com.auction.client.controllers.BiddingRoomController;
+import com.auction.client.model.ArtDTO;
 import com.auction.client.model.ItemDTO;
 import com.auction.client.util.BaseController;
 import com.auction.client.util.ItemCard; // Dùng linh kiện đã tách riêng
@@ -26,7 +27,7 @@ public class ProductViewController extends BaseController {
     public void initialize() {
         // Giả lập danh sách sản phẩm (Sau này sẽ lấy từ Server)
         for (int i = 1; i <= 12; i++) {
-            ItemDTO item = new ItemDTO();
+            ItemDTO item = new ArtDTO();
             item.setName("Sản phẩm " + i);
             item.setStartingPrice(i * 100000.0);
             // item.setImagePath(...); // Đại có thể set ảnh thật ở đây
@@ -48,7 +49,7 @@ public class ProductViewController extends BaseController {
 
     public void openBiddingRoom(Event event) {
         try {
-            // 1. Lấy dữ liệu từ túi ngầm (ItemDTO)
+            // 1. Lấy dữ liệu từ túi (ItemDTO)
             Node sourceNode = (Node) event.getSource();
             ItemDTO selectedItem = (ItemDTO) sourceNode.getUserData();
 
@@ -67,8 +68,6 @@ public class ProductViewController extends BaseController {
             stage.setScene(new Scene(root, 900, 600)); // Cố định kích thước như Đại muốn
             stage.setTitle("Phòng đấu giá: " + selectedItem.getName());
             stage.show();
-
-            System.out.println("Đã mở phòng đấu giá thành công!");
 
         } catch (IOException e) {
             // SỬ DỤNG LẠI TÀI SẢN CHA: Gọi showAlert thay vì System.out.println

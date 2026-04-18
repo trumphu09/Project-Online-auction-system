@@ -1,5 +1,7 @@
 package com.auction.client.controllers;
 
+import com.auction.client.model.Bidder;
+import com.auction.client.model.Seller;
 import com.auction.client.util.BaseController;
 import com.auction.client.model.User;
 import javafx.fxml.FXML;
@@ -31,7 +33,11 @@ public class RegisterController extends BaseController {
             }
         }
 
-        userDatabase.add(new User(user, pass, role));
+        if(role.equals("BIDDER")){
+            userDatabase.add(new Bidder(user, pass));
+        } else if (role.equals("SELLER")) {
+            userDatabase.add(new Seller(user, pass));
+        }
 
         // ĐA HÌNH (nhẹ): Tùy biến thông báo dựa trên tham số truyền vào
         String message = "Đã tạo tài khoản " + (role.equals("SELLER") ? "Người Bán" : "Người Mua") + " thành công!";

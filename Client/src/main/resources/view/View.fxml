@@ -36,12 +36,13 @@
 
                 <HBox spacing="20.0" alignment="CENTER">
                     <children>
-                        <RadioButton fx:id="rbBidder" text="Người mua (Bidder)" selected="true">
+                        <RadioButton fx:id="rbBidder" text="BIDDER" selected="true">
                             <toggleGroup>
                                 <ToggleGroup fx:id="roleGroup" />
                             </toggleGroup>
                         </RadioButton>
-                        <RadioButton fx:id="rbSeller" text="Người bán (Seller)" toggleGroup="$roleGroup" />
+                        <RadioButton fx:id="rbSeller" text="SELLER" toggleGroup="$roleGroup" />
+                        <RadioButton fx:id="rbAdmin" text="ADMIN" toggleGroup="$roleGroup" />
                     </children>
                     <padding>
                         <Insets top="10.0" bottom="10.0" />

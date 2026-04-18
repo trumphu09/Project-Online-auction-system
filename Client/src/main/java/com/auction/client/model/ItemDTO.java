@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * DTO (Data Transfer Object) để chuyển dữ liệu sản phẩm từ Client lên Server
  */
-public class ItemDTO implements Serializable {
+public abstract class ItemDTO implements Serializable {
     private static final long serialVersionUID = 1L; // Đảm bảo tính ổn định khi truyền qua mạng
 
     private String name;
@@ -33,6 +33,9 @@ public class ItemDTO implements Serializable {
         this.startTime = startTime;
         this.endTime = endTime;
     }
+
+    // phan loai san pham
+    public abstract String getCategory();
 
     // 3. Các Getter và Setter (Để lấy và gán dữ liệu)
     public String getName() { return name; }
