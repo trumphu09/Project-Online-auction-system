@@ -8,9 +8,7 @@ import java.io.File;
 
 // Import các API của mày vào đây
 
-// import controller.LoginAPI;
-// import controller.RegisterAPI;
-// import controller.PasswordChangeAPI;
+
 
 public class AuctionServer {
 
@@ -32,27 +30,7 @@ public class AuctionServer {
             Context ctx = tomcat.addContext("", new File(".").getAbsolutePath());
 
             // ĐĂNG KÝ CÁC API VÀO HỆ THỐNG
-            Tomcat.addServlet(ctx, "GetItemsAPI", new GetItemsAPI());
-            ctx.addServletMappingDecoded("/api/items", "GetItemsAPI");
 
-            Tomcat.addServlet(ctx, "CreateItemAPI", new CreateItemAPI());
-            ctx.addServletMappingDecoded("/api/items/create", "CreateItemAPI");
-
-            Tomcat.addServlet(ctx, "CreateAuctionAPI", new GetItemsAPI());
-            ctx.addServletMappingDecoded("/api/items", "GetItemsAPI");
-
-            // Bỏ dấu // đi để nó thành thế này:
-            Tomcat.addServlet(ctx, "LoginAPI", new LoginAPI().toString());
-            ctx.addServletMappingDecoded("/api/login", "LoginAPI");
-
-            Tomcat.addServlet(ctx, "RegisterAPI", new RegisterAPI().toString());
-            ctx.addServletMappingDecoded("/api/register", "RegisterAPI");
-
-            Tomcat.addServlet(ctx, "PlaceBidAPI", new PlaceBidAPI());
-            ctx.addServletMappingDecoded("/api/auctions/bid", "PlaceBidAPI");
-
-            Tomcat.addServlet(ctx, "GetAuctionDetailAPI", new GetAuctionDetailAPI());
-            ctx.addServletMappingDecoded("/api/auctions/detail", "GetAuctionDetailAPI");
             // Mày có thể bỏ comment (xóa dấu //) mấy dòng dưới nếu đã code xong mấy API này
             // Tomcat.addServlet(ctx, "LoginAPI", new LoginAPI());
             // ctx.addServletMappingDecoded("/api/login", "LoginAPI");
