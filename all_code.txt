@@ -1,0 +1,4758 @@
+﻿========== AdminController.java ==========
+package com.auction.client.controllers;
+
+import com.auction.client.model.ItemDTO;
+import com.auction.client.model.User;
+import com.auction.client.util.BaseController;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+
+public class AdminController extends BaseController {
+
+    @FXML private TableView<Object> tableData; // DÃ¹ng Object Ä‘á»ƒ há»— trá»£ Äa hÃ¬nh (hiá»‡n cáº£ User hoáº·c Item)
+    @FXML private Label lblTitle;
+    @FXML private TextField txtSearch;
+
+    // Danh sÃ¡ch dá»¯ liá»‡u giáº£ Ä‘á»‹nh Ä‘á»ƒ test giao diá»‡n
+    private ObservableList<Object> masterData = FXCollections.observableArrayList();
+
+    @FXML
+    public void initialize() {
+        // Máº·c Ä‘á»‹nh khi má»Ÿ lÃªn sáº½ hiá»ƒn thá»‹ quáº£n lÃ½ ngÆ°á»i dÃ¹ng
+        showUserManagement();
+    }
+
+    @FXML
+    private void showUserManagement() {
+        lblTitle.setText("Quáº£n lÃ½ NgÆ°á»i dÃ¹ng");
+        tableData.getColumns().clear();
+
+        // Äá»‹nh nghÄ©a cÃ¡c cá»™t cho báº£ng User
+        TableColumn<Object, String> colUser = new TableColumn<>("TÃªn Ä‘Äƒng nháº­p");
+        colUser.setCellValueFactory(new PropertyValueFactory<>("username"));
+
+        TableColumn<Object, String> colRole = new TableColumn<>("Vai trÃ²");
+        colRole.setCellValueFactory(new PropertyValueFactory<>("role"));
+
+        TableColumn<Object, Boolean> colStatus = new TableColumn<>("Bá»‹ khÃ³a");
+        colStatus.setCellValueFactory(new PropertyValueFactory<>("locked"));
+
+        tableData.getColumns().addAll(colUser, colRole, colStatus);
+
+        // Giáº£ sá»­ láº¥y dá»¯ liá»‡u tá»« Server (Tuáº§n 9 sáº½ thay báº±ng Socket)
+        // tableData.setItems(userDataFromServer);
+    }
+
+    @FXML
+    private void showItemManagement() {
+        lblTitle.setText("Quáº£n lÃ½ Sáº£n pháº©m");
+        tableData.getColumns().clear();
+
+        // Äá»‹nh nghÄ©a cÃ¡c cá»™t cho báº£ng ItemDTO
+        TableColumn<Object, String> colName = new TableColumn<>("TÃªn sáº£n pháº©m");
+        colName.setCellValueFactory(new PropertyValueFactory<>("name"));
+
+        TableColumn<Object, Double> colPrice = new TableColumn<>("GiÃ¡ khá»Ÿi Ä‘iá»ƒm");
+        colPrice.setCellValueFactory(new PropertyValueFactory<>("startingPrice"));
+
+        tableData.getColumns().addAll(colName, colPrice);
+    }
+
+    @FXML
+    private void handleLockUnlock() {
+        // 1. Láº¥y Ä‘á»‘i tÆ°á»£ng Ä‘ang chá»n trong báº£ng
+        Object selected = tableData.getSelectionModel().getSelectedItem();
+
+        // 2. Kiá»ƒm tra tÃ­nh há»£p lá»‡ (Validation)
+        if (selected == null) {
+            showAlert("ThÃ´ng bÃ¡o", "Äáº¡i Æ¡i, hÃ£y chá»n má»™t ngÆ°á»i dÃ¹ng Ä‘á»ƒ KhÃ³a/Má»Ÿ khÃ³a nhÃ©!");
+            return;
+        }
+
+        // 3. Sá»­ dá»¥ng ÄA HÃŒNH vÃ  Kiá»ƒm tra kiá»ƒu (Instanceof)
+        if (selected instanceof User) {
+            User u = (User) selected;
+
+            // Äáº£o ngÆ°á»£c tráº¡ng thÃ¡i khÃ³a (Náº¿u Ä‘ang khÃ³a thÃ¬ má»Ÿ, náº¿u Ä‘ang má»Ÿ thÃ¬ khÃ³a)
+            boolean currentStatus = u.isLocked();
+            u.setLocked(!currentStatus);
+
+            // 4. HIá»‚N THá»Š THÃ”NG BÃO (TÃ¡i sá»­ dá»¥ng BaseController)
+            String action = u.isLocked() ? "KHÃ“A" : "Má»ž KHÃ“A";
+            System.out.println("ÄÃ£ gá»­i lá»‡nh " + action + " cho User: " + u.getUsername());
+
+            // Cáº­p nháº­t láº¡i TableView Ä‘á»ƒ tháº¥y thay Ä‘á»•i ngay láº­p tá»©c
+            tableData.refresh();
+
+            showAlert("ThÃ nh cÃ´ng", "ÄÃ£ " + action + " tÃ i khoáº£n " + u.getUsername() + " thÃ nh cÃ´ng!");
+
+        } else {
+            // Náº¿u Ä‘ang á»Ÿ tab Sáº£n pháº©m mÃ  báº¥m nÃºt nÃ y thÃ¬ bÃ¡o lá»—i
+            showAlert("Lá»—i", "Chá»©c nÄƒng KhÃ³a chá»‰ dÃ nh cho NgÆ°á»i dÃ¹ng, khÃ´ng dÃ nh cho Sáº£n pháº©m!");
+        }
+    }
+
+    @FXML
+    private void handleDelete() {
+        Object selected = tableData.getSelectionModel().getSelectedItem();
+
+        if (selected == null) {
+            showAlert("ThÃ´ng bÃ¡o", "Vui lÃ²ng chá»n má»™t dÃ²ng Ä‘á»ƒ xÃ³a!");
+            return;
+        }
+
+        // Sá»­ dá»¥ng instanceof (OOP) Ä‘á»ƒ kiá»ƒm tra loáº¡i Ä‘á»‘i tÆ°á»£ng trÆ°á»›c khi xá»­ lÃ½
+        if (selected instanceof User) {
+            User u = (User) selected;
+            System.out.println("Lá»‡nh xÃ³a User gá»­i lÃªn Server: " + u.getUsername());
+        } else if (selected instanceof ItemDTO) {
+            ItemDTO item = (ItemDTO) selected;
+            System.out.println("Lá»‡nh xÃ³a Item gá»­i lÃªn Server: " + item.getName());
+        }
+
+        // Sau khi xÃ³a thÃ nh cÃ´ng sáº½ cáº­p nháº­t láº¡i TableView
+    }
+
+    @FXML
+    private void handleLogout(ActionEvent event) {
+        // TÃ¡i sá»­ dá»¥ng hÃ m tá»« BaseController
+        switchScene(event, "/view/View.fxml", "ÄÄƒng nháº­p", 800, 500);
+    }
+}
+
+
+========== BiddingRoomController.java ==========
+package com.auction.client.controllers;
+
+import com.auction.client.model.ItemDTO;
+import com.auction.client.util.BaseController;
+import javafx.fxml.FXML;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.XYChart;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+
+// 1. TÃNH Káº¾ THá»¨A: Káº¿ thá»«a Ä‘á»ƒ dÃ¹ng chung showAlert vÃ  cÃ¡c tiá»‡n Ã­ch khÃ¡c
+public class BiddingRoomController extends BaseController {
+
+    @FXML private ImageView imgProduct;
+    @FXML private Label lblDescription, lblSeller, lblStartPrice, lblStepPrice, lblStartTime, lblEndTime;
+    @FXML private Label lblTimer, lblCurrentPrice, lblHighestBidder;
+    @FXML private LineChart<String, Number> chartHistory;
+    @FXML private TextField txtBidAmount;
+    @FXML private Button btnBid;
+
+    private ItemDTO currentItem; // Biáº¿n lÆ°u trá»¯ Ä‘á»‘i tÆ°á»£ng Ä‘ang Ä‘áº¥u giÃ¡ (Encapsulation)
+
+    @FXML
+    public void initialize() {
+        // Khá»Ÿi táº¡o biá»ƒu Ä‘á»“ trá»‘ng
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Lá»‹ch sá»­ giÃ¡");
+        chartHistory.getData().add(series);
+
+        lblTimer.setStyle("-fx-font-size: 40px; -fx-text-fill: red; -fx-font-weight: bold;");
+    }
+
+    // 2. Sá»¬A HÃ€M setData: Nháº­n Ä‘áº§u vÃ o lÃ  ItemDTO xá»‹n tá»« ProductViewController
+    public void setData(ItemDTO item) {
+        this.currentItem = item; // LÆ°u láº¡i Ä‘á»ƒ dÃ¹ng cho nÃºt BID
+
+        // Äá»• dá»¯ liá»‡u tá»« "thÃ¹ng hÃ ng" DTO ra cÃ¡c Label
+        lblDescription.setText(item.getDescription());
+        lblStartPrice.setText(String.format("%,.0f VNÄ", item.getStartingPrice()));
+        lblStepPrice.setText(String.format("%,.0f VNÄ", item.getPriceStep()));
+        lblStartTime.setText("Báº¯t Ä‘áº§u: " + item.getStartTime());
+        lblEndTime.setText("Káº¿t thÃºc: " + item.getEndTime());
+
+        // GiÃ¡ hiá»‡n táº¡i lÃºc má»›i má»Ÿ phÃ²ng chÃ­nh lÃ  giÃ¡ khá»Ÿi Ä‘iá»ƒm
+        lblCurrentPrice.setText(String.format("%,.0f VNÄ", item.getStartingPrice()));
+        lblHighestBidder.setText("ChÆ°a cÃ³ ngÆ°á»i ra giÃ¡");
+
+        // Cáº­p nháº­t áº£nh náº¿u cÃ³
+        if (item.getImagePath() != null && !item.getImagePath().isEmpty()) {
+            imgProduct.setImage(new Image("file:" + item.getImagePath()));
+        }
+    }
+
+    @FXML
+    private void handleBidAction() {
+        String amountStr = txtBidAmount.getText().trim();
+
+        // Sá»­ dá»¥ng láº¡i tÃ i sáº£n cá»§a cha (BaseController)
+        if (amountStr.isEmpty()) {
+            showAlert("ThÃ´ng bÃ¡o", "Äáº¡i Æ¡i, nháº­p sá»‘ tiá»n muá»‘n Ä‘áº¥u giÃ¡ nhÃ©!");
+            return;
+        }
+
+        try {
+            double bidAmount = Double.parseDouble(amountStr);
+
+            // TÃNH ÄÃ“NG GÃ“I: Logic kiá»ƒm tra giÃ¡ Ä‘áº¥u
+            if (bidAmount <= currentItem.getStartingPrice()) {
+                showAlert("Lá»—i", "GiÃ¡ Ä‘áº¥u pháº£i cao hÆ¡n giÃ¡ hiá»‡n táº¡i!");
+                return;
+            }
+
+            System.out.println("Gá»­i lá»‡nh BID: " + bidAmount + " cho sáº£n pháº©m: " + currentItem.getName());
+            // Sau nÃ y gá»i Socket gá»­i dá»¯ liá»‡u cho ThÃ nh/Toáº£n á»Ÿ Ä‘Ã¢y
+
+        } catch (NumberFormatException e) {
+            showAlert("Lá»—i", "Sá»‘ tiá»n pháº£i lÃ  con sá»‘ nhÃ© Äáº¡i!");
+        }
+    }
+}
+
+
+========== BidHistoryController.java ==========
+package com.auction.client.controllers;
+
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
+import javafx.scene.control.*;
+import javafx.stage.Stage;
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+public class BidHistoryController {
+
+    @FXML private TextField txtAuctionId;
+    @FXML private TextField txtMaxBid;
+    @FXML private TextField txtIncrement;
+    @FXML private TextField txtBidAmount;
+    @FXML private Button btnLoadHistory;
+    @FXML private Button btnSetupAutoBid;
+    @FXML private Button btnPlaceBid;
+    @FXML private Label lblCurrentPrice;
+    @FXML private Label lblTotalBids;
+    @FXML private Label lblTimeRemaining;
+    @FXML private LineChart<String, Number> bidHistoryChart;
+    @FXML private NumberAxis priceAxis;
+
+    private WebSocketClient webSocketClient;
+    private int currentAuctionId = -1;
+    private ObservableList<XYChart.Data<String, Number>> chartData = FXCollections.observableArrayList();
+
+    @FXML
+    public void initialize() {
+        // Initialize chart
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Bid History");
+        series.setData(chartData);
+        bidHistoryChart.getData().add(series);
+
+        // Connect to WebSocket for realtime updates
+        connectWebSocket();
+    }
+
+    private void connectWebSocket() {
+        try {
+            webSocketClient = new WebSocketClient(new URI("ws://localhost:8081")) {
+                @Override
+                public void onOpen(ServerHandshake handshakedata) {
+                    System.out.println("Connected to WebSocket server");
+                }
+
+                @Override
+                public void onMessage(String message) {
+                    // Handle realtime updates
+                    Platform.runLater(() -> handleRealtimeUpdate(message));
+                }
+
+                @Override
+                public void onClose(int code, String reason, boolean remote) {
+                    System.out.println("WebSocket connection closed");
+                }
+
+                @Override
+                public void onError(Exception ex) {
+                    ex.printStackTrace();
+                }
+            };
+            webSocketClient.connect();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void handleRealtimeUpdate(String message) {
+        // Parse JSON message and update UI
+        try {
+            // Simple JSON parsing (in real app, use Jackson or Gson)
+            String[] parts = message.replace("{", "").replace("}", "").replace("\"", "").split(",");
+            int auctionId = Integer.parseInt(parts[0].split(":")[1]);
+            double currentPrice = Double.parseDouble(parts[1].split(":")[1]);
+            int totalBids = Integer.parseInt(parts[2].split(":")[1]);
+
+            if (auctionId == currentAuctionId) {
+                updateUI(currentPrice, totalBids);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void loadBidHistory(ActionEvent event) {
+        try {
+            currentAuctionId = Integer.parseInt(txtAuctionId.getText());
+            // In real implementation, call server API to get bid history
+            // For demo, we'll simulate some data
+            loadMockBidHistory();
+        } catch (NumberFormatException e) {
+            showAlert("Error", "Please enter a valid auction ID");
+        }
+    }
+
+    private void loadMockBidHistory() {
+        // Clear existing data
+        chartData.clear();
+
+        // Mock bid history data
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+        chartData.add(new XYChart.Data<>(now.minusMinutes(10).format(formatter), 100.0));
+        chartData.add(new XYChart.Data<>(now.minusMinutes(8).format(formatter), 120.0));
+        chartData.add(new XYChart.Data<>(now.minusMinutes(5).format(formatter), 150.0));
+        chartData.add(new XYChart.Data<>(now.minusMinutes(2).format(formatter), 180.0));
+
+        updateUI(180.0, 4);
+    }
+
+    @FXML
+    private void setupAutoBid(ActionEvent event) {
+        try {
+            double maxBid = Double.parseDouble(txtMaxBid.getText());
+            double increment = Double.parseDouble(txtIncrement.getText());
+
+            if (currentAuctionId == -1) {
+                showAlert("Error", "Please load an auction first");
+                return;
+            }
+
+            // In real implementation, send to server
+            showAlert("Success", "Auto-bid setup for max $" + maxBid + " with increment $" + increment);
+
+        } catch (NumberFormatException e) {
+            showAlert("Error", "Please enter valid numbers for max bid and increment");
+        }
+    }
+
+    @FXML
+    private void placeBid(ActionEvent event) {
+        try {
+            double bidAmount = Double.parseDouble(txtBidAmount.getText());
+
+            if (currentAuctionId == -1) {
+                showAlert("Error", "Please load an auction first");
+                return;
+            }
+
+            // In real implementation, send bid to server
+            showAlert("Success", "Bid placed: $" + bidAmount);
+
+        } catch (NumberFormatException e) {
+            showAlert("Error", "Please enter a valid bid amount");
+        }
+    }
+
+    private void updateUI(double currentPrice, int totalBids) {
+        lblCurrentPrice.setText(String.format("Current Price: $%.2f", currentPrice));
+        lblTotalBids.setText("Total Bids: " + totalBids);
+        // Update time remaining logic would go here
+    }
+
+    @FXML
+    private void goBack(ActionEvent event) {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/view/Product.fxml"));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root, 900, 600));
+            stage.setTitle("Chá»£ Äáº¥u GiÃ¡ - NgÆ°á»i mua");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void showAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+}
+
+
+========== Controller.java ==========
+package com.auction.client.controllers;
+
+import com.auction.client.model.Admin;
+import com.auction.client.util.BaseController;
+import javafx.scene.control.RadioButton;
+import com.auction.client.model.User;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import java.io.IOException;
+import javafx.scene.control.Alert;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import java.util.ArrayList;
+import java.util.List;
+import javafx.fxml.Initializable;
+import javafx.scene.layout.StackPane;
+import java.net.URL;
+import java.util.ResourceBundle;
+import javafx.stage.Stage;
+import java.io.IOException;
+import javafx.event.Event;
+
+public class Controller extends BaseController implements Initializable { // Káº¾ THá»ªA Tá»ª BaseController
+
+    @FXML
+    private TextField txtUsername;
+    @FXML
+    private PasswordField txtPassword;
+    @FXML
+    private RadioButton rbBidder;
+    @FXML
+    private StackPane leftPane;
+
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        String imageUrl = "https://image3.luatvietnam.vn/uploaded/images/original/2024/06/08/dau-gia-tai-san-la-gi_0806112057.jpg";
+        leftPane.setStyle("-fx-background-image: url('" + imageUrl + "'); " +
+                "-fx-background-size: cover; -fx-background-position: center;");
+        userDatabase.add(new Admin("pdai@gmail.com", "12345"));
+    }
+    // ham khoi tao anh cho left
+
+    static List<User> userDatabase = new ArrayList<>();
+
+    @FXML
+    private void handleRegister(ActionEvent event) {
+        // DÃ¹ng luÃ´n hÃ m cá»§a cha, khÃ´ng cáº§n viáº¿t láº¡i try-catch rÆ°á»m rÃ 
+        switchScene(event, "/view/Register.fxml", "ÄÄƒng kÃ½ tÃ i khoáº£n", 800, 500);
+    }
+
+    @FXML
+    private void handleLogin(ActionEvent event) {
+        String user = txtUsername.getText();
+        String pass = txtPassword.getText();
+
+        // Láº¥y RadioButton Ä‘ang Ä‘Æ°á»£c chá»n trong nhÃ³m
+        RadioButton selectedRB = (RadioButton) rbBidder.getToggleGroup().getSelectedToggle();
+        String role = selectedRB.getText(); // Tráº£ vá» "BIDDER", "SELLER" hoáº·c "ADMIN" [cite: 22]
+
+        for (User u : userDatabase) {
+            if (u.getUsername().equals(user)) {
+                if (u.getPassword().equals(pass)) {
+                    if (u.getRole().equals(role)) {
+                        // Kiá»ƒm tra xem tÃ i khoáº£n cÃ³ bá»‹ khÃ³a khÃ´ng (Tuáº§n 8: Xá»­ lÃ½ ngoáº¡i lá»‡/Tráº¡ng thÃ¡i) [cite: 73, 82]
+                        if (u.isLocked()) {
+                            showAlert("Lá»—i", "TÃ i khoáº£n cá»§a báº¡n Ä‘Ã£ bá»‹ Admin khÃ³a!");
+                            return;
+                        }
+
+                        showAlert("ThÃ´ng bÃ¡o", "ÄÄƒng nháº­p thÃ nh cÃ´ng vá»›i vai trÃ² " + role);
+
+                        // Sá»¬A Láº I PHáº¦N CHUYá»‚N Cáº¢NH á»ž ÄÃ‚Y:
+                        if (role.equals("ADMIN")) {
+                            switchScene(event, "/view/AdminView.fxml", "Há»‡ thá»‘ng Quáº£n trá»‹", 900, 600);  //[cite:21, 130] ds phien dau gia cho tuong lai
+                        } else if (role.equals("BIDDER")) {
+                            switchScene(event, "/view/Product.fxml", "Chá»£ Äáº¥u GiÃ¡", 800, 500);          //[cite:129]
+                        } else {
+                            switchScene(event, "/view/SellerView.fxml", "Quáº£n lÃ½ tÃ i sáº£n", 1000, 700);  //[cite:132]
+                        }
+                        return;
+                    } else {
+                        showAlert("Lá»—i", "Sai vai trÃ² truy cáº­p!");
+                        return;
+                    }
+                } else {
+                    showAlert("Lá»—i", "Sai máº­t kháº©u!");
+                    return;
+                }
+            }
+        }
+        showAlert("Lá»—i", "TÃ i khoáº£n khÃ´ng tá»“n táº¡i!");
+    }
+}
+
+
+========== ProductViewController.java ==========
+package com.auction.client.controllers;
+
+import com.auction.client.controllers.BiddingRoomController;
+import com.auction.client.model.ArtDTO;
+import com.auction.client.model.ItemDTO;
+import com.auction.client.util.BaseController;
+import com.auction.client.util.ItemCard; // DÃ¹ng linh kiá»‡n Ä‘Ã£ tÃ¡ch riÃªng
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.layout.TilePane;
+import javafx.event.Event;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import javafx.scene.Node;
+import java.io.IOException;
+
+// 1. TÃNH Káº¾ THá»¨A: Káº¿ thá»«a BaseController Ä‘á»ƒ dÃ¹ng switchScene vÃ  showAlert
+public class ProductViewController extends BaseController {
+
+    @FXML
+    private TilePane productGridContainer;
+
+    @FXML
+    public void initialize() {
+        // Giáº£ láº­p danh sÃ¡ch sáº£n pháº©m (Sau nÃ y sáº½ láº¥y tá»« Server)
+        for (int i = 1; i <= 12; i++) {
+            ItemDTO item = new ArtDTO();
+            item.setName("Sáº£n pháº©m " + i);
+            item.setStartingPrice(i * 100000.0);
+            // item.setImagePath(...); // Äáº¡i cÃ³ thá»ƒ set áº£nh tháº­t á»Ÿ Ä‘Ã¢y
+
+            // 2. TÃI Sá»¬ Dá»¤NG: DÃ¹ng ItemCard thay vÃ¬ tá»± váº½ VBox, Label...
+            // Truyá»n tham sá»‘ x=150, y=150 nhÆ° Äáº¡i Ä‘Ã£ sá»­a á»Ÿ ItemCard
+            ItemCard productCard = new ItemCard(item, 150, 150);
+
+            // ÄÃ“NG GÃ“I: Cáº¥t dá»¯ liá»‡u vÃ o tÃºi ngáº§m Ä‘á»ƒ lÃ¡t ná»¯a dÃ¹ng
+            productCard.setUserData(item);
+            // cai dat hieu ung ban tay khi an
+            productCard.setCursor(javafx.scene.Cursor.HAND);
+            // CÃ i Ä‘áº·t sá»± kiá»‡n click
+            productCard.setOnMouseClicked(event -> openBiddingRoom(event));
+            // ThÃªm vÃ o lÆ°á»›i hiá»ƒn thá»‹
+            productGridContainer.getChildren().add(productCard);
+        }
+    }
+
+    public void openBiddingRoom(Event event) {
+        try {
+            // 1. Láº¥y dá»¯ liá»‡u tá»« tÃºi (ItemDTO)
+            Node sourceNode = (Node) event.getSource();
+            ItemDTO selectedItem = (ItemDTO) sourceNode.getUserData();
+
+            // 2. Tá»± náº¡p FXML thá»§ cÃ´ng Ä‘á»ƒ láº¥y Controller (VÃ¬ hÃ m switchScene cá»§a cha chÆ°a há»— trá»£ truyá»n data)
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BiddingRoomView.fxml"));
+            Parent root = loader.load();
+
+            // 3. BÆ M Dá»® LIá»†U: Láº¥y Controller cá»§a mÃ n hÃ¬nh má»›i vÃ  truyá»n item sang
+            BiddingRoomController controller = loader.getController();
+            controller.setData(selectedItem); // Truyá»n Ä‘á»‘i tÆ°á»£ng ItemDTO xá»‹n sang
+
+            // 4. Táº¬N Dá»¤NG stage tá»« event (Giá»‘ng logic trong BaseController)
+            Stage stage = (Stage) sourceNode.getScene().getWindow();
+
+            // 5. THIáº¾T Láº¬P GIAO DIá»†N (Sá»­ dá»¥ng cÃ¡c thÃ´ng sá»‘ giá»‘ng nhÆ° switchScene cá»§a cha)
+            stage.setScene(new Scene(root, 900, 600)); // Cá»‘ Ä‘á»‹nh kÃ­ch thÆ°á»›c nhÆ° Äáº¡i muá»‘n
+            stage.setTitle("PhÃ²ng Ä‘áº¥u giÃ¡: " + selectedItem.getName());
+            stage.show();
+
+        } catch (IOException e) {
+            // Sá»¬ Dá»¤NG Láº I TÃ€I Sáº¢N CHA: Gá»i showAlert thay vÃ¬ System.out.println
+            showAlert("Lá»—i há»‡ thá»‘ng", "KhÃ´ng thá»ƒ náº¡p giao diá»‡n phÃ²ng Ä‘áº¥u giÃ¡!");
+            e.printStackTrace();
+        }
+    }
+}
+
+
+========== RegisterController.java ==========
+package com.auction.client.controllers;
+
+import com.auction.client.model.Bidder;
+import com.auction.client.model.Seller;
+import com.auction.client.util.BaseController;
+import com.auction.client.model.User;
+import javafx.fxml.FXML;
+import javafx.scene.control.TextField;
+import javafx.scene.control.PasswordField;
+import javafx.event.ActionEvent;
+import static com.auction.client.controllers.Controller.userDatabase;
+
+// Káº¾ THá»ªA: Thá»«a hÆ°á»Ÿng má»i "phÃ©p thuáº­t" tá»« BaseController
+public class RegisterController extends BaseController {
+
+    @FXML private TextField regUsername;
+    @FXML private PasswordField regPassword;
+
+    // TÃNH ÄÃ“NG GÃ“I: HÃ m xá»­ lÃ½ ná»™i bá»™, che giáº¥u logic Ä‘Äƒng kÃ½ phá»©c táº¡p
+    private void processSignUp(String role) {
+        String user = regUsername.getText();
+        String pass = regPassword.getText();
+
+        if (!user.endsWith("@gmail.com")) {
+            showAlert("ThÃ´ng bÃ¡o", "TÃªn Ä‘Äƒng nháº­p pháº£i lÃ  tÃ i khoáº£n Gmail!");
+            return;
+        }
+
+        for (User u : userDatabase) {
+            if (u.getUsername().equals(user)) {
+                showAlert("ThÃ´ng bÃ¡o", "TÃ i khoáº£n Ä‘Ã£ tá»“n táº¡i!");
+                return;
+            }
+        }
+
+        if(role.equals("BIDDER")){
+            userDatabase.add(new Bidder(user, pass));
+        } else if (role.equals("SELLER")) {
+            userDatabase.add(new Seller(user, pass));
+        }
+
+        // ÄA HÃŒNH (nháº¹): TÃ¹y biáº¿n thÃ´ng bÃ¡o dá»±a trÃªn tham sá»‘ truyá»n vÃ o
+        String message = "ÄÃ£ táº¡o tÃ i khoáº£n " + (role.equals("SELLER") ? "NgÆ°á»i BÃ¡n" : "NgÆ°á»i Mua") + " thÃ nh cÃ´ng!";
+        showAlert("ThÃ nh cÃ´ng", message + " Quay trá»Ÿ láº¡i mÃ n hÃ¬nh Login Ä‘á»ƒ Ä‘Äƒng nháº­p.");
+
+        regUsername.clear();
+        regPassword.clear();
+    }
+
+    @FXML
+    private void handleSignUpSeller(ActionEvent event) {
+        processSignUp("SELLER");
+    }
+
+    @FXML
+    private void handleSignUpBidder(ActionEvent event) {
+        processSignUp("BIDDER");
+    }
+
+    @FXML
+    public void handleBackToLogin(ActionEvent event) {
+        // TÃI Sá»¬ Dá»¤NG: DÃ¹ng hÃ m cá»§a lá»›p cha, khÃ´ng cáº§n try-catch rÆ°á»m rÃ  á»Ÿ Ä‘Ã¢y ná»¯a
+        switchScene(event, "/view/View.fxml", "ÄÄƒng nháº­p há»‡ thá»‘ng", 800, 500);
+    }
+}
+
+
+========== SellerController.java ==========
+package com.auction.client.controllers;
+
+import com.auction.client.model.ElectronicsDTO;
+import com.auction.client.model.ArtDTO;
+import com.auction.client.model.VehicleDTO;
+import com.auction.client.model.ItemDTO;
+import com.auction.client.util.BaseController;
+import com.auction.client.util.ItemCard; // Import lá»›p vá»«a táº¡o
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.layout.TilePane;
+import javafx.stage.FileChooser;
+import java.io.File;
+import java.time.LocalDate;
+import javafx.scene.control.ComboBox;
+import javafx.collections.FXCollections;
+import java.net.URL;
+import java.util.ResourceBundle;
+import javafx.fxml.Initializable; // Äá»ƒ dÃ¹ng Ä‘Æ°á»£c implements Initializable [cite: 37]
+
+public class SellerController extends BaseController implements Initializable {
+
+    @FXML private TextField txtItemName, txtStartingPrice, txtPriceStep, txtTimeStart, txtTimeEnd;
+    @FXML private TextArea txtDescription;
+    @FXML private Label lblFileName;
+    @FXML private DatePicker dateStart, dateEnd;
+    @FXML private TilePane inventoryGrid;
+    @FXML private ComboBox<String> cbCategory;
+    private String currentImagePath = "";
+
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        // 1. Náº¡p danh sÃ¡ch phÃ¢n loáº¡i
+        cbCategory.setItems(FXCollections.observableArrayList("Electronics", "Art", "Vehicle"));
+
+        // 2. (TÃ¹y chá»n) Äáº·t giÃ¡ trá»‹ máº·c Ä‘á»‹nh Ä‘á»ƒ trÃ¡nh bá»‹ null
+        cbCategory.getSelectionModel().selectFirst();
+
+        // Giá»¯ láº¡i cÃ¡c pháº§n khá»Ÿi táº¡o áº£nh hoáº·c báº£ng cÅ© cá»§a Äáº¡i á»Ÿ Ä‘Ã¢y...
+    }
+
+    @FXML
+    private void handlePostItem(ActionEvent event) {
+        try {
+            // TÃNH TRá»ªU TÆ¯á»¢NG (Abstraction): Giáº¥u viá»‡c Ä‘Ã³ng gÃ³i dá»¯ liá»‡u vÃ o hÃ m riÃªng
+            ItemDTO newItem = packData();
+
+            // KIá»‚M TRA ÄÃ“NG GÃ“I (DÃ¹ng hÃ m cá»§a BaseController)
+            if (newItem.getName().isEmpty() || newItem.getStartingPrice() <= 0) {
+                showAlert("Lá»—i", "Äáº¡i Æ¡i, nháº­p tÃªn vÃ  giÃ¡ há»£p lá»‡ nhÃ©!");
+                return;
+            }
+
+            // HIá»‚N THá»Š: Cá»±c ká»³ ngáº¯n gá»n nhá» lá»›p ItemCard
+            ItemCard card = new ItemCard(newItem, 180, 120);
+            inventoryGrid.getChildren().add(card);
+
+            clearFields();
+            showAlert("ThÃ nh cÃ´ng", "ÄÃ£ Ä‘Äƒng sáº£n pháº©m thÃ nh cÃ´ng!");
+
+        } catch (Exception e) {
+            showAlert("Lá»—i", "CÃ³ gÃ¬ Ä‘Ã³ sai sai: " + e.getMessage());
+        }
+    }
+
+    // HÃ m Ä‘Ã³ng gÃ³i dá»¯ liá»‡u (Váº«n nÃªn cÃ³ Ä‘á»ƒ handlePostItem sáº¡ch sáº½)
+    private ItemDTO packData() {
+        String category = cbCategory.getValue(); // Láº¥y loáº¡i tá»« ComboBox
+
+        // Thu tháº­p dá»¯ liá»‡u chung
+        String name = txtItemName.getText().trim();
+        double price = Double.parseDouble(txtStartingPrice.getText().trim());
+        double step = Double.parseDouble(txtPriceStep.getText().trim());
+        String desc = txtDescription.getText().trim();
+        String start = (dateStart.getValue() != null) ? dateStart.getValue().toString() + " " + txtTimeStart.getText() : "";
+        String end = (dateEnd.getValue() != null) ? dateEnd.getValue().toString() + " " + txtTimeEnd.getText() : "";
+
+        // TÃNH ÄA HÃŒNH: Khá»Ÿi táº¡o Ä‘Ãºng lá»›p con dá»±a trÃªn lá»±a chá»n
+        if ("Electronics".equals(category)) {
+            return new ElectronicsDTO(name, price, step, desc, currentImagePath, 1, start, end);
+        } else if ("Art".equals(category)) {
+            return new ArtDTO(name, price, step, desc, currentImagePath, 1, start, end);
+        } else {
+            return new VehicleDTO(name, price, step, desc, currentImagePath, 1, start, end);
+        }
+    }
+
+    private void clearFields() {
+        txtItemName.clear();
+        txtStartingPrice.clear();
+        txtPriceStep.clear();
+        txtDescription.clear();
+        dateStart.setValue(null);
+        dateEnd.setValue(null);
+        lblFileName.setText("ChÆ°a chá»n áº£nh");
+        currentImagePath = "";
+    }
+
+    @FXML
+    private void handleSelectImage(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Chá»n áº£nh sáº£n pháº©m");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"));
+
+        File selectedFile = fileChooser.showOpenDialog(null);
+        if (selectedFile != null) {
+            currentImagePath = selectedFile.getAbsolutePath();
+            lblFileName.setText(selectedFile.getName());
+        }
+    }
+}
+
+
+========== Admin.java ==========
+package com.auction.client.model;
+
+public class Admin extends User {
+    public Admin(String username, String password) { super(username, password, "ADMIN");}
+
+    @Override
+    public String getDashboardFXML() {
+        return "/view/AdminView.fxml";
+    }
+}
+
+
+
+========== ArtDTO.java ==========
+package com.auction.client.model;
+
+public class ArtDTO extends ItemDTO {
+    public ArtDTO() {
+        super();
+    }
+
+    public ArtDTO(String name, double startingPrice, double priceStep,
+                  String description, String imagePath, int sellerId,
+                  String startTime, String endTime) {
+        super(name, startingPrice, priceStep, description, imagePath, sellerId, startTime, endTime);
+    }
+
+    @Override
+    public String getCategory() {
+        return "Art";
+    }
+}
+
+
+========== AuctionDTO.java ==========
+package com.auction.client.model;
+
+public class AuctionDTO {
+}
+
+
+========== Bidder.java ==========
+package com.auction.client.model;
+
+public class Bidder extends User {
+    public Bidder(String username, String password) { super(username, password, "BIDDER");}
+
+    @Override
+    public String getDashboardFXML() {
+        return "/view/ProductView.fxml";
+    }
+}
+
+
+========== BidDTO.java ==========
+package com.auction.client.model;
+
+public class BidDTO {
+}
+
+
+========== ElectronicsDTO.java ==========
+package com.auction.client.model;
+
+public class ElectronicsDTO extends ItemDTO {
+    // Constructor khÃ´ng tham sá»‘ (Cáº§n cho Serialization - Tuáº§n 9) [cite: 103]
+    public ElectronicsDTO() {
+        super();
+    }
+
+    // Constructor Ä‘áº§y Ä‘á»§ tham sá»‘
+    public ElectronicsDTO(String name, double startingPrice, double priceStep,
+                          String description, String imagePath, int sellerId,
+                          String startTime, String endTime) {
+        // DÃ¹ng super Ä‘á»ƒ Ä‘áº©y dá»¯ liá»‡u lÃªn lá»›p cha ItemDTO xá»­ lÃ½
+        super(name, startingPrice, priceStep, description, imagePath, sellerId, startTime, endTime);
+    }
+
+    @Override
+    public String getCategory() {
+        return "Electronics";
+    }
+}
+
+
+========== ItemDTO.java ==========
+package com.auction.client.model;
+
+import java.io.Serializable;
+
+/**
+ * DTO (Data Transfer Object) Ä‘á»ƒ chuyá»ƒn dá»¯ liá»‡u sáº£n pháº©m tá»« Client lÃªn Server
+ */
+public abstract class ItemDTO implements Serializable {
+    private static final long serialVersionUID = 1L; // Äáº£m báº£o tÃ­nh á»•n Ä‘á»‹nh khi truyá»n qua máº¡ng
+
+    private String name;
+    private double startingPrice;
+    private double priceStep;
+    private String description;
+    private String imagePath;
+    private int sellerId;
+    private String startTime; // Äá»‹nh dáº¡ng: "YYYY-MM-DD HH:mm"
+    private String endTime;
+
+    // 1. Constructor khÃ´ng Ä‘á»‘i sá»‘ (Ráº¥t cáº§n thiáº¿t cho cÃ¡c thÆ° viá»‡n xá»­ lÃ½ dá»¯ liá»‡u)
+    public ItemDTO() {
+    }
+
+    // 2. Constructor Ä‘áº§y Ä‘á»§ Ä‘á»ƒ Äáº¡i gá»i nhanh trong Controller
+    public ItemDTO(String name, double startingPrice, double priceStep, String description,
+                   String imagePath, int sellerId, String startTime, String endTime) {
+        this.name = name;
+        this.startingPrice = startingPrice;
+        this.priceStep = priceStep;
+        this.description = description;
+        this.imagePath = imagePath;
+        this.sellerId = sellerId;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
+
+    // phan loai san pham
+    public abstract String getCategory();
+
+    // 3. CÃ¡c Getter vÃ  Setter (Äá»ƒ láº¥y vÃ  gÃ¡n dá»¯ liá»‡u)
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public double getStartingPrice() { return startingPrice; }
+    public void setStartingPrice(double startingPrice) { this.startingPrice = startingPrice; }
+
+    public double getPriceStep() { return priceStep; }
+    public void setPriceStep(double priceStep) { this.priceStep = priceStep; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public String getImagePath() { return imagePath; }
+    public void setImagePath(String imagePath) { this.imagePath = imagePath; }
+
+    public int getSellerId() { return sellerId; }
+    public void setSellerId(int sellerId) { this.sellerId = sellerId; }
+
+    public String getStartTime() { return startTime; }
+    public void setStartTime(String startTime) { this.startTime = startTime; }
+
+    public String getEndTime() { return endTime; }
+    public void setEndTime(String endTime) { this.endTime = endTime; }
+
+    // 4. HÃ m toString Ä‘á»ƒ Äáº¡i dá»… dÃ ng in ra console lÃºc Debug
+    @Override
+    public String toString() {
+        return "ItemDTO{" +
+                "name='" + name + '\'' +
+                ", price=" + startingPrice +
+                ", sellerId=" + sellerId +
+                '}';
+    }
+}
+
+
+========== Seller.java ==========
+package com.auction.client.model;
+
+public class Seller extends User {
+    public Seller(String username, String password) { super(username, password, "SELLER"); }
+
+    @Override
+    public String getDashboardFXML() {
+        return "/view/ProductView.fxml";
+    }
+}
+
+
+========== User.java ==========
+package com.auction.client.model;
+
+import java.io.Serializable;
+
+public abstract class User implements Serializable {
+    protected String username;
+    protected String password;
+    protected String role;
+    protected boolean locked;
+
+    public User(String username, String password, String role) {
+        this.username = username;
+        this.password = password;
+        this.role = role;
+    }
+
+    // Getter vÃ  Setter chung
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password;}
+
+    public String getRole() { return role; }
+
+    public boolean isLocked() { return locked; }
+    public void setLocked(boolean locked) { this.locked = locked; }
+
+    // PhÆ°Æ¡ng thá»©c trá»«u tÆ°á»£ng: Má»—i loáº¡i User sáº½ cÃ³ má»™t báº£ng Ä‘iá»u khiá»ƒn riÃªng
+    public abstract String getDashboardFXML();
+}
+
+
+========== VehicleDTO.java ==========
+package com.auction.client.model;
+
+public class VehicleDTO extends ItemDTO {
+    public VehicleDTO() {
+        super();
+    }
+
+    public VehicleDTO(String name, double startingPrice, double priceStep,
+                      String description, String imagePath, int sellerId,
+                      String startTime, String endTime) {
+        super(name, startingPrice, priceStep, description, imagePath, sellerId, startTime, endTime);
+    }
+
+    @Override
+    public String getCategory() {
+        return "Vehicle";
+    }
+}
+
+
+========== BaseController.java ==========
+package com.auction.client.util;
+
+import javafx.event.Event;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.stage.Stage;
+
+import java.io.IOException;
+
+public abstract class BaseController {
+    // HÃ m chuyá»ƒn cáº£nh dÃ¹ng chung (Chá»‰ cáº§n truyá»n path vÃ  tiÃªu Ä‘á»)
+    protected void switchScene(Event event, String fxmlPath, String title, int width, int height) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root, width, height));
+            stage.setTitle(title);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Lá»—i khÃ´ng tÃ¬m tháº¥y file FXML: " + fxmlPath);
+        }
+    }
+    protected void showAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+}
+// dung abstract class de tai su dung code}
+
+
+========== ItemCard.java ==========
+package com.auction.client.util;
+
+import com.auction.client.model.ItemDTO;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
+
+// TÃNH Káº¾ THá»ªA: Thá»«a hÆ°á»Ÿng má»i thá»© cá»§a VBox
+public class ItemCard extends VBox {
+
+    public ItemCard(ItemDTO item, double width, double height) {
+        // Cáº¥u hÃ¬nh khung bÃªn ngoÃ i (Thay cho setStyle rÆ°á»m rÃ )
+        this.setSpacing(10);
+        this.setAlignment(Pos.CENTER);
+        this.setPrefWidth(200);
+        this.setStyle("-fx-border-color: #ddd; -fx-padding: 10; -fx-background-color: white; -fx-border-radius: 5;");
+
+        // 1. Xá»­ lÃ½ áº£nh
+        ImageView imageView = new ImageView();
+        if (item.getImagePath() != null && !item.getImagePath().isEmpty()) {
+            imageView.setImage(new Image("file:" + item.getImagePath()));
+        }
+        imageView.setFitWidth(width);
+        imageView.setFitHeight(height);
+        imageView.setPreserveRatio(true);
+
+        // 2. ThÃ´ng tin
+        Label nameLabel = new Label(item.getName());
+        nameLabel.setStyle("-fx-font-weight: bold;");
+
+        Label priceLabel = new Label("GiÃ¡: " + String.format("%,.0f", item.getStartingPrice()) + " VNÄ");
+
+        // ÄÃ³ng gÃ³i cÃ¡c thÃ nh pháº§n vÃ o chÃ­nh nÃ³ (this)
+        this.getChildren().addAll(imageView, nameLabel, priceLabel);
+
+//        // CÃ³ thá»ƒ thÃªm hiá»‡u á»©ng di chuá»™t táº¡i Ä‘Ã¢y Ä‘á»ƒ dÃ¹ng chung cho cáº£ App
+//        this.setOnMouseEntered(e -> this.setStyle(this.getStyle() + "-fx-border-color: #2196F3;"));
+//        this.setOnMouseExited(e -> this.setStyle(this.getStyle().replace("-fx-border-color: #2196F3;", "-fx-border-color: #ddd;")));
+    }
+}
+
+
+========== Main.java ==========
+package com.auction.client;
+
+public class Main {
+    public static void main(String[] args) {
+        // Gá»i hÃ m main cá»§a MainApp Ä‘á»ƒ kÃ­ch hoáº¡t giao diá»‡n JavaFX
+        MainApp.main(args);
+    }
+}
+
+
+========== MainApp.java ==========
+package com.auction.client;
+
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
+public class MainApp extends Application {
+    @Override
+    public void start(Stage stage) throws Exception {
+        // Náº¡p file View.fxml náº±m ngay trong thÆ° má»¥c resources
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApp.class.getResource("/view/View.fxml"));
+
+        // Táº¡o Scene (Cá»­a sá»•) vá»›i kÃ­ch thÆ°á»›c 600x400
+        Scene scene = new Scene(fxmlLoader.load(), 800, 500);
+
+        stage.setTitle("á»¨ng dá»¥ng Up/Down/Reset");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public static void main(String[] args) {
+        launch();
+    }
+}
+//import javafx.application.Application;
+//import javafx.fxml.FXMLLoader;
+//import javafx.scene.Parent;
+//import javafx.scene.Scene;
+//import javafx.stage.Stage;
+//
+//public class MainApp extends Application {
+//
+//    @Override
+//    public void start(Stage stage) throws Exception {
+//        // 1. Náº¡p file FXML tá»« thÆ° má»¥c resources/view/
+//        Parent root = FXMLLoader.load(getClass().getResource("/view/Product.fxml"));
+//
+//        // 2. Táº¡o Scene vá»›i kÃ­ch thÆ°á»›c phÃ¹ há»£p
+//        Scene scene = new Scene(root, 900, 600);
+//
+//        // 3. Thiáº¿t láº­p tiÃªu Ä‘á» vÃ  gáº¯n scene vÃ o stage
+//        stage.setTitle("Há»‡ thá»‘ng Äáº¥u giÃ¡ - Danh sÃ¡ch sáº£n pháº©m");
+//        stage.setScene(scene);
+//
+//        // 4. Hiá»ƒn thá»‹ cá»­a sá»•
+//        stage.show();
+//    }
+//
+//    public static void main(String[] args) {
+//        launch(args);
+//    }
+//}
+
+
+========== AdminView.fxml ==========
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.AdminController">
+
+    <left>
+        <VBox spacing="15.0" style="-fx-background-color: #2c3e50; -fx-pref-width: 200;">
+            <padding>
+                <Insets top="20" right="10" bottom="20" left="10"/>
+            </padding>
+            <children>
+                <Label text="ADMIN" style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" alignment="CENTER"/>
+                <Separator opacity="0.3"/>
+                <Button fx:id="btnManageUsers" onAction="#showUserManagement" text="Quáº£n lÃ½ NgÆ°á»i dÃ¹ng" maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-cursor: hand;"/>
+                <Button fx:id="btnManageItems" onAction="#showItemManagement" text="Quáº£n lÃ½ Sáº£n pháº©m" maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-cursor: hand;"/>
+                <Region VBox.vgrow="ALWAYS" />
+                <Button onAction="#handleLogout" text="ÄÄƒng xuáº¥t" maxWidth="Infinity" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;"/>
+            </children>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="10.0">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                    <children>
+                        <Label fx:id="lblTitle" text="Danh sÃ¡ch ngÆ°á»i dÃ¹ng" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <TextField fx:id="txtSearch" promptText="TÃ¬m kiáº¿m..." prefWidth="200.0"/>
+                    </children>
+                </HBox>
+
+                <TableView fx:id="tableData" VBox.vgrow="ALWAYS">
+                </TableView>
+
+                <HBox spacing="15.0" alignment="CENTER_RIGHT">
+                    <children>
+                        <Button fx:id="btnLock" text="KhÃ³a / Má»Ÿ khÃ³a" style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-cursor: hand;"/>
+                        <Button fx:id="btnDelete" onAction="#handleDelete" text="XÃ³a vÄ©nh viá»…n" style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-cursor: hand;"/>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </center>
+</BorderPane>
+
+
+========== BiddingRoomView.fxml ==========
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="1000.0" style="-fx-background-color: #f4f4f4;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.BiddingRoomController">
+
+    <left>
+        <VBox prefWidth="280.0" spacing="15.0" style="-fx-background-color: white; -fx-border-color: #ddd; -fx-border-width: 0 1 0 0;" BorderPane.alignment="CENTER">
+            <children>
+                <Label text="ThÃ´ng tin sáº£n pháº©m">
+                    <font>
+                        <Font name="System Bold" size="18.0" />
+                    </font>
+                </Label>
+                <ImageView fx:id="imgProduct" fitHeight="200.0" fitWidth="240.0" pickOnBounds="true" preserveRatio="true" style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);" />
+                <Separator prefWidth="200.0" />
+                <VBox spacing="8.0">
+                    <children>
+                        <Label fx:id="lblDescription" text="MÃ´ táº£: Äang táº£i..." wrapText="true" />
+                        <Label fx:id="lblSeller" text="NgÆ°á»i bÃ¡n: Admin" />
+                        <Label fx:id="lblStartPrice" text="GiÃ¡ khá»Ÿi Ä‘iá»ƒm: 0 VNÄ" />
+                        <Label fx:id="lblStepPrice" text="BÆ°á»›c giÃ¡: 50.000 VNÄ" style="-fx-text-fill: blue;" />
+                        <Label fx:id="lblStartTime" text="Báº¯t Ä‘áº§u: --/--/----" />
+                        <Label fx:id="lblEndTime" text="Káº¿t thÃºc: --/--/----" />
+                    </children>
+                </VBox>
+            </children>
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox alignment="CENTER" spacing="30.0" BorderPane.alignment="CENTER">
+            <children>
+                <VBox alignment="CENTER" spacing="5.0">
+                    <children>
+                        <Label text="THá»œI GIAN CÃ’N Láº I">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </Label>
+                        <Label fx:id="lblTimer" text="00:45" textFill="RED">
+                            <font>
+                                <Font name="System Bold" size="64.0" />
+                            </font>
+                        </Label>
+                    </children>
+                </VBox>
+
+                <VBox alignment="CENTER" spacing="10.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+                    <padding>
+                        <Insets bottom="20.0" left="40.0" right="40.0" top="20.0" />
+                    </padding>
+                    <children>
+                        <Label text="GIÃ HIá»†N Táº I">
+                            <font>
+                                <Font size="16.0" />
+                            </font>
+                        </Label>
+                        <Label fx:id="lblCurrentPrice" text="1.500.000 VNÄ" textFill="#2ecc71">
+                            <font>
+                                <Font name="System Bold" size="36.0" />
+                            </font>
+                        </Label>
+                        <HBox alignment="CENTER" spacing="10.0">
+                            <children>
+                                <Label text="NgÆ°á»i giá»¯ giÃ¡:" />
+                                <Label fx:id="lblHighestBidder" text="ChÆ°a cÃ³" style="-fx-font-weight: bold;" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+        </VBox>
+    </center>
+
+    <right>
+        <VBox prefWidth="350.0" spacing="20.0" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="20.0" left="15.0" right="15.0" top="20.0" />
+            </padding>
+            <children>
+                <Label text="Lá»‹ch sá»­ tráº£ giÃ¡">
+                    <font>
+                        <Font name="System Bold" size="16.0" />
+                    </font>
+                </Label>
+                <LineChart fx:id="chartHistory" prefHeight="250.0" style="-fx-background-color: white; -fx-background-radius: 10;">
+                    <xAxis>
+                        <CategoryAxis side="BOTTOM" label="Thá»i gian" />
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis side="LEFT" label="GiÃ¡" />
+                    </yAxis>
+                </LineChart>
+
+                <Separator prefWidth="200.0" />
+
+                <VBox spacing="15.0" style="-fx-background-color: #ebf5fb; -fx-padding: 20; -fx-background-radius: 10;">
+                    <children>
+                        <Label text="Nháº­p giÃ¡ cá»§a báº¡n:" style="-fx-font-weight: bold;" />
+                        <HBox spacing="10.0">
+                            <children>
+                                <TextField fx:id="txtBidAmount" prefHeight="40.0" prefWidth="200.0" promptText="VNÄ..." style="-fx-background-radius: 5;" />
+                                <Button fx:id="btnBid" mnemonicParsing="false" onAction="#handleBidAction" prefHeight="40.0" prefWidth="80.0" style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;" text="BID" />
+                            </children>
+                        </HBox>
+                        <Label text="* LÆ°u Ã½: GiÃ¡ khÃ´ng tháº¥p hÆ¡n giÃ¡ hiá»‡n táº¡i + bÆ°á»›c giÃ¡." textFill="#7f8c8d">
+                            <font>
+                                <Font size="11.0" />
+                            </font>
+                        </Label>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </right>
+</BorderPane>
+
+
+========== BidHistoryView.fxml ==========
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.BidHistoryController">
+   <children>
+      <HBox alignment="CENTER_LEFT" spacing="10.0">
+         <children>
+            <Label text="Auction ID:" />
+            <TextField fx:id="txtAuctionId" promptText="Enter auction ID" />
+            <Button fx:id="btnLoadHistory" onAction="#loadBidHistory" text="Load History" />
+            <Button fx:id="btnSetupAutoBid" onAction="#setupAutoBid" text="Setup Auto-Bid" />
+         </children>
+      </HBox>
+
+      <HBox alignment="CENTER_LEFT" spacing="10.0">
+         <children>
+            <Label text="Max Bid:" />
+            <TextField fx:id="txtMaxBid" promptText="Enter max bid amount" />
+            <Label text="Increment:" />
+            <TextField fx:id="txtIncrement" promptText="Enter increment amount" />
+         </children>
+      </HBox>
+
+      <LineChart fx:id="bidHistoryChart" title="Bid History Over Time" VBox.vgrow="ALWAYS">
+         <xAxis>
+            <CategoryAxis fx:id="timeAxis" label="Time" />
+         </xAxis>
+         <yAxis>
+            <NumberAxis fx:id="priceAxis" label="Bid Amount ($)" />
+         </yAxis>
+      </LineChart>
+
+      <HBox spacing="10.0">
+         <children>
+            <Label fx:id="lblCurrentPrice" text="Current Price: $0.00" />
+            <Label fx:id="lblTotalBids" text="Total Bids: 0" />
+            <Label fx:id="lblTimeRemaining" text="Time Remaining: --:--" />
+         </children>
+      </HBox>
+
+      <HBox spacing="10.0">
+         <children>
+            <TextField fx:id="txtBidAmount" promptText="Enter your bid" />
+            <Button fx:id="btnPlaceBid" onAction="#placeBid" text="Place Bid" />
+            <Button fx:id="btnBack" onAction="#goBack" text="Back" />
+         </children>
+      </HBox>
+   </children>
+</VBox>
+
+
+========== Product.fxml ==========
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.TilePane?>
+
+<AnchorPane prefHeight="600.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.ProductViewController">
+    <children>
+        <ScrollPane fitToWidth="true" prefHeight="600.0" prefWidth="500.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <content>
+                <TilePane fx:id="productGridContainer"
+                          prefColumns="3"
+                          hgap="20.0"
+                          vgap="20.0"
+                          alignment="CENTER"
+                          style="-fx-padding: 30; -fx-background-color: white;" />
+            </content>
+        </ScrollPane>
+    </children>
+</AnchorPane>
+        <!-- prefColumns="3": cho toi da 3 san pham tren 1 hang-->
+<!-- TilePane chÃ­nh lÃ  má»™t "KhuÃ´n Ä‘Ãºc Ã´ gáº¡ch" tá»± Ä‘á»™ng dÃ n hÃ ng vÃ  cá»™t cho cÃ¡c sáº£n pháº©m mÃ  khÃ´ng cáº§n pháº£i tÃ­nh toÃ¡n tá»a Ä‘á»™ X, Y thá»§ cÃ´ng. Cá»© má»—i khi báº¡n thÃªm má»™t sáº£n pháº©m má»›i, nÃ³ sáº½ tá»± tÃ¬m Ã´ trá»‘ng tiáº¿p theo Ä‘á»ƒ Ä‘áº·t vÃ o.-->
+
+
+========== Register.fxml ==========
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+
+<StackPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.RegisterController"
+           prefHeight="500.0" prefWidth="800.0"
+           style="-fx-background-color: linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%);">
+
+    <children>
+        <VBox alignment="CENTER" maxHeight="400.0" maxWidth="350.0" spacing="10.0"
+              style="-fx-background-color: white;
+                     -fx-background-radius: 15px;">
+
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+
+            <children>
+                <Label text="CREATE ACCOUNT" textFill="#2d6cdf" style="-fx-font-size: 18px; -fx-font-weight: bold;">
+                    <VBox.margin>
+                        <Insets bottom="10.0" />
+                    </VBox.margin>
+                </Label>
+
+                <TextField fx:id="regUsername" promptText="Username"
+                           style="-fx-background-color: white;
+                                  -fx-border-color: #ddd;
+                                  -fx-border-radius: 8px;
+                                  -fx-prompt-text-fill: #aaa;
+                                  -fx-padding: 6px;"/>
+
+                <PasswordField fx:id="regPassword" promptText="Password"
+                               style="-fx-background-color: white;
+                                      -fx-border-color: #ddd;
+                                      -fx-border-radius: 8px;
+                                      -fx-prompt-text-fill: #aaa;
+                                      -fx-padding: 6px;"/>
+
+                <HBox alignment="CENTER" spacing="10.0">
+                    <children>
+                        <Button onAction="#handleSignUpSeller" text="Seller Sign Up"
+                                style="-fx-background-color: #2d6cdf;
+                       -fx-text-fill: white;
+                       -fx-font-weight: bold;
+                       -fx-background-radius: 20px;
+                       -fx-padding: 6px 15px;
+                       -fx-cursor: hand;"/>
+
+                        <Button onAction="#handleSignUpBidder" text="Bidder Sign Up"
+                                style="-fx-background-color: #2d6cdf;
+                       -fx-text-fill: white;
+                       -fx-font-weight: bold;
+                       -fx-background-radius: 20px;
+                       -fx-padding: 6px 15px;
+                       -fx-cursor: hand;"/>
+                    </children>
+                </HBox>
+                <Button onAction="#handleBackToLogin" text="Return"
+                        style="-fx-background-color: white;
+                               -fx-text-fill: black;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 20px;
+                               -fx-padding: 6px 30px;
+                               -fx-cursor: hand;"/>
+
+            </children>
+        </VBox>
+    </children>
+</StackPane>
+
+
+========== SellerView.fxml ==========
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.TilePane?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.HBox?>
+
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.ComboBox?>
+
+<BorderPane prefHeight="600.0" prefWidth="1100.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.SellerController">
+
+    <left>
+        <VBox spacing="15" prefWidth="300.0" style="-fx-background-color: #f8f9fa; -fx-padding: 20; -fx-border-color: #dee2e6; -fx-border-width: 0 1 0 0;">
+            <children>
+
+                <Label text="ÄÄ‚NG Sáº¢N PHáº¨M Má»šI" style="-fx-font-weight: bold; -fx-font-size: 14; -fx-text-fill: #2c3e50;" />
+
+                <GridPane vgap="10" hgap="10">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="80" prefWidth="80" />
+                        <ColumnConstraints hgrow="ALWAYS" />
+                    </columnConstraints>
+
+                    <children>
+                        <Label text="TÃªn SP:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+<!--                        GridPane.rowIndex="0" GridPane.columnIndex="0" hang 0 cot 0-->
+                        <TextField fx:id="txtItemName" promptText="Nháº­p tÃªn..." GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+                        <Label text="GiÃ¡ Ä‘áº§u:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                        <TextField fx:id="txtStartingPrice" promptText="VNÄ" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+                        <Label text="BÆ°á»›c giÃ¡:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                        <TextField fx:id="txtPriceStep" promptText="Sá»‘ tiá»n tá»‘i thiá»ƒu" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+                        <Label text="Loáº¡i SP:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+                        <ComboBox fx:id="cbCategory" promptText="Chá»n phÃ¢n loáº¡i"
+                                  GridPane.rowIndex="3" GridPane.columnIndex="1" maxWidth="Infinity" />
+
+                        <Label text="MÃ´ táº£:" GridPane.rowIndex="4" GridPane.columnIndex="0" />
+                        <TextArea fx:id="txtDescription" prefHeight="80" wrapText="true" GridPane.rowIndex="4" GridPane.columnIndex="1" />
+
+                        <Label text="HÃ¬nh áº£nh:" GridPane.rowIndex="5" GridPane.columnIndex="0" />
+                        <HBox spacing="10" GridPane.rowIndex="5" GridPane.columnIndex="1">
+                            <children>
+                                <Button text="Chá»n áº£nh" onAction="#handleSelectImage" />
+                                <Label fx:id="lblFileName" text="ChÆ°a chá»n file" style="-fx-text-fill: #7f8c8d; -fx-font-style: italic;" />
+                            </children>
+                        </HBox>
+
+                        <Label text="Báº¯t Ä‘áº§u:" GridPane.rowIndex="6" GridPane.columnIndex="0" />
+                        <HBox spacing="10" GridPane.rowIndex="6" GridPane.columnIndex="1">
+                            <DatePicker fx:id="dateStart" prefWidth="150" promptText="Chá»n ngÃ y" />
+                            <TextField fx:id="txtTimeStart" prefWidth="80" promptText="HH:mm" text="08:00" />
+                        </HBox>
+<!--                        DatePicker luÃ´n tráº£ vá» má»™t Ä‘á»‹nh dáº¡ng chuáº©n xÃ¡c (kiá»ƒu LocalDate), giong 1 ban lich-->
+
+                        <Label text="Káº¿t thÃºc:" GridPane.rowIndex="7" GridPane.columnIndex="0" />
+                        <HBox spacing="10" GridPane.rowIndex="7" GridPane.columnIndex="1">
+                            <DatePicker fx:id="dateEnd" prefWidth="150" promptText="Chá»n ngÃ y" />
+                            <TextField fx:id="txtTimeEnd" prefWidth="80" promptText="HH:mm" text="20:00" />
+                        </HBox>
+
+                    </children>
+                </GridPane>
+
+                <Button fx:id="btnPostItem" onAction="#handlePostItem" maxWidth="Infinity"
+                        text="ÄÄ‚NG BÃN NGAY"
+                        style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10; -fx-cursor: hand;" />
+
+                <Separator />
+
+            </children>
+        </VBox>
+    </left>
+
+    <center>
+        <ScrollPane fitToWidth="true">
+            <content>
+                <TilePane fx:id="inventoryGrid" hgap="10" vgap="10" style="-fx-padding: 20;" />
+            </content>
+        </ScrollPane>
+    </center>
+
+    <right>
+        <VBox spacing="10" style="-fx-padding: 20; -fx-background-color: #f9f9f9;" prefWidth="240">
+            <Label text="Lá»ŠCH Sá»¬ GIAO Dá»ŠCH" style="-fx-font-weight: bold;" />
+            <ListView fx:id="historyList" prefHeight="300" />
+            <Label text="THá»NG KÃŠ DOANH THU" style="-fx-font-weight: bold;" />
+        </VBox>
+    </right>
+
+</BorderPane>
+
+
+========== View.fxml ==========
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane prefWidth="800.0" prefHeight="500.0"  xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.Controller">
+
+    <center>
+        <StackPane fx:id="leftPane" style="-fx-border-color: #ccc;">
+        </StackPane>
+    </center>
+
+    <right>
+        <VBox alignment="CENTER" prefWidth="320.0" spacing="15.0" style="-fx-background-color: white; -fx-border-color: #eee;">
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+            <children>
+                <Label text="LOGIN" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333;" />
+
+                <VBox spacing="5.0">
+                    <children>
+                        <Label text="Username:" />
+                        <TextField fx:id="txtUsername" promptText="Enter username" />
+                    </children>
+                </VBox>
+
+                <VBox spacing="5.0">
+                    <children>
+                        <Label text="Password:" />
+                        <PasswordField fx:id="txtPassword" promptText="Enter password" />
+                    </children>
+                </VBox>
+
+                <HBox spacing="20.0" alignment="CENTER">
+                    <children>
+                        <RadioButton fx:id="rbBidder" text="BIDDER" selected="true">
+                            <toggleGroup>
+                                <ToggleGroup fx:id="roleGroup" />
+                            </toggleGroup>
+                        </RadioButton>
+                        <RadioButton fx:id="rbSeller" text="SELLER" toggleGroup="$roleGroup" />
+                        <RadioButton fx:id="rbAdmin" text="ADMIN" toggleGroup="$roleGroup" />
+                    </children>
+                    <padding>
+                        <Insets top="10.0" bottom="10.0" />
+                    </padding>
+                </HBox>
+
+                <HBox spacing="10.0" alignment="CENTER">
+                    <children>
+                        <Button fx:id="btnLogin" onAction="#handleLogin" text="Login" prefWidth="100.0"
+                                style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-cursor: hand;" />
+                        <Button fx:id="btnRegister" onAction="#handleRegister" text="Register" prefWidth="100.0"
+                                style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-cursor: hand;"/>
+                    </children>
+                    <padding>
+                        <Insets top="10.0" />
+                    </padding>
+                </HBox>
+            </children>
+        </VBox>
+    </right>
+
+</BorderPane>
+
+
+========== AdminView.fxml ==========
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.AdminController">
+
+    <left>
+        <VBox spacing="15.0" style="-fx-background-color: #2c3e50; -fx-pref-width: 200;">
+            <padding>
+                <Insets top="20" right="10" bottom="20" left="10"/>
+            </padding>
+            <children>
+                <Label text="ADMIN" style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" alignment="CENTER"/>
+                <Separator opacity="0.3"/>
+                <Button fx:id="btnManageUsers" onAction="#showUserManagement" text="Quáº£n lÃ½ NgÆ°á»i dÃ¹ng" maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-cursor: hand;"/>
+                <Button fx:id="btnManageItems" onAction="#showItemManagement" text="Quáº£n lÃ½ Sáº£n pháº©m" maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-cursor: hand;"/>
+                <Region VBox.vgrow="ALWAYS" />
+                <Button onAction="#handleLogout" text="ÄÄƒng xuáº¥t" maxWidth="Infinity" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;"/>
+            </children>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="10.0">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                    <children>
+                        <Label fx:id="lblTitle" text="Danh sÃ¡ch ngÆ°á»i dÃ¹ng" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <TextField fx:id="txtSearch" promptText="TÃ¬m kiáº¿m..." prefWidth="200.0"/>
+                    </children>
+                </HBox>
+
+                <TableView fx:id="tableData" VBox.vgrow="ALWAYS">
+                </TableView>
+
+                <HBox spacing="15.0" alignment="CENTER_RIGHT">
+                    <children>
+                        <Button fx:id="btnLock" text="KhÃ³a / Má»Ÿ khÃ³a" style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-cursor: hand;"/>
+                        <Button fx:id="btnDelete" onAction="#handleDelete" text="XÃ³a vÄ©nh viá»…n" style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-cursor: hand;"/>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </center>
+</BorderPane>
+
+
+========== BiddingRoomView.fxml ==========
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="1000.0" style="-fx-background-color: #f4f4f4;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.BiddingRoomController">
+
+    <left>
+        <VBox prefWidth="280.0" spacing="15.0" style="-fx-background-color: white; -fx-border-color: #ddd; -fx-border-width: 0 1 0 0;" BorderPane.alignment="CENTER">
+            <children>
+                <Label text="ThÃ´ng tin sáº£n pháº©m">
+                    <font>
+                        <Font name="System Bold" size="18.0" />
+                    </font>
+                </Label>
+                <ImageView fx:id="imgProduct" fitHeight="200.0" fitWidth="240.0" pickOnBounds="true" preserveRatio="true" style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);" />
+                <Separator prefWidth="200.0" />
+                <VBox spacing="8.0">
+                    <children>
+                        <Label fx:id="lblDescription" text="MÃ´ táº£: Äang táº£i..." wrapText="true" />
+                        <Label fx:id="lblSeller" text="NgÆ°á»i bÃ¡n: Admin" />
+                        <Label fx:id="lblStartPrice" text="GiÃ¡ khá»Ÿi Ä‘iá»ƒm: 0 VNÄ" />
+                        <Label fx:id="lblStepPrice" text="BÆ°á»›c giÃ¡: 50.000 VNÄ" style="-fx-text-fill: blue;" />
+                        <Label fx:id="lblStartTime" text="Báº¯t Ä‘áº§u: --/--/----" />
+                        <Label fx:id="lblEndTime" text="Káº¿t thÃºc: --/--/----" />
+                    </children>
+                </VBox>
+            </children>
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox alignment="CENTER" spacing="30.0" BorderPane.alignment="CENTER">
+            <children>
+                <VBox alignment="CENTER" spacing="5.0">
+                    <children>
+                        <Label text="THá»œI GIAN CÃ’N Láº I">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </Label>
+                        <Label fx:id="lblTimer" text="00:45" textFill="RED">
+                            <font>
+                                <Font name="System Bold" size="64.0" />
+                            </font>
+                        </Label>
+                    </children>
+                </VBox>
+
+                <VBox alignment="CENTER" spacing="10.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+                    <padding>
+                        <Insets bottom="20.0" left="40.0" right="40.0" top="20.0" />
+                    </padding>
+                    <children>
+                        <Label text="GIÃ HIá»†N Táº I">
+                            <font>
+                                <Font size="16.0" />
+                            </font>
+                        </Label>
+                        <Label fx:id="lblCurrentPrice" text="1.500.000 VNÄ" textFill="#2ecc71">
+                            <font>
+                                <Font name="System Bold" size="36.0" />
+                            </font>
+                        </Label>
+                        <HBox alignment="CENTER" spacing="10.0">
+                            <children>
+                                <Label text="NgÆ°á»i giá»¯ giÃ¡:" />
+                                <Label fx:id="lblHighestBidder" text="ChÆ°a cÃ³" style="-fx-font-weight: bold;" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+        </VBox>
+    </center>
+
+    <right>
+        <VBox prefWidth="350.0" spacing="20.0" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="20.0" left="15.0" right="15.0" top="20.0" />
+            </padding>
+            <children>
+                <Label text="Lá»‹ch sá»­ tráº£ giÃ¡">
+                    <font>
+                        <Font name="System Bold" size="16.0" />
+                    </font>
+                </Label>
+                <LineChart fx:id="chartHistory" prefHeight="250.0" style="-fx-background-color: white; -fx-background-radius: 10;">
+                    <xAxis>
+                        <CategoryAxis side="BOTTOM" label="Thá»i gian" />
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis side="LEFT" label="GiÃ¡" />
+                    </yAxis>
+                </LineChart>
+
+                <Separator prefWidth="200.0" />
+
+                <VBox spacing="15.0" style="-fx-background-color: #ebf5fb; -fx-padding: 20; -fx-background-radius: 10;">
+                    <children>
+                        <Label text="Nháº­p giÃ¡ cá»§a báº¡n:" style="-fx-font-weight: bold;" />
+                        <HBox spacing="10.0">
+                            <children>
+                                <TextField fx:id="txtBidAmount" prefHeight="40.0" prefWidth="200.0" promptText="VNÄ..." style="-fx-background-radius: 5;" />
+                                <Button fx:id="btnBid" mnemonicParsing="false" onAction="#handleBidAction" prefHeight="40.0" prefWidth="80.0" style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;" text="BID" />
+                            </children>
+                        </HBox>
+                        <Label text="* LÆ°u Ã½: GiÃ¡ khÃ´ng tháº¥p hÆ¡n giÃ¡ hiá»‡n táº¡i + bÆ°á»›c giÃ¡." textFill="#7f8c8d">
+                            <font>
+                                <Font size="11.0" />
+                            </font>
+                        </Label>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </right>
+</BorderPane>
+
+
+========== BidHistoryView.fxml ==========
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.BidHistoryController">
+   <children>
+      <HBox alignment="CENTER_LEFT" spacing="10.0">
+         <children>
+            <Label text="Auction ID:" />
+            <TextField fx:id="txtAuctionId" promptText="Enter auction ID" />
+            <Button fx:id="btnLoadHistory" onAction="#loadBidHistory" text="Load History" />
+            <Button fx:id="btnSetupAutoBid" onAction="#setupAutoBid" text="Setup Auto-Bid" />
+         </children>
+      </HBox>
+
+      <HBox alignment="CENTER_LEFT" spacing="10.0">
+         <children>
+            <Label text="Max Bid:" />
+            <TextField fx:id="txtMaxBid" promptText="Enter max bid amount" />
+            <Label text="Increment:" />
+            <TextField fx:id="txtIncrement" promptText="Enter increment amount" />
+         </children>
+      </HBox>
+
+      <LineChart fx:id="bidHistoryChart" title="Bid History Over Time" VBox.vgrow="ALWAYS">
+         <xAxis>
+            <CategoryAxis fx:id="timeAxis" label="Time" />
+         </xAxis>
+         <yAxis>
+            <NumberAxis fx:id="priceAxis" label="Bid Amount ($)" />
+         </yAxis>
+      </LineChart>
+
+      <HBox spacing="10.0">
+         <children>
+            <Label fx:id="lblCurrentPrice" text="Current Price: $0.00" />
+            <Label fx:id="lblTotalBids" text="Total Bids: 0" />
+            <Label fx:id="lblTimeRemaining" text="Time Remaining: --:--" />
+         </children>
+      </HBox>
+
+      <HBox spacing="10.0">
+         <children>
+            <TextField fx:id="txtBidAmount" promptText="Enter your bid" />
+            <Button fx:id="btnPlaceBid" onAction="#placeBid" text="Place Bid" />
+            <Button fx:id="btnBack" onAction="#goBack" text="Back" />
+         </children>
+      </HBox>
+   </children>
+</VBox>
+
+
+========== Product.fxml ==========
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.TilePane?>
+
+<AnchorPane prefHeight="600.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.ProductViewController">
+    <children>
+        <ScrollPane fitToWidth="true" prefHeight="600.0" prefWidth="500.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <content>
+                <TilePane fx:id="productGridContainer"
+                          prefColumns="3"
+                          hgap="20.0"
+                          vgap="20.0"
+                          alignment="CENTER"
+                          style="-fx-padding: 30; -fx-background-color: white;" />
+            </content>
+        </ScrollPane>
+    </children>
+</AnchorPane>
+        <!-- prefColumns="3": cho toi da 3 san pham tren 1 hang-->
+<!-- TilePane chÃ­nh lÃ  má»™t "KhuÃ´n Ä‘Ãºc Ã´ gáº¡ch" tá»± Ä‘á»™ng dÃ n hÃ ng vÃ  cá»™t cho cÃ¡c sáº£n pháº©m mÃ  khÃ´ng cáº§n pháº£i tÃ­nh toÃ¡n tá»a Ä‘á»™ X, Y thá»§ cÃ´ng. Cá»© má»—i khi báº¡n thÃªm má»™t sáº£n pháº©m má»›i, nÃ³ sáº½ tá»± tÃ¬m Ã´ trá»‘ng tiáº¿p theo Ä‘á»ƒ Ä‘áº·t vÃ o.-->
+
+
+========== Register.fxml ==========
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+
+<StackPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.RegisterController"
+           prefHeight="500.0" prefWidth="800.0"
+           style="-fx-background-color: linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%);">
+
+    <children>
+        <VBox alignment="CENTER" maxHeight="400.0" maxWidth="350.0" spacing="10.0"
+              style="-fx-background-color: white;
+                     -fx-background-radius: 15px;">
+
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+
+            <children>
+                <Label text="CREATE ACCOUNT" textFill="#2d6cdf" style="-fx-font-size: 18px; -fx-font-weight: bold;">
+                    <VBox.margin>
+                        <Insets bottom="10.0" />
+                    </VBox.margin>
+                </Label>
+
+                <TextField fx:id="regUsername" promptText="Username"
+                           style="-fx-background-color: white;
+                                  -fx-border-color: #ddd;
+                                  -fx-border-radius: 8px;
+                                  -fx-prompt-text-fill: #aaa;
+                                  -fx-padding: 6px;"/>
+
+                <PasswordField fx:id="regPassword" promptText="Password"
+                               style="-fx-background-color: white;
+                                      -fx-border-color: #ddd;
+                                      -fx-border-radius: 8px;
+                                      -fx-prompt-text-fill: #aaa;
+                                      -fx-padding: 6px;"/>
+
+                <HBox alignment="CENTER" spacing="10.0">
+                    <children>
+                        <Button onAction="#handleSignUpSeller" text="Seller Sign Up"
+                                style="-fx-background-color: #2d6cdf;
+                       -fx-text-fill: white;
+                       -fx-font-weight: bold;
+                       -fx-background-radius: 20px;
+                       -fx-padding: 6px 15px;
+                       -fx-cursor: hand;"/>
+
+                        <Button onAction="#handleSignUpBidder" text="Bidder Sign Up"
+                                style="-fx-background-color: #2d6cdf;
+                       -fx-text-fill: white;
+                       -fx-font-weight: bold;
+                       -fx-background-radius: 20px;
+                       -fx-padding: 6px 15px;
+                       -fx-cursor: hand;"/>
+                    </children>
+                </HBox>
+                <Button onAction="#handleBackToLogin" text="Return"
+                        style="-fx-background-color: white;
+                               -fx-text-fill: black;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 20px;
+                               -fx-padding: 6px 30px;
+                               -fx-cursor: hand;"/>
+
+            </children>
+        </VBox>
+    </children>
+</StackPane>
+
+
+========== SellerView.fxml ==========
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.TilePane?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.HBox?>
+
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.ComboBox?>
+
+<BorderPane prefHeight="600.0" prefWidth="1100.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.SellerController">
+
+    <left>
+        <VBox spacing="15" prefWidth="300.0" style="-fx-background-color: #f8f9fa; -fx-padding: 20; -fx-border-color: #dee2e6; -fx-border-width: 0 1 0 0;">
+            <children>
+
+                <Label text="ÄÄ‚NG Sáº¢N PHáº¨M Má»šI" style="-fx-font-weight: bold; -fx-font-size: 14; -fx-text-fill: #2c3e50;" />
+
+                <GridPane vgap="10" hgap="10">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="80" prefWidth="80" />
+                        <ColumnConstraints hgrow="ALWAYS" />
+                    </columnConstraints>
+
+                    <children>
+                        <Label text="TÃªn SP:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+<!--                        GridPane.rowIndex="0" GridPane.columnIndex="0" hang 0 cot 0-->
+                        <TextField fx:id="txtItemName" promptText="Nháº­p tÃªn..." GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+                        <Label text="GiÃ¡ Ä‘áº§u:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                        <TextField fx:id="txtStartingPrice" promptText="VNÄ" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+                        <Label text="BÆ°á»›c giÃ¡:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                        <TextField fx:id="txtPriceStep" promptText="Sá»‘ tiá»n tá»‘i thiá»ƒu" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+                        <Label text="Loáº¡i SP:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+                        <ComboBox fx:id="cbCategory" promptText="Chá»n phÃ¢n loáº¡i"
+                                  GridPane.rowIndex="3" GridPane.columnIndex="1" maxWidth="Infinity" />
+
+                        <Label text="MÃ´ táº£:" GridPane.rowIndex="4" GridPane.columnIndex="0" />
+                        <TextArea fx:id="txtDescription" prefHeight="80" wrapText="true" GridPane.rowIndex="4" GridPane.columnIndex="1" />
+
+                        <Label text="HÃ¬nh áº£nh:" GridPane.rowIndex="5" GridPane.columnIndex="0" />
+                        <HBox spacing="10" GridPane.rowIndex="5" GridPane.columnIndex="1">
+                            <children>
+                                <Button text="Chá»n áº£nh" onAction="#handleSelectImage" />
+                                <Label fx:id="lblFileName" text="ChÆ°a chá»n file" style="-fx-text-fill: #7f8c8d; -fx-font-style: italic;" />
+                            </children>
+                        </HBox>
+
+                        <Label text="Báº¯t Ä‘áº§u:" GridPane.rowIndex="6" GridPane.columnIndex="0" />
+                        <HBox spacing="10" GridPane.rowIndex="6" GridPane.columnIndex="1">
+                            <DatePicker fx:id="dateStart" prefWidth="150" promptText="Chá»n ngÃ y" />
+                            <TextField fx:id="txtTimeStart" prefWidth="80" promptText="HH:mm" text="08:00" />
+                        </HBox>
+<!--                        DatePicker luÃ´n tráº£ vá» má»™t Ä‘á»‹nh dáº¡ng chuáº©n xÃ¡c (kiá»ƒu LocalDate), giong 1 ban lich-->
+
+                        <Label text="Káº¿t thÃºc:" GridPane.rowIndex="7" GridPane.columnIndex="0" />
+                        <HBox spacing="10" GridPane.rowIndex="7" GridPane.columnIndex="1">
+                            <DatePicker fx:id="dateEnd" prefWidth="150" promptText="Chá»n ngÃ y" />
+                            <TextField fx:id="txtTimeEnd" prefWidth="80" promptText="HH:mm" text="20:00" />
+                        </HBox>
+
+                    </children>
+                </GridPane>
+
+                <Button fx:id="btnPostItem" onAction="#handlePostItem" maxWidth="Infinity"
+                        text="ÄÄ‚NG BÃN NGAY"
+                        style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10; -fx-cursor: hand;" />
+
+                <Separator />
+
+            </children>
+        </VBox>
+    </left>
+
+    <center>
+        <ScrollPane fitToWidth="true">
+            <content>
+                <TilePane fx:id="inventoryGrid" hgap="10" vgap="10" style="-fx-padding: 20;" />
+            </content>
+        </ScrollPane>
+    </center>
+
+    <right>
+        <VBox spacing="10" style="-fx-padding: 20; -fx-background-color: #f9f9f9;" prefWidth="240">
+            <Label text="Lá»ŠCH Sá»¬ GIAO Dá»ŠCH" style="-fx-font-weight: bold;" />
+            <ListView fx:id="historyList" prefHeight="300" />
+            <Label text="THá»NG KÃŠ DOANH THU" style="-fx-font-weight: bold;" />
+        </VBox>
+    </right>
+
+</BorderPane>
+
+
+========== View.fxml ==========
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane prefWidth="800.0" prefHeight="500.0"  xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.Controller">
+
+    <center>
+        <StackPane fx:id="leftPane" style="-fx-border-color: #ccc;">
+        </StackPane>
+    </center>
+
+    <right>
+        <VBox alignment="CENTER" prefWidth="320.0" spacing="15.0" style="-fx-background-color: white; -fx-border-color: #eee;">
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+            <children>
+                <Label text="LOGIN" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333;" />
+
+                <VBox spacing="5.0">
+                    <children>
+                        <Label text="Username:" />
+                        <TextField fx:id="txtUsername" promptText="Enter username" />
+                    </children>
+                </VBox>
+
+                <VBox spacing="5.0">
+                    <children>
+                        <Label text="Password:" />
+                        <PasswordField fx:id="txtPassword" promptText="Enter password" />
+                    </children>
+                </VBox>
+
+                <HBox spacing="20.0" alignment="CENTER">
+                    <children>
+                        <RadioButton fx:id="rbBidder" text="BIDDER" selected="true">
+                            <toggleGroup>
+                                <ToggleGroup fx:id="roleGroup" />
+                            </toggleGroup>
+                        </RadioButton>
+                        <RadioButton fx:id="rbSeller" text="SELLER" toggleGroup="$roleGroup" />
+                        <RadioButton fx:id="rbAdmin" text="ADMIN" toggleGroup="$roleGroup" />
+                    </children>
+                    <padding>
+                        <Insets top="10.0" bottom="10.0" />
+                    </padding>
+                </HBox>
+
+                <HBox spacing="10.0" alignment="CENTER">
+                    <children>
+                        <Button fx:id="btnLogin" onAction="#handleLogin" text="Login" prefWidth="100.0"
+                                style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-cursor: hand;" />
+                        <Button fx:id="btnRegister" onAction="#handleRegister" text="Register" prefWidth="100.0"
+                                style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-cursor: hand;"/>
+                    </children>
+                    <padding>
+                        <Insets top="10.0" />
+                    </padding>
+                </HBox>
+            </children>
+        </VBox>
+    </right>
+
+</BorderPane>
+
+
+========== AdminDAO.java ==========
+package com.auction.server.dao;
+
+import com.auction.server.models.User;
+import com.auction.server.models.BidderDTO;
+import com.auction.server.models.SellerDTO;
+import com.auction.server.models.AdminDTO;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class AdminDAO {
+    // lay danh sach tat ca nguoi dung
+    public List<Object> getAllUsers() {   
+    List<Object> users = new ArrayList<>();
+    String sql = "SELECT id, username, email, role FROM users";
+
+    Connection conn = DatabaseConnection.getInstance().getConnection();
+    try (Statement stmt = conn.createStatement();
+         ResultSet rs = stmt.executeQuery(sql)) {
+
+        while (rs.next()) {
+            int id = rs.getInt("id");
+            String username = rs.getString("username");
+            String email = rs.getString("email");
+            String role = rs.getString("role");
+
+            Object user = null;
+            if ("BIDDER".equalsIgnoreCase(role)) {
+                user = new BidderDTO(id, username, email, 0.0);  // DTO
+            } else if ("SELLER".equalsIgnoreCase(role)) {
+                user = new SellerDTO(id, username, email, 0.0, 5.0, 0);  // DTO
+            } else if ("ADMIN".equalsIgnoreCase(role)) {
+                user = new AdminDTO(id, username, email, "ADMIN");  // DTO
+            }
+            
+            if (user != null) {
+                users.add(user);
+            }
+        }
+    } catch (SQLException e) {
+            e.printStackTrace();
+    } finally {
+        try {
+                if (conn != null && !conn.isClosed()) {
+                    conn.close();
+                }
+        } catch (SQLException e) {
+                e.printStackTrace();
+            }
+    }
+    return users;
+    }
+
+    // xoa nguoi dung theo id
+    public boolean deleteUser(int userId, String role) {
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+        
+        try {
+            conn.setAutoCommit(false);
+            String deleteSubTableSql = role.equalsIgnoreCase("BIDDER") ? 
+                                       "DELETE FROM bidders WHERE user_id = ?" : 
+                                       "DELETE FROM sellers WHERE user_id = ?";
+            
+            try (PreparedStatement pstmtSub = conn.prepareStatement(deleteSubTableSql)) {
+                pstmtSub.setInt(1, userId);
+                pstmtSub.executeUpdate();
+            }
+
+            String deleteUserSql = "DELETE FROM users WHERE id = ?";
+            try (PreparedStatement pstmtUser = conn.prepareStatement(deleteUserSql)) {
+                pstmtUser.setInt(1, userId);
+                int affectedRows = pstmtUser.executeUpdate();
+                
+                if (affectedRows > 0) {
+                    conn.commit();
+                    return true;
+                }
+            }
+            
+            conn.rollback(); 
+        } catch (SQLException e) {
+            try { conn.rollback(); } catch (SQLException ex) {}
+        } finally {
+            try { conn.setAutoCommit(true); } catch (SQLException e) {}
+        }
+        return false;
+    }
+
+    // khoa hoac mo tai khoan nguoi dung
+    public boolean setUserStatus(int userId, boolean status) {
+        String sql = "UPDATE users SET isActive = ? WHERE id = ?";
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setBoolean(1, status);
+            pstmt.setInt(2, userId);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+}
+
+
+========== ArtworkDAO.java ==========
+package com.auction.server.dao;
+import com.auction.server.models.AuctionStatus;
+import com.auction.server.models.Art;
+import java.sql.*;
+import java.time.LocalDateTime;
+public class ArtworkDAO {
+    ItemDAO itemDAO = new ItemDAO();
+    // add new artwork to database
+    public boolean addArtworkItem(Art artwork){
+        boolean itemAdded = itemDAO.addItem(artwork); // id se tu tang trong ItemDAO
+        if (itemAdded){
+            String sql = "INSERT INTO artworks (item_id, artist, creation_year, material ) VALUES (?, ?, ?, ?)";
+            Connection conn = DatabaseConnection.getInstance().getConnection();
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)){
+                pstmt.setInt(1, artwork.getId()); // DÃ¹ng ID Ä‘Ã£ Ä‘Æ°á»£c táº¡o trong ItemDAO
+                pstmt.setString(2,artwork.getArtist());
+                pstmt.setInt(3, artwork.getCreationYear());
+                pstmt.setString(4, artwork.getMaterial());
+                int rowsInserted = pstmt.executeUpdate();
+                return rowsInserted > 0;
+            }catch(SQLException e){
+                return false;
+            }
+        }
+        return false;
+    }
+
+    // them san pham bang thu cong
+    public boolean addArtworkItem(int id, int sellerId, String name, String description, double startingPrice,double currentPrice, LocalDateTime startTime, LocalDateTime endTime, AuctionStatus status, int highestBidderId,
+                                  String artist, int creation_year, String material){
+        Art artwork = new Art(id, sellerId,name, description, startingPrice,currentPrice, startTime, endTime, status, highestBidderId,
+                   artist,  creation_year,  material);
+        return addArtworkItem(artwork);
+    }
+
+    // get artwork by id
+    public Art getArtworkItemById(int itemId){
+        String sql = "SELECT i.*, a.artist, a.creation_year, a.material FROM items i INNER JOIN artworks a ON i.id = a.id WHERE i.id = ?";
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+        try(PreparedStatement pstmt = conn.prepareStatement(sql)){
+            pstmt.setInt(1, itemId);
+            try (ResultSet rs = pstmt.executeQuery()){
+                if (rs.next()){
+                    Art artwork = new Art(
+                        rs.getInt("id"),
+                        rs.getInt("seller_id"),
+                        rs.getString("name"),
+                        rs.getString("description"),
+                        rs.getDouble("starting_price"),
+                        rs.getTimestamp("start_time").toLocalDateTime(),
+                        rs.getTimestamp("end_time").toLocalDateTime(),
+                        rs.getString("artist"),
+                        rs.getInt("creation_year"), 
+                        rs.getString("material")
+                        
+                    );
+                    artwork.setCurrentMaxPrice(rs.getDouble("current_max_price"));
+                    artwork.setStatus(AuctionStatus.valueOf(rs.getString("status")));
+             
+                    return artwork; 
+                }   
+            }
+            return null;
+        }catch(SQLException e){
+            return null;
+        }
+    }
+}
+
+
+========== BidderDAO.java ==========
+package com.auction.server.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+
+import com.auction.server.models.BidTransactionDTO;
+import com.auction.server.models.Bidder;
+import com.auction.server.models.BidderDTO;
+public class BidderDAO {
+    // KÃ©o chuyÃªn gia UserDAO vÃ o Ä‘á»ƒ lÃ m thuÃª pháº§n báº£ng cha
+    private UserDAO userDAO = new UserDAO();
+
+    // ==========================================
+    // CÃCH 1: DÃ¹ng Äá»‘i tÆ°á»£ng (OOP) - NÃ²ng cá»‘t
+    // ==========================================
+    public boolean registerBidder(Bidder bidder) {
+        
+        // BÆ°á»›c 1: Nhá» UserDAO nhÃ©t thÃ´ng tin vÃ o báº£ng `users` trÆ°á»›c
+        boolean isUserCreated = userDAO.registerUser(bidder, "BIDDER");
+
+        // Náº¿u báº£ng users táº¡o thÃ nh cÃ´ng, lÃºc nÃ y bidder.getId() ÄÃƒ CÃ“ Sá» THáº¬T (VD: 108)
+        if (isUserCreated) {
+            
+            // BÆ°á»›c 2: NhÃ©t tiáº¿p cÃ¡i ID 108 Ä‘Ã³ vÃ o báº£ng `bidders` (TÃ i khoáº£n má»›i máº·c Ä‘á»‹nh 0 Ä‘á»“ng)
+            String sql = "INSERT INTO bidders (user_id, account_balance) VALUES (?, 0.0)";
+            Connection conn = DatabaseConnection.getInstance().getConnection();
+
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                
+                // MÃ³c Ä‘Ãºng cÃ¡i ID tá»« Object ra Ä‘á»ƒ khÃ³a ngoáº¡i (Foreign Key) khá»›p nhau
+                pstmt.setInt(1, bidder.getId()); 
+                
+                int rowsInserted = pstmt.executeUpdate();
+                return rowsInserted > 0; // Tráº£ vá» true náº¿u chÃ¨n thÃ nh cÃ´ng
+
+            } catch (SQLException e) {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    // ==========================================
+    // CÃCH 2: DÃ¹ng String rá»i ráº¡c (DÃ nh cho UI gá»i cho láº¹)
+    // ==========================================
+    public boolean registerBidder(String username, String password, String email) {
+        
+        // NhÃ©t sá»‘ 0 vÃ o lÃ m ID giáº£, sá»‘ 0.0 lÃ m tiá»n máº·c Ä‘á»‹nh Ä‘á»ƒ chiá»u lÃ²ng cÃ¡i Constructor cá»§a báº¡n!
+        Bidder tempBidder = new Bidder(0, username, password, email, 0.0);
+        
+        // QuÄƒng cho CÃ¡ch 1 xá»­ lÃ½. NÃ³ sáº½ vá»©t cÃ¡i ID 0 kia Ä‘i vÃ  Ä‘Ã¨ ID xá»‹n tá»« MySQL vÃ o!
+        return registerBidder(tempBidder); 
+    }
+
+    // lay thong tin cua bidder
+    public BidderDTO getBidderById(int bidderId){
+    String sql = "SELECT u.id, u.username, u.email, b.account_balance "+
+                 "FROM users u JOIN bidders b ON u.id = b.user_id WHERE u.id = ?";   
+
+    Connection conn = DatabaseConnection.getInstance().getConnection();
+    try(PreparedStatement pstmt = conn.prepareStatement(sql)){
+        pstmt.setInt(1, bidderId);
+        try(java.sql.ResultSet rs = pstmt.executeQuery()){
+            if(rs.next()){
+                int id = rs.getInt("id");
+                String username = rs.getString("username");
+                String email = rs.getString("email");
+                double accountBalance = rs.getDouble("account_balance");
+                return new BidderDTO(id, username, email, accountBalance);  // âœ… DTO thay vÃ¬ Bidder
+            }
+        }
+    }catch(SQLException e){
+        return null;
+    }
+    return null;
+    }
+    // update account_balance
+    // add money to balance
+    public boolean updateBalance(int userid, double amount){
+        String sql = "UPDATE bidders SET account_balance = account_balance + ? WHERE user_id = ?";
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+        try(PreparedStatement pstmt = conn.prepareStatement(sql)){
+            pstmt.setDouble(1,amount);
+            pstmt.setInt(2,userid);
+            
+            int rowsUpdated = pstmt.executeUpdate();
+            return rowsUpdated > 0; 
+        }catch(SQLException e){
+            return false;
+        }
+    }
+
+    //deduct Balance
+    public boolean deductBalance(int userId, double amount){
+        if(amount < 0){
+            amount = Math.abs(amount);
+        }
+        String sql = "UPDATE bidders SET account_balance = account_balance - ? WHERE user_id = ? AND account_balance > ?";
+
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+        try(PreparedStatement pstmt = conn.prepareStatement(sql)){
+            pstmt.setDouble(1, amount);
+            pstmt.setInt(2, userId);
+            pstmt.setDouble(3, amount);
+
+            int rowsUpdated = pstmt.executeUpdate();
+
+            return rowsUpdated > 0;
+        }catch(SQLException e){
+            return false;
+        }
+    }
+
+
+}
+
+
+========== BidsDAO.java ==========
+package com.auction.server.dao;
+
+import java.sql.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.auction.server.models.AuctionStatus;
+import com.auction.server.models.BidTransaction;
+import com.auction.server.models.BidTransactionDTO;
+import com.auction.server.models.Bidder;
+import com.auction.server.models.BidderDTO;
+
+public class BidsDAO {
+    // Thá»±c hiá»‡n Ä‘áº·t giÃ¡ má»›i
+    public boolean executeBid(int itemId, int newBidderId, double newBidAmount) {
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+
+        try {
+            conn.setAutoCommit(false);
+
+            String checkItemSql = "SELECT current_max_price, highest_bidder_id, status FROM items WHERE id = ? FOR UPDATE";
+            double currentMaxPrice = 0;
+            int oldBidderId = 0;
+            
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkItemSql)) {
+                checkStmt.setInt(1, itemId);
+                try (ResultSet rs = checkStmt.executeQuery()) {
+                    if (rs.next()) {
+                        String status = rs.getString("status");
+                        if (!"RUNNING".equals(status)) {
+                            conn.rollback(); return false; 
+                        }
+                        currentMaxPrice = rs.getDouble("current_max_price");
+                        oldBidderId = rs.getInt("highest_bidder_id"); 
+                    } else {
+                        conn.rollback(); return false; 
+                    }
+                }
+            }
+
+            if (newBidAmount <= currentMaxPrice) {
+                conn.rollback(); return false; 
+            }
+
+            String deductSql = "UPDATE bidders SET account_balance = account_balance - ? WHERE user_id = ? AND account_balance >= ?";
+            try (PreparedStatement deductStmt = conn.prepareStatement(deductSql)) {
+                deductStmt.setDouble(1, newBidAmount);
+                deductStmt.setInt(2, newBidderId);
+                deductStmt.setDouble(3, newBidAmount);
+                if (deductStmt.executeUpdate() == 0) {
+                    conn.rollback(); return false; 
+                }
+            }
+
+            if (oldBidderId != 0) {
+                String refundSql = "UPDATE bidders SET account_balance = account_balance + ? WHERE user_id = ?";
+                try (PreparedStatement refundStmt = conn.prepareStatement(refundSql)) {
+                    refundStmt.setDouble(1, currentMaxPrice); // Tráº£ láº¡i Ä‘Ãºng sá»‘ tiá»n há» Ä‘Ã£ cÆ°á»£c
+                    refundStmt.setInt(2, oldBidderId);
+                    refundStmt.executeUpdate();
+                }
+            }
+
+            String updateItemSql = "UPDATE items SET current_max_price = ?, highest_bidder_id = ? WHERE id = ?";
+            try (PreparedStatement updateItemStmt = conn.prepareStatement(updateItemSql)) {
+                updateItemStmt.setDouble(1, newBidAmount);
+                updateItemStmt.setInt(2, newBidderId);
+                updateItemStmt.setInt(3, itemId);
+                updateItemStmt.executeUpdate();
+            }
+
+            String insertHistorySql = "INSERT INTO bids (item_id, bidder_id, bid_amount) VALUES (?, ?, ?)";
+            try (PreparedStatement insertHistoryStmt = conn.prepareStatement(insertHistorySql)) {
+                insertHistoryStmt.setInt(1, itemId);
+                insertHistoryStmt.setInt(2, newBidderId);
+                insertHistoryStmt.setDouble(3, newBidAmount);
+                insertHistoryStmt.executeUpdate();
+            }
+
+            conn.commit();
+            return true;
+
+        } catch (SQLException e) {
+            try {
+                conn.rollback();
+            } catch (SQLException ex) { }
+            return false;
+        } finally {
+            try {
+                conn.setAutoCommit(true);
+            } catch (SQLException e) { }
+        }
+    }
+    
+    // get bid history cua item
+    public List<BidTransactionDTO> getBidHistoryByItemId(int itemId) { 
+    List<BidTransactionDTO> history = new ArrayList<>();
+    String sql = "SELECT b.id, b.bidder_id, u.username, b.bid_amount, b.bid_time " +
+                 "FROM bids b JOIN users u ON b.bidder_id = u.id WHERE b.item_id = ? ORDER BY b.bid_time DESC";
+    
+    Connection conn = DatabaseConnection.getInstance().getConnection();
+    try(PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        pstmt.setInt(1, itemId);
+        try(ResultSet rs = pstmt.executeQuery()) {
+            while(rs.next()) {  // âœ… Láº·p táº¥t cáº£ dÃ²ng
+                int id = rs.getInt("id");
+                int bidderId = rs.getInt("bidder_id");
+                String bidderUsername = rs.getString("username");
+                double bidAmount = rs.getDouble("bid_amount");
+                LocalDateTime timestamp = rs.getTimestamp("bid_time").toLocalDateTime();
+                history.add(new BidTransactionDTO(id, bidderId, bidderUsername, bidAmount, timestamp));
+            }
+        }
+    } catch(SQLException e) {
+        e.printStackTrace();
+    }
+    return history; 
+    }
+
+
+}
+
+
+========== DatabaseConnection.java ==========
+package com.auction.server.dao;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public class DatabaseConnection {
+    // 1. Biáº¿n instance duy nháº¥t tÄ©nh (Singleton)
+    private static DatabaseConnection instance;
+    private Connection connection;
+
+    // 2. ThÃ´ng tin cáº¥u hÃ¬nh Database
+    // Thay tháº¿ toÃ n bá»™ Ä‘oáº¡n cáº¥u hÃ¬nh cÅ© báº±ng Ä‘oáº¡n nÃ y:
+    // Thay tháº¿ toÃ n bá»™ Ä‘oáº¡n cáº¥u hÃ¬nh cÅ© báº±ng Ä‘oáº¡n nÃ y:
+    private final String URL = "jdbc:mysql://mysql-119e3c15-auction-db-cloud.e.aivencloud.com:26067/defaultdb?sslMode=REQUIRED";
+    private final String USER = "avnadmin"; 
+    private final String PASSWORD = "AVNS_UIFsz6cvPQODeHSqFf6";
+    // 3. Constructor Ä‘Æ°á»£c Ä‘á»ƒ á»Ÿ cháº¿ Ä‘á»™ private Ä‘á»ƒ ngÄƒn táº¡o Ä‘á»‘i tÆ°á»£ng lung tung
+    private DatabaseConnection() {
+        try {
+            // ÄÄƒng kÃ½ Driver cá»§a MySQL
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            // Má»Ÿ káº¿t ná»‘i
+            this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            System.out.println("-> [ThÃ nh cÃ´ng] Server Ä‘Ã£ káº¿t ná»‘i vá»›i MySQL (auction_db)!");
+        } catch (ClassNotFoundException e) {
+            System.err.println("-> [Lá»—i] KhÃ´ng tÃ¬m tháº¥y thÆ° viá»‡n MySQL JDBC. Kiá»ƒm tra láº¡i file pom.xml");
+        } catch (SQLException e) {
+            System.err.println("-> [Lá»—i] KhÃ´ng káº¿t ná»‘i Ä‘Æ°á»£c Database. Sai máº­t kháº©u hoáº·c MySQL chÆ°a báº­t?");
+            e.printStackTrace();
+        }
+    }
+
+    // 4. HÃ m cung cáº¥p Ä‘iá»ƒm truy cáº­p duy nháº¥t
+    public static DatabaseConnection getInstance() {
+        if (instance == null) {
+            instance = new DatabaseConnection();
+        }
+        return instance;
+    }
+
+    // 5. HÃ m láº¥y Ä‘Æ°á»ng á»‘ng káº¿t ná»‘i ra Ä‘á»ƒ dÃ¹ng
+    public Connection getConnection() {
+        return connection;
+    }
+
+    // --- HÃ€M MAIN Äá»‚ Báº N CHáº Y THá»¬ KIá»‚M TRA NGAY Táº I CHá»– ---
+    public static void main(String[] args) {
+        // Gá»i thá»­ Ä‘á»ƒ xem console cÃ³ in ra chá»¯ thÃ nh cÃ´ng khÃ´ng
+        DatabaseConnection db = DatabaseConnection.getInstance();
+        Connection conn = db.getConnection();
+        
+        if (conn != null) {
+            System.out.println("Kiá»ƒm tra: ÄÆ°á»ng á»‘ng hoáº¡t Ä‘á»™ng tá»‘t, sáºµn sÃ ng truyá»n dá»¯ liá»‡u!");
+        }
+    }
+}
+
+
+========== ElectronicsDAO.java ==========
+package com.auction.server.dao;
+import com.auction.server.models.AuctionStatus;
+import com.auction.server.models.Electronics;
+import java.sql.*;
+import java.time.LocalDateTime;
+public class ElectronicsDAO {
+    private ItemDAO itemDAO = new ItemDAO();
+    // them mot san pham moi vao itemsdatabase va them vao bang electronics
+    public boolean addElectronicsItem(Electronics electronics){
+        boolean itemAdded = itemDAO.addItem(electronics); // id se tu tang trong ItemDAO
+        if (itemAdded){
+            String sql = "INSERT INTO electronics (item_id, warranty) VALUES (?, ?)";
+            Connection conn = DatabaseConnection.getInstance().getConnection();
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)){
+                pstmt.setInt(1, electronics.getId()); // DÃ¹ng ID Ä‘Ã£ Ä‘Æ°á»£c táº¡o trong ItemDAO
+                pstmt.setInt(2, electronics.getWarrantyMonths());
+
+                int rowsInserted = pstmt.executeUpdate();
+                return rowsInserted > 0;
+            }catch(SQLException e){
+                return false;
+            }
+        }
+        return false;
+    }
+
+    // them san pham bang thu cong
+    public boolean addElectronicsItem(int id, int sellerId, String name, String description, double startingPrice,double currentPrice, LocalDateTime startTime, LocalDateTime endTime, AuctionStatus status, int highestBidderId,
+                                      int warrantyMonths){
+        Electronics electronics = new Electronics(id, sellerId,name, description, startingPrice,currentPrice, startTime, endTime, status, highestBidderId,
+                   warrantyMonths);
+        return addElectronicsItem(electronics);
+    }
+
+    // lay thong tin cua electronics tu id
+    public Electronics getElectronicsItemById(int itemId){
+        String sql = "SELECT i.*, e.warranty FROM items i INNER JOIN electronics e ON i.id = e.id WHERE i.id = ?";
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+        try(PreparedStatement pstmt = conn.prepareStatement(sql)){
+            pstmt.setInt(1, itemId);
+            try (ResultSet rs = pstmt.executeQuery()){
+                if (rs.next()){
+                    Electronics elec = new Electronics(
+                        rs.getInt("id"),
+                        rs.getInt("seller_id"),
+                        rs.getString("name"),
+                        rs.getString("description"),
+                        rs.getDouble("starting_price"),
+                        rs.getInt("warranty"),
+                        rs.getTimestamp("start_time").toLocalDateTime(),
+                        rs.getTimestamp("end_time").toLocalDateTime()
+                    );
+                    elec.setCurrentMaxPrice(rs.getDouble("current_max_price"));
+                    elec.setStatus(AuctionStatus.valueOf(rs.getString("status")));
+                    elec.setHighestBidderId(rs.getInt("highest_bidder_id"));
+                    return elec; 
+                }   
+            }
+            return null;
+        }catch(SQLException e){
+            return null;
+        }
+    }
+}
+
+
+========== ItemDAO.java ==========
+package com.auction.server.dao;
+import com.auction.server.models.Item;
+import com.auction.server.models.AuctionStatus;
+import java.sql.*;
+public class ItemDAO {
+    // TODO: ThÃªm cÃ¡c phÆ°Æ¡ng thá»©c Ä‘á»ƒ thao tÃ¡c vá»›i báº£ng Item trong Database
+    // add item, get item by id, update item, delete item, list all items are bidding, etc.
+
+    // addItem(Item item) - ThÃªm má»™t máº·t hÃ ng má»›i vÃ o cÆ¡ sá»Ÿ dá»¯ liá»‡u
+    public boolean addItem(Item item) {
+        String sql = "INSERT INTO items (seller_id, name, description, starting_price, current_max_price, status, category, start_time, end_time) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            pstmt.setInt(1, item.getSellerId());
+            pstmt.setString(2, item.getName());
+            pstmt.setString(3, item.getDescription());
+            pstmt.setDouble(4, item.getStartingPrice());
+            pstmt.setDouble(5, item.getStartingPrice()); // Má»›i táº¡o thÃ¬ giÃ¡ max = giÃ¡ khá»Ÿi Ä‘iá»ƒm
+            pstmt.setString(6, item.getStatus().name()); // Sá»­ dá»¥ng enum.name()
+            pstmt.setString(7, item.getCategory());
+            pstmt.setTimestamp(8, Timestamp.valueOf(item.getStartTime()));
+            pstmt.setTimestamp(9, Timestamp.valueOf(item.getEndTime()));
+
+            int rowsInserted = pstmt.executeUpdate();
+            if (rowsInserted > 0) {
+                try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        item.setId(generatedKeys.getInt(1));
+                    }
+                }
+                return true;
+            }
+        } catch (SQLException e) {
+            return false;
+        }
+        return false;
+    }
+
+    // lay item theo id
+    public Item getItemById(int itemId) {
+        String sql = "SELECT * FROM items WHERE id = ?";
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, itemId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapRowToItem(rs); // Gá»i hÃ m phá»¥ trá»£ 
+                }
+            }
+        } catch (SQLException e) {
+            return null;
+        }
+        return null;
+    }
+
+    // HÃ m phá»¥ trá»£ Ä‘á»ƒ chuyá»ƒn Ä‘á»•i ResultSet thÃ nh Item
+    private Item mapRowToItem(ResultSet rs) throws SQLException {
+        int id = rs.getInt("id");
+        int sellerId = rs.getInt("seller_id");
+        String name = rs.getString("name");
+        String description = rs.getString("description");
+        double startingPrice = rs.getDouble("starting_price");
+        double currentMaxPrice = rs.getDouble("current_max_price");
+        java.time.LocalDateTime startTime = rs.getTimestamp("start_time").toLocalDateTime();
+        java.time.LocalDateTime endTime = rs.getTimestamp("end_time").toLocalDateTime();
+        String statusStr = rs.getString("status");
+        AuctionStatus status = AuctionStatus.valueOf(statusStr);
+        int highestBidderId = rs.getInt("highest_bidder_id");
+        String category = rs.getString("category");
+        
+        // Táº¡o item dá»±a trÃªn category - sá»­ dá»¥ng constructor thá»© 2 cá»§a Item
+        Item item = new Item(id, sellerId, name, description, startingPrice, startTime, endTime, category) {
+            @Override
+            public void printInfo() {
+                System.out.println("Item: " + name);
+            }
+        };
+        
+        item.setHighestBidderId(highestBidderId);
+        item.setCurrentMaxPrice(currentMaxPrice);
+        item.setStatus(status);
+        return item;
+    }
+
+    // thay doi trang thai cua item
+    public boolean updateStatus(int id, AuctionStatus newStatus){
+        String sql = "UPDATE items SET status = ? WHERE id = ?";
+        Connection conn  = DatabaseConnection.getInstance().getConnection();
+        try(PreparedStatement pstmt = conn.prepareStatement(sql)){
+            pstmt.setInt(2,id);
+            pstmt.setString(1, newStatus.name());
+
+            int rowsUpdated = pstmt.executeUpdate();
+            return rowsUpdated > 0;
+        }catch(SQLException e){
+            return false;
+        }
+    }
+
+    public boolean updateCurrentMaxPrice(int itemId, double newPrice, int bidderId){
+        String sql = "UPDATE items SET current_max_price = ?, highest_bidder_id = ? WHERE id = ?"+
+                        "AND current_max_price < ? AND status = 'RUNNING'";
+
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+        try(PreparedStatement pstmt = conn.prepareStatement(sql)){
+            pstmt.setDouble(1, newPrice);
+            pstmt.setInt(2, bidderId);
+            pstmt.setInt(3, itemId);
+            pstmt.setDouble(4, newPrice);
+
+            int rowsUpdated = pstmt.executeUpdate();
+            return rowsUpdated > 0;
+        }catch(SQLException e){
+            return false;
+        }
+    }
+
+}
+
+
+========== PaymentDAO.java ==========
+package com.auction.server.dao;
+
+import com.auction.server.models.Payment;
+import com.auction.server.models.PaymentStatus;
+import java.sql.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+public class PaymentDAO {
+
+    // tao hoa don thanh toan moi khi co nguoi thang cuoc dau gia
+    public boolean createPaymentInvoice(int itemId, int fromBidder, int toSeller, double amount) {
+        String sql = "INSERT INTO payments (item_id, from_bidder_id, to_seller_id, amount, status) VALUES (?, ?, ?, ?, 'PENDING')";
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, itemId);
+            pstmt.setInt(2, fromBidder);
+            pstmt.setInt(3, toSeller);
+            pstmt.setDouble(4, amount);
+            
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // 2. Xá»¬ LÃ THANH TOÃN (Chá»‘t Ä‘Æ¡n, Chuyá»ƒn tiá»n cho Seller)
+    
+    public boolean processPayment(int paymentId) {
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+
+        try {
+            // Báº¯t Ä‘áº§u Transaction an toÃ n
+            conn.setAutoCommit(false);
+
+            // BÆ°á»›c A: Äá»c thÃ´ng tin hÃ³a Ä‘Æ¡n xem cÃ³ Ä‘Ãºng lÃ  PENDING khÃ´ng
+            String checkSql = "SELECT amount, to_seller_id, item_id FROM payments WHERE id = ? AND status = 'PENDING' FOR UPDATE";
+            double amount = 0;
+            int sellerId = 0;
+            int itemId = 0;
+
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+                checkStmt.setInt(1, paymentId);
+                try (ResultSet rs = checkStmt.executeQuery()) {
+                    if (rs.next()) {
+                        amount = rs.getDouble("amount");
+                        sellerId = rs.getInt("to_seller_id");
+                        itemId = rs.getInt("item_id");
+                    } else {
+                        conn.rollback(); return false; // HÃ³a Ä‘Æ¡n khÃ´ng tá»“n táº¡i hoáº·c Ä‘Ã£ thanh toÃ¡n rá»“i
+                    }
+                }
+            }
+
+            // BÆ°á»›c B: Cá»™ng tiá»n vÃ o vÃ­ cá»§a Seller (Tiá»n cá»§a Bidder Ä‘Ã£ bá»‹ trá»« lÃºc Ä‘áº·t giÃ¡ rá»“i)
+            String addMoneySql = "UPDATE sellers SET account_balance = account_balance + ? WHERE user_id = ?";
+            try (PreparedStatement addStmt = conn.prepareStatement(addMoneySql)) {
+                addStmt.setDouble(1, amount);
+                addStmt.setInt(2, sellerId);
+                addStmt.executeUpdate();
+            }
+
+            // BÆ°á»›c C: Chuyá»ƒn tráº¡ng thÃ¡i hÃ³a Ä‘Æ¡n thÃ nh COMPLETED
+            String updatePaymentSql = "UPDATE payments SET status = 'COMPLETED' WHERE id = ?";
+            try (PreparedStatement updatePayStmt = conn.prepareStatement(updatePaymentSql)) {
+                updatePayStmt.setInt(1, paymentId);
+                updatePayStmt.executeUpdate();
+            }
+
+            // BÆ°á»›c D: Chuyá»ƒn tráº¡ng thÃ¡i Item thÃ nh PAID
+            String updateItemSql = "UPDATE items SET status = 'PAID' WHERE id = ?";
+            try (PreparedStatement updateItemStmt = conn.prepareStatement(updateItemSql)) {
+                updateItemStmt.setInt(1, itemId);
+                updateItemStmt.executeUpdate();
+            }
+
+            // HoÃ n táº¥t má»i thá»©!
+            conn.commit();
+            return true;
+
+        } catch (SQLException e) {
+            try { conn.rollback(); } catch (SQLException ex) {}
+            return false;
+        } finally {
+            try { conn.setAutoCommit(true); } catch (SQLException e) {}
+        }
+    }
+
+    // 3. XEM Lá»ŠCH Sá»¬ THU/CHI TIá»€N (DÃ nh cho Dashboard)
+    public List<Payment> getPaymentHistoryByUser(int userId) {
+        List<Payment> history = new ArrayList<>();
+        String sql = "SELECT * FROM payments WHERE from_bidder_id = ? OR to_seller_id = ? ORDER BY payment_date DESC";
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            pstmt.setInt(2, userId);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    // Láº¥y chuá»—i String tá»« DB (vÃ­ dá»¥: "COMPLETED")
+                    String dbStatus = rs.getString("status");
+                    
+                    // CHUYá»‚N Äá»”I: Biáº¿n chuá»—i String thÃ nh háº±ng sá»‘ Enum tÆ°Æ¡ng á»©ng
+                    PaymentStatus statusEnum = PaymentStatus.valueOf(dbStatus);
+
+                    history.add(new Payment(
+                        rs.getInt("id"),
+                        rs.getInt("item_id"),
+                        rs.getInt("from_bidder_id"),
+                        rs.getInt("to_seller_id"),
+                        rs.getDouble("amount"),
+                        statusEnum, // Truyá»n Enum vÃ o thay vÃ¬ String
+                        rs.getTimestamp("payment_date").toLocalDateTime()
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return history;
+    }
+}
+
+
+========== SellerDAO.java ==========
+package com.auction.server.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+import com.auction.server.models.Seller;
+import com.auction.server.models.SellerDTO;
+public class SellerDAO {
+    // KÃ©o chuyÃªn gia UserDAO vÃ o Ä‘á»ƒ lÃ m thuÃª pháº§n báº£ng cha
+    private UserDAO userDAO = new UserDAO();
+    public boolean registerSeller(Seller seller) {
+        
+        boolean isUserCreated = userDAO.registerUser(seller, "SELLER");
+
+        if (isUserCreated) {
+            
+            String sql = "INSERT INTO sellers (user_id, account_balance) VALUES (?, 0.0)";
+            Connection conn = DatabaseConnection.getInstance().getConnection();
+
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                
+                pstmt.setInt(1, seller.getId()); 
+                
+                int rowsInserted = pstmt.executeUpdate();
+                return rowsInserted > 0; // Tráº£ vá» true náº¿u chÃ¨n thÃ nh cÃ´ng
+
+            } catch (SQLException e) {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    // ==========================================
+    // CÃCH 2: DÃ¹ng String rá»i ráº¡c (DÃ nh cho UI gá»i cho láº¹)
+    // ==========================================
+    public boolean registerSeller(String username, String password, String email) {
+        
+        // NhÃ©t sá»‘ 0 vÃ o lÃ m ID giáº£, sá»‘ 0.0 lÃ m tiá»n máº·c Ä‘á»‹nh Ä‘á»ƒ chiá»u lÃ²ng cÃ¡i Constructor cá»§a báº¡n!
+        Seller tempSeller = new Seller(0, username, password, email);
+        
+        // QuÄƒng cho CÃ¡ch 1 xá»­ lÃ½. NÃ³ sáº½ vá»©t cÃ¡i ID 0 kia Ä‘i vÃ  Ä‘Ã¨ ID xá»‹n tá»« MySQL vÃ o!
+        return registerSeller(tempSeller); 
+    }
+
+    // lay seller tu id
+    public SellerDTO getSellerById(int sellerId){
+        String sql = "SELECT u.id, u.username, u.email, s.account_balance, s.total_rating, s.sale_count "+
+                    "FROM users u JOIN sellers s ON u.id = s.user_id WHERE u.id = ?";   
+
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+        try(PreparedStatement pstmt = conn.prepareStatement(sql)){
+            pstmt.setInt(1, sellerId);
+            try(java.sql.ResultSet rs = pstmt.executeQuery()){
+                if(rs.next()){
+                    int id = rs.getInt("id");
+                    String username = rs.getString("username");
+                    String email = rs.getString("email");
+                    double accountBalance = rs.getDouble("account_balance");
+                    int saleCount = rs.getInt("sale_count");
+                    double totalRating = rs.getDouble("total_rating");
+                    return new SellerDTO(id, username, email, accountBalance, totalRating, saleCount);  // âœ… DTO
+                }
+            }
+        }catch(SQLException e){
+            return null;
+        }
+        return null;
+    }
+    
+    // update Rating after an user buy an item
+    public boolean rateSeller(int sellerId, double newScore) {
+        
+        if (newScore < 0.0) newScore = 0.0;
+        if (newScore > 5.0) newScore = 5.0;
+        
+        String sql = "UPDATE sellers " +
+                     "SET total_rating = ((total_rating * sale_count) + ?) / (sale_count + 1), " +
+                     "sale_count = sale_count + 1 " +
+                     "WHERE user_id = ?"; 
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+        
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setDouble(1, newScore); // Truyá»n Ä‘iá»ƒm sá»‘ Ä‘Ã¡nh giÃ¡ má»›i vÃ o cÃ´ng thá»©c
+            pstmt.setInt(2, sellerId);    // Truyá»n ID ngÆ°á»i bÃ¡n
+            
+            int rowsUpdated = pstmt.executeUpdate();
+            
+            return rowsUpdated > 0; 
+            
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+}
+
+
+========== ServerDatabaseTest.java ==========
+
+package com.auction.server.dao;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import com.auction.server.dao.*;
+import com.auction.server.models.*;
+
+public class ServerDatabaseTest {
+    public static void main(String[] args) {
+        long time = System.currentTimeMillis();
+
+        UserDAO userDAO = new UserDAO();
+        BidderDAO bidderDAO = new BidderDAO();
+        SellerDAO sellerDAO = new SellerDAO();
+        ItemDAO itemDAO = new ItemDAO();
+        ArtworkDAO artworkDAO = new ArtworkDAO();
+        ElectronicsDAO electronicsDAO = new ElectronicsDAO();
+        VehicleDAO vehicleDAO = new VehicleDAO();
+        BidsDAO bidsDAO = new BidsDAO();
+        PaymentDAO paymentDAO = new PaymentDAO();
+        AdminDAO adminDAO = new AdminDAO();
+
+        System.out.println("=== START FULL DB INTEGRATION TEST ===");
+
+        // 1) Create Seller
+        Seller seller = new Seller(0, "seller_" + time, "pass123", "seller" + time + "@test.com");
+        boolean sellerCreated = sellerDAO.registerSeller(seller);
+        System.out.println("[Seller Created] " + sellerCreated + " | id=" + seller.getId());
+
+        // 2) Create two Bidders
+        Bidder bidder1 = new Bidder(0, "bidder1_" + time, "pass123", "b1" + time + "@test.com", 0.0);
+        Bidder bidder2 = new Bidder(0, "bidder2_" + time, "pass123", "b2" + time + "@test.com", 0.0);
+        boolean b1Created = bidderDAO.registerBidder(bidder1);
+        boolean b2Created = bidderDAO.registerBidder(bidder2);
+        System.out.println("[Bidder1 Created] " + b1Created + " | id=" + bidder1.getId());
+        System.out.println("[Bidder2 Created] " + b2Created + " | id=" + bidder2.getId());
+
+        // 3) Top-up bidders' balances
+        boolean b1TopUp = bidderDAO.updateBalance(bidder1.getId(), 1000.0);
+        boolean b2TopUp = bidderDAO.updateBalance(bidder2.getId(), 500.0);
+        System.out.println("[TopUp Balances] b1=" + b1TopUp + " b2=" + b2TopUp);
+
+        // 4) Add items: artwork, electronics, vehicle
+        LocalDateTime start = LocalDateTime.now();
+        LocalDateTime end = start.plusMinutes(30);
+
+        Art art = new Art(0, seller.getId(), "Artwork_" + time, "Nice painting", 100.0, start, end,
+                "ArtistName", 2021, "Oil");
+        boolean artAdded = artworkDAO.addArtworkItem(art);
+        System.out.println("[Artwork Added] " + artAdded + " | id=" + art.getId());
+
+        Electronics elec = new Electronics(0, seller.getId(), "Phone_" + time, "Smartphone", 50.0, 12, start, end);
+        boolean elecAdded = electronicsDAO.addElectronicsItem(elec);
+        System.out.println("[Electronics Added] " + elecAdded + " | id=" + elec.getId());
+
+        Vehicle veh = new Vehicle(0, seller.getId(), "Car_" + time, "Sedan", 500.0, start, end, "BrandX", 30000, "Good");
+        boolean vehAdded = vehicleDAO.addVehicleItem(veh);
+        System.out.println("[Vehicle Added] " + vehAdded + " | id=" + veh.getId());
+
+        // 5) Move artwork auction to RUNNING
+        boolean statusUpdated = itemDAO.updateStatus(art.getId(), AuctionStatus.RUNNING);
+        System.out.println("[Set Artwork RUNNING] " + statusUpdated);
+
+        // 6) Place bids (bidder1 then bidder2)
+        boolean bid1 = bidsDAO.executeBid(art.getId(), bidder1.getId(), 150.0);
+        System.out.println("[Bidder1 Bid 150] " + bid1);
+
+        boolean bid2 = bidsDAO.executeBid(art.getId(), bidder2.getId(), 200.0);
+        System.out.println("[Bidder2 Bid 200] " + bid2);
+
+        // 7) Retrieve bid history
+        List<BidTransactionDTO> history = bidsDAO.getBidHistoryByItemId(art.getId());
+        System.out.println("[Bid History Size] " + history.size());
+        for (BidTransactionDTO h : history) {
+            System.out.println("  -> id=" + h.getId() + " bidderId=" + h.getBidderId() + " user=" + h.getBidderUsername()
+                    + " amount=" + h.getBidAmount() + " time=" + h.getTimestamp());
+        }
+
+        // 8) Create payment invoice for winner (highestBidder)
+        // Determine winner via item get (ensure highest_bidder_id set)
+        Item dbItem = itemDAO.getItemById(art.getId());
+        int winnerId = dbItem.getHighestBidderId();
+        double finalPrice = dbItem.getCurrentMaxPrice();
+        System.out.println("[Winner] bidderId=" + winnerId + " price=" + finalPrice);
+
+        boolean invoiceCreated = paymentDAO.createPaymentInvoice(art.getId(), winnerId, seller.getId(), finalPrice);
+        System.out.println("[Invoice Created] " + invoiceCreated);
+
+        // 9) Find the PENDING payment id and process it
+        List<com.auction.server.models.Payment> payments = paymentDAO.getPaymentHistoryByUser(seller.getId());
+        Integer pendingPaymentId = null;
+        for (com.auction.server.models.Payment p : payments) {
+            if (p.getStatus() == PaymentStatus.PENDING) {
+                pendingPaymentId = p.getId();
+                break;
+            }
+        }
+        if (pendingPaymentId != null) {
+            boolean processed = paymentDAO.processPayment(pendingPaymentId);
+            System.out.println("[Payment Processed] id=" + pendingPaymentId + " -> " + processed);
+        } else {
+            System.out.println("[No PENDING payment found for seller]");
+        }
+
+        // 10) Admin: list all users (returns DTO objects)
+        List<?> allUsers = adminDAO.getAllUsers();
+        System.out.println("[All Users Count] " + allUsers.size());
+
+        System.out.println("=== END FULL DB INTEGRATION TEST ===");
+    }
+}
+
+
+========== UserDAO.java ==========
+package com.auction.server.dao;
+
+import com.auction.server.models.User;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import com.auction.server.models.Bidder;
+
+public class UserDAO {
+
+    // add new user to database User
+    public boolean registerUser(String username, String password, String email, String role) {
+        String sql = "INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, ?)";
+
+        // 1. Láº¥y Ä‘Æ°á»ng á»‘ng káº¿t ná»‘i ra NGOÃ€I khá»‘i try (Tuyá»‡t Ä‘á»‘i khÃ´ng Ä‘Ã³ng nÃ³ láº¡i)
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+
+        // 2. Chá»‰ cho PreparedStatement vÃ o trong ngoáº·c Ä‘á»ƒ nÃ³ tá»± Ä‘Ã³ng dá»n rÃ¡c sau khi cháº¡y lá»‡nh
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+            pstmt.setString(3, email); 
+            pstmt.setString(4, role);
+
+            int rowsInserted = pstmt.executeUpdate();
+            return rowsInserted > 0; 
+
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
+    // login method return role if exist
+    public String loginUser(String email, String password){
+        String sql = "SELECT role FROM users WHERE email = ? AND password = ?";
+        
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)){
+            pstmt.setString(1, email);
+            pstmt.setString(2, password);
+
+            try (java.sql.ResultSet rs = pstmt.executeQuery()){
+                if (rs.next()){
+                    return rs.getString("role");
+                }
+            }
+
+        } catch(SQLException e){
+            return null;
+        }
+        return null;
+    }
+    
+
+    // update password for user
+    public boolean updatePassword(String email, String newPassword) {
+        String sql = "UPDATE users SET password = ? WHERE email = ?";
+        
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+        
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, newPassword);
+            pstmt.setString(2, email);
+            
+            int rowsUpdated = pstmt.executeUpdate();
+            
+            return rowsUpdated > 0; 
+            
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
+    // tu doi tuong chuyen sang them vao database
+    public boolean registerUser(User user, String role) {
+        
+        // Cáº¥u trÃºc SQL chuáº©n cho báº£ng users
+        String sql = "INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, ?)";
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+
+        // ThÃªm Statement.RETURN_GENERATED_KEYS Ä‘á»ƒ lÃ¡t ná»¯a Ä‘Ã²i MySQL nháº£ cÃ¡i ID ra
+        try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            // 3. MÃ“C Dá»® LIá»†U Tá»ª OBJECT RA Äá»‚ Náº P VÃ€O SQL
+            pstmt.setString(1, user.getUsername());
+            pstmt.setString(2, user.getPassword());
+            pstmt.setString(3, user.getEmail());
+            pstmt.setString(4, role);
+
+            int rowsInserted = pstmt.executeUpdate();
+            
+            if (rowsInserted > 0) {
+                // 4. Láº¤Y Sá» THá»¨ Tá»° (ID) Tá»ª MYSQL VÃ€ Náº P NGÆ¯á»¢C Láº I VÃ€O OBJECT
+                try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        int newIdFromDB = generatedKeys.getInt(1); // MÃ¡y MySQL vá»«a nháº£ ra sá»‘ ID tháº­t
+                        
+                        user.setId(newIdFromDB); // Cáº­p nháº­t sá»‘ ID nÃ y vÃ o cÃ¡i Object Ä‘ang náº±m trong RAM
+                        
+                        return true; 
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            return false;
+        }
+        return false;
+    }
+
+    // --- HÃ€M MAIN Äá»‚ CHáº Y TEST ---
+    // --- HÃ€M MAIN Äá»‚ CHáº Y TEST LIÃŠN HOÃ€N ---
+    public static void main(String[] args) {
+        UserDAO dao = new UserDAO();
+        
+        System.out.println("========== Báº®T Äáº¦U TEST CASE UserDAO ==========");
+
+        // DÃ¹ng timestamp Ä‘á»ƒ táº¡o chuá»—i ngáº«u nhiÃªn, trÃ¡nh lá»—i Duplicate Entry khi cháº¡y nhiá»u láº§n
+        long time = System.currentTimeMillis(); 
+        String testUser = "test_user_" + time;
+        String testEmail = "test" + time + "@gmail.com";
+        String testPass = "123456";
+
+        // [Test 1] ÄÄƒng kÃ½ tÃ i khoáº£n (DÃ¹ng String)
+        System.out.println("\n[1] Äang test hÃ m ÄÄƒng kÃ½ (String)...");
+        boolean isRegistered = dao.registerUser(testUser, testPass, testEmail, "BIDDER");
+        System.out.println("-> Káº¿t quáº£: " + (isRegistered ? "PASSED âœ…" : "FAILED âŒ"));
+
+        // [Test 2] ÄÄƒng nháº­p vá»›i thÃ´ng tin vá»«a táº¡o (Pass chuáº©n)
+        System.out.println("\n[2] Äang test hÃ m ÄÄƒng nháº­p (Máº­t kháº©u Ä‘Ãºng)...");
+        String roleSuccess = dao.loginUser(testEmail, testPass);
+        System.out.println("-> Káº¿t quáº£: " + ("BIDDER".equals(roleSuccess) ? "PASSED âœ… (Role: " + roleSuccess + ")" : "FAILED âŒ"));
+
+        // [Test 3] ÄÄƒng nháº­p vá»›i máº­t kháº©u sai
+        System.out.println("\n[3] Äang test hÃ m ÄÄƒng nháº­p (Máº­t kháº©u sai)...");
+        String roleFail = dao.loginUser(testEmail, "mat_khau_bay_ba");
+        System.out.println("-> Káº¿t quáº£: " + (roleFail == null ? "PASSED âœ… (ÄÃ£ cháº·n Ä‘Æ°á»£c)" : "FAILED âŒ"));
+
+        // [Test 4] Äá»•i máº­t kháº©u
+        System.out.println("\n[4] Äang test hÃ m Äá»•i máº­t kháº©u...");
+        String newPass = "mat_khau_sieu_cap_vip_pro";
+        boolean isUpdated = dao.updatePassword(testEmail, newPass);
+        System.out.println("-> Káº¿t quáº£ Ä‘á»•i MK: " + (isUpdated ? "PASSED âœ…" : "FAILED âŒ"));
+
+        // [Test 5] ÄÄƒng nháº­p láº¡i báº±ng Máº­t kháº©u Má»šI
+        System.out.println("\n[5] Äang test ÄÄƒng nháº­p báº±ng Máº­t kháº©u Má»šI...");
+        String roleAfterUpdate = dao.loginUser(testEmail, newPass);
+        System.out.println("-> Káº¿t quáº£: " + ("BIDDER".equals(roleAfterUpdate) ? "PASSED âœ…" : "FAILED âŒ"));
+
+        // [Test 6] ÄÄƒng kÃ½ báº±ng OBJECT 
+        System.out.println("\n[6] Äang test hÃ m ÄÄƒng kÃ½ báº±ng Äá»‘i tÆ°á»£ng (OOP)...");
+        
+        long oop_time = System.currentTimeMillis();
+        Bidder oopBidder = new Bidder(0, "oop_user_" + oop_time, "oop_pass_123", "oop_test_" + oop_time + "@gmail.com", 1000.0);
+        
+        System.out.println("-> ID trÆ°á»›c khi lÆ°u DB: " + oopBidder.getId()); // Sáº½ in ra 0
+        boolean isOopRegistered = dao.registerUser(oopBidder, "BIDDER");
+        System.out.println("-> Káº¿t quáº£ lÆ°u Object: " + (isOopRegistered ? "PASSED âœ…" : "FAILED âŒ"));
+        System.out.println("-> ID sau khi lÆ°u DB (ÄÃ£ Ä‘Æ°á»£c MySQL cáº¥p): " + oopBidder.getId()); // Sáº½ in ra sá»‘ xá»‹n
+        
+        System.out.println("\n================ Káº¾T THÃšC TEST ================");
+    }
+}
+
+
+========== VehicleDAO.java ==========
+package com.auction.server.dao;
+import com.auction.server.models.AuctionStatus;
+import com.auction.server.models.Electronics;
+import com.auction.server.models.Vehicle;
+import java.sql.*;
+import java.time.LocalDateTime;
+public class VehicleDAO {
+    // add new vehicle item
+    ItemDAO itemDAO = new ItemDAO();
+    public boolean addVehicleItem(Vehicle vehicle){
+        boolean itemAdded = itemDAO.addItem(vehicle); // id se tu tang trong ItemDAO
+        if (itemAdded){
+            String sql = "INSERT INTO vehicles (item_id,brand,mileage,condition_status ) VALUES (?, ?, ?, ?)";
+            Connection conn = DatabaseConnection.getInstance().getConnection();
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)){
+                pstmt.setInt(1, vehicle.getId()); // DÃ¹ng ID Ä‘Ã£ Ä‘Æ°á»£c táº¡o trong ItemDAO
+                pstmt.setString(2, vehicle.getBrand());
+                pstmt.setInt(3, vehicle.getMileage());
+                pstmt.setString(4, vehicle.getCondition());
+                int rowsInserted = pstmt.executeUpdate();
+                return rowsInserted > 0;
+            }catch(SQLException e){
+                return false;
+            }
+        }
+        return false;
+    }
+
+    // add vehicle bang thu cong
+    public boolean addVehicleItem(int id, int sellerId, String name, String description, double startingPrice,double currentPrice, LocalDateTime startTime, LocalDateTime endTime, AuctionStatus status, int highestBidderId,
+                                  String brand, int mileage, String condition){
+        Vehicle vehicle = new Vehicle(id, sellerId,name, description, startingPrice, currentPrice, startTime, endTime, status, highestBidderId,
+                   brand,  mileage,  condition);
+        return addVehicleItem(vehicle);
+    }
+
+    // get vehicle by id
+    public Vehicle getVehicleItemById(int itemId){
+        String sql = "SELECT i.*, v.brand, v.mileage, v.condition_status FROM items i INNER JOIN vehicles v ON i.id = v.id WHERE i.id = ?";
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+        try(PreparedStatement pstmt = conn.prepareStatement(sql)){
+            pstmt.setInt(1, itemId);
+            try (ResultSet rs = pstmt.executeQuery()){
+                if (rs.next()){
+                    Vehicle vi = new Vehicle(
+                        rs.getInt("id"),
+                        rs.getInt("seller_id"),
+                        rs.getString("name"),
+                        rs.getString("description"),
+                        rs.getDouble("starting_price"),
+                        rs.getTimestamp("start_time").toLocalDateTime(),
+                        rs.getTimestamp("end_time").toLocalDateTime(),
+                        rs.getString("brand"),
+                        rs.getInt("mileage"),
+                        rs.getString("condition_status")
+                    );
+                    vi.setCurrentMaxPrice(rs.getDouble("current_max_price"));
+                    vi.setStatus(AuctionStatus.valueOf(rs.getString("status")));
+                    vi.setHighestBidderId(rs.getInt("highest_bidder_id"));
+                    return vi; 
+                }   
+            }
+            return null;
+        }catch(SQLException e){
+            return null;
+        }
+    }
+}
+
+
+========== Admin.java ==========
+package com.auction.server.models;
+public class Admin extends User {
+
+    // Thuá»™c tÃ­nh riÃªng: PhÃ¢n cáº¥p quyá»n (vÃ­ dá»¥: SuperAdmin, Moderator)
+    private final String adminRole;
+
+    public Admin(int id, String username, String password, String email, String adminRole) {
+        super(id, username, password, email);
+        this.adminRole = adminRole;
+    }
+
+    // HÃ nh Ä‘á»™ng riÃªng: Can thiá»‡p vÃ o há»‡ thá»‘ng
+    // (LÆ°u Ã½: Äá»ƒ hÃ m nÃ y cháº¡y Ä‘Æ°á»£c, trong class Auction báº¡n cáº§n viáº¿t thÃªm hÃ m setStatus("CANCELED"))
+    // Trong file Admin.java
+    public void cancelAuction(Auction targetAuction) {
+       
+        // CÃº phÃ¡p dÃ¹ng Enum: TÃªnEnum.GIA_TRI
+        targetAuction.setStatus(AuctionStatus.CANCELED);
+    }
+
+    public void banUser(User user) {
+        user.setActive(false);
+    }
+
+    public void unbanUser(User user) {
+        user.setActive(true);
+    }
+
+    // Ghi Ä‘Ã¨ phÆ°Æ¡ng thá»©c rá»—ng cá»§a lá»›p cha
+    @Override
+    public void showDashboard() {
+        System.out.println("--- Báº£ng Äiá»u Khiá»ƒn Quáº£n Trá»‹ ViÃªn ---");
+        System.out.println("Xin chÃ o sáº¿p: " + getUsername() + " (Quyá»n: " + adminRole + ")");
+    }
+}
+
+
+========== AdminDTO.java ==========
+package com.auction.server.models;
+//DataTransferObject for Admin, used to send admin info to clients without exposing sensitive data like password
+public class AdminDTO {
+    private int id;
+    private String username;
+    private String email;
+    private String adminRole;
+
+    public AdminDTO(int id, String username, String email, String adminRole) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.adminRole = adminRole;
+    }
+
+    // Getters only
+    public int getId() { return id; }
+    public String getUsername() { return username; }
+    public String getEmail() { return email; }
+    public String getAdminRole() { return adminRole; }
+}
+
+
+========== Art.java ==========
+package com.auction.server.models;
+
+import java.time.LocalDateTime;
+
+public class Art extends Item {
+
+    private String artist;
+    private int creation_year;
+    private String material;
+
+    public Art(int id,int sellerId, String name, String description, double startingPrice, LocalDateTime startTime, LocalDateTime endTime,
+               String artist, int creation_year, String material) {
+        super(id,sellerId, name, description, startingPrice, startTime, endTime, "ART" );
+        this.artist = artist;
+        this.creation_year = creation_year;
+        this.material = material;
+    }
+    // constructor co day du tat ca thuoc tinh
+    public Art(int id,int sellerId, String name, String description, double startingPrice, double currentPrice, LocalDateTime startTime, LocalDateTime endTime, AuctionStatus status, int highestBidderId,
+               String artist, int creation_year, String material) {
+        super(id,sellerId, name, description, startingPrice, currentPrice, startTime, endTime, status, highestBidderId,"ART" );
+        this.artist = artist;
+        this.creation_year = creation_year;
+        this.material = material;
+    }
+
+    public String getArtist() {
+        return artist;
+    }
+    public int getCreationYear() {
+        return creation_year;
+    }
+    public String getMaterial() {
+        return material;
+    }
+
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
+    public void setCreationYear(int creation_year) {
+        this.creation_year = creation_year;
+    }
+    public void setMaterial(String material) {
+        this.material = material;
+    }
+    @Override
+    public void printInfo() {
+        System.out.println("--- TÃ¡c pháº©m nghá»‡ thuáº­t ---");
+        System.out.println("TÃªn tÃ¡c pháº©m: " + getName() + " | TÃ¡c giáº£: " + artist);
+        System.out.println("NÄƒm: " + creation_year + " | Cháº¥t liá»‡u: " + material);
+        System.out.println("GiÃ¡ khá»Ÿi Ä‘iá»ƒm: $" + getStartingPrice());
+    }
+}
+
+
+========== Auction.java ==========
+package com.auction.server.models;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+public class Auction extends Entity {
+
+    // CÃ¡c Ä‘á»‘i tÆ°á»£ng liÃªn káº¿t
+    private final Item item;
+    private final User seller;
+    private LocalDateTime endTime;
+
+    // TÃ­ch há»£p Enum thay vÃ¬ String
+    private AuctionStatus status;
+
+    // Danh sÃ¡ch lÆ°u lá»‹ch sá»­ Ä‘áº·t giÃ¡
+    private final List<BidTransaction> bidHistory;
+
+    // Auto-bidding support
+    private final List<AutoBid> autoBids;
+
+    // Auction extension settings
+    private final int extensionMinutes = 5; // Gia háº¡n 5 phÃºt náº¿u cÃ³ bid trong 5 phÃºt cuá»‘i
+    private boolean hasExtended = false;
+
+    // Constructor: Khá»Ÿi táº¡o phiÃªn Ä‘áº¥u giÃ¡
+    public Auction(int id, Item item, User seller, LocalDateTime endTime) {
+        super(id);
+        this.item = item;
+        this.seller = seller;
+        this.endTime = endTime;
+
+        // Máº·c Ä‘á»‹nh khi vá»«a táº¡o ra, tráº¡ng thÃ¡i sáº½ lÃ  OPEN
+        this.status = AuctionStatus.OPEN;
+        this.bidHistory = new ArrayList<>();
+        this.autoBids = new CopyOnWriteArrayList<>(); // Thread-safe cho concurrent access
+    }
+
+
+
+    public com.auction.server.models.AuctionStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(com.auction.server.models.AuctionStatus newStatus) {
+        this.status = newStatus;
+        System.out.println(">> Cáº¬P NHáº¬T: PhiÃªn Ä‘áº¥u giÃ¡ [" + this.getId() + "] Ä‘Ã£ chuyá»ƒn tráº¡ng thÃ¡i thÃ nh -> " + this.status);
+    }
+
+    // --- LOGIC Äáº¶T GIÃ ---
+
+    public synchronized boolean placeBid(Bidder bidder, double amount) {
+        // Æ¯u Ä‘iá»ƒm cá»§a Enum: DÃ¹ng dáº¥u == hoáº·c != Ä‘á»ƒ so sÃ¡nh ráº¥t nhanh vÃ  an toÃ n
+        if (this.status != AuctionStatus.OPEN && this.status != AuctionStatus.RUNNING) {
+            System.out.println("Tá»« chá»‘i: PhiÃªn Ä‘áº¥u giÃ¡ khÃ´ng má»Ÿ. Tráº¡ng thÃ¡i hiá»‡n táº¡i: " + this.status);
+            return false;
+        }
+
+        double highestBid = getHighestBid();
+
+        // Kiá»ƒm tra xem tiá»n Ä‘áº·t cÃ³ lá»›n hÆ¡n giÃ¡ hiá»‡n táº¡i vÃ  lá»›n hÆ¡n giÃ¡ khá»Ÿi Ä‘iá»ƒm khÃ´ng
+        if (amount > highestBid && amount >= item.getStartingPrice()) {
+            int bidId = bidHistory.size() + 1; // Táº¡o ID dá»±a trÃªn sá»‘ lÆ°á»£ng bids
+            BidTransaction newBid = new BidTransaction(bidId, bidder, amount);
+            bidHistory.add(newBid); // LÆ°u vÃ o lá»‹ch sá»­
+            System.out.println("ThÃ nh cÃ´ng! [" + bidder.getUsername() + "] Ä‘Ã£ chá»‘t giÃ¡: $" + amount);
+
+            // Auction extension logic
+            checkAndExtendAuction();
+
+            // Trigger auto-bids
+            processAutoBids();
+
+            return true;
+        } else {
+            System.out.println("Lá»—i: GiÃ¡ Ä‘áº·t ($" + amount + ") pháº£i cao hÆ¡n giÃ¡ hiá»‡n táº¡i ($" + highestBid + ").");
+            return false;
+        }
+    }
+
+    // Láº¥y giÃ¡ cao nháº¥t hiá»‡n táº¡i
+    public double getHighestBid() {
+        if (bidHistory.isEmpty()) {
+            return 0; // Tráº£ vá» 0 náº¿u chÆ°a ai Ä‘áº·t giÃ¡
+        }
+        // Tráº£ vá» sá»‘ tiá»n cá»§a giao dá»‹ch cuá»‘i cÃ¹ng trong danh sÃ¡ch
+        return bidHistory.get(bidHistory.size() - 1).getBidAmount();
+    }
+
+    // Auto-bidding methods
+    public void addAutoBid(AutoBid autoBid) {
+        autoBids.add(autoBid);
+        System.out.println("Auto-bid added for [" + autoBid.getBidder().getUsername() + "] - Max: $" + autoBid.getMaxBidAmount());
+    }
+
+    public void removeAutoBid(Bidder bidder) {
+        autoBids.removeIf(autoBid -> autoBid.getBidder().equals(bidder));
+        System.out.println("Auto-bid removed for [" + bidder.getUsername() + "]");
+    }
+
+    private void processAutoBids() {
+        double currentHighest = getHighestBid();
+
+        for (AutoBid autoBid : autoBids) {
+            if (autoBid.canAutoBid(currentHighest)) {
+                double nextBidAmount = autoBid.getNextAutoBidAmount(currentHighest);
+                if (nextBidAmount > currentHighest) {
+                    // Create automatic bid
+                    int bidId = bidHistory.size() + 1;
+                    BidTransaction autoBidTransaction = new BidTransaction(bidId, autoBid.getBidder(), nextBidAmount);
+                    bidHistory.add(autoBidTransaction);
+                    System.out.println("AUTO-BID: [" + autoBid.getBidder().getUsername() + "] tá»± Ä‘á»™ng Ä‘áº·t giÃ¡: $" + nextBidAmount);
+
+                    // Update current highest for next auto-bid processing
+                    currentHighest = nextBidAmount;
+
+                    // Check if max bid reached
+                    if (nextBidAmount >= autoBid.getMaxBidAmount()) {
+                        autoBid.deactivate();
+                        System.out.println("AUTO-BID: [" + autoBid.getBidder().getUsername() + "] Ä‘Ã£ Ä‘áº¡t giá»›i háº¡n tá»‘i Ä‘a!");
+                    }
+                }
+            }
+        }
+    }
+
+    // Auction extension methods
+    private void checkAndExtendAuction() {
+        if (!hasExtended && isNearEndTime()) {
+            extendAuction();
+        }
+    }
+
+    private boolean isNearEndTime() {
+        LocalDateTime now = LocalDateTime.now();
+        return now.isAfter(endTime.minusMinutes(extensionMinutes)) && now.isBefore(endTime);
+    }
+
+    private void extendAuction() {
+        endTime = endTime.plusMinutes(extensionMinutes);
+        hasExtended = true;
+        System.out.println("AUCTION EXTENDED: PhiÃªn Ä‘áº¥u giÃ¡ [" + getId() + "] Ä‘Æ°á»£c gia háº¡n thÃªm " + extensionMinutes + " phÃºt!");
+    }
+
+    public List<AutoBid> getAutoBids() {
+        return new ArrayList<>(autoBids);
+    }
+
+    public List<BidTransaction> getBidHistory() {
+        return new ArrayList<>(bidHistory);
+    }
+    // Viáº¿t thÃªm hÃ m nÃ y vÃ o class Auction
+    public void processPayment() {
+        // 1. Kiá»ƒm tra xem phiÃªn Ä‘áº¥u giÃ¡ Ä‘Ã£ káº¿t thÃºc chÆ°a
+        if (this.getStatus() != AuctionStatus.FINISHED) {
+            System.out.println("ChÆ°a thá»ƒ thanh toÃ¡n! PhiÃªn Ä‘áº¥u giÃ¡ chÆ°a káº¿t thÃºc.");
+            return;
+        }
+
+        // 2. TÃ¬m ngÆ°á»i tráº£ giÃ¡ cao nháº¥t
+        if (bidHistory.isEmpty()) {
+            System.out.println("PhiÃªn Ä‘áº¥u giÃ¡ káº¿t thÃºc mÃ  khÃ´ng cÃ³ ai mua.");
+            this.setStatus(AuctionStatus.CANCELED);
+            return;
+        }
+
+        // Láº¥y ra giao dá»‹ch cuá»‘i cÃ¹ng (giÃ¡ cao nháº¥t)
+        BidTransaction winningBid = bidHistory.get(bidHistory.size() - 1);
+        Bidder winner = winningBid.getBidder();
+        double finalPrice = winningBid.getBidAmount();
+
+        // 3. Thá»±c hiá»‡n chuyá»ƒn tiá»n
+        System.out.println("\n=== Báº®T Äáº¦U Xá»¬ LÃ THANH TOÃN ===");
+        if (winner.deductMoney(finalPrice)) {
+            // Náº¿u trá»« tiá»n ngÆ°á»i mua thÃ nh cÃ´ng -> Chuyá»ƒn tiá»n cho ngÆ°á»i bÃ¡n
+            ((Seller) this.getSeller()).receiveMoney(finalPrice);
+            
+            // 4. Chuyá»ƒn tráº¡ng thÃ¡i sang PAID (HoÃ n táº¥t)
+            this.setStatus(AuctionStatus.PAID);
+            System.out.println(">> Giao dá»‹ch thÃ nh cÃ´ng! Sáº£n pháº©m thuá»™c vá»: " + winner.getUsername());
+        } else {
+            System.out.println(">> Giao dá»‹ch tháº¥t báº¡i: NgÆ°á»i mua khÃ´ng Ä‘á»§ tiá»n thanh toÃ¡n!");
+        }
+    }
+
+    // ThÃªm hÃ m láº¥y Item Ä‘á»ƒ sau nÃ y tiá»‡n in thÃ´ng tin ra mÃ n hÃ¬nh
+    public Item getItem() {
+        return item;
+    }
+
+    public User getSeller() {
+        return seller;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public int getAuctionId() {
+        return this.getId(); // Káº¿ thá»«a tá»« lá»›p Entity
+    }
+}
+
+
+
+========== AuctionManager.java ==========
+package com.auction.server.models;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+public class AuctionManager {
+
+    private static AuctionManager instance;
+    private final List<User> users;
+    private final List<Auction> auctions;
+    private final ExecutorService auctionExecutor; // For concurrent auction processing
+    private final List<AuctionUpdateListener> updateListeners; // For realtime updates
+
+    private AuctionManager() {
+        users = new ArrayList<>();
+        auctions = new CopyOnWriteArrayList<>(); // Thread-safe
+        auctionExecutor = Executors.newCachedThreadPool(); // Dynamic thread pool
+        updateListeners = new CopyOnWriteArrayList<>();
+        System.out.println(">> Há»‡ thá»‘ng quáº£n lÃ½ Ä‘áº¥u giÃ¡ Ä‘Ã£ khá»Ÿi Ä‘á»™ng vá»›i concurrent support!");
+    }
+
+    public static AuctionManager getInstance() {
+        if (instance == null) {
+            instance = new AuctionManager();
+        }
+        return instance;
+    }
+
+    public void registerUser(User user) {
+        users.add(user);
+        System.out.println("ÄÃ£ Ä‘Äƒng kÃ½ ngÆ°á»i dÃ¹ng vÃ o há»‡ thá»‘ng: " + user.getUsername());
+    }
+
+    public void createAuction(Auction auction) {
+        auctions.add(auction);
+        System.out.println("ÄÃ£ Ä‘Æ°a lÃªn sÃ n phiÃªn Ä‘áº¥u giÃ¡: [" + auction.getId() + "] - " + auction.getItem().getName());
+    }
+
+    public List<Auction> getAllAuctions() {
+        return auctions;
+    }
+
+    public Auction getAuctionById(int auctionId) {
+        for (Auction a : auctions) {
+            if (a.getId() == auctionId) {
+                return a; // TÃ¬m tháº¥y
+            }
+        }
+        return null; // KhÃ´ng tÃ¬m tháº¥y
+    }
+
+    // Controller Ä‘á»©ng ra nháº­n lá»‡nh Ä‘áº·t giÃ¡
+    public boolean processBidRequest(int auctionId, Bidder bidder, double amount) {
+        Auction auction = getAuctionById(auctionId);
+        if (auction != null) {
+            // Process bid asynchronously for better concurrency
+            auctionExecutor.submit(() -> {
+                boolean success = auction.placeBid(bidder, amount);
+                if (success) {
+                    // Broadcast update to all listeners
+                    notifyAuctionUpdate(auction);
+                }
+            });
+            return true; // Return immediately, actual result will be handled async
+        } else {
+            System.out.println("Lá»—i: KhÃ´ng tÃ¬m tháº¥y phiÃªn Ä‘áº¥u giÃ¡ " + auctionId);
+            return false;
+        }
+    }
+
+    // Realtime update methods
+    public void addUpdateListener(AuctionUpdateListener listener) {
+        updateListeners.add(listener);
+    }
+
+    public void removeUpdateListener(AuctionUpdateListener listener) {
+        updateListeners.remove(listener);
+    }
+
+    private void notifyAuctionUpdate(Auction auction) {
+        AuctionUpdate update = new AuctionUpdate(auction.getId(), auction.getHighestBid(),
+                                                auction.getBidHistory().size(), auction.getEndTime());
+        for (AuctionUpdateListener listener : updateListeners) {
+            listener.onAuctionUpdate(update);
+        }
+    }
+
+    // Auto-bidding management
+    public void setupAutoBid(int auctionId, Bidder bidder, double maxAmount, double increment) {
+        Auction auction = getAuctionById(auctionId);
+        if (auction != null) {
+            AutoBid autoBid = new AutoBid(auction.getAutoBids().size() + 1, bidder, maxAmount, increment);
+            auction.addAutoBid(autoBid);
+            System.out.println("Auto-bid setup for auction [" + auctionId + "] by [" + bidder.getUsername() + "]");
+        }
+    }
+
+    // Cleanup method
+    public void shutdown() {
+        auctionExecutor.shutdown();
+        System.out.println("AuctionManager shutdown completed.");
+    }
+}
+
+
+========== AuctionStatus.java ==========
+package com.auction.server.models;
+// AuctionStatus.java
+public enum AuctionStatus {
+    OPEN,       // Vá»«a táº¡o xong, chá» ngÆ°á»i vÃ o
+    RUNNING,    // Äang trong thá»i gian tráº£ giÃ¡
+    FINISHED,   // ÄÃ£ háº¿t giá» chá»‘t ngÆ°á»i tháº¯ng
+    PAID,       // ÄÃ£ thanh toÃ¡n
+    CANCELED    // Bá»‹ há»§y bá»
+}
+
+
+========== AuctionUpdate.java ==========
+package com.auction.server.models;
+
+import java.time.LocalDateTime;
+
+public class AuctionUpdate {
+    private final int auctionId;
+    private final double currentHighestBid;
+    private final int totalBids;
+    private final LocalDateTime endTime;
+
+    public AuctionUpdate(int auctionId, double currentHighestBid, int totalBids, LocalDateTime endTime) {
+        this.auctionId = auctionId;
+        this.currentHighestBid = currentHighestBid;
+        this.totalBids = totalBids;
+        this.endTime = endTime;
+    }
+
+    public int getAuctionId() { return auctionId; }
+    public double getCurrentHighestBid() { return currentHighestBid; }
+    public int getTotalBids() { return totalBids; }
+    public LocalDateTime getEndTime() { return endTime; }
+}
+
+
+========== AuctionUpdateListener.java ==========
+package com.auction.server.models;
+
+public interface AuctionUpdateListener {
+    void onAuctionUpdate(AuctionUpdate update);
+}
+
+
+========== AutoBid.java ==========
+package com.auction.server.models;
+
+import java.time.LocalDateTime;
+
+public class AutoBid extends Entity {
+    private final Bidder bidder;
+    private final double maxBidAmount;
+    private final double incrementAmount;
+    private boolean isActive;
+    private final LocalDateTime createdAt;
+
+    public AutoBid(int id, Bidder bidder, double maxBidAmount, double incrementAmount) {
+        super(id);
+        this.bidder = bidder;
+        this.maxBidAmount = maxBidAmount;
+        this.incrementAmount = incrementAmount;
+        this.isActive = true;
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public Bidder getBidder() { return bidder; }
+    public double getMaxBidAmount() { return maxBidAmount; }
+    public double getIncrementAmount() { return incrementAmount; }
+    public boolean isActive() { return isActive; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+
+    public void deactivate() { this.isActive = false; }
+
+    // Kiá»ƒm tra xem cÃ³ thá»ƒ Ä‘áº·t giÃ¡ tá»± Ä‘á»™ng khÃ´ng
+    public boolean canAutoBid(double currentHighestBid) {
+        return isActive && (currentHighestBid + incrementAmount) <= maxBidAmount;
+    }
+
+    // TÃ­nh giÃ¡ Ä‘áº·t tá»± Ä‘á»™ng tiáº¿p theo
+    public double getNextAutoBidAmount(double currentHighestBid) {
+        return Math.min(currentHighestBid + incrementAmount, maxBidAmount);
+    }
+}
+
+
+========== Bidder.java ==========
+package com.auction.server.models;
+
+public class Bidder extends User {
+
+    private double accountBalance;
+
+    // Constructor 1: Khi Táº O TÃ€I KHOáº¢N Má»šI
+    public Bidder(String username, String password, String email) {
+        super(username, password, email);
+        this.accountBalance = 0.0;
+    }
+
+    // Constructor 2: Khi Láº¤Y Dá»® LIá»†U Tá»ª DATABASE (CÃ“ ID)
+    public Bidder(int id, String username, String password, String email) {
+        super(id, username, password, email);
+        this.accountBalance = 0.0;
+    }
+
+    // Constructor 3: CÃ“ Cáº¢ account_balance
+    public Bidder(int id, String username, String password, String email, double accountBalance) {
+        super(id, username, password, email);
+        this.accountBalance = accountBalance;
+    }
+
+    @Override
+    public void showDashboard() {
+        System.out.println("=== GIAO DIá»†N BIDDER ===");
+        System.out.println("TÃªn: " + getUsername());
+        System.out.println("Email: " + getEmail());
+        System.out.println("Sá»‘ dÆ° hiá»‡n táº¡i: $" + accountBalance);
+    }
+
+    public void placeBid(double amount) {
+        if (amount <= accountBalance) {
+            System.out.println("[âœ“] " + getUsername() + " vá»«a Ä‘áº·t giÃ¡: $" + amount);
+        } else {
+            System.out.println("[âœ—] Sá»‘ dÆ° khÃ´ng Ä‘á»§ Ä‘á»ƒ Ä‘áº·t má»©c giÃ¡ nÃ y!");
+        }
+    }
+
+    public boolean deductMoney(double amount) {
+        if (this.accountBalance >= amount) {
+            this.accountBalance -= amount;
+            System.out.println("[-] Bidder [" + getUsername() + "] Ä‘Ã£ thanh toÃ¡n: -" + amount + "$. Sá»‘ dÆ°: " + this.accountBalance + "$");
+            return true;
+        }
+        return false;
+    }
+
+    public boolean addMoney(double amount) {
+        if (amount > 0) {
+            this.accountBalance += amount;
+            System.out.println("[+] Bidder [" + getUsername() + "] náº¡p tiá»n: +" + amount + "$. Sá»‘ dÆ°: " + this.accountBalance + "$");
+            return true;
+        }
+        return false;
+    }
+
+    // Getters
+    public double getAccountBalance() {
+        return accountBalance;
+    }
+
+    public void setAccountBalance(double accountBalance) {
+        this.accountBalance = accountBalance;
+    }
+}
+
+
+========== BidderDTO.java ==========
+package com.auction.server.models;
+//DataTransferObject for Bidder, used to send bidder info to clients without exposing sensitive data like password
+public class BidderDTO {
+    private int id;
+    private String username;
+    private String email;
+    private double accountBalance;
+
+    public BidderDTO(int id, String username, String email, double accountBalance) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.accountBalance = accountBalance;
+    }
+
+    // Getters only (no password!)
+    public int getId() { return id; }
+    public String getUsername() { return username; }
+    public String getEmail() { return email; }
+    public double getAccountBalance() { return accountBalance; }
+}
+
+
+========== BidTransaction.java ==========
+package com.auction.server.models;
+import java.time.LocalDateTime;
+
+public class BidTransaction extends Entity {
+    private Bidder bidder;
+    private double bidAmount;
+    private LocalDateTime timestamp;
+
+    public BidTransaction(int id, Bidder bidder, double bidAmount) {
+        super(id);
+        this.bidder = bidder;
+        this.bidAmount = bidAmount;
+        this.timestamp = LocalDateTime.now();
+    }
+
+    public BidTransaction(int id, Bidder bidder, double bidAmount, LocalDateTime timestamp) {
+        super(id);
+        this.bidder = bidder;
+        this.bidAmount = bidAmount;
+        this.timestamp = timestamp;
+    }
+
+    public double getBidAmount() { return bidAmount; }
+    public Bidder getBidder() { return bidder; }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+}
+
+
+========== BidTransactionDTO.java ==========
+package com.auction.server.models;
+import java.time.LocalDateTime;
+
+//DataTransferObject for BidTransaction, used to send bid transaction info to clients without exposing sensitive data
+public class BidTransactionDTO {
+    private int id;
+    private int bidderId;
+    private String bidderUsername;  // Chá»‰ username, khÃ´ng pháº£i object
+    private double bidAmount;
+    private LocalDateTime timestamp;
+
+    public BidTransactionDTO(int id, int bidderId, String bidderUsername, 
+                            double bidAmount, LocalDateTime timestamp) {
+        this.id = id;
+        this.bidderId = bidderId;
+        this.bidderUsername = bidderUsername;
+        this.bidAmount = bidAmount;
+        this.timestamp = timestamp;
+    }
+
+    // Getters only
+    public int getId() { return id; }
+    public int getBidderId() { return bidderId; }
+    public String getBidderUsername() { return bidderUsername; }
+    public double getBidAmount() { return bidAmount; }
+    public LocalDateTime getTimestamp() { return timestamp; }
+}
+
+
+========== Electronics.java ==========
+package com.auction.server.models;
+import java.time.LocalDateTime;
+public class Electronics extends Item {
+    private final int warrantyMonths;
+    public Electronics(int id,int sellerId, String name, String description, double startingPrice, int warrantyMonths, LocalDateTime startTime, LocalDateTime endTime) {
+        super(id, sellerId, name, description, startingPrice, startTime, endTime, "ELECTRONICS");
+        this.warrantyMonths = warrantyMonths;
+    }
+
+    // constructor co day du tat ca thuoc tinh
+    public Electronics(int id,int sellerId, String name, String description, double startingPrice, double currentPrice, LocalDateTime startTime, LocalDateTime endTime, AuctionStatus status, int highestBidderId,
+                       int warrantyMonths) {
+        super(id, sellerId, name, description, startingPrice, currentPrice, startTime, endTime, status, highestBidderId,"ELECTRONICS");
+        this.warrantyMonths = warrantyMonths;
+    }
+
+    @Override
+    public void printInfo() {
+        System.out.println("Sáº£n pháº©m Ä‘iá»‡n tá»­: " + getName() + " | Báº£o hÃ nh: " + warrantyMonths + " thÃ¡ng");
+    }
+
+    // ===== GETTERS AND SETTERS FOR ELECTRONICS =====
+    
+    public int getWarrantyMonths() {
+        return warrantyMonths;
+    }
+   
+}
+
+
+========== Entity.java ==========
+package com.auction.server.models;
+
+public abstract class Entity {
+    protected int id;
+
+    public Entity(){
+        this.id = 0;
+    }
+    public Entity(int id) {
+        this.id = id;
+    }
+
+    public int getId(){
+        return id;
+    } 
+
+    public void setId(int id){
+        this.id = id;
+    }
+
+}
+ 
+
+
+========== Item.java ==========
+package com.auction.server.models;
+import java.time.LocalDateTime;
+public abstract class Item extends Entity {
+    private final String name;
+    private final String description;
+    private final double startingPrice;
+    private int sellerId;
+    private double currentMaxPrice;
+    private int highestBidderId;
+    private AuctionStatus status;
+    protected LocalDateTime startTime;
+    protected LocalDateTime endTime;
+    private String category;
+
+    public Item(int id,int sellerId, String name, String description, double startingPrice, LocalDateTime startTime, LocalDateTime endTime, String category) {
+        super(id);
+        this.sellerId = sellerId;
+        this.name = name;
+        this.description = description;
+        this.startingPrice = startingPrice;
+        this.currentMaxPrice = startingPrice;
+        this.highestBidderId = -1; // -1 nghÄ©a lÃ  chÆ°a cÃ³ ai Ä‘áº·t giÃ¡
+        this.status = AuctionStatus.OPEN;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.category = category;
+    }
+
+    public double sethighestBid(double newBid, int bidderId) {
+        if (newBid > currentMaxPrice && status == AuctionStatus.RUNNING) {
+            currentMaxPrice = newBid;
+            highestBidderId = bidderId;
+            return currentMaxPrice;
+        }
+        return -1; // Tráº£ vá» -1 náº¿u giÃ¡ khÃ´ng há»£p lá»‡
+    }
+
+    // --- CONSTRUCTOR CHO DAO Láº¤Y LÃŠN Tá»ª DATABASE ---
+    public Item(int id, int sellerId, String name, String description, double startingPrice, double currentPrice, LocalDateTime startTime, LocalDateTime endTime, AuctionStatus status, int highestBidderId, String category) {
+        this.id = id;
+        this.sellerId = sellerId;
+        this.name = name;
+        this.description = description;
+        this.startingPrice = startingPrice;
+        this.currentMaxPrice = currentPrice;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.status = status;
+        this.highestBidderId = highestBidderId;
+        this.category = category;
+    }
+
+    public double getCurrentMaxPrice() { return currentMaxPrice; }
+    public int getHighestBidderId() { return highestBidderId; }
+    public AuctionStatus getStatus() { return status; }
+    public void setStatus(AuctionStatus status) { this.status = status; }
+    public LocalDateTime getStartTime() { return startTime; }
+    public LocalDateTime getEndTime() { return endTime; }
+    public double getStartingPrice() { return startingPrice; }
+    public String getName() { return name; }
+    public int getSellerId() { return sellerId; }
+    public String getCategory() { return category; }
+    public void setHighestBidderId(int bidderId) { this.highestBidderId = bidderId; }
+    public void setCurrentMaxPrice(double newPrice) { this.currentMaxPrice = newPrice;}
+    public void setCategory(String category) { this.category = category; }
+    public abstract void printInfo();
+
+    public String getDescription() {
+        return description;
+    }
+}
+
+
+========== Payment.java ==========
+package com.auction.server.models;
+
+import java.time.LocalDateTime;
+
+public class Payment {
+    private int id;
+    private int itemId;
+    private int fromBidderId;
+    private int toSellerId;
+    private double amount;
+    private PaymentStatus status;
+    private LocalDateTime paymentDate;
+
+    public Payment(int id, int itemId, int fromBidderId, int toSellerId, double amount, PaymentStatus status, LocalDateTime paymentDate) {
+        this.id = id;
+        this.itemId = itemId;
+        this.fromBidderId = fromBidderId;
+        this.toSellerId = toSellerId;
+        this.amount = amount;
+        this.status = status;
+        this.paymentDate = paymentDate;
+    }
+
+    // Getters and Setters 
+    public int getId() { return id; }
+    public int getItemId() { return itemId; }
+    public int getFromBidderId() { return fromBidderId; }
+    public int getToSellerId() { return toSellerId; }
+    public double getAmount() { return amount; }
+    public PaymentStatus getStatus() { return status; }
+    public LocalDateTime getPaymentDate() { return paymentDate; }
+}
+
+
+========== PaymentStatus.java ==========
+package com.auction.server.models;
+
+public enum PaymentStatus {
+    PENDING,    // Chá» xá»­ lÃ½
+    COMPLETED,  // ÄÃ£ hoÃ n thÃ nh
+    FAILED      // Tháº¥t báº¡i
+}
+
+
+========== Seller.java ==========
+package com.auction.server.models;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Seller extends User {
+
+    // Thuá»™c tÃ­nh riÃªng: Äiá»ƒm uy tÃ­n vÃ  Danh sÃ¡ch hÃ ng hÃ³a cá»§a ngÆ°á»i nÃ y
+    private double total_Rating;
+    private final List<Item> myProducts;
+    private double accountBalance;
+    private int sale_count;
+
+    public Seller(int id, String username, String password, String email) {
+        super(id, username, password, email); // KÃ©o dá»¯ liá»‡u tá»« lá»›p User xuá»‘ng
+        this.total_Rating = 5.0; // Máº·c Ä‘á»‹nh tÃ i khoáº£n má»›i Ä‘Æ°á»£c 5 sao
+        this.myProducts = new ArrayList<>(); // Khá»Ÿi táº¡o kho hÃ ng rá»—ng
+        this.accountBalance = 0.0; // Máº·c Ä‘á»‹nh sá»‘ dÆ° tÃ i khoáº£n lÃ  0
+        this.sale_count = 0;
+    }
+
+    public Seller(int id, String username, String password, String email, double total_rating, double account_balance, int sale_count) {
+        super(id, username, password, email); 
+        this.total_Rating = total_rating; 
+        this.myProducts = new ArrayList<>(); 
+        this.accountBalance = account_balance; 
+        this.sale_count = sale_count;
+    }
+
+    // seller co ca total_rating
+    public Seller(int id, String username, String password, String email, Double total_rating) {
+        super(id, username, password, email); // KÃ©o dá»¯ liá»‡u tá»« lá»›p User xuá»‘ng
+        this.total_Rating = 5.0; // Máº·c Ä‘á»‹nh tÃ i khoáº£n má»›i Ä‘Æ°á»£c 5 sao
+        this.myProducts = new ArrayList<>(); // Khá»Ÿi táº¡o kho hÃ ng rá»—ng
+        this.accountBalance = 0.0; // Máº·c Ä‘á»‹nh sá»‘ dÆ° tÃ i khoáº£n lÃ  0
+    }
+
+    // HÃ nh Ä‘á»™ng riÃªng (yÃªu cáº§u 3.1.2): ThÃªm sáº£n pháº©m vÃ o há»‡ thá»‘ng
+    public void addProduct(Item item) {
+        myProducts.add(item);
+        System.out.println("Seller [" + getUsername() + "] vá»«a thÃªm sáº£n pháº©m: " + item.getName());
+    }
+
+    // Ghi Ä‘Ã¨ phÆ°Æ¡ng thá»©c rá»—ng cá»§a lá»›p cha
+    @Override
+    public void showDashboard() {
+        System.out.println("--- KÃªnh NgÆ°á»i BÃ¡n: " + getUsername() + " ---");
+        System.out.println("Äiá»ƒm uy tÃ­n: " + total_Rating + " sao");
+        System.out.println("Sá»‘ lÆ°á»£ng sáº£n pháº©m Ä‘ang quáº£n lÃ½: " + myProducts.size());
+    }
+    public void receiveMoney(double amount) {
+        this.accountBalance += amount;
+        System.out.println("[$] Seller [" + getUsername() + "] vá»«a nháº­n Ä‘Æ°á»£c thanh toÃ¡n: +" + amount + "$. Sá»‘ dÆ°: " + this.accountBalance + "$");
+    }
+    
+    // getters 
+    public double getTotal_Rating() {
+        return total_Rating;
+    }
+
+    public List<Item> getMyProducts() {
+        return myProducts;
+    }
+    public double getAccountBalance() {
+        return accountBalance;
+    }
+
+    public int getSale_count() {
+        return sale_count;
+    }
+    
+}
+
+
+========== SellerDTO.java ==========
+package com.auction.server.models;
+
+//DataTransferObject for Seller, used to send seller info to clients without exposing sensitive data like password
+public class SellerDTO {
+    private int id;
+    private String username;
+    private String email;
+    private double accountBalance;
+    private double totalRating;
+    private int saleCount;
+
+    public SellerDTO(int id, String username, String email, double accountBalance, 
+                     double totalRating, int saleCount) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.accountBalance = accountBalance;
+        this.totalRating = totalRating;
+        this.saleCount = saleCount;
+    }
+
+    // Getters only
+    public int getId() { return id; }
+    public String getUsername() { return username; }
+    public String getEmail() { return email; }
+    public double getAccountBalance() { return accountBalance; }
+    public double getTotalRating() { return totalRating; }
+    public int getSaleCount() { return saleCount; }
+}
+
+
+========== User.java ==========
+package com.auction.server.models;
+// DÃ¹ng 'abstract' vÃ¬ ta khÃ´ng bao giá» táº¡o ra má»™t "User" chung chung.
+// Ta chá»‰ táº¡o ra Bidder, Seller hoáº·c Admin.
+public abstract class User extends Entity {
+
+    // ÄÃ“NG GÃ“I (Encapsulation): Má»i dá»¯ liá»‡u pháº£i lÃ  'private'
+    // KhÃ´ng ai á»Ÿ bÃªn ngoÃ i Ä‘Æ°á»£c phÃ©p gá»i tháº³ng user.username Ä‘á»ƒ sá»­a.
+    private String username;
+    private String password;
+    private final String email;
+    private boolean isActive;
+
+    // ==========================================
+    // CONSTRUCTOR 1: DÃ¹ng khi Táº O TÃ€I KHOáº¢N Má»šI (Tá»« Giao diá»‡n)
+    // KhÃ´ng cho phÃ©p truyá»n ID vÃ o Ä‘Ã¢y!
+    // ==========================================
+    public User(String username, String password, String email) {
+        super(); // Gá»i constructor trá»‘ng cá»§a Entity (ID sáº½ máº·c Ä‘á»‹nh lÃ  0)
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.isActive = true; // Máº·c Ä‘á»‹nh tÃ i khoáº£n má»›i lÃ  active
+    }
+
+    // ==========================================
+    // CONSTRUCTOR 2: DÃ¹ng khi Láº¤Y Dá»® LIá»†U Tá»ª DATABASE LÃŠN (Táº§ng DAO dÃ¹ng)
+    // Pháº£i cÃ³ ID chuáº©n tá»« MySQL truyá»n vÃ o!
+    // ==========================================
+    public User(int id, String username, String password, String email) {
+        super(id); // Chuyá»n tháº³ng cÃ¡i ID xá»‹n nÃ y lÃªn cho class cha Entity giá»¯
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.isActive = true; 
+    }
+
+    // GETTER / SETTER: CÃ¡nh cá»­a duy nháº¥t Ä‘á»ƒ Ä‘á»c hoáº·c sá»­a Ä‘á»•i dá»¯ liá»‡u an toÃ n
+    public String getUsername() {
+        return username;
+    }
+
+
+    // VÃ­ dá»¥: Khi Ä‘á»•i máº­t kháº©u, ta cÃ³ thá»ƒ kiá»ƒm tra Ä‘á»™ dÃ i á»Ÿ Ä‘Ã¢y trÆ°á»›c khi lÆ°u
+    public void setPassword(String password) {
+        if(password.length() >= 6) {
+            this.password = password;
+        } else {
+            System.out.println("Máº­t kháº©u quÃ¡ ngáº¯n!");
+        }
+    }
+
+    public String getEmail() { return email; }
+    public String getPassword() { return password; }
+
+    // TRá»ªU TÆ¯á»¢NG (Abstraction): Má»™t phÆ°Æ¡ng thá»©c rá»—ng, Ã©p cÃ¡c lá»›p con pháº£i tá»± viáº¿t ná»™i dung
+    public abstract void showDashboard();
+    public void setUsername(String newUsername) {
+        this.username = newUsername;
+    }
+    public boolean isActive() {
+        return isActive;
+    }
+    public void setActive(boolean active) {
+        this.isActive = active;
+    }
+}
+
+
+========== Vehicle.java ==========
+package com.auction.server.models;
+
+import java.time.LocalDateTime;
+
+public class Vehicle extends Item {
+    private  String brand;
+    private  int mileage;
+    private  String condition;
+
+    public Vehicle(int id,int sellerId, String name, String description, double startingPrice, LocalDateTime startTime, LocalDateTime endTime,
+                   String brand, int mileage, String condition) {
+        super(id, sellerId, name, description, startingPrice, startTime, endTime, "VEHICLE");
+        this.brand = brand;
+        this.mileage = mileage;
+        this.condition = condition;
+    }
+
+    // constructor co day du tat ca thuoc tinh 
+    public Vehicle(int id,int sellerId, String name, String description, double startingPrice, double currentPrice, LocalDateTime startTime, LocalDateTime endTime, AuctionStatus status, int highestBidderId,
+                   String brand, int mileage, String condition) {
+        super(id, sellerId, name, description, startingPrice, currentPrice, startTime, endTime, status, highestBidderId,"VEHICLE");
+        this.brand = brand;
+        this.mileage = mileage;
+        this.condition = condition;
+    }
+    @Override
+    public void printInfo() {
+        System.out.println("--- PhÆ°Æ¡ng tiá»‡n di chuyá»ƒn ---");
+        System.out.println("Xe: " + brand + " " + getName());
+        System.out.println("TÃ¬nh tráº¡ng: " + condition + " | Sá»‘ km Ä‘Ã£ Ä‘i: " + mileage + " km");
+        System.out.println("GiÃ¡ khá»Ÿi Ä‘iá»ƒm: $" + getStartingPrice());
+    }
+
+    // getters
+    public String getBrand() {
+        return brand;
+    }   
+    public int getMileage() {
+        return mileage;
+    }
+    public String getCondition() {
+        return condition;
+    }
+    // setters
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+    public void setMileage(int mileage) {
+        this.mileage = mileage;
+    }
+    public void setCondition(String condition) {
+        this.condition = condition;
+    }
+}
+
+
+========== AuctionWebSocketServer.java ==========
+package com.auction.server.websocket;
+
+import com.auction.server.models.AuctionManager;
+import com.auction.server.models.AuctionUpdate;
+import com.auction.server.models.AuctionUpdateListener;
+import org.java_websocket.WebSocket;
+import org.java_websocket.handshake.ClientHandshake;
+import org.java_websocket.server.WebSocketServer;
+
+import java.net.InetSocketAddress;
+import java.util.concurrent.CopyOnWriteArraySet;
+
+public class AuctionWebSocketServer extends WebSocketServer implements AuctionUpdateListener {
+
+    private static final int PORT = 8081;
+    private final CopyOnWriteArraySet<WebSocket> clients = new CopyOnWriteArraySet<>();
+
+    public AuctionWebSocketServer() {
+        super(new InetSocketAddress(PORT));
+        // Register as listener for auction updates
+        AuctionManager.getInstance().addUpdateListener(this);
+    }
+
+    @Override
+    public void onOpen(WebSocket conn, ClientHandshake handshake) {
+        clients.add(conn);
+        System.out.println("New WebSocket connection: " + conn.getRemoteSocketAddress());
+    }
+
+    @Override
+    public void onClose(WebSocket conn, int code, String reason, boolean remote) {
+        clients.remove(conn);
+        System.out.println("WebSocket connection closed: " + conn.getRemoteSocketAddress());
+    }
+
+    @Override
+    public void onMessage(WebSocket conn, String message) {
+        System.out.println("Received message: " + message);
+        // Handle client messages if needed
+    }
+
+    @Override
+    public void onError(WebSocket conn, Exception ex) {
+        ex.printStackTrace();
+    }
+
+    @Override
+    public void onStart() {
+        System.out.println("WebSocket server started on port " + PORT);
+    }
+
+    @Override
+    public void onAuctionUpdate(AuctionUpdate update) {
+        // Broadcast update to all connected clients
+        String jsonUpdate = String.format(
+            "{\"auctionId\":%d,\"currentHighestBid\":%.2f,\"totalBids\":%d,\"endTime\":\"%s\"}",
+            update.getAuctionId(),
+            update.getCurrentHighestBid(),
+            update.getTotalBids(),
+            update.getEndTime().toString()
+        );
+
+        for (WebSocket client : clients) {
+            if (client.isOpen()) {
+                client.send(jsonUpdate);
+            }
+        }
+    }
+
+    public void startServer() {
+        this.start();
+    }
+
+    public void stopServer() {
+        try {
+            this.stop();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+========== AuctionServer.java ==========
+package com.auction.server;
+
+import com.auction.server.websocket.AuctionWebSocketServer;
+
+public class AuctionServer {
+
+    private static AuctionWebSocketServer webSocketServer;
+
+    public static void main(String[] args) {
+        System.out.println("=== AUCTION SERVER STARTING ===");
+
+        // Start WebSocket server for realtime updates
+        webSocketServer = new AuctionWebSocketServer();
+        webSocketServer.startServer();
+
+        // Keep server running
+        try {
+            Thread.currentThread().join();
+        } catch (InterruptedException e) {
+            System.out.println("Server interrupted");
+        } finally {
+            if (webSocketServer != null) {
+                webSocketServer.stopServer();
+            }
+        }
+    }
+
+    public static void shutdown() {
+        if (webSocketServer != null) {
+            webSocketServer.stopServer();
+        }
+        System.exit(0);
+    }
+}
+
+
+========== database.sql ==========
+USE defaultdb;
+
+-- 1. Users (chung)
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    role ENUM('BIDDER', 'SELLER', 'ADMIN') NOT NULL,
+    isActive BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 2. Bidders (riÃªng cho bidder)
+CREATE TABLE bidders (
+    user_id INT PRIMARY KEY,
+    account_balance DOUBLE DEFAULT 0,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- 3. Sellers (riÃªng cho seller)
+CREATE TABLE sellers (
+    user_id INT PRIMARY KEY,
+    total_rating DOUBLE DEFAULT 0,
+    sale_count INT DEFAULT 0,
+    account_balance DOUBLE DEFAULT 0,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- 4. Items (sáº£n pháº©m)
+CREATE TABLE items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    seller_id INT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    starting_price DOUBLE NOT NULL,
+    current_max_price DOUBLE DEFAULT 0,
+    highest_bidder_id INT,
+    status ENUM('OPEN', 'RUNNING', 'FINISHED', 'PAID', 'CANCELED') DEFAULT 'OPEN',
+    category VARCHAR(50),  -- ELECTRONICS, ART, VEHICLE
+    start_time DATETIME NOT NULL,
+    end_time DATETIME NOT NULL,
+    FOREIGN KEY (seller_id) REFERENCES sellers(user_id),
+    FOREIGN KEY (highest_bidder_id) REFERENCES bidders(user_id)
+);
+
+-- 5. Electronics
+CREATE TABLE electronics (
+    item_id INT PRIMARY KEY,
+    warranty INT,
+    FOREIGN KEY (item_id) REFERENCES items(id)
+);
+
+-- 6. Artworks
+CREATE TABLE artworks (
+    item_id INT PRIMARY KEY,
+    artist VARCHAR(100),
+    creation_year INT,
+    material VARCHAR(100),
+    FOREIGN KEY (item_id) REFERENCES items(id)
+);
+
+-- 7. Vehicles
+CREATE TABLE vehicles (
+    item_id INT PRIMARY KEY,
+    brand VARCHAR(100),
+    mileage INT,
+    condition_status VARCHAR(50),
+    FOREIGN KEY (item_id) REFERENCES items(id)
+);
+
+-- 8. Bids (lá»‹ch sá»­ Ä‘áº¥u giÃ¡)
+CREATE TABLE bids (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    item_id INT NOT NULL,
+    bidder_id INT NOT NULL,
+    bid_amount DOUBLE NOT NULL,
+    bid_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (item_id) REFERENCES items(id),
+    FOREIGN KEY (bidder_id) REFERENCES bidders(user_id)
+);
+
+-- 9. Payments (thanh toÃ¡n)
+CREATE TABLE payments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    item_id INT NOT NULL,
+    from_bidder_id INT NOT NULL,
+    to_seller_id INT NOT NULL,
+    amount DOUBLE NOT NULL,
+    status ENUM('PENDING', 'COMPLETED', 'FAILED') DEFAULT 'PENDING',
+    payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (item_id) REFERENCES items(id),
+    FOREIGN KEY (from_bidder_id) REFERENCES bidders(user_id),
+    FOREIGN KEY (to_seller_id) REFERENCES sellers(user_id)
+);
+
+
