@@ -14,7 +14,7 @@ public class DatabaseConnection {
     // Thay thế toàn bộ đoạn cấu hình cũ bằng đoạn này:
     private final String URL = "jdbc:mysql://mysql-119e3c15-auction-db-cloud.e.aivencloud.com:26067/defaultdb?sslMode=REQUIRED";
     private final String USER = "avnadmin"; 
-    private final String PASSWORD = "";
+    private final String PASSWORD = "AVNS_UIFsz6cvPQODeHSqFf6";
     // 3. Constructor được để ở chế độ private để ngăn tạo đối tượng lung tung
     private DatabaseConnection() {
         try {
