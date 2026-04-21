@@ -1,4 +1,4 @@
-package org.example;
+package com.auction.client;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -12,7 +12,7 @@ public class MainApp extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(MainApp.class.getResource("/view/View.fxml"));
 
         // Tạo Scene (Cửa sổ) với kích thước 600x400
-        Scene scene = new Scene(fxmlLoader.load(), 600, 400);
+        Scene scene = new Scene(fxmlLoader.load(), 800, 500);
 
         stage.setTitle("Ứng dụng Up/Down/Reset");
         stage.setScene(scene);

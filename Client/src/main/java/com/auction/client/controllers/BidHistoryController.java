@@ -1,4 +1,4 @@
-package org.example.controller;
+package com.auction.client.controllers;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
