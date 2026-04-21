@@ -10,6 +10,8 @@ public abstract class ItemDTO implements Serializable {
     private String name;
     private String description;
     private double startingPrice;
+    private double priceStep;
+    private String imagePath;
     private double currentMaxPrice; // Bổ sung
     private int highestBidderId;    // Bổ sung
     private String status;          // Bổ sung ("OPEN", "RUNNING", "FINISHED"...)
@@ -17,6 +19,17 @@ public abstract class ItemDTO implements Serializable {
     private String endTime;
 
     public ItemDTO() {}
+
+    public ItemDTO(String name, double startingPrice, double priceStep, String description, String imagePath, int sellerId, String startTime, String endTime) {
+        this.name = name;
+        this.startingPrice = startingPrice;
+        this.priceStep = priceStep;
+        this.description = description;
+        this.imagePath = imagePath;
+        this.sellerId = sellerId;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
 
     // Bổ sung các Getters và Setters cho các trường mới (id, currentMaxPrice, highestBidderId, status)
     public int getId() { return id; }
@@ -43,6 +56,12 @@ public abstract class ItemDTO implements Serializable {
     public void setStartTime(String startTime) { this.startTime = startTime; }
     public String getEndTime() { return endTime; }
     public void setEndTime(String endTime) { this.endTime = endTime; }
+    
+    public double getPriceStep() { return priceStep; }
+    public void setPriceStep(double priceStep) { this.priceStep = priceStep; }
+    
+    public String getImagePath() { return imagePath; }
+    public void setImagePath(String imagePath) { this.imagePath = imagePath; }
 
     public abstract String getCategory();
 }
