@@ -1,7 +1,6 @@
 package com.auction.server;
 
 import com.auction.server.websocket.AuctionWebSocketServer;
-import controller.*;
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
 import java.io.File;
