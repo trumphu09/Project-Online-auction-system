@@ -1,74 +1,48 @@
 package com.auction.client.model;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
-/**
- * DTO (Data Transfer Object) để chuyển dữ liệu sản phẩm từ Client lên Server
- */
 public abstract class ItemDTO implements Serializable {
-    private static final long serialVersionUID = 1L; // Đảm bảo tính ổn định khi truyền qua mạng
+    @Expose @SerializedName("item_id")
+    private int id;
 
-    private String name;
-    private double startingPrice;
-    private double priceStep;
-    private String description;
-    private String imagePath;
+    @Expose @SerializedName("seller_id")
     private int sellerId;
-    private String startTime; // Định dạng: "YYYY-MM-DD HH:mm"
-    private String endTime;
 
-    // 1. Constructor không đối số (Rất cần thiết cho các thư viện xử lý dữ liệu)
-    public ItemDTO() {
-    }
+    @Expose @SerializedName("name")
+    private String name;
 
-    // 2. Constructor đầy đủ để Đại gọi nhanh trong Controller
-    public ItemDTO(String name, double startingPrice, double priceStep, String description,
-                   String imagePath, int sellerId, String startTime, String endTime) {
-        this.name = name;
-        this.startingPrice = startingPrice;
-        this.priceStep = priceStep;
-        this.description = description;
-        this.imagePath = imagePath;
+    @Expose @SerializedName("description")
+    private String description;
+
+    @Expose @SerializedName("starting_price")
+    private double startingPrice;
+
+    @Expose @SerializedName("category")
+    private String category;
+
+    public ItemDTO(int id, int sellerId, String name, String description, double startingPrice, String category) {
+        this.id = id;
         this.sellerId = sellerId;
-        this.startTime = startTime;
-        this.endTime = endTime;
+        this.name = name;
+        this.description = description;
+        this.startingPrice = startingPrice;
+        this.category = category;
     }
 
-    // phan loai san pham
-    public abstract String getCategory();
-
-    // 3. Các Getter và Setter (Để lấy và gán dữ liệu)
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public double getStartingPrice() { return startingPrice; }
-    public void setStartingPrice(double startingPrice) { this.startingPrice = startingPrice; }
-
-    public double getPriceStep() { return priceStep; }
-    public void setPriceStep(double priceStep) { this.priceStep = priceStep; }
-
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-
-    public String getImagePath() { return imagePath; }
-    public void setImagePath(String imagePath) { this.imagePath = imagePath; }
-
+    // Getters & Setters
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
     public int getSellerId() { return sellerId; }
     public void setSellerId(int sellerId) { this.sellerId = sellerId; }
-
-    public String getStartTime() { return startTime; }
-    public void setStartTime(String startTime) { this.startTime = startTime; }
-
-    public String getEndTime() { return endTime; }
-    public void setEndTime(String endTime) { this.endTime = endTime; }
-
-    // 4. Hàm toString để Đại dễ dàng in ra console lúc Debug
-    @Override
-    public String toString() {
-        return "ItemDTO{" +
-                "name='" + name + '\'' +
-                ", price=" + startingPrice +
-                ", sellerId=" + sellerId +
-                '}';
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+    public double getStartingPrice() { return startingPrice; }
+    public void setStartingPrice(double startingPrice) { this.startingPrice = startingPrice; }
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
 }

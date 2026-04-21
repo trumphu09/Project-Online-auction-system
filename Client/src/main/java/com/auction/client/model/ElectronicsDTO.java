@@ -1,21 +1,17 @@
 package com.auction.client.model;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 public class ElectronicsDTO extends ItemDTO {
-    // Constructor không tham số (Cần cho Serialization - Tuần 9) [cite: 103]
-    public ElectronicsDTO() {
-        super();
+    @Expose @SerializedName("warranty_months")
+    private int warrantyMonths;
+
+    public ElectronicsDTO(int id, int sellerId, String name, String description, double startingPrice, int warrantyMonths) {
+        super(id, sellerId, name, description, startingPrice, "ELECTRONICS");
+        this.warrantyMonths = warrantyMonths;
     }
 
-    // Constructor đầy đủ tham số
-    public ElectronicsDTO(String name, double startingPrice, double priceStep,
-                          String description, String imagePath, int sellerId,
-                          String startTime, String endTime) {
-        // Dùng super để đẩy dữ liệu lên lớp cha ItemDTO xử lý
-        super(name, startingPrice, priceStep, description, imagePath, sellerId, startTime, endTime);
-    }
-
-    @Override
-    public String getCategory() {
-        return "Electronics";
-    }
+    public int getWarrantyMonths() { return warrantyMonths; }
+    public void setWarrantyMonths(int warrantyMonths) { this.warrantyMonths = warrantyMonths; }
 }
