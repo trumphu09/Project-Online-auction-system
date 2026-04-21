@@ -12,9 +12,15 @@ public class DatabaseConnection {
     // 2. Thông tin cấu hình Database
     // Thay thế toàn bộ đoạn cấu hình cũ bằng đoạn này:
     // Thay thế toàn bộ đoạn cấu hình cũ bằng đoạn này:
-    private final String URL = "jdbc:mysql://mysql-119e3c15-auction-db-cloud.e.aivencloud.com:26067/defaultdb?sslMode=REQUIRED";
-    private final String USER = "avnadmin"; 
-    private final String PASSWORD = "AVNS_UIFsz6cvPQODeHSqFf6";
+ // Tạm tắt Cloud để thi cho mượt
+// private final String URL = "jdbc:mysql://mysql-119e3c15-auction-db-cloud.e.aivencloud.com:26067/defaultdb?sslMode=REQUIRED";
+// private final String USER = "avnadmin"; 
+// private final String PASSWORD = "...";
+
+// Bật Localhost lên
+private final String URL = "jdbc:mysql://localhost:3306/online_auction?useUnicode=true&characterEncoding=UTF-8";
+private final String USER = "root";     // Mặc định của XAMPP/MySQL
+private final String PASSWORD = "123456";     // Mặc định thường để trống, nếu bạn có pass thì điền vào
     // 3. Constructor được để ở chế độ private để ngăn tạo đối tượng lung tung
     private DatabaseConnection() {
         try {
