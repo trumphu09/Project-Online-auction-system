@@ -1,20 +1,17 @@
 package com.auction.client.controllers;
 
-import com.auction.client.controllers.BiddingRoomController;
 import com.auction.client.model.ArtDTO;
 import com.auction.client.model.ItemDTO;
 import com.auction.client.util.BaseController;
-import com.auction.client.util.ItemCard; // Dùng linh kiện đã tách riêng
+import com.auction.client.util.ItemCard;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.layout.TilePane;
-import javafx.event.Event;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.TilePane;
 import javafx.stage.Stage;
-import javafx.scene.Node;
+import javafx.event.Event;
 import java.io.IOException;
 
 // 1. TÍNH KẾ THỨA: Kế thừa BaseController để dùng switchScene và showAlert

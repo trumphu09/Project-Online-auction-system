@@ -14,6 +14,7 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import com.auction.client.util.BaseController;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
@@ -24,7 +25,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-public class BidHistoryController {
+public class BidHistoryController extends BaseController {
 
     @FXML private TextField txtAuctionId;
     @FXML private TextField txtMaxBid;
@@ -184,13 +185,5 @@ public class BidHistoryController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private void showAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
     }
 }

@@ -4,6 +4,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 public class VehicleDTO extends ItemDTO {
+<<<<<<< HEAD
     @Expose @SerializedName("brand")
     private String brand;
 
@@ -22,6 +23,22 @@ public class VehicleDTO extends ItemDTO {
     }
 
     // Getters & Setters
+=======
+    // Thêm các trường riêng của bảng vehicles
+    private String brand;
+    private int mileage;
+    private String condition;
+
+    public VehicleDTO() { super(); }
+
+    public VehicleDTO(String name, double startingPrice, double priceStep, String description, String imagePath, int sellerId, String startTime, String endTime) {
+        super(name, startingPrice, priceStep, description, imagePath, sellerId, startTime, endTime);
+    }
+
+    @Override
+    public String getCategory() { return "Vehicle"; }
+
+>>>>>>> 71e6ab4a2b9c335e64205860a7a9ead1080a473c
     public String getBrand() { return brand; }
     public void setBrand(String brand) { this.brand = brand; }
     public int getMileage() { return mileage; }

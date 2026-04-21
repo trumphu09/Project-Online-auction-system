@@ -34,4 +34,3 @@ public abstract class BaseController {
         alert.showAndWait();
     }
 }
-// dung abstract class de tai su dung code}

@@ -1,5 +1,6 @@
 package com.auction.client.model;
 
+<<<<<<< HEAD
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
@@ -34,6 +35,19 @@ public class BidDTO implements Serializable {
     public BidDTO() {}
 
     public BidDTO(int id, int bidderId, String bidderUsername, double bidAmount, String timestamp) {
+=======
+import java.time.LocalDateTime;
+
+public class BidDTO {
+    private int id;
+    private int bidderId;
+    private String bidderUsername;  // Chỉ username, không phải object
+    private double bidAmount;
+    private LocalDateTime timestamp;
+
+    public BidDTO(int id, int bidderId, String bidderUsername, 
+                            double bidAmount, LocalDateTime timestamp) {
+>>>>>>> 71e6ab4a2b9c335e64205860a7a9ead1080a473c
         this.id = id;
         this.bidderId = bidderId;
         this.bidderUsername = bidderUsername;
@@ -41,6 +55,7 @@ public class BidDTO implements Serializable {
         this.timestamp = timestamp;
     }
 
+<<<<<<< HEAD
     // ==========================================
     // Getters & Setters
     // ==========================================
@@ -59,3 +74,12 @@ public class BidDTO implements Serializable {
     public String getTimestamp() { return timestamp; }
     public void setTimestamp(String timestamp) { this.timestamp = timestamp; }
 }
+=======
+    // Getters only
+    public int getId() { return id; }
+    public int getBidderId() { return bidderId; }
+    public String getBidderUsername() { return bidderUsername; }
+    public double getBidAmount() { return bidAmount; }
+    public LocalDateTime getTimestamp() { return timestamp; }
+}
+>>>>>>> 71e6ab4a2b9c335e64205860a7a9ead1080a473c
