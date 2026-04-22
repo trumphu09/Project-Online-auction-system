@@ -60,8 +60,8 @@ Dự án được xây dựng dựa trên các nền tảng kiến thức cốt 
 
 | STT | Họ và tên | Vai trò | Trách nhiệm chính |
 | :---: | :--- | :--- | :--- |
-| 1 | **Thiện** | API Developer | Xây dựng REST API (SparkJava), xử lý JSON (Gson), thiết kế các Endpoints giao tiếp. |
-| 2 | **Toàn** | Backend / Logic | Xây dựng WebSocket Server, quản lý phiên đấu giá (`AuctionManager`), xử lý đa luồng, Factory Pattern. |
+| 1 | **Thiện** | API Developer | Xây dựng REST API (SparkJava), thiết kế các Endpoints giao tiếp, Xây dựng WebSocket Server |
+| 2 | **Toàn** | Backend / Logic | , Quản lý phiên đấu giá (`AuctionManager`), xử lý đa luồng, Factory Pattern.  xử lý JSON (Gson)|
 | 3 | **Thành** | Database Architect | Thiết kế MySQL, viết các lớp DAO, tối ưu truy vấn SQL, quản lý Transaction và Data Flow. |
 | 4 | **Đại** | Client / UI | Thiết kế giao diện JavaFX, xử lý luồng sự kiện UI, tích hợp `ApiClient` và hứng tín hiệu WebSocket. |
 
