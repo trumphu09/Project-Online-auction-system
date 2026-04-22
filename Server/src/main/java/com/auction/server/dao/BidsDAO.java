@@ -5,18 +5,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.auction.server.models.AuctionStatus;
-import com.auction.server.models.BidTransaction;
 import com.auction.server.models.BidTransactionDTO;
-import com.auction.server.models.Bidder;
-import com.auction.server.models.BidderDTO;
 
 public class BidsDAO {
-    // Thực hiện đặt giá mới
+    // Thực hiện đặt giá mới (Giữ nguyên vì ông đã bọc try đúng)
     public boolean executeBid(int auctionId, int newBidderId, double newBidAmount) {
-        Connection conn = DatabaseConnection.getInstance().getConnection();
-
-        try {
+        try (Connection conn = DatabaseConnection.getInstance().getConnection()) {
             conn.setAutoCommit(false);
 
             String checkItemSql = "SELECT current_max_price, highest_bidder_id, status FROM auctions WHERE id = ? FOR UPDATE";
@@ -56,7 +50,7 @@ public class BidsDAO {
             if (oldBidderId != 0) {
                 String refundSql = "UPDATE bidders SET account_balance = account_balance + ? WHERE user_id = ?";
                 try (PreparedStatement refundStmt = conn.prepareStatement(refundSql)) {
-                    refundStmt.setDouble(1, currentMaxPrice); // Trả lại đúng số tiền họ đã cược
+                    refundStmt.setDouble(1, currentMaxPrice);
                     refundStmt.setInt(2, oldBidderId);
                     refundStmt.executeUpdate();
                 }
@@ -82,41 +76,35 @@ public class BidsDAO {
             return true;
 
         } catch (SQLException e) {
-            try {
-                conn.rollback();
-            } catch (SQLException ex) { }
+            e.printStackTrace();
             return false;
-        } finally {
-            try {
-                conn.setAutoCommit(true);
-            } catch (SQLException e) { }
         }
     }
     
     // get bid history cua item
     public List<BidTransactionDTO> getBidHistoryByAuctionId(int auctionId) { 
-    List<BidTransactionDTO> history = new ArrayList<>();
-    String sql = "SELECT b.id, b.bidder_id, u.username, b.bid_amount, b.bid_time " +
-                 "FROM bids b JOIN users u ON b.bidder_id = u.id WHERE b.auction_id = ? ORDER BY b.bid_time DESC";
-    
-    Connection conn = DatabaseConnection.getInstance().getConnection();
-    try(PreparedStatement pstmt = conn.prepareStatement(sql)) {
-        pstmt.setInt(1, auctionId);
-        try(ResultSet rs = pstmt.executeQuery()) {
-            while(rs.next()) {  // ✅ Lặp tất cả dòng
-                int id = rs.getInt("id");
-                int bidderId = rs.getInt("bidder_id");
-                String bidderUsername = rs.getString("username");
-                double bidAmount = rs.getDouble("bid_amount");
-                LocalDateTime timestamp = rs.getTimestamp("bid_time").toLocalDateTime();
-                history.add(new BidTransactionDTO(id, bidderId, bidderUsername, bidAmount, timestamp));
+        List<BidTransactionDTO> history = new ArrayList<>();
+        String sql = "SELECT b.id, b.bidder_id, u.username, b.bid_amount, b.bid_time " +
+                     "FROM bids b JOIN users u ON b.bidder_id = u.id WHERE b.auction_id = ? ORDER BY b.bid_time DESC";
+        
+        // ĐÃ SỬA: Nhét Connection vào trong try
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, auctionId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while(rs.next()) { 
+                    int id = rs.getInt("id");
+                    int bidderId = rs.getInt("bidder_id");
+                    String bidderUsername = rs.getString("username");
+                    double bidAmount = rs.getDouble("bid_amount");
+                    LocalDateTime timestamp = rs.getTimestamp("bid_time").toLocalDateTime();
+                    history.add(new BidTransactionDTO(id, bidderId, bidderUsername, bidAmount, timestamp));
+                }
             }
+        } catch(SQLException e) {
+            e.printStackTrace();
         }
-    } catch(SQLException e) {
-        e.printStackTrace();
+        return history; 
     }
-    return history; 
-    }
-
-
 }

@@ -2,138 +2,135 @@ package com.auction.server.dao;
 
 import com.auction.server.models.*;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ItemDAO {
+    
+    // BỘ ĐĂNG KÝ (REGISTRY)
+    // Dùng Class để map khi Insert
+    private final Map<Class<? extends ItemDTO>, IItemSubDAO> classToDAORegistry = new HashMap<>();
+    // Dùng String để map khi Select (Lấy từ DB lên)
+    private final Map<String, IItemSubDAO> categoryToDAORegistry = new HashMap<>();
 
-    // ==============================================
-    // 1. THÊM SẢN PHẨM MỚI (XỬ LÝ BẢNG CHA & CON)
-    // ==============================================
+    public ItemDAO() {
+        // Đăng ký các DAO con vào hệ thống
+        registerDAO(ArtDTO.class, "ART", new ArtDAO());
+        registerDAO(ElectronicsDTO.class, "ELECTRONICS", new ElectronicsDAO());
+        registerDAO(VehicleDTO.class, "VEHICLE", new VehicleDAO());
+    }
+
+    // Hàm hỗ trợ đăng ký nhanh cho cả 2 Map
+    private void registerDAO(Class<? extends ItemDTO> clazz, String category, IItemSubDAO dao) {
+        classToDAORegistry.put(clazz, dao);
+        categoryToDAORegistry.put(category, dao);
+    }
+
+    // ==========================================
+    // 1. THÊM SẢN PHẨM (Đã chuẩn OCP)
+    // ==========================================
     public boolean addItem(ItemDTO item) {
-        Connection conn = DatabaseConnection.getInstance().getConnection();
-        
+        Connection conn = null;
         try {
+            conn = DatabaseConnection.getInstance().getConnection();
             conn.setAutoCommit(false); 
 
-            // Bước 1: Lưu bảng items (Cha)
-            String sqlParent = "INSERT INTO items (seller_id, name, description, starting_price, category) VALUES (?, ?, ?, ?, ?)";
-            int generatedItemId = -1;
+            // Lưu bảng cha
+            String sqlItem = "INSERT INTO items (seller_id, name, description, starting_price, category) VALUES (?, ?, ?, ?, ?)";
+            try (PreparedStatement pstmtItem = conn.prepareStatement(sqlItem, Statement.RETURN_GENERATED_KEYS)) {
+                pstmtItem.setInt(1, item.getSellerId());
+                pstmtItem.setString(2, item.getName());
+                pstmtItem.setString(3, item.getDescription());
+                pstmtItem.setDouble(4, item.getStartingPrice());
+                pstmtItem.setString(5, item.getCategory());
+                pstmtItem.executeUpdate();
 
-            try (PreparedStatement pstParent = conn.prepareStatement(sqlParent, Statement.RETURN_GENERATED_KEYS)) {
-                pstParent.setInt(1, item.getSellerId());
-                pstParent.setString(2, item.getName());
-                pstParent.setString(3, item.getDescription());
-                pstParent.setDouble(4, item.getStartingPrice());
-                pstParent.setString(5, item.getCategory());
-                
-                if (pstParent.executeUpdate() > 0) {
-                    try (ResultSet rs = pstParent.getGeneratedKeys()) {
-                        if (rs.next()) generatedItemId = rs.getInt(1);
-                    }
+                try (ResultSet rs = pstmtItem.getGeneratedKeys()) {
+                    if (rs.next()) item.setId(rs.getInt(1));
+                    else throw new SQLException("Lỗi: Không lấy được ID của sản phẩm.");
                 }
             }
 
-            if (generatedItemId == -1) {
-                conn.rollback(); return false; 
+            // Gọi DAO con lưu bảng con
+            IItemSubDAO subDAO = classToDAORegistry.get(item.getClass());
+            if (subDAO != null) {
+                subDAO.insertSubItem(conn, item); 
             }
 
-            // Bước 2: Lưu bảng con
-            boolean childInsertSuccess = false;
-
-            if (item instanceof ArtDTO) {
-                ArtDTO art = (ArtDTO) item;
-                String sqlChild = "INSERT INTO artworks (item_id, artist, creation_year, material) VALUES (?, ?, ?, ?)";
-                try (PreparedStatement pstChild = conn.prepareStatement(sqlChild)) {
-                    pstChild.setInt(1, generatedItemId);
-                    pstChild.setString(2, art.getArtist());
-                    pstChild.setInt(3, art.getCreationYear());
-                    pstChild.setString(4, art.getMaterial());
-                    childInsertSuccess = pstChild.executeUpdate() > 0;
-                }
-            } else if (item instanceof ElectronicsDTO) {
-                ElectronicsDTO elec = (ElectronicsDTO) item;
-                String sqlChild = "INSERT INTO electronics (item_id, warranty_months) VALUES (?, ?)";
-                try (PreparedStatement pstChild = conn.prepareStatement(sqlChild)) {
-                    pstChild.setInt(1, generatedItemId);
-                    pstChild.setInt(2, elec.getWarrantyMonths());
-                    childInsertSuccess = pstChild.executeUpdate() > 0;
-                }
-            } else if (item instanceof VehicleDTO) {
-                VehicleDTO veh = (VehicleDTO) item;
-                String sqlChild = "INSERT INTO vehicles (item_id, brand, mileage, condition_state) VALUES (?, ?, ?, ?)";
-                try (PreparedStatement pstChild = conn.prepareStatement(sqlChild)) {
-                    pstChild.setInt(1, generatedItemId);
-                    pstChild.setString(2, veh.getBrand());
-                    pstChild.setInt(3, veh.getMileage());
-                    pstChild.setString(4, veh.getCondition());
-                    childInsertSuccess = pstChild.executeUpdate() > 0;
-                }
-            }
-
-            // Bước 3: Chốt
-            if (childInsertSuccess) {
-                conn.commit(); return true;
-            } else {
-                conn.rollback(); return false;
-            }
+            conn.commit(); 
+            return true;
 
         } catch (SQLException e) {
-            try { conn.rollback(); } catch (SQLException ex) {}
+            if (conn != null) try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
             return false;
         } finally {
-            try { conn.setAutoCommit(true); } catch (SQLException e) {}
+            if (conn != null) try { conn.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
         }
     }
 
-    // ==============================================
-    // 2. LẤY THÔNG TIN SẢN PHẨM BẰNG ID (DÙNG LEFT JOIN)
-    // ==============================================
-    public ItemDTO getItemById(int itemId) {
-        // Lệnh LEFT JOIN thần thánh: Gộp cả 4 bảng lại làm 1 để tìm kiếm
-        String sql = "SELECT i.*, " +
-                     "a.artist, a.creation_year, a.material, " +
-                     "e.warranty_months, " +
-                     "v.brand, v.mileage, v.condition_state " +
-                     "FROM items i " +
-                     "LEFT JOIN artworks a ON i.id = a.item_id " +
-                     "LEFT JOIN electronics e ON i.id = e.item_id " +
-                     "LEFT JOIN vehicles v ON i.id = v.item_id " +
-                     "WHERE i.id = ?";
-
-        Connection conn = DatabaseConnection.getInstance().getConnection();
-
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, itemId);
+    // ==========================================
+    // 2. LẤY 1 SẢN PHẨM THEO ID (Chuẩn OCP)
+    // ==========================================
+    public ItemDTO getItemById(int id) {
+        String sql = "SELECT * FROM items WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, id);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    // Lấy dữ liệu chung của bảng Cha
                     int sellerId = rs.getInt("seller_id");
                     String name = rs.getString("name");
                     String description = rs.getString("description");
                     double startingPrice = rs.getDouble("starting_price");
                     String category = rs.getString("category");
 
-                    // Trả về đúng đối tượng DTO con dựa vào category
-                    if ("ART".equals(category)) {
-                        return new ArtDTO(itemId, sellerId, name, description, startingPrice,
-                                rs.getString("artist"), rs.getInt("creation_year"), rs.getString("material"));
-                    } 
-                    else if ("ELECTRONICS".equals(category)) {
-                        return new ElectronicsDTO(itemId, sellerId, name, description, startingPrice,
-                                rs.getInt("warranty_months"));
-                    } 
-                    else if ("VEHICLE".equals(category)) {
-                        return new VehicleDTO(itemId, sellerId, name, description, startingPrice,
-                                rs.getString("brand"), rs.getInt("mileage"), rs.getString("condition_state"));
-                    }
-                    else {
-                        // Nếu là Item chung chung không có bảng con
-                        return new ItemDTO(itemId, sellerId, name, description, startingPrice, category);
+                    // Nhờ DAO con query tiếp để ráp thành Object hoàn chỉnh
+                    IItemSubDAO subDAO = categoryToDAORegistry.get(category.toUpperCase());
+                    if (subDAO != null) {
+                        return subDAO.fetchSubItem(conn, id, sellerId, name, description, startingPrice);
                     }
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi tìm kiếm sản phẩm: " + e.getMessage());
+            System.err.println("Lỗi getItemById: " + e.getMessage());
         }
         return null;
+    }
+
+    // ==========================================
+    // 3. LẤY TOÀN BỘ SẢN PHẨM (Chuẩn OCP)
+    // ==========================================
+    public List<ItemDTO> getAllItems() {
+        List<ItemDTO> list = new ArrayList<>();
+        String sql = "SELECT * FROM items ORDER BY created_at DESC";
+        
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                int sellerId = rs.getInt("seller_id");
+                String name = rs.getString("name");
+                String description = rs.getString("description");
+                double startingPrice = rs.getDouble("starting_price");
+                String category = rs.getString("category");
+
+                // Giao việc cho DAO con tương ứng
+                IItemSubDAO subDAO = categoryToDAORegistry.get(category.toUpperCase());
+                if (subDAO != null) {
+                    ItemDTO fullItem = subDAO.fetchSubItem(conn, id, sellerId, name, description, startingPrice);
+                    if (fullItem != null) {
+                        list.add(fullItem);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi getAllItems: " + e.getMessage());
+        }
+        return list;
     }
 }

@@ -82,8 +82,7 @@ public class AuctionDAO {
                     boolean hasExtended = rs.getBoolean("has_extended");
                     
                     // Giả sử bạn có một class AuctionDataDTO để truyền dữ liệu cho nhanh
-                    return new AuctionDataDTO(sellerId, sellerId, sellerId, endTime, status, hasExtended);
-                }
+                    return new AuctionDataDTO(auctionId, itemId, sellerId, endTime, status, hasExtended);                }
             }
         } catch (SQLException e) {
             System.err.println("Lỗi tìm kiếm phiên đấu giá: " + e.getMessage());

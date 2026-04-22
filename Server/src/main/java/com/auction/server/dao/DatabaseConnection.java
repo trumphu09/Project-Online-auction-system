@@ -1,63 +1,77 @@
-package com.auction.server.dao;
+package com.auction.server.dao; // Sửa lại đúng package của ông
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConnection {
-    // 1. Biến instance duy nhất tĩnh (Singleton)
+
+    // Vẫn dùng Singleton, nhưng không phải giữ 1 Connection, mà là giữ 1 cái HỒ CHỨA (DataSource)
     private static DatabaseConnection instance;
-    private Connection connection;
+    private HikariDataSource dataSource;
 
-    // 2. Thông tin cấu hình Database
-    // Thay thế toàn bộ đoạn cấu hình cũ bằng đoạn này:
-    // Thay thế toàn bộ đoạn cấu hình cũ bằng đoạn này:
- // Tạm tắt Cloud để thi cho mượt
-// private final String URL = "jdbc:mysql://mysql-119e3c15-auction-db-cloud.e.aivencloud.com:26067/defaultdb?sslMode=REQUIRED";
-// private final String USER = "avnadmin"; 
-// private final String PASSWORD = "...";
-
-// Bật Localhost lên
-private final String URL = "jdbc:mysql://localhost:3306/online_auction?useUnicode=true&characterEncoding=UTF-8";
-private final String USER = "root";     // Mặc định của XAMPP/MySQL
-private final String PASSWORD = "123456";     // Mặc định thường để trống, nếu bạn có pass thì điền vào
-    // 3. Constructor được để ở chế độ private để ngăn tạo đối tượng lung tung
     private DatabaseConnection() {
-        try {
-            // Đăng ký Driver của MySQL
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            // Mở kết nối
-            this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
-            System.out.println("-> [Thành công] Server đã kết nối với MySQL (auction_db)!");
-        } catch (ClassNotFoundException e) {
-            System.err.println("-> [Lỗi] Không tìm thấy thư viện MySQL JDBC. Kiểm tra lại file pom.xml");
-        } catch (SQLException e) {
-            System.err.println("-> [Lỗi] Không kết nối được Database. Sai mật khẩu hoặc MySQL chưa bật?");
-            e.printStackTrace();
-        }
+        // Cấu hình Hồ chứa kết nối (Hikari Config)
+        HikariConfig config = new HikariConfig();
+        
+        // Trỏ vào Localhost của ông (Nhớ sửa tên DB hoặc Pass nếu cần)
+        config.setJdbcUrl("jdbc:mysql://localhost:3306/online_auction?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC");
+        config.setUsername("root");
+        config.setPassword("123456"); 
+
+        // ==========================================
+        // TINH CHỈNH POOLING (THÔNG SỐ CHUẨN DOANH NGHIỆP)
+        // ==========================================
+        config.setMaximumPoolSize(50);      // Tối đa 50 kết nối hoạt động cùng lúc
+        config.setMinimumIdle(10);          // Lúc rảnh rỗi (ít khách) vẫn giữ 10 kết nối mở sẵn để chờ
+        config.setConnectionTimeout(20000); // Nếu có 51 người vào, người thứ 51 phải đợi. Quá 20s không có ống nào rảnh thì báo lỗi (Timeout).
+        config.setIdleTimeout(300000);      // Ống nào rảnh quá 5 phút thì đóng bớt cho nhẹ RAM Server
+        config.setMaxLifetime(1800000);     // Sau 30 phút, đập ống cũ xây ống mới để tránh lỗi rỉ sét (Memory Leak)
+
+        // Khởi tạo Hồ chứa
+        dataSource = new HikariDataSource(config);
     }
 
-    // 4. Hàm cung cấp điểm truy cập duy nhất
-    public static DatabaseConnection getInstance() {
+    public static synchronized DatabaseConnection getInstance() {
         if (instance == null) {
             instance = new DatabaseConnection();
         }
         return instance;
     }
 
-    // 5. Hàm lấy đường ống kết nối ra để dùng
-    public Connection getConnection() {
-        return connection;
+    /**
+     * Mỗi lần DAO gọi hàm này, nó KHÔNG MỞ kết nối mới.
+     * Nó chỉ MƯỢN 1 kết nối đang có sẵn trong Hồ chứa.
+     */
+    public Connection getConnection() throws SQLException {
+        return dataSource.getConnection();
+    }
+
+    /**
+     * Khi Server tắt, phải gọi hàm này để xả hồ nước, đóng toàn bộ 50 kết nối lại
+     */
+    public void closePool() {
+        if (dataSource != null) {
+            dataSource.close();
+            System.out.println("Đã đóng Hồ chứa kết nối Database.");
+        }
     }
 
     // --- HÀM MAIN ĐỂ BẠN CHẠY THỬ KIỂM TRA NGAY TẠI CHỖ ---
     public static void main(String[] args) {
-        // Gọi thử để xem console có in ra chữ thành công không
-        DatabaseConnection db = DatabaseConnection.getInstance();
-        Connection conn = db.getConnection();
-        
-        if (conn != null) {
-            System.out.println("Kiểm tra: Đường ống hoạt động tốt, sẵn sàng truyền dữ liệu!");
+        try {
+            // Gọi thử để xem console có in ra chữ thành công không
+            DatabaseConnection db = DatabaseConnection.getInstance();
+            Connection conn = db.getConnection();
+            
+            if (conn != null) {
+                System.out.println("Kiểm tra: Đường ống HikariCP hoạt động tốt, sẵn sàng truyền dữ liệu!");
+                // Nhớ đóng connection trả về hồ sau khi test xong nhé
+                conn.close(); 
+            }
+        } catch (SQLException e) {
+            System.err.println("Toang rồi ông giáo ạ, lỗi kết nối: " + e.getMessage());
         }
     }
 }
