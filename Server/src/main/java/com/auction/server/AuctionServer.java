@@ -1,17 +1,11 @@
 package com.auction.server;
 
 
+import com.auction.server.servlets.*;
 import com.auction.server.websocket.AuctionWebSocketServer;
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
 import java.io.File;
-
-// Import các API của mày vào đây
-import com.auction.server.servlets.GetItemsAPI;
-import com.auction.server.servlets.LoginAPI;
-import com.auction.server.servlets.RegisterAPI;
-import com.auction.server.servlets.GetItemDetailAPI;
-import com.auction.server.servlets.PlaceBidAPI;
 
 public class AuctionServer {
 
@@ -40,9 +34,9 @@ public class AuctionServer {
             Tomcat.addServlet(ctx, "RegisterAPI", new RegisterAPI());
             ctx.addServletMappingDecoded("/api/register", "RegisterAPI");
 
-            // API Lấy danh sách sản phẩm <-- THÊM 2 DÒNG NÀY
-            Tomcat.addServlet(ctx, "GetItemsAPI", new GetItemsAPI());
-            ctx.addServletMappingDecoded("/api/items", "GetItemsAPI");
+            // API Đăng bán sản phẩm và xem sản phẩm
+            Tomcat.addServlet(ctx, "ItemsAPI", new ItemsAPI());
+            ctx.addServletMappingDecoded("/api/items", "ItemsAPI");
 
             // API Lấy chi tiết MỘT sản phẩm <-- THÊM 2 DÒNG NÀY
             // Dấu * sẽ khớp với bất kỳ ID nào phía sau
@@ -52,6 +46,18 @@ public class AuctionServer {
             // API Đặt giá
             Tomcat.addServlet(ctx, "PlaceBidAPI", new PlaceBidAPI());
             ctx.addServletMappingDecoded("/api/bids", "PlaceBidAPI");
+
+            // API Lấy lịch sử đấu giá của một sản phẩm <-- THÊM 2 DÒNG NÀY
+            Tomcat.addServlet(ctx, "GetBidHistoryAPI", new GetBidHistoryAPI());
+            ctx.addServletMappingDecoded("/api/items/*/bids", "GetBidHistoryAPI");
+
+            // API Lấy sản phẩm mình đã win đc
+            Tomcat.addServlet(ctx, "GetMyWonItemsAPI", new GetMyWonItemsAPI());
+            ctx.addServletMappingDecoded("/api/users/*/won-items", "GetMyWonItemsAPI");
+
+            // API Lấy các sản phẩm đang bán của một seller <-- THÊM 2 DÒNG NÀY
+            Tomcat.addServlet(ctx, "GetMyItemsForSaleAPI", new GetMyItemsForSaleAPI());
+            ctx.addServletMappingDecoded("/api/users/*/items", "GetMyItemsForSaleAPI");
 
             // Mày có thể bỏ comment (xóa dấu //) mấy dòng dưới nếu đã code xong mấy API này
             // Tomcat.addServlet(ctx, "LoginAPI", new LoginAPI());

@@ -50,7 +50,7 @@ public class ItemDAO {
             pstmt.setInt(1, itemId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return mapRowToItem(rs); // Gọi hàm phụ trợ 
+                    return mapRowToItem(rs); // Gọi hàm phụ trợ
                 }
             }
         } catch (SQLException e) {
@@ -73,7 +73,7 @@ public class ItemDAO {
         AuctionStatus status = AuctionStatus.valueOf(statusStr);
         int highestBidderId = rs.getInt("highest_bidder_id");
         String category = rs.getString("category");
-        
+
         // Tạo item dựa trên category - sử dụng constructor thứ 2 của Item
         Item item = new Item(id, sellerId, name, description, startingPrice, startTime, endTime, category) {
             @Override
@@ -81,7 +81,7 @@ public class ItemDAO {
                 System.out.println("Item: " + name);
             }
         };
-        
+
         item.setHighestBidderId(highestBidderId);
         item.setCurrentMaxPrice(currentMaxPrice);
         item.setStatus(status);
@@ -146,4 +146,46 @@ public class ItemDAO {
         return itemList;
     }
 
+    // Hàm lấy danh sách sản phẩm đã thắng
+
+    public List<Item> getWonItemsByUserId(int userId) {
+        List<Item> wonItems = new ArrayList<>();
+        // Câu lệnh SQL tìm các item đã kết thúc VÀ người thắng là userId
+        String sql = "SELECT * FROM items WHERE highest_bidder_id = ? AND status = 'ENDED' ORDER BY end_time DESC";
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    // Tận dụng lại hàm mapRowToItem tuyệt vời của bạn
+                    wonItems.add(mapRowToItem(rs));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("✗ [Lỗi lấy sản phẩm đã thắng] " + e.getMessage());
+        }
+        return wonItems;
+
+    }
+
+    // Thêm phương thức lấy list accs items mà 1 seller bán
+
+    public List<Item> getItemsBySellerId(int sellerId) {
+        List<Item> items = new ArrayList<>();
+        String sql = "SELECT * FROM items WHERE seller_id = ? ORDER BY id DESC";
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, sellerId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    items.add(mapRowToItem(rs));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("✗ [Lỗi lấy sản phẩm theo seller] " + e.getMessage());
+        }
+        return items;
+    }
 }

@@ -1,9 +1,7 @@
 package com.auction.server.servlets;
 
-// THAY ĐỔI QUAN TRỌNG: Import BidderDAO thay vì UserDAO
-import com.auction.server.dao.BidderDAO;
+import com.auction.server.dao.BidderDAO; // Import BidderDAO
 import com.google.gson.Gson;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -11,11 +9,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors; // Cần để đọc JSON body
 
 public class RegisterAPI extends HttpServlet {
 
-    // THAY ĐỔI QUAN TRỌNG: Dùng BidderDAO làm "chuyên gia" chính
-    private final BidderDAO bidderDAO = new BidderDAO();
+    private final BidderDAO bidderDAO = new BidderDAO(); // Sử dụng BidderDAO
     private final Gson gson = new Gson();
 
     @Override
@@ -23,27 +21,39 @@ public class RegisterAPI extends HttpServlet {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
 
-        // 1. Lấy thông tin đăng ký từ client
-        String username = req.getParameter("username");
-        String password = req.getParameter("password");
-        String email = req.getParameter("email");
-
-        // 2. GỌI ĐÚNG HÀM registerBidder(String...) MÀ BẠN ĐÃ VIẾT
-        // Hàm này sẽ tự động xử lý việc tạo user và bidder một cách đồng bộ.
-        boolean isSuccess = bidderDAO.registerBidder(username, password, email);
-
         Map<String, Object> responseMap = new HashMap<>();
 
-        // 3. Dựa vào kết quả true/false để trả về thông báo
-        if (isSuccess) {
-            responseMap.put("status", "success");
-            responseMap.put("message", "Đăng ký tài khoản bidder thành công!");
-        } else {
-            responseMap.put("status", "error");
-            responseMap.put("message", "Đăng ký thất bại. Tên đăng nhập hoặc email có thể đã được sử dụng.");
-        }
+        try {
+            // --- FIX: Đọc JSON body thay vì form-urlencoded để đồng bộ ---
+            String requestBody = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+            Map<String, String> requestData = gson.fromJson(requestBody, Map.class);
 
-        // 4. Gửi JSON response về cho client
-        resp.getWriter().write(gson.toJson(responseMap));
+            String username = requestData.get("username");
+            String password = requestData.get("password");
+            String email = requestData.get("email");
+
+            // --- FIX: Gọi bidderDAO.registerBidder để tạo cả user và bidder ---
+            // Phương thức này đã xử lý role "BIDDER" (chữ hoa) bên trong
+            boolean isSuccess = bidderDAO.registerBidder(username, password, email);
+
+            if (isSuccess) {
+                resp.setStatus(HttpServletResponse.SC_CREATED); // 201 Created là mã chuẩn cho tạo mới thành công
+                responseMap.put("status", "success");
+                responseMap.put("message", "Đăng ký tài khoản bidder thành công!");
+            } else {
+                // --- FIX: Set HTTP status code 409 Conflict cho lỗi trùng lặp ---
+                resp.setStatus(HttpServletResponse.SC_CONFLICT); // 409 Conflict
+                responseMap.put("status", "error");
+                responseMap.put("message", "Đăng ký thất bại. Tên đăng nhập hoặc email có thể đã được sử dụng.");
+            }
+
+        } catch (Exception e) {
+            System.err.println("Lỗi trong RegisterAPI: " + e.getMessage()); // Log lỗi nội bộ
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            responseMap.put("status", "error");
+            responseMap.put("message", "Đã có lỗi xảy ra phía server. Vui lòng thử lại sau."); // Thông báo lỗi chung
+        } finally {
+            resp.getWriter().write(gson.toJson(responseMap));
+        }
     }
 }
