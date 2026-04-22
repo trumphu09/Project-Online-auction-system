@@ -1,30 +1,42 @@
-package com.auction.server.factory;
+package com.auction.server.factory; // Hoặc thư mục chứa Factory của nhóm
+
 import com.auction.server.models.*;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ItemFactory {
-
-    // Đây là "Bản đồ" lưu trữ mối quan hệ giữa chuỗi Category và Class tương ứng
+    
+    // BỘ ĐĂNG KÝ (REGISTRY): Lưu trữ từ khóa nhận diện và Class tương ứng
     private static final Map<String, Class<? extends ItemDTO>> registry = new HashMap<>();
 
-    // Khối static này sẽ chạy ngay khi chương trình vừa khởi động
+    // Khối static chạy 1 lần duy nhất khi hệ thống khởi động
     static {
+        // Đăng ký các sản phẩm mặc định của hệ thống
         registry.put("ART", ArtDTO.class);
         registry.put("ELECTRONICS", ElectronicsDTO.class);
         registry.put("VEHICLE", VehicleDTO.class);
-        
-        // 💡 TƯƠNG LAI: Nếu có thêm Bất động sản, bạn CHỈ CẦN thêm 1 dòng duy nhất ở đây:
-        // registry.put("REAL_ESTATE", RealEstateDTO.class);
     }
 
     /**
-     * Hàm này nhận vào một chữ (ví dụ "VEHICLE") 
-     * và trả về đúng cái Khuôn (Class) cần thiết để Gson đúc ra DTO.
+     * TÍNH NĂNG ĐỈNH CAO CỦA OCP: Cho phép đăng ký loại sản phẩm MỚI từ bên ngoài.
+     * Ngày mai có RealEstate, em chỉ cần gọi ItemFactory.registerItemType("REAL_ESTATE", RealEstateDTO.class)
+     * từ file Main mà KHÔNG CẦN mở file ItemFactory.java này ra để sửa!
+     */
+    public static void registerItemType(String category, Class<? extends ItemDTO> clazz) {
+        registry.put(category.toUpperCase(), clazz);
+    }
+
+    /**
+     * Dành cho API/Controller: Trả về Class tương ứng để thư viện Gson có thể tự động dịch JSON thành Object
      */
     public static Class<? extends ItemDTO> getClassByCategory(String category) {
-        if (category == null) return null;
-        return registry.get(category.toUpperCase());
+        Class<? extends ItemDTO> clazz = registry.get(category.toUpperCase());
+        
+        if (clazz == null) {
+            // Thay vì lỗi ngầm, báo lỗi ngay lập tức nếu mã không tồn tại
+            throw new IllegalArgumentException("Loại sản phẩm không được hỗ trợ: " + category);
+        }
+        
+        return clazz;
     }
 }
-
