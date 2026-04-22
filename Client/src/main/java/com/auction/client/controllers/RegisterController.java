@@ -2,7 +2,6 @@ package com.auction.client.controllers;
 
 import com.auction.client.model.Bidder;
 import com.auction.client.model.Seller;
-import com.auction.client.util.BaseController;
 import com.auction.client.model.User;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;

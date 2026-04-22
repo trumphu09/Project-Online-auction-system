@@ -1,7 +1,6 @@
 package com.auction.client.controllers;
 
 import com.auction.client.model.Admin;
-import com.auction.client.util.BaseController;
 import javafx.scene.control.RadioButton;
 import com.auction.client.model.User;
 import javafx.event.ActionEvent;

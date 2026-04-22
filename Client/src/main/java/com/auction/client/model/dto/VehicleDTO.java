@@ -1,4 +1,4 @@
-package com.auction.client.model;
+package com.auction.client.model.dto;
 
 public class VehicleDTO extends ItemDTO {
     // Thêm các trường riêng của bảng vehicles

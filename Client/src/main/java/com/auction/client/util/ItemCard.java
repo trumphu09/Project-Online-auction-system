@@ -1,6 +1,6 @@
 package com.auction.client.util;
 
-import com.auction.client.model.ItemDTO;
+import com.auction.client.model.dto.ItemDTO;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;

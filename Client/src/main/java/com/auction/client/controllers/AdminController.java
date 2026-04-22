@@ -1,8 +1,7 @@
 package com.auction.client.controllers;
 
-import com.auction.client.model.ItemDTO;
+import com.auction.client.model.dto.ItemDTO;
 import com.auction.client.model.User;
-import com.auction.client.util.BaseController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;

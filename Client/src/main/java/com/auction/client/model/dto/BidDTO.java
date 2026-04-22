@@ -1,4 +1,4 @@
-package com.auction.client.model;
+package com.auction.client.model.dto;
 
 import java.time.LocalDateTime;
 

@@ -1,4 +1,4 @@
-package com.auction.client.model;
+package com.auction.client.model.dto;
 
 public class ElectronicsDTO extends ItemDTO {
     // Thêm trường riêng của bảng electronics
