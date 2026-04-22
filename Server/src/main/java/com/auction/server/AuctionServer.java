@@ -1,13 +1,17 @@
 package com.auction.server;
 
+
 import com.auction.server.websocket.AuctionWebSocketServer;
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
 import java.io.File;
 
 // Import các API của mày vào đây
-
-
+import com.auction.server.servlets.GetItemsAPI;
+import com.auction.server.servlets.LoginAPI;
+import com.auction.server.servlets.RegisterAPI;
+import com.auction.server.servlets.GetItemDetailAPI;
+import com.auction.server.servlets.PlaceBidAPI;
 
 public class AuctionServer {
 
@@ -29,6 +33,25 @@ public class AuctionServer {
             Context ctx = tomcat.addContext("", new File(".").getAbsolutePath());
 
             // ĐĂNG KÝ CÁC API VÀO HỆ THỐNG
+
+            // API Đăng nhập & Đăng ký
+            Tomcat.addServlet(ctx, "LoginAPI", new LoginAPI());
+            ctx.addServletMappingDecoded("/api/login", "LoginAPI");
+            Tomcat.addServlet(ctx, "RegisterAPI", new RegisterAPI());
+            ctx.addServletMappingDecoded("/api/register", "RegisterAPI");
+
+            // API Lấy danh sách sản phẩm <-- THÊM 2 DÒNG NÀY
+            Tomcat.addServlet(ctx, "GetItemsAPI", new GetItemsAPI());
+            ctx.addServletMappingDecoded("/api/items", "GetItemsAPI");
+
+            // API Lấy chi tiết MỘT sản phẩm <-- THÊM 2 DÒNG NÀY
+            // Dấu * sẽ khớp với bất kỳ ID nào phía sau
+            Tomcat.addServlet(ctx, "GetItemDetailAPI", new GetItemDetailAPI());
+            ctx.addServletMappingDecoded("/api/items/*", "GetItemDetailAPI");
+
+            // API Đặt giá
+            Tomcat.addServlet(ctx, "PlaceBidAPI", new PlaceBidAPI());
+            ctx.addServletMappingDecoded("/api/bids", "PlaceBidAPI");
 
             // Mày có thể bỏ comment (xóa dấu //) mấy dòng dưới nếu đã code xong mấy API này
             // Tomcat.addServlet(ctx, "LoginAPI", new LoginAPI());
