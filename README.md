@@ -65,84 +65,137 @@ Sơ đồ dưới đây minh họa kiến trúc OCP và các Mẫu thiết kế 
 
 ```mermaid
 classDiagram
-    %% ==================================
-    %% TẦNG FACTORY & REGISTRY (Chuẩn OCP)
-    %% ==================================
-    class ItemFactory {
-        <<Registry>>
-        -static registry: Map~String, Class~
-        +registerItemType(category, Class)
-        +getClassByCategory(category) Class
+    %% ==========================================
+    %% 1. TẦNG CLIENT - JAVAFX (Giao diện & Xử lý bất đồng bộ)
+    %% ==========================================
+    class BiddingRoomController {
+        <<JavaFX UI>>
+        -lblPrice: Label
+        -btnBid: Button
+        +handleBidAction()
+        +updateUIRafely() "Dùng Platform.runLater()"
     }
-    
-    %% ==================================
-    %% TẦNG DAO & STRATEGY PATTERN (Chuẩn OCP)
-    %% ==================================
+
+    class ApiClient {
+        <<HTTP Client>>
+        +postRequest(url, jsonBody) Response
+        +getRequest(url) Response
+    }
+
+    class WebSocketClient {
+        <<Real-time>>
+        +connectToServer()
+        +sendBidAmount(amount)
+        +onMessageReceived(data)
+    }
+
+    BiddingRoomController --> ApiClient : Gọi API (Login, Lấy đồ)
+    BiddingRoomController --> WebSocketClient : Truyền giá trực tiếp
+    WebSocketClient ..> BiddingRoomController : Gọi updateUIRafely()
+
+    %% ==========================================
+    %% 2. TẦNG MẠNG (Giao thức truyền tải)
+    %% ==========================================
+    class Internet {
+        <<Network Layer>>
+        +HTTP_REST_API
+        +WebSocket_WSS
+    }
+    ApiClient --|> Internet : JSON (Port 8080)
+    WebSocketClient --|> Internet : Binary/Text (Port 8081)
+
+    %% ==========================================
+    %% 3. TẦNG SERVER - ROUTER & REAL-TIME
+    %% ==========================================
+    class SparkJavaRouter {
+        <<API Gateway>>
+        +post("/api/login", LoginHandler)
+        +post("/api/items", ItemHandler)
+    }
+
+    class AuctionWebSocketServer {
+        <<Observer>>
+        -connectedClients: List
+        +onOpen()
+        +onMessage()
+        +broadcastToAll()
+    }
+
+    Internet --|> SparkJavaRouter : Request
+    Internet --|> AuctionWebSocketServer : Socket Stream
+
+    %% ==========================================
+    %% 4. TẦNG BUSINESS LOGIC & FACTORY (Chuẩn OCP)
+    %% ==========================================
+    class AuctionManager {
+        <<Singleton>>
+        -executor: ExecutorService "Thread Pool"
+        +processBidRequest() "Xử lý kẹt xe đa luồng"
+    }
+
+    class ItemFactory {
+        <<Registry Pattern>>
+        -registry: Map~String, Class~
+        +registerItemType()
+        +getClassByCategory()
+    }
+
+    SparkJavaRouter --> ItemFactory : Map JSON -> Object
+    AuctionWebSocketServer --> AuctionManager : Ném giá vào hàng đợi
+
+    %% ==========================================
+    %% 5. TẦNG DAO & DATABASE (Lõi thao tác dữ liệu)
+    %% ==========================================
     class DatabaseConnection {
         <<Singleton>>
-        -instance: DatabaseConnection
         -dataSource: HikariDataSource
-        +getInstance() DatabaseConnection
+        +getInstance()
         +getConnection() Connection
     }
 
-    class IItemSubDAO {
-        <<Interface / Strategy>>
-        +insertSubItem(conn, item)
-        +fetchSubItem(conn, itemId, ...) ItemDTO
+    class BidsDAO {
+        +executeBid(auctionId, userId, amount)
+        "Dùng FOR UPDATE & Rollback"
     }
 
     class ItemDAO {
-        -classToDAORegistry: Map~Class, IItemSubDAO~
-        -categoryToDAORegistry: Map~String, IItemSubDAO~
-        +addItem(ItemDTO) boolean
-        +getAllItems() List~ItemDTO~
+        +addItem(ItemDTO)
+        +getAllItems()
     }
 
-    class ArtDAO {
+    class IItemSubDAO {
+        <<Strategy Interface>>
         +insertSubItem(conn, item)
-        +fetchSubItem(...)
+        +fetchSubItem()
     }
-    class VehicleDAO {
-        +insertSubItem(conn, item)
-        +fetchSubItem(...)
+    
+    class ArtDAO
+    class VehicleDAO
+    class ElectronicsDAO
+
+    %% Ráp nối DAO
+    ItemDAO o-- IItemSubDAO : Phân nhánh OCP
+    IItemSubDAO <|.. ArtDAO : Implements
+    IItemSubDAO <|.. VehicleDAO : Implements
+    IItemSubDAO <|.. ElectronicsDAO : Implements
+
+    AuctionManager --> BidsDAO : Ghi lịch sử & trừ tiền
+    SparkJavaRouter --> ItemDAO : Lưu sản phẩm mới
+
+    %% Tất cả DAO đều phải mượn ống nước từ HikariCP
+    BidsDAO ..> DatabaseConnection : mượn Connection
+    ItemDAO ..> DatabaseConnection : mượn Connection
+    IItemSubDAO ..> DatabaseConnection : dùng chung Connection cha
+
+    %% ==========================================
+    %% 6. TẦNG VẬT LÝ (Database)
+    %% ==========================================
+    class MySQL {
+        <<Database>>
+        +Table_Users
+        +Table_Items
+        +Table_Artworks
+        +Table_Bids
     }
 
-    IItemSubDAO <|.. ArtDAO : implements
-    IItemSubDAO <|.. VehicleDAO : implements
-    ItemDAO o-- IItemSubDAO : delegates to
-    ItemDAO ..> DatabaseConnection : uses (HikariCP)
-    ItemFactory ..> ItemDAO : provides types
-
-    %% ==================================
-    %% TẦNG MODELS (Lõi dữ liệu)
-    %% ==================================
-    class ItemDTO {
-        <<abstract>>
-        -id: int
-        -name: String
-        -startingPrice: double
-        -category: String
-    }
-    class ArtDTO {
-        -artist: String
-    }
-    class VehicleDTO {
-        -brand: String
-    }
-    ItemDTO <|-- ArtDTO
-    ItemDTO <|-- VehicleDTO
-
-    %% ==================================
-    %% TẦNG SERVICES & REAL-TIME
-    %% ==================================
-    class AuctionManager {
-        <<Singleton>>
-        -auctionExecutor: ExecutorService
-        +processBidRequest()
-    }
-    class AuctionWebSocketServer {
-        <<Observer>>
-        +broadcastPrice()
-    }
-    AuctionManager --> AuctionWebSocketServer : triggers
+    DatabaseConnection --> MySQL : HikariCP (Max 50 Connections)
