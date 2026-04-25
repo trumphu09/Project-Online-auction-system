@@ -3,61 +3,60 @@ package com.auction.server.servlets;
 import com.auction.server.dao.ItemDAO;
 import com.auction.server.models.Item;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.auction.server.utils.LocalDateTimeAdapter;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-/**
- * API này xử lý yêu cầu GET để lấy danh sách các sản phẩm mà một user đã thắng.
- * URL ví dụ: /api/users/2/won-items
- */
 public class GetMyWonItemsAPI extends HttpServlet {
 
     private final ItemDAO itemDAO = new ItemDAO();
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+            .create();
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
+        Map<String, Object> responseMap = new HashMap<>();
 
         try {
-            // Lấy đường dẫn, ví dụ: /2/won-items
-            String pathInfo = req.getPathInfo();
-            if (pathInfo == null || pathInfo.equals("/")) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                resp.getWriter().write("{\"error\":\"Thiếu ID của người dùng.\"}");
+            HttpSession session = req.getSession(false);
+            Integer userId = null;
+            if (session != null) {
+                userId = (Integer) session.getAttribute("userId");
+            }
+
+            if (userId == null) {
+                resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                responseMap.put("status", "error");
+                responseMap.put("message", "Bạn cần đăng nhập để xem các sản phẩm đã thắng.");
+                resp.getWriter().write(gson.toJson(responseMap));
                 return;
             }
 
-            // Tách chuỗi để lấy ra userId
-            String[] pathParts = pathInfo.split("/");
-            if (pathParts.length < 2) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                resp.getWriter().write("{\"error\":\"URL không hợp lệ.\"}");
-                return;
-            }
-
-            int userId = Integer.parseInt(pathParts[1]);
-
-            // Gọi phương thức mới trong ItemDAO
             List<Item> wonItems = itemDAO.getWonItemsByUserId(userId);
 
-            // Dịch kết quả thành JSON và gửi về
             String jsonResponse = gson.toJson(wonItems);
             resp.setStatus(HttpServletResponse.SC_OK);
             resp.getWriter().write(jsonResponse);
 
-        } catch (NumberFormatException e) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write("{\"error\":\"ID người dùng không hợp lệ.\"}");
         } catch (Exception e) {
+            System.err.println("Lỗi không xác định trong GetMyWonItemsAPI: " + e.getMessage());
+            e.printStackTrace();
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.getWriter().write("{\"error\":\"Lỗi phía server: " + e.getMessage() + "\"}");
+            responseMap.put("status", "error");
+            responseMap.put("message", "Đã có lỗi xảy ra ở phía máy chủ.");
+            resp.getWriter().write(gson.toJson(responseMap));
         }
     }
 }

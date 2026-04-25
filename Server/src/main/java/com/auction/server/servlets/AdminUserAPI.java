@@ -1,28 +1,31 @@
 package com.auction.server.servlets;
 
-import com.auction.server.dao.ItemDAO;
-import com.auction.server.models.Item;
+import com.auction.server.dao.UserDAO;
+import com.auction.server.models.UserDTO;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import com.auction.server.utils.LocalDateTimeAdapter;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class GetItemDetailAPI extends HttpServlet {
+/**
+ * API dành cho Admin để quản lý người dùng.
+ * - GET /api/admin/users: Lấy danh sách tất cả người dùng.
+ * - PUT /api/admin/users/{userId}: Cập nhật trạng thái (role) của một người dùng.
+ */
+public class AdminUserAPI extends HttpServlet {
 
-    private final ItemDAO itemDAO = new ItemDAO();
-    private final Gson gson = new GsonBuilder()
-            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-            .create();
+    private final UserDAO userDAO = new UserDAO();
+    private final Gson gson = new Gson();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -31,42 +34,29 @@ public class GetItemDetailAPI extends HttpServlet {
         Map<String, Object> responseMap = new HashMap<>();
 
         try {
-            String pathInfo = req.getPathInfo();
-            if (pathInfo == null || pathInfo.equals("/")) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            HttpSession session = req.getSession(false);
+            if (session == null) {
+                resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 responseMap.put("status", "error");
-                responseMap.put("message", "Thiếu ID của sản phẩm.");
+                responseMap.put("message", "Bạn cần đăng nhập để thực hiện hành động này.");
+                resp.getWriter().write(gson.toJson(responseMap));
+                return;
+            }
+            if (!"ADMIN".equals(session.getAttribute("userRole"))) {
+                resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                responseMap.put("status", "error");
+                responseMap.put("message", "Bạn không có quyền thực hiện hành động này.");
                 resp.getWriter().write(gson.toJson(responseMap));
                 return;
             }
 
-            int itemId = Integer.parseInt(pathInfo.substring(1));
-            if (itemId <= 0) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                responseMap.put("status", "error");
-                responseMap.put("message", "ID sản phẩm không hợp lệ.");
-                resp.getWriter().write(gson.toJson(responseMap));
-                return;
-            }
+            List<UserDTO> users = userDAO.getAllUsers();
+            String jsonResponse = gson.toJson(users);
+            resp.setStatus(HttpServletResponse.SC_OK);
+            resp.getWriter().write(jsonResponse);
 
-            Item item = itemDAO.getItemById(itemId);
-
-            if (item != null) {
-                resp.setStatus(HttpServletResponse.SC_OK);
-                resp.getWriter().write(gson.toJson(item));
-            } else {
-                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                responseMap.put("status", "error");
-                responseMap.put("message", "Không tìm thấy sản phẩm với ID " + itemId);
-                resp.getWriter().write(gson.toJson(responseMap));
-            }
-        } catch (NumberFormatException e) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            responseMap.put("status", "error");
-            responseMap.put("message", "ID sản phẩm trong URL phải là một con số.");
-            resp.getWriter().write(gson.toJson(responseMap));
         } catch (Exception e) {
-            System.err.println("Lỗi không xác định trong GetItemDetailAPI (GET): " + e.getMessage());
+            System.err.println("Lỗi không xác định trong AdminUserAPI (GET): " + e.getMessage());
             e.printStackTrace();
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             responseMap.put("status", "error");
@@ -83,25 +73,18 @@ public class GetItemDetailAPI extends HttpServlet {
 
         try {
             HttpSession session = req.getSession(false);
-            Integer sellerId = null;
-            String userRole = null;
-            if (session != null) {
-                sellerId = (Integer) session.getAttribute("userId");
-                userRole = (String) session.getAttribute("userRole");
-            }
-
-            if (sellerId == null) {
+            if (session == null) {
                 resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 responseMap.put("status", "error");
-                responseMap.put("message", "Bạn cần đăng nhập để thực hiện chức năng này.");
+                responseMap.put("message", "Bạn cần đăng nhập để thực hiện hành động này.");
                 resp.getWriter().write(gson.toJson(responseMap));
                 return;
             }
 
-            if (!"SELLER".equals(userRole) && !"ADMIN".equals(userRole)) {
+            if (!"ADMIN".equals(session.getAttribute("userRole"))) {
                 resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 responseMap.put("status", "error");
-                responseMap.put("message", "Chỉ người bán mới có thể cập nhật sản phẩm.");
+                responseMap.put("message", "Bạn không có quyền thực hiện hành động này.");
                 resp.getWriter().write(gson.toJson(responseMap));
                 return;
             }
@@ -110,54 +93,63 @@ public class GetItemDetailAPI extends HttpServlet {
             if (pathInfo == null || pathInfo.equals("/")) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 responseMap.put("status", "error");
-                responseMap.put("message", "Thiếu ID của sản phẩm cần cập nhật.");
+                responseMap.put("message", "Thiếu ID của người dùng cần cập nhật.");
                 resp.getWriter().write(gson.toJson(responseMap));
                 return;
             }
-            int itemId = Integer.parseInt(pathInfo.substring(1));
-            if (itemId <= 0) {
+            int userIdToUpdate = Integer.parseInt(pathInfo.substring(1));
+            if (userIdToUpdate <= 0) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 responseMap.put("status", "error");
-                responseMap.put("message", "ID sản phẩm không hợp lệ.");
+                responseMap.put("message", "ID người dùng không hợp lệ.");
                 resp.getWriter().write(gson.toJson(responseMap));
                 return;
             }
 
-            Item updatedItem;
+            String newRole;
             try {
                 String requestBody = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
-                updatedItem = gson.fromJson(requestBody, Item.class);
-                if (updatedItem == null) {
-                    throw new JsonSyntaxException("Request body is empty or malformed.");
+                JsonObject requestJson = gson.fromJson(requestBody, JsonObject.class);
+
+                if (requestJson == null || !requestJson.has("role")) {
+                    throw new JsonSyntaxException("Missing 'role' field in JSON body.");
                 }
-            } catch (JsonSyntaxException e) {
+                newRole = requestJson.get("role").getAsString();
+
+                List<String> validRoles = Arrays.asList("BIDDER", "SELLER", "INACTIVE");
+                if (newRole == null || newRole.trim().isEmpty() || !validRoles.contains(newRole)) {
+                    resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    responseMap.put("status", "error");
+                    responseMap.put("message", "Trạng thái mới không hợp lệ. Chỉ chấp nhận 'BIDDER', 'SELLER', hoặc 'INACTIVE'.");
+                    resp.getWriter().write(gson.toJson(responseMap));
+                    return;
+                }
+            } catch (JsonSyntaxException | NullPointerException ex) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 responseMap.put("status", "error");
-                responseMap.put("message", "Dữ liệu JSON không hợp lệ.");
+                responseMap.put("message", "Dữ liệu JSON không hợp lệ hoặc thiếu trường 'role'.");
                 resp.getWriter().write(gson.toJson(responseMap));
                 return;
             }
-            
-            updatedItem.setId(itemId);
 
-            boolean isSuccess = itemDAO.updateItem(updatedItem, sellerId);
+            boolean isSuccess = userDAO.updateUserRole(userIdToUpdate, newRole);
 
             if (isSuccess) {
                 resp.setStatus(HttpServletResponse.SC_OK);
                 responseMap.put("status", "success");
-                responseMap.put("message", "Cập nhật sản phẩm thành công.");
+                responseMap.put("message", "Cập nhật trạng thái người dùng thành công.");
             } else {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 responseMap.put("status", "error");
-                responseMap.put("message", "Cập nhật thất bại. Bạn không phải chủ sở hữu hoặc phiên đấu giá đã bắt đầu.");
+                responseMap.put("message", "Không tìm thấy người dùng với ID được cung cấp.");
             }
 
         } catch (NumberFormatException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             responseMap.put("status", "error");
-            responseMap.put("message", "ID sản phẩm trong URL phải là một con số.");
+            responseMap.put("message", "ID người dùng trong URL phải là một con số.");
         } catch (Exception e) {
-            System.err.println("Lỗi không xác định trong GetItemDetailAPI (PUT): " + e.getMessage());
+            System.err.println("Lỗi không xác định trong AdminUserAPI (PUT): " + e.getMessage());
             e.printStackTrace();
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             responseMap.put("status", "error");

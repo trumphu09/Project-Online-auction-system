@@ -1,6 +1,6 @@
 package com.auction.server.servlets;
 
-import com.auction.server.dao.ItemDAO;
+import com.auction.server.dao.BidsDAO;
 import com.auction.server.models.Item;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -9,15 +9,16 @@ import com.auction.server.utils.LocalDateTimeAdapter;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class GetItemsAPI extends HttpServlet {
+public class GetMyActiveBidsAPI extends HttpServlet {
 
-    private final ItemDAO itemDAO = new ItemDAO();
+    private final BidsDAO bidsDAO = new BidsDAO();
     private final Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
             .create();
@@ -29,34 +30,28 @@ public class GetItemsAPI extends HttpServlet {
         Map<String, Object> responseMap = new HashMap<>();
 
         try {
-            int page = 1;
-            int limit = 10;
-            if (req.getParameter("page") != null) {
-                page = Integer.parseInt(req.getParameter("page"));
-            }
-            if (req.getParameter("limit") != null) {
-                limit = Integer.parseInt(req.getParameter("limit"));
+            HttpSession session = req.getSession(false);
+            Integer userId = null;
+            if (session != null) {
+                userId = (Integer) session.getAttribute("userId");
             }
 
-            List<Item> items = itemDAO.getAllItems(page, limit);
-            int totalItems = itemDAO.getTotalItemCount();
+            if (userId == null) {
+                resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                responseMap.put("status", "error");
+                responseMap.put("message", "Bạn cần đăng nhập để xem các phiên đấu giá đang tham gia.");
+                resp.getWriter().write(gson.toJson(responseMap));
+                return;
+            }
 
-            responseMap.put("items", items);
-            responseMap.put("totalItems", totalItems);
-            responseMap.put("totalPages", (int) Math.ceil((double) totalItems / limit));
-            responseMap.put("currentPage", page);
+            List<Item> activeBids = bidsDAO.getActiveBidsByUserId(userId);
 
-            String jsonResponse = gson.toJson(responseMap);
+            String jsonResponse = gson.toJson(activeBids);
             resp.setStatus(HttpServletResponse.SC_OK);
             resp.getWriter().write(jsonResponse);
 
-        } catch (NumberFormatException e) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            responseMap.put("status", "error");
-            responseMap.put("message", "Tham số 'page' và 'limit' phải là số nguyên.");
-            resp.getWriter().write(gson.toJson(responseMap));
         } catch (Exception e) {
-            System.err.println("Lỗi không xác định trong GetItemsAPI: " + e.getMessage());
+            System.err.println("Lỗi không xác định trong GetMyActiveBidsAPI: " + e.getMessage());
             e.printStackTrace();
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             responseMap.put("status", "error");

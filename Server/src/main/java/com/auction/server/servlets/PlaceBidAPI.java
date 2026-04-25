@@ -7,6 +7,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession; // Thêm import này
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,28 +26,29 @@ public class PlaceBidAPI extends HttpServlet {
         Map<String, Object> responseMap = new HashMap<>();
 
         try {
+            // Lấy userId từ session
+            HttpSession session = req.getSession(false); // Không tạo session mới nếu chưa có
+            Integer userId = null;
+            if (session != null) {
+                userId = (Integer) session.getAttribute("userId");
+            }
+
+            if (userId == null) {
+                resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized
+                responseMap.put("status", "error");
+                responseMap.put("message", "Bạn cần đăng nhập để đặt giá.");
+                resp.getWriter().write(gson.toJson(responseMap));
+                return;
+            }
+
             String requestBody = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
             JsonObject bidRequest = gson.fromJson(requestBody, JsonObject.class);
 
             int itemId = bidRequest.get("itemId").getAsInt();
             double bidAmount = bidRequest.get("bidAmount").getAsDouble();
 
-            // --- CRITICAL FIX: DO NOT TRUST userId FROM REQUEST BODY ---
-            // userId MUST come from a secure session after authentication.
-            // For now, we'll use a hardcoded placeholder for compilation/testing.
-            // In a real application, this would be:
-            // Integer userId = (Integer) req.getSession().getAttribute("userId");
-            // if (userId == null) {
-            //     resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized
-            //     responseMap.put("status", "error");
-            //     responseMap.put("message", "Bạn cần đăng nhập để đặt giá.");
-            //     return;
-            // }
-            int secureUserId = 1; // TODO: THAY THẾ BẰNG userId TỪ SESSION AN TOÀN SAU KHI ĐĂNG NHẬP!
-            // em Thiện tạm thời hashcode tí nhé, nao em Thiện sửa nha.
-
-            // --- FIX: Sử dụng thông báo lỗi chung, không lộ chi tiết nội bộ ---
-            boolean isSuccess = bidsDAO.executeBid(itemId, secureUserId, bidAmount);
+            // Sử dụng userId an toàn từ session
+            boolean isSuccess = bidsDAO.executeBid(itemId, userId, bidAmount);
 
             if (isSuccess) {
                 resp.setStatus(HttpServletResponse.SC_OK);
@@ -59,12 +61,12 @@ public class PlaceBidAPI extends HttpServlet {
             }
 
         } catch (NumberFormatException e) {
-            System.err.println("Lỗi định dạng số trong PlaceBidAPI: " + e.getMessage()); // Log lỗi nội bộ
+            System.err.println("Lỗi định dạng số trong PlaceBidAPI: " + e.getMessage());
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             responseMap.put("status", "error");
             responseMap.put("message", "Dữ liệu đặt giá không hợp lệ (itemId hoặc bidAmount).");
         } catch (Exception e) {
-            System.err.println("Lỗi trong PlaceBidAPI: " + e.getMessage()); // Log lỗi nội bộ
+            System.err.println("Lỗi trong PlaceBidAPI: " + e.getMessage());
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             responseMap.put("status", "error");
             responseMap.put("message", "Đã có lỗi xảy ra phía server. Vui lòng thử lại sau.");

@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class GetItemsAPI extends HttpServlet {
+public class SearchItemsAPI extends HttpServlet {
 
     private final ItemDAO itemDAO = new ItemDAO();
     private final Gson gson = new GsonBuilder()
@@ -29,6 +29,15 @@ public class GetItemsAPI extends HttpServlet {
         Map<String, Object> responseMap = new HashMap<>();
 
         try {
+            String keyword = req.getParameter("q");
+            if (keyword == null || keyword.trim().isEmpty()) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                responseMap.put("status", "error");
+                responseMap.put("message", "Thiếu từ khóa tìm kiếm (tham số q).");
+                resp.getWriter().write(gson.toJson(responseMap));
+                return;
+            }
+
             int page = 1;
             int limit = 10;
             if (req.getParameter("page") != null) {
@@ -38,8 +47,8 @@ public class GetItemsAPI extends HttpServlet {
                 limit = Integer.parseInt(req.getParameter("limit"));
             }
 
-            List<Item> items = itemDAO.getAllItems(page, limit);
-            int totalItems = itemDAO.getTotalItemCount();
+            List<Item> items = itemDAO.searchItemsByName(keyword, page, limit);
+            int totalItems = itemDAO.getSearchItemCount(keyword);
 
             responseMap.put("items", items);
             responseMap.put("totalItems", totalItems);
@@ -56,7 +65,7 @@ public class GetItemsAPI extends HttpServlet {
             responseMap.put("message", "Tham số 'page' và 'limit' phải là số nguyên.");
             resp.getWriter().write(gson.toJson(responseMap));
         } catch (Exception e) {
-            System.err.println("Lỗi không xác định trong GetItemsAPI: " + e.getMessage());
+            System.err.println("Lỗi không xác định trong SearchItemsAPI: " + e.getMessage());
             e.printStackTrace();
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             responseMap.put("status", "error");

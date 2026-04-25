@@ -28,42 +28,45 @@ public class AuctionServer {
 
             // ĐĂNG KÝ CÁC API VÀO HỆ THỐNG
 
-            // API Đăng nhập & Đăng ký
+            // API quản lý phiên đăng nhập
             Tomcat.addServlet(ctx, "LoginAPI", new LoginAPI());
             ctx.addServletMappingDecoded("/api/login", "LoginAPI");
+            Tomcat.addServlet(ctx, "LogoutAPI", new LogoutAPI());
+            ctx.addServletMappingDecoded("/api/logout", "LogoutAPI");
             Tomcat.addServlet(ctx, "RegisterAPI", new RegisterAPI());
             ctx.addServletMappingDecoded("/api/register", "RegisterAPI");
 
-            // API Đăng bán sản phẩm và xem sản phẩm
+            // API quản lý sản phẩm và danh mục
             Tomcat.addServlet(ctx, "ItemsAPI", new ItemsAPI());
             ctx.addServletMappingDecoded("/api/items", "ItemsAPI");
-
-            // API Lấy chi tiết MỘT sản phẩm <-- THÊM 2 DÒNG NÀY
-            // Dấu * sẽ khớp với bất kỳ ID nào phía sau
             Tomcat.addServlet(ctx, "GetItemDetailAPI", new GetItemDetailAPI());
             ctx.addServletMappingDecoded("/api/items/*", "GetItemDetailAPI");
+            Tomcat.addServlet(ctx, "SearchItemsAPI", new SearchItemsAPI());
+            ctx.addServletMappingDecoded("/api/search/items", "SearchItemsAPI");
+            Tomcat.addServlet(ctx, "CategoryAPI", new CategoryAPI());
+            ctx.addServletMappingDecoded("/api/categories/*", "CategoryAPI");
 
-            // API Đặt giá
+            // API quản lý đấu giá
             Tomcat.addServlet(ctx, "PlaceBidAPI", new PlaceBidAPI());
             ctx.addServletMappingDecoded("/api/bids", "PlaceBidAPI");
-
-            // API Lấy lịch sử đấu giá của một sản phẩm <-- THÊM 2 DÒNG NÀY
             Tomcat.addServlet(ctx, "GetBidHistoryAPI", new GetBidHistoryAPI());
             ctx.addServletMappingDecoded("/api/items/*/bids", "GetBidHistoryAPI");
 
-            // API Lấy sản phẩm mình đã win đc
+            // API cho người dùng đã đăng nhập (lấy thông tin cá nhân)
+            Tomcat.addServlet(ctx, "UserProfileAPI", new UserProfileAPI());
+            ctx.addServletMappingDecoded("/api/my/profile/*", "UserProfileAPI");
             Tomcat.addServlet(ctx, "GetMyWonItemsAPI", new GetMyWonItemsAPI());
-            ctx.addServletMappingDecoded("/api/users/*/won-items", "GetMyWonItemsAPI");
-
-            // API Lấy các sản phẩm đang bán của một seller <-- THÊM 2 DÒNG NÀY
+            ctx.addServletMappingDecoded("/api/my/won-items", "GetMyWonItemsAPI");
             Tomcat.addServlet(ctx, "GetMyItemsForSaleAPI", new GetMyItemsForSaleAPI());
-            ctx.addServletMappingDecoded("/api/users/*/items", "GetMyItemsForSaleAPI");
+            ctx.addServletMappingDecoded("/api/my/items", "GetMyItemsForSaleAPI");
+            Tomcat.addServlet(ctx, "GetMyActiveBidsAPI", new GetMyActiveBidsAPI());
+            ctx.addServletMappingDecoded("/api/my/active-bids", "GetMyActiveBidsAPI");
 
-            // Mày có thể bỏ comment (xóa dấu //) mấy dòng dưới nếu đã code xong mấy API này
-            // Tomcat.addServlet(ctx, "LoginAPI", new LoginAPI());
-            // ctx.addServletMappingDecoded("/api/login", "LoginAPI");
-            // Tomcat.addServlet(ctx, "RegisterAPI", new RegisterAPI());
-            // ctx.addServletMappingDecoded("/api/register", "RegisterAPI");
+            // API dành cho Admin
+            Tomcat.addServlet(ctx, "AdminUserAPI", new AdminUserAPI());
+            ctx.addServletMappingDecoded("/api/admin/users/*", "AdminUserAPI");
+            Tomcat.addServlet(ctx, "AdminItemAPI", new AdminItemAPI());
+            ctx.addServletMappingDecoded("/api/admin/items/*", "AdminItemAPI");
 
             // Bật Tomcat
             tomcat.start();

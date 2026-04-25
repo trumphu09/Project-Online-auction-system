@@ -10,6 +10,7 @@ import com.auction.server.models.BidTransaction;
 import com.auction.server.models.BidTransactionDTO;
 import com.auction.server.models.Bidder;
 import com.auction.server.models.BidderDTO;
+import com.auction.server.models.Item;
 
 public class BidsDAO {
     // Thực hiện đặt giá mới
@@ -95,28 +96,85 @@ public class BidsDAO {
     
     // get bid history cua item
     public List<BidTransactionDTO> getBidHistoryByItemId(int itemId) { 
-    List<BidTransactionDTO> history = new ArrayList<>();
-    String sql = "SELECT b.id, b.bidder_id, u.username, b.bid_amount, b.bid_time " +
-                 "FROM bids b JOIN users u ON b.bidder_id = u.id WHERE b.item_id = ? ORDER BY b.bid_time DESC";
-    
-    Connection conn = DatabaseConnection.getInstance().getConnection();
-    try(PreparedStatement pstmt = conn.prepareStatement(sql)) {
-        pstmt.setInt(1, itemId);
-        try(ResultSet rs = pstmt.executeQuery()) {
-            while(rs.next()) {  // ✅ Lặp tất cả dòng
-                int id = rs.getInt("id");
-                int bidderId = rs.getInt("bidder_id");
-                String bidderUsername = rs.getString("username");
-                double bidAmount = rs.getDouble("bid_amount");
-                LocalDateTime timestamp = rs.getTimestamp("bid_time").toLocalDateTime();
-                history.add(new BidTransactionDTO(id, bidderId, bidderUsername, bidAmount, timestamp));
+        List<BidTransactionDTO> history = new ArrayList<>();
+        String sql = "SELECT b.id, b.bidder_id, u.username, b.bid_amount, b.bid_time " +
+                     "FROM bids b JOIN users u ON b.bidder_id = u.id WHERE b.item_id = ? ORDER BY b.bid_time DESC";
+        
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+        try(PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, itemId);
+            try(ResultSet rs = pstmt.executeQuery()) {
+                while(rs.next()) {
+                    int id = rs.getInt("id");
+                    int bidderId = rs.getInt("bidder_id");
+                    String bidderUsername = rs.getString("username");
+                    double bidAmount = rs.getDouble("bid_amount");
+                    LocalDateTime timestamp = rs.getTimestamp("bid_time").toLocalDateTime();
+                    history.add(new BidTransactionDTO(id, bidderId, bidderUsername, bidAmount, timestamp));
+                }
             }
+        } catch(SQLException e) {
+            e.printStackTrace();
         }
-    } catch(SQLException e) {
-        e.printStackTrace();
-    }
-    return history; 
+        return history; 
     }
 
+    /**
+     * Lấy danh sách các sản phẩm mà một người dùng đang tham gia đấu giá (trạng thái RUNNING).
+     * @param userId ID của người dùng.
+     * @return Danh sách các đối tượng Item.
+     */
+    public List<Item> getActiveBidsByUserId(int userId) {
+        List<Item> activeBidItems = new ArrayList<>();
+        // Lấy các item_id duy nhất mà user đã bid, sau đó join để lấy thông tin item đang RUNNING
+        String sql = "SELECT i.* FROM items i " +
+                     "JOIN (SELECT DISTINCT item_id FROM bids WHERE bidder_id = ?) b " +
+                     "ON i.id = b.item_id " +
+                     "WHERE i.status = 'RUNNING' " +
+                     "ORDER BY i.end_time ASC";
 
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    // Cần một hàm mapRowToItem trong ItemDAO, hoặc định nghĩa một hàm tương tự ở đây
+                    // Tạm thời, chúng ta sẽ tạo một ItemDAO instance để sử dụng hàm map của nó
+                    // (Đây là một cách làm nhanh, trong thực tế có thể cấu trúc lại để dùng chung)
+                    activeBidItems.add(mapRowToItem(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return activeBidItems;
+    }
+
+    // Hàm phụ trợ để map ResultSet sang Item, tránh phụ thuộc vào ItemDAO
+    private Item mapRowToItem(ResultSet rs) throws SQLException {
+        int id = rs.getInt("id");
+        int sellerId = rs.getInt("seller_id");
+        String name = rs.getString("name");
+        String description = rs.getString("description");
+        double startingPrice = rs.getDouble("starting_price");
+        double currentMaxPrice = rs.getDouble("current_max_price");
+        java.time.LocalDateTime startTime = rs.getTimestamp("start_time").toLocalDateTime();
+        java.time.LocalDateTime endTime = rs.getTimestamp("end_time").toLocalDateTime();
+        String statusStr = rs.getString("status");
+        AuctionStatus status = AuctionStatus.valueOf(statusStr);
+        int highestBidderId = rs.getInt("highest_bidder_id");
+        String category = rs.getString("category");
+
+        Item item = new Item(id, sellerId, name, description, startingPrice, startTime, endTime, category) {
+            @Override
+            public void printInfo() {
+                System.out.println("Item: " + name);
+            }
+        };
+
+        item.setHighestBidderId(highestBidderId);
+        item.setCurrentMaxPrice(currentMaxPrice);
+        item.setStatus(status);
+        return item;
+    }
 }

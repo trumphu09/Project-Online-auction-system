@@ -6,10 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ItemDAO {
-    // TODO: Thêm các phương thức để thao tác với bảng Item trong Database
-    // add item, get item by id, update item, delete item, list all items are bidding, etc.
 
-    // addItem(Item item) - Thêm một mặt hàng mới vào cơ sở dữ liệu
     public boolean addItem(Item item) {
         String sql = "INSERT INTO items (seller_id, name, description, starting_price, current_max_price, status, category, start_time, end_time) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -20,8 +17,8 @@ public class ItemDAO {
             pstmt.setString(2, item.getName());
             pstmt.setString(3, item.getDescription());
             pstmt.setDouble(4, item.getStartingPrice());
-            pstmt.setDouble(5, item.getStartingPrice()); // Mới tạo thì giá max = giá khởi điểm
-            pstmt.setString(6, item.getStatus().name()); // Sử dụng enum.name()
+            pstmt.setDouble(5, item.getStartingPrice());
+            pstmt.setString(6, item.getStatus().name());
             pstmt.setString(7, item.getCategory());
             pstmt.setTimestamp(8, Timestamp.valueOf(item.getStartTime()));
             pstmt.setTimestamp(9, Timestamp.valueOf(item.getEndTime()));
@@ -36,12 +33,35 @@ public class ItemDAO {
                 return true;
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             return false;
         }
         return false;
     }
 
-    // lay item theo id
+    public boolean updateItem(Item item, int sellerId) {
+        String sql = "UPDATE items SET name = ?, description = ?, starting_price = ?, category = ?, start_time = ?, end_time = ? " +
+                     "WHERE id = ? AND seller_id = ? AND status = 'PENDING'";
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, item.getName());
+            pstmt.setString(2, item.getDescription());
+            pstmt.setDouble(3, item.getStartingPrice());
+            pstmt.setString(4, item.getCategory());
+            pstmt.setTimestamp(5, Timestamp.valueOf(item.getStartTime()));
+            pstmt.setTimestamp(6, Timestamp.valueOf(item.getEndTime()));
+            pstmt.setInt(7, item.getId());
+            pstmt.setInt(8, sellerId);
+
+            int rowsUpdated = pstmt.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public Item getItemById(int itemId) {
         String sql = "SELECT * FROM items WHERE id = ?";
         Connection conn = DatabaseConnection.getInstance().getConnection();
@@ -50,16 +70,16 @@ public class ItemDAO {
             pstmt.setInt(1, itemId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return mapRowToItem(rs); // Gọi hàm phụ trợ
+                    return mapRowToItem(rs);
                 }
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             return null;
         }
         return null;
     }
 
-    // Hàm phụ trợ để chuyển đổi ResultSet thành Item
     private Item mapRowToItem(ResultSet rs) throws SQLException {
         int id = rs.getInt("id");
         int sellerId = rs.getInt("seller_id");
@@ -74,7 +94,6 @@ public class ItemDAO {
         int highestBidderId = rs.getInt("highest_bidder_id");
         String category = rs.getString("category");
 
-        // Tạo item dựa trên category - sử dụng constructor thứ 2 của Item
         Item item = new Item(id, sellerId, name, description, startingPrice, startTime, endTime, category) {
             @Override
             public void printInfo() {
@@ -88,17 +107,66 @@ public class ItemDAO {
         return item;
     }
 
-    // thay doi trang thai cua item
+    public List<String> getAllCategories() {
+        List<String> categories = new ArrayList<>();
+        String sql = "SELECT DISTINCT category FROM items WHERE category IS NOT NULL AND category != '' ORDER BY category";
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                categories.add(rs.getString("category"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return categories;
+    }
+
+    public List<Item> getItemsByCategory(String category, int page, int limit) {
+        List<Item> items = new ArrayList<>();
+        String sql = "SELECT * FROM items WHERE category = ? ORDER BY id DESC LIMIT ? OFFSET ?";
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, category);
+            pstmt.setInt(2, limit);
+            pstmt.setInt(3, (page - 1) * limit);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    items.add(mapRowToItem(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return items;
+    }
+
+    public int getCategoryItemCount(String category) {
+        String sql = "SELECT COUNT(*) FROM items WHERE category = ?";
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, category);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public boolean updateStatus(int id, AuctionStatus newStatus){
         String sql = "UPDATE items SET status = ? WHERE id = ?";
         Connection conn  = DatabaseConnection.getInstance().getConnection();
         try(PreparedStatement pstmt = conn.prepareStatement(sql)){
             pstmt.setInt(2,id);
             pstmt.setString(1, newStatus.name());
-
             int rowsUpdated = pstmt.executeUpdate();
             return rowsUpdated > 0;
         }catch(SQLException e){
+            e.printStackTrace();
             return false;
         }
     }
@@ -106,59 +174,95 @@ public class ItemDAO {
     public boolean updateCurrentMaxPrice(int itemId, double newPrice, int bidderId){
         String sql = "UPDATE items SET current_max_price = ?, highest_bidder_id = ? WHERE id = ?"+
                         "AND current_max_price < ? AND status = 'RUNNING'";
-
         Connection conn = DatabaseConnection.getInstance().getConnection();
         try(PreparedStatement pstmt = conn.prepareStatement(sql)){
             pstmt.setDouble(1, newPrice);
             pstmt.setInt(2, bidderId);
             pstmt.setInt(3, itemId);
             pstmt.setDouble(4, newPrice);
-
             int rowsUpdated = pstmt.executeUpdate();
             return rowsUpdated > 0;
         }catch(SQLException e){
+            e.printStackTrace();
             return false;
         }
     }
-    // Import cái này ở đầu file ItemDAO.java nếu chưa có
-    // import java.util.List;
-    // import java.util.ArrayList;
 
-    // Hàm lấy danh sách tất cả sản phẩm
-    public List<Item> getAllItems() {
+    public List<Item> getAllItems(int page, int limit) {
         List<Item> itemList = new ArrayList<>();
-        // Lấy tất cả, sắp xếp theo ID giảm dần (đồ mới thêm sẽ lên đầu)
-        String sql = "SELECT * FROM items ORDER BY id DESC";
+        String sql = "SELECT * FROM items ORDER BY id DESC LIMIT ? OFFSET ?";
         Connection conn = DatabaseConnection.getInstance().getConnection();
-
-        try (PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-
-            // Duyệt qua từng dòng trong Database
-            while (rs.next()) {
-                // Tận dụng lại luôn cái hàm mapRowToItem thần thánh của bạn mày!
-                Item item = mapRowToItem(rs);
-                itemList.add(item);
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, limit);
+            pstmt.setInt(2, (page - 1) * limit);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    itemList.add(mapRowToItem(rs));
+                }
             }
         } catch (SQLException e) {
-            System.err.println("✗ [Lỗi lấy danh sách Item] " + e.getMessage());
+            e.printStackTrace();
         }
         return itemList;
     }
 
-    // Hàm lấy danh sách sản phẩm đã thắng
+    public int getTotalItemCount() {
+        String sql = "SELECT COUNT(*) FROM items";
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public List<Item> searchItemsByName(String keyword, int page, int limit) {
+        List<Item> itemList = new ArrayList<>();
+        String sql = "SELECT * FROM items WHERE name LIKE ? ORDER BY id DESC LIMIT ? OFFSET ?";
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, "%" + keyword + "%");
+            pstmt.setInt(2, limit);
+            pstmt.setInt(3, (page - 1) * limit);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    itemList.add(mapRowToItem(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return itemList;
+    }
+
+    public int getSearchItemCount(String keyword) {
+        String sql = "SELECT COUNT(*) FROM items WHERE name LIKE ?";
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, "%" + keyword + "%");
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 
     public List<Item> getWonItemsByUserId(int userId) {
         List<Item> wonItems = new ArrayList<>();
-        // Câu lệnh SQL tìm các item đã kết thúc VÀ người thắng là userId
         String sql = "SELECT * FROM items WHERE highest_bidder_id = ? AND status = 'ENDED' ORDER BY end_time DESC";
         Connection conn = DatabaseConnection.getInstance().getConnection();
-
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, userId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    // Tận dụng lại hàm mapRowToItem tuyệt vời của bạn
                     wonItems.add(mapRowToItem(rs));
                 }
             }
@@ -166,16 +270,12 @@ public class ItemDAO {
             System.err.println("✗ [Lỗi lấy sản phẩm đã thắng] " + e.getMessage());
         }
         return wonItems;
-
     }
-
-    // Thêm phương thức lấy list accs items mà 1 seller bán
 
     public List<Item> getItemsBySellerId(int sellerId) {
         List<Item> items = new ArrayList<>();
         String sql = "SELECT * FROM items WHERE seller_id = ? ORDER BY id DESC";
         Connection conn = DatabaseConnection.getInstance().getConnection();
-
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, sellerId);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -187,5 +287,44 @@ public class ItemDAO {
             System.err.println("✗ [Lỗi lấy sản phẩm theo seller] " + e.getMessage());
         }
         return items;
+    }
+
+    public boolean deleteItem(int itemId) {
+        String deleteBidsSql = "DELETE FROM bids WHERE item_id = ?";
+        String deleteItemSql = "DELETE FROM items WHERE id = ?";
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+
+        try {
+            conn.setAutoCommit(false);
+            try (PreparedStatement pstmtBids = conn.prepareStatement(deleteBidsSql)) {
+                pstmtBids.setInt(1, itemId);
+                pstmtBids.executeUpdate();
+            }
+            try (PreparedStatement pstmtItem = conn.prepareStatement(deleteItemSql)) {
+                pstmtItem.setInt(1, itemId);
+                int rowsDeleted = pstmtItem.executeUpdate();
+                if (rowsDeleted > 0) {
+                    conn.commit();
+                    return true;
+                } else {
+                    conn.rollback();
+                    return false;
+                }
+            }
+        } catch (SQLException e) {
+            try {
+                if (conn != null) conn.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                if (conn != null) conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

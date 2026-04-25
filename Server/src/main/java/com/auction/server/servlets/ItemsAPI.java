@@ -3,69 +3,140 @@ package com.auction.server.servlets;
 import com.auction.server.dao.ItemDAO;
 import com.auction.server.models.Item;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+import com.auction.server.utils.LocalDateTimeAdapter;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * API này xử lý tất cả các tác vụ liên quan đến danh sách sản phẩm.
- * - GET /api/items: Lấy danh sách tất cả sản phẩm.
- * - POST /api/items: Tạo một sản phẩm mới.
- */
 public class ItemsAPI extends HttpServlet {
 
     private final ItemDAO itemDAO = new ItemDAO();
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+            .create();
 
-    /**
-     * Xử lý yêu cầu GET để lấy danh sách tất cả các sản phẩm.
-     */
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
-
-        // Gọi đúng hàm getAllItems() đã có sẵn trong ItemDAO
-        List<Item> items = itemDAO.getAllItems();
-        String itemsJson = gson.toJson(items);
-        resp.getWriter().write(itemsJson);
-    }
-
-    /**
-     * Xử lý yêu cầu POST để tạo một sản phẩm mới.
-     */
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("application/json");
-        resp.setCharacterEncoding("UTF-8");
+        Map<String, Object> responseMap = new HashMap<>();
 
         try {
-            // 1. Đọc chuỗi JSON từ body của request
-            String requestBody = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+            int page = 1;
+            int limit = 10;
+            if (req.getParameter("page") != null) {
+                page = Integer.parseInt(req.getParameter("page"));
+            }
+            if (req.getParameter("limit") != null) {
+                limit = Integer.parseInt(req.getParameter("limit"));
+            }
 
-            // 2. Dùng Gson để dịch chuỗi JSON thành đối tượng Item
-            Item newItem = gson.fromJson(requestBody, Item.class);
+            List<Item> items = itemDAO.getAllItems(page, limit);
+            int totalItems = itemDAO.getTotalItemCount();
 
-            // 3. Gọi đúng hàm addItem(Item item) trong ItemDAO để lưu vào database
+            responseMap.put("items", items);
+            responseMap.put("totalItems", totalItems);
+            responseMap.put("totalPages", (int) Math.ceil((double) totalItems / limit));
+            responseMap.put("currentPage", page);
+
+            String jsonResponse = gson.toJson(responseMap);
+            resp.setStatus(HttpServletResponse.SC_OK);
+            resp.getWriter().write(jsonResponse);
+
+        } catch (NumberFormatException e) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            responseMap.put("status", "error");
+            responseMap.put("message", "Tham số 'page' và 'limit' phải là số nguyên.");
+            resp.getWriter().write(gson.toJson(responseMap));
+        } catch (Exception e) {
+            System.err.println("Lỗi không xác định trong ItemsAPI (GET): " + e.getMessage());
+            e.printStackTrace();
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            responseMap.put("status", "error");
+            responseMap.put("message", "Đã có lỗi xảy ra ở phía máy chủ.");
+            resp.getWriter().write(gson.toJson(responseMap));
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+        Map<String, Object> responseMap = new HashMap<>();
+
+        try {
+            HttpSession session = req.getSession(false);
+            Integer sellerId = null;
+            String userRole = null;
+
+            if (session != null) {
+                sellerId = (Integer) session.getAttribute("userId");
+                userRole = (String) session.getAttribute("userRole");
+            }
+
+            if (sellerId == null) {
+                resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                responseMap.put("status", "error");
+                responseMap.put("message", "Bạn cần đăng nhập để thực hiện chức năng này.");
+                resp.getWriter().write(gson.toJson(responseMap));
+                return;
+            }
+
+            if (!"SELLER".equals(userRole) && !"ADMIN".equals(userRole)) {
+                resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                responseMap.put("status", "error");
+                responseMap.put("message", "Chỉ người bán (SELLER) mới có thể đăng bán sản phẩm.");
+                resp.getWriter().write(gson.toJson(responseMap));
+                return;
+            }
+
+            Item newItem;
+            try {
+                String requestBody = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+                newItem = gson.fromJson(requestBody, Item.class);
+                if (newItem == null) {
+                    throw new JsonSyntaxException("Request body is empty or malformed.");
+                }
+            } catch (JsonSyntaxException e) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                responseMap.put("status", "error");
+                responseMap.put("message", "Dữ liệu JSON không hợp lệ.");
+                resp.getWriter().write(gson.toJson(responseMap));
+                return;
+            }
+            
+            newItem.setSellerId(sellerId);
+
             boolean isSuccess = itemDAO.addItem(newItem);
 
             if (isSuccess) {
-                // 4. Nếu thành công, trả về status 201 và thông tin sản phẩm vừa tạo
-                resp.setStatus(HttpServletResponse.SC_CREATED); // 201 Created là mã chuẩn
-                // Hàm addItem đã cập nhật ID vào object newItem, nên ta có thể lấy ra dùng
-                resp.getWriter().write("{\"status\":\"success\", \"message\":\"Đăng bán sản phẩm thành công!\", \"itemId\":" + newItem.getId() + "}");
+                resp.setStatus(HttpServletResponse.SC_CREATED);
+                responseMap.put("status", "success");
+                responseMap.put("message", "Đăng bán sản phẩm thành công!");
+                responseMap.put("itemId", newItem.getId());
             } else {
-                throw new Exception("Không thể lưu sản phẩm vào database.");
+                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                responseMap.put("status", "error");
+                responseMap.put("message", "Không thể lưu sản phẩm vào cơ sở dữ liệu.");
             }
-
         } catch (Exception e) {
+            System.err.println("Lỗi không xác định trong ItemsAPI (POST): " + e.getMessage());
+            e.printStackTrace();
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.getWriter().write("{\"status\":\"error\", \"message\":\"Lỗi phía server: " + e.getMessage() + "\"}");
+            responseMap.put("status", "error");
+            responseMap.put("message", "Đã có lỗi xảy ra ở phía máy chủ.");
+        } finally {
+            resp.getWriter().write(gson.toJson(responseMap));
         }
     }
 }
