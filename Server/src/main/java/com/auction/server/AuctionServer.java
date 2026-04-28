@@ -1,6 +1,7 @@
 package com.auction.server;
 
 import com.auction.server.filters.AuthFilter;
+import com.auction.server.scheduler.AuctionStatusScheduler;
 import com.auction.server.servlets.*;
 import com.auction.server.websocket.AuctionWebSocketServer;
 import org.apache.catalina.Context;
@@ -13,9 +14,14 @@ import java.io.File;
 public class AuctionServer {
 
     private static AuctionWebSocketServer webSocketServer;
+    private static AuctionStatusScheduler scheduler;
     private static Tomcat tomcat;
-    public static void main(String
-[] args) {
+
+    public static AuctionWebSocketServer getWebSocketServer() {
+        return webSocketServer;
+    }
+
+    public static void main(String[] args) {
         System.out.println("=== AUCTION SERVER STARTING ===");
 
         try {
@@ -25,7 +31,6 @@ public class AuctionServer {
 
             Context ctx = tomcat.addContext("", new File(".").getAbsolutePath());
 
-            // Đăng ký Filter
             FilterDef authFilterDef = new FilterDef();
             authFilterDef.setFilterName("AuthFilter");
             authFilterDef.setFilterClass(AuthFilter.class.getName());
@@ -33,17 +38,16 @@ public class AuctionServer {
 
             FilterMap authFilterMap = new FilterMap();
             authFilterMap.setFilterName("AuthFilter");
-            authFilterMap.addURLPattern("/api/*"); // Áp dụng filter cho tất cả các API
+            authFilterMap.addURLPattern("/api/*");
             ctx.addFilterMap(authFilterMap);
 
-            // Đăng ký các API
+            // Register Servlets
             Tomcat.addServlet(ctx, "LoginAPI", new LoginAPI());
             ctx.addServletMappingDecoded("/api/login", "LoginAPI");
             Tomcat.addServlet(ctx, "LogoutAPI", new LogoutAPI());
             ctx.addServletMappingDecoded("/api/logout", "LogoutAPI");
             Tomcat.addServlet(ctx, "RegisterAPI", new RegisterAPI());
             ctx.addServletMappingDecoded("/api/register", "RegisterAPI");
-
             Tomcat.addServlet(ctx, "ItemsAPI", new ItemsAPI());
             ctx.addServletMappingDecoded("/api/items", "ItemsAPI");
             Tomcat.addServlet(ctx, "GetItemDetailAPI", new GetItemDetailAPI());
@@ -52,12 +56,10 @@ public class AuctionServer {
             ctx.addServletMappingDecoded("/api/search/items", "SearchItemsAPI");
             Tomcat.addServlet(ctx, "CategoryAPI", new CategoryAPI());
             ctx.addServletMappingDecoded("/api/categories/*", "CategoryAPI");
-
             Tomcat.addServlet(ctx, "PlaceBidAPI", new PlaceBidAPI());
             ctx.addServletMappingDecoded("/api/bids", "PlaceBidAPI");
             Tomcat.addServlet(ctx, "GetBidHistoryAPI", new GetBidHistoryAPI());
             ctx.addServletMappingDecoded("/api/items/*/bids", "GetBidHistoryAPI");
-
             Tomcat.addServlet(ctx, "UserProfileAPI", new UserProfileAPI());
             ctx.addServletMappingDecoded("/api/my/profile/*", "UserProfileAPI");
             Tomcat.addServlet(ctx, "GetMyWonItemsAPI", new GetMyWonItemsAPI());
@@ -66,7 +68,6 @@ public class AuctionServer {
             ctx.addServletMappingDecoded("/api/my/items", "GetMyItemsForSaleAPI");
             Tomcat.addServlet(ctx, "GetMyActiveBidsAPI", new GetMyActiveBidsAPI());
             ctx.addServletMappingDecoded("/api/my/active-bids", "GetMyActiveBidsAPI");
-
             Tomcat.addServlet(ctx, "AdminUserAPI", new AdminUserAPI());
             ctx.addServletMappingDecoded("/api/admin/users/*", "AdminUserAPI");
             Tomcat.addServlet(ctx, "AdminItemAPI", new AdminItemAPI());
@@ -77,7 +78,10 @@ public class AuctionServer {
 
             webSocketServer = new AuctionWebSocketServer();
             webSocketServer.startServer();
-            System.out.println("✓ [WEBSOCKET] Đã sẵn sàng cho đấu giá Realtime!");
+            
+            // Khởi động Scheduler sau khi các server đã chạy
+            scheduler = new AuctionStatusScheduler();
+            scheduler.start();
 
             tomcat.getServer().await();
 
@@ -89,6 +93,7 @@ public class AuctionServer {
 
     public static void shutdown() {
         try {
+            if (scheduler != null) scheduler.stop();
             if (webSocketServer != null) webSocketServer.stopServer();
             if (tomcat != null) tomcat.stop();
             System.out.println("Server shutdown completely.");

@@ -7,6 +7,88 @@ import java.util.List;
 
 public class ItemDAO {
 
+    /**
+     * Cập nhật trạng thái các sản phẩm từ PENDING sang RUNNING khi start_time đã qua.
+     * @return Danh sách các Item vừa được cập nhật.
+     */
+    public List<Item> updatePendingItemsToRunning() {
+        List<Item> updatedItems = new ArrayList<>();
+        String findSql = "SELECT * FROM items WHERE status = 'PENDING' AND start_time <= NOW()";
+        String updateSql = "UPDATE items SET status = 'RUNNING' WHERE id = ?";
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+        try {
+            conn.setAutoCommit(false); // Bắt đầu giao dịch
+            try (PreparedStatement findStmt = conn.prepareStatement(findSql);
+                 ResultSet rs = findStmt.executeQuery()) {
+                while (rs.next()) {
+                    Item item = mapRowToItem(rs);
+                    try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                        updateStmt.setInt(1, item.getId());
+                        if (updateStmt.executeUpdate() > 0) {
+                            updatedItems.add(item);
+                        }
+                    }
+                }
+            }
+            conn.commit(); // Hoàn tất giao dịch
+        } catch (SQLException e) {
+            try {
+                if (conn != null) conn.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+        } finally {
+            try {
+                if (conn != null) conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return updatedItems;
+    }
+
+    /**
+     * Cập nhật trạng thái các sản phẩm từ RUNNING sang ENDED khi end_time đã qua.
+     * @return Danh sách các Item vừa được cập nhật.
+     */
+    public List<Item> updateRunningItemsToEnded() {
+        List<Item> updatedItems = new ArrayList<>();
+        String findSql = "SELECT * FROM items WHERE status = 'RUNNING' AND end_time <= NOW()";
+        String updateSql = "UPDATE items SET status = 'ENDED' WHERE id = ?";
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+        try {
+            conn.setAutoCommit(false); // Bắt đầu giao dịch
+            try (PreparedStatement findStmt = conn.prepareStatement(findSql);
+                 ResultSet rs = findStmt.executeQuery()) {
+                while (rs.next()) {
+                    Item item = mapRowToItem(rs);
+                    try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                        updateStmt.setInt(1, item.getId());
+                        if (updateStmt.executeUpdate() > 0) {
+                            updatedItems.add(item);
+                        }
+                    }
+                }
+            }
+            conn.commit(); // Hoàn tất giao dịch
+        } catch (SQLException e) {
+            try {
+                if (conn != null) conn.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+        } finally {
+            try {
+                if (conn != null) conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return updatedItems;
+    }
+
     public boolean addItem(Item item) {
         String sql = "INSERT INTO items (seller_id, name, description, starting_price, current_max_price, status, category, start_time, end_time) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";

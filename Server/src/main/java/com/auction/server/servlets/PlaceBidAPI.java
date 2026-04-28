@@ -1,6 +1,9 @@
 package com.auction.server.servlets;
 
+import com.auction.server.AuctionServer;
 import com.auction.server.dao.BidsDAO;
+import com.auction.server.dao.UserDAO;
+import com.auction.server.models.UserDTO;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
@@ -17,6 +20,7 @@ import java.util.stream.Collectors;
 public class PlaceBidAPI extends HttpServlet {
 
     private final BidsDAO bidsDAO = new BidsDAO();
+    private final UserDAO userDAO = new UserDAO(); // Thêm UserDAO
     private final Gson gson = new Gson();
 
     @Override
@@ -27,7 +31,6 @@ public class PlaceBidAPI extends HttpServlet {
 
         try {
             HttpSession session = req.getSession(false);
-            // Filter đã đảm bảo session và userId tồn tại
             int userId = (Integer) session.getAttribute("userId");
 
             JsonObject bidRequest;
@@ -54,7 +57,14 @@ public class PlaceBidAPI extends HttpServlet {
                 responseMap.put("status", "success");
                 responseMap.put("message", "Đặt giá thành công!");
                 resp.setStatus(HttpServletResponse.SC_OK);
-                // TODO: Thông báo cho WebSocket server ở đây
+
+                // Lấy username để thông báo
+                UserDTO bidder = userDAO.getUserById(userId);
+                String bidderUsername = (bidder != null) ? bidder.getUsername() : "Một người dùng";
+
+                // Thông báo cho WebSocket server
+                AuctionServer.getWebSocketServer().broadcastNewBid(itemId, bidAmount, bidderUsername);
+
             } else {
                 responseMap.put("status", "error");
                 responseMap.put("message", "Đặt giá không thành công. Vui lòng kiểm tra lại giá, số dư hoặc trạng thái sản phẩm.");
