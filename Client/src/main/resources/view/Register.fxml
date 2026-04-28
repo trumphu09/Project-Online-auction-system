@@ -5,7 +5,7 @@
 <?import javafx.scene.text.*?>
 <?import javafx.geometry.*?>
 
-<StackPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controller.RegisterController"
+<StackPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.RegisterController"
            prefHeight="500.0" prefWidth="800.0"
            style="-fx-background-color: linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%);">
 

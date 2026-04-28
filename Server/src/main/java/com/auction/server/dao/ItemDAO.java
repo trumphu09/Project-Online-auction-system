@@ -1,9 +1,14 @@
 package com.auction.server.dao;
-import com.auction.server.models.Item;
-import com.auction.server.models.AuctionStatus;
+
+import com.auction.server.models.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ItemDAO {
 
@@ -48,6 +53,33 @@ public class ItemDAO {
         return updatedItems;
     }
 
+    // BỘ ĐĂNG KÝ (REGISTRY)
+    // Dùng Class để map khi Insert
+    private final Map<Class<? extends ItemDTO>, IItemSubDAO> classToDAORegistry = new HashMap<>();
+    // Dùng String để map khi Select (Lấy từ DB lên)
+    private final Map<String, IItemSubDAO> categoryToDAORegistry = new HashMap<>();
+
+    public ItemDAO() {
+        // Đăng ký các DAO con vào hệ thống
+        registerDAO(ArtDTO.class, "ART", new ArtDAO());
+        registerDAO(ElectronicsDTO.class, "ELECTRONICS", new ElectronicsDAO());
+        registerDAO(VehicleDTO.class, "VEHICLE", new VehicleDAO());
+    }
+
+    // Hàm hỗ trợ đăng ký nhanh cho cả 2 Map
+    private void registerDAO(Class<? extends ItemDTO> clazz, String category, IItemSubDAO dao) {
+        classToDAORegistry.put(clazz, dao);
+        categoryToDAORegistry.put(category, dao);
+    }
+
+    // ==========================================
+    // 1. THÊM SẢN PHẨM (Đã chuẩn OCP)
+    // ==========================================
+    public boolean addItem(ItemDTO item) {
+        Connection conn = null;
+        try {
+            conn = DatabaseConnection.getInstance().getConnection();
+            conn.setAutoCommit(false);
     /**
      * Cập nhật trạng thái các sản phẩm từ RUNNING sang ENDED khi end_time đã qua.
      * @return Danh sách các Item vừa được cập nhật.
@@ -94,6 +126,15 @@ public class ItemDAO {
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         Connection conn = DatabaseConnection.getInstance().getConnection();
 
+            // Lưu bảng cha
+            String sqlItem = "INSERT INTO items (seller_id, name, description, starting_price, category) VALUES (?, ?, ?, ?, ?)";
+            try (PreparedStatement pstmtItem = conn.prepareStatement(sqlItem, Statement.RETURN_GENERATED_KEYS)) {
+                pstmtItem.setInt(1, item.getSellerId());
+                pstmtItem.setString(2, item.getName());
+                pstmtItem.setString(3, item.getDescription());
+                pstmtItem.setDouble(4, item.getStartingPrice());
+                pstmtItem.setString(5, item.getCategory());
+                pstmtItem.executeUpdate();
         try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setInt(1, item.getSellerId());
             pstmt.setString(2, item.getName());
@@ -105,17 +146,24 @@ public class ItemDAO {
             pstmt.setTimestamp(8, Timestamp.valueOf(item.getStartTime()));
             pstmt.setTimestamp(9, Timestamp.valueOf(item.getEndTime()));
 
-            int rowsInserted = pstmt.executeUpdate();
-            if (rowsInserted > 0) {
-                try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        item.setId(generatedKeys.getInt(1));
-                    }
+                try (ResultSet rs = pstmtItem.getGeneratedKeys()) {
+                    if (rs.next()) item.setId(rs.getInt(1));
+                    else throw new SQLException("Lỗi: Không lấy được ID của sản phẩm.");
                 }
-                return true;
             }
+
+            // Gọi DAO con lưu bảng con
+            IItemSubDAO subDAO = classToDAORegistry.get(item.getClass());
+            if (subDAO != null) {
+                subDAO.insertSubItem(conn, item);
+            }
+
+            conn.commit();
+            return true;
+
         } catch (SQLException e) {
             e.printStackTrace();
+            if (conn != null) try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
             return false;
         }
         return false;
@@ -142,16 +190,34 @@ public class ItemDAO {
             e.printStackTrace();
             return false;
         }
+        } finally {
+            if (conn != null) try { conn.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
+        }
     }
 
+    // ==========================================
+    // 2. LẤY 1 SẢN PHẨM THEO ID (Chuẩn OCP)
+    // ==========================================
+    public ItemDTO getItemById(int id) {
     public Item getItemById(int itemId) {
         String sql = "SELECT * FROM items WHERE id = ?";
-        Connection conn = DatabaseConnection.getInstance().getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, itemId);
+            pstmt.setInt(1, id);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
+                    int sellerId = rs.getInt("seller_id");
+                    String name = rs.getString("name");
+                    String description = rs.getString("description");
+                    double startingPrice = rs.getDouble("starting_price");
+                    String category = rs.getString("category");
+
+                    // Nhờ DAO con query tiếp để ráp thành Object hoàn chỉnh
+                    IItemSubDAO subDAO = categoryToDAORegistry.get(category.toUpperCase());
+                    if (subDAO != null) {
+                        return subDAO.fetchSubItem(conn, id, sellerId, name, description, startingPrice);
+                    }
                     return mapRowToItem(rs);
                 }
             }
@@ -250,8 +316,40 @@ public class ItemDAO {
         }catch(SQLException e){
             e.printStackTrace();
             return false;
+    // ==========================================
+    // 3. LẤY TOÀN BỘ SẢN PHẨM (Chuẩn OCP)
+    // ==========================================
+    public List<ItemDTO> getAllItems() {
+        List<ItemDTO> list = new ArrayList<>();
+        String sql = "SELECT * FROM items ORDER BY created_at DESC";
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                int sellerId = rs.getInt("seller_id");
+                String name = rs.getString("name");
+                String description = rs.getString("description");
+                double startingPrice = rs.getDouble("starting_price");
+                String category = rs.getString("category");
+
+                // Giao việc cho DAO con tương ứng
+                IItemSubDAO subDAO = categoryToDAORegistry.get(category.toUpperCase());
+                if (subDAO != null) {
+                    ItemDTO fullItem = subDAO.fetchSubItem(conn, id, sellerId, name, description, startingPrice);
+                    if (fullItem != null) {
+                        list.add(fullItem);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi getAllItems: " + e.getMessage());
         }
+        return list;
     }
+}
 
     public boolean updateCurrentMaxPrice(int itemId, double newPrice, int bidderId){
         String sql = "UPDATE items SET current_max_price = ?, highest_bidder_id = ? WHERE id = ?"+
