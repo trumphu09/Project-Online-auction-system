@@ -31,18 +31,8 @@ public class GetMyItemsForSaleAPI extends HttpServlet {
 
         try {
             HttpSession session = req.getSession(false);
-            Integer sellerId = null;
-            if (session != null) {
-                sellerId = (Integer) session.getAttribute("userId");
-            }
-
-            if (sellerId == null) {
-                resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                responseMap.put("status", "error");
-                responseMap.put("message", "Bạn cần đăng nhập để xem các sản phẩm đang bán.");
-                resp.getWriter().write(gson.toJson(responseMap));
-                return;
-            }
+            // Filter đã đảm bảo session và userId tồn tại
+            int sellerId = (Integer) session.getAttribute("userId");
 
             List<Item> items = itemDAO.getItemsBySellerId(sellerId);
 

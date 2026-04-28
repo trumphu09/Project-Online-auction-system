@@ -49,9 +49,8 @@ public class ItemsAPI extends HttpServlet {
             responseMap.put("totalPages", (int) Math.ceil((double) totalItems / limit));
             responseMap.put("currentPage", page);
 
-            String jsonResponse = gson.toJson(responseMap);
             resp.setStatus(HttpServletResponse.SC_OK);
-            resp.getWriter().write(jsonResponse);
+            resp.getWriter().write(gson.toJson(responseMap));
 
         } catch (NumberFormatException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -76,29 +75,8 @@ public class ItemsAPI extends HttpServlet {
 
         try {
             HttpSession session = req.getSession(false);
-            Integer sellerId = null;
-            String userRole = null;
-
-            if (session != null) {
-                sellerId = (Integer) session.getAttribute("userId");
-                userRole = (String) session.getAttribute("userRole");
-            }
-
-            if (sellerId == null) {
-                resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                responseMap.put("status", "error");
-                responseMap.put("message", "Bạn cần đăng nhập để thực hiện chức năng này.");
-                resp.getWriter().write(gson.toJson(responseMap));
-                return;
-            }
-
-            if (!"SELLER".equals(userRole) && !"ADMIN".equals(userRole)) {
-                resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                responseMap.put("status", "error");
-                responseMap.put("message", "Chỉ người bán (SELLER) mới có thể đăng bán sản phẩm.");
-                resp.getWriter().write(gson.toJson(responseMap));
-                return;
-            }
+            // Filter đã đảm bảo session và role hợp lệ
+            int sellerId = (Integer) session.getAttribute("userId");
 
             Item newItem;
             try {
@@ -120,21 +98,21 @@ public class ItemsAPI extends HttpServlet {
             boolean isSuccess = itemDAO.addItem(newItem);
 
             if (isSuccess) {
-                resp.setStatus(HttpServletResponse.SC_CREATED);
                 responseMap.put("status", "success");
                 responseMap.put("message", "Đăng bán sản phẩm thành công!");
                 responseMap.put("itemId", newItem.getId());
+                resp.setStatus(HttpServletResponse.SC_CREATED);
             } else {
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 responseMap.put("status", "error");
                 responseMap.put("message", "Không thể lưu sản phẩm vào cơ sở dữ liệu.");
+                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
         } catch (Exception e) {
             System.err.println("Lỗi không xác định trong ItemsAPI (POST): " + e.getMessage());
             e.printStackTrace();
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             responseMap.put("status", "error");
             responseMap.put("message", "Đã có lỗi xảy ra ở phía máy chủ.");
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } finally {
             resp.getWriter().write(gson.toJson(responseMap));
         }

@@ -31,18 +31,8 @@ public class GetMyActiveBidsAPI extends HttpServlet {
 
         try {
             HttpSession session = req.getSession(false);
-            Integer userId = null;
-            if (session != null) {
-                userId = (Integer) session.getAttribute("userId");
-            }
-
-            if (userId == null) {
-                resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                responseMap.put("status", "error");
-                responseMap.put("message", "Bạn cần đăng nhập để xem các phiên đấu giá đang tham gia.");
-                resp.getWriter().write(gson.toJson(responseMap));
-                return;
-            }
+            // Filter đã đảm bảo session và userId tồn tại
+            int userId = (Integer) session.getAttribute("userId");
 
             List<Item> activeBids = bidsDAO.getActiveBidsByUserId(userId);
 

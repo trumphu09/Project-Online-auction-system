@@ -9,7 +9,6 @@ import com.google.gson.JsonSyntaxException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,11 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * API dành cho Admin để quản lý người dùng.
- * - GET /api/admin/users: Lấy danh sách tất cả người dùng.
- * - PUT /api/admin/users/{userId}: Cập nhật trạng thái (role) của một người dùng.
- */
 public class AdminUserAPI extends HttpServlet {
 
     private final UserDAO userDAO = new UserDAO();
@@ -34,22 +28,7 @@ public class AdminUserAPI extends HttpServlet {
         Map<String, Object> responseMap = new HashMap<>();
 
         try {
-            HttpSession session = req.getSession(false);
-            if (session == null) {
-                resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                responseMap.put("status", "error");
-                responseMap.put("message", "Bạn cần đăng nhập để thực hiện hành động này.");
-                resp.getWriter().write(gson.toJson(responseMap));
-                return;
-            }
-            if (!"ADMIN".equals(session.getAttribute("userRole"))) {
-                resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                responseMap.put("status", "error");
-                responseMap.put("message", "Bạn không có quyền thực hiện hành động này.");
-                resp.getWriter().write(gson.toJson(responseMap));
-                return;
-            }
-
+            // Filter đã đảm bảo quyền Admin
             List<UserDTO> users = userDAO.getAllUsers();
             String jsonResponse = gson.toJson(users);
             resp.setStatus(HttpServletResponse.SC_OK);
@@ -72,23 +51,7 @@ public class AdminUserAPI extends HttpServlet {
         Map<String, Object> responseMap = new HashMap<>();
 
         try {
-            HttpSession session = req.getSession(false);
-            if (session == null) {
-                resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                responseMap.put("status", "error");
-                responseMap.put("message", "Bạn cần đăng nhập để thực hiện hành động này.");
-                resp.getWriter().write(gson.toJson(responseMap));
-                return;
-            }
-
-            if (!"ADMIN".equals(session.getAttribute("userRole"))) {
-                resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                responseMap.put("status", "error");
-                responseMap.put("message", "Bạn không có quyền thực hiện hành động này.");
-                resp.getWriter().write(gson.toJson(responseMap));
-                return;
-            }
-
+            // Filter đã đảm bảo quyền Admin
             String pathInfo = req.getPathInfo();
             if (pathInfo == null || pathInfo.equals("/")) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -135,13 +98,13 @@ public class AdminUserAPI extends HttpServlet {
             boolean isSuccess = userDAO.updateUserRole(userIdToUpdate, newRole);
 
             if (isSuccess) {
-                resp.setStatus(HttpServletResponse.SC_OK);
                 responseMap.put("status", "success");
                 responseMap.put("message", "Cập nhật trạng thái người dùng thành công.");
+                resp.setStatus(HttpServletResponse.SC_OK);
             } else {
-                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 responseMap.put("status", "error");
                 responseMap.put("message", "Không tìm thấy người dùng với ID được cung cấp.");
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             }
 
         } catch (NumberFormatException e) {
@@ -151,9 +114,9 @@ public class AdminUserAPI extends HttpServlet {
         } catch (Exception e) {
             System.err.println("Lỗi không xác định trong AdminUserAPI (PUT): " + e.getMessage());
             e.printStackTrace();
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             responseMap.put("status", "error");
             responseMap.put("message", "Đã có lỗi xảy ra ở phía máy chủ.");
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } finally {
             resp.getWriter().write(gson.toJson(responseMap));
         }
