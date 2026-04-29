@@ -1,5 +1,4 @@
 package com.auction.server.dao;
-import com.auction.server.models.Auction;
 import com.auction.server.models.AuctionDataDTO;
 import com.auction.server.models.AuctionStatus;
 
