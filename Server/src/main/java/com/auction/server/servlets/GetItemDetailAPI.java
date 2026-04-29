@@ -1,77 +1,65 @@
 package com.auction.server.servlets;
 
-import com.auction.server.dao.ItemDAO;
-import com.auction.server.models.Item;
+import com.auction.controller.ItemController;
+import com.auction.server.dao.BidsDAO;
+import com.auction.server.models.BidTransactionDTO;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
-import com.auction.server.utils.LocalDateTimeAdapter;
-
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class GetItemDetailAPI extends HttpServlet {
 
-    private final ItemDAO itemDAO = new ItemDAO();
-    private final Gson gson = new GsonBuilder()
-            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-            .create();
+    private final ItemController itemController = new ItemController();
+    private final BidsDAO bidsDAO = new BidsDAO();
+    private final Gson gson = new Gson();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
-        Map<String, Object> responseMap = new HashMap<>();
+
+        String pathInfo = req.getPathInfo();
+        if (pathInfo == null || pathInfo.equals("/")) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("{\"error\":\"Thiếu ID của sản phẩm.\"}");
+            return;
+        }
+
+        String[] pathParts = pathInfo.split("/");
 
         try {
-            String pathInfo = req.getPathInfo();
-            if (pathInfo == null || pathInfo.equals("/")) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                responseMap.put("status", "error");
-                responseMap.put("message", "Thiếu ID của sản phẩm.");
-                resp.getWriter().write(gson.toJson(responseMap));
-                return;
-            }
-
-            int itemId = Integer.parseInt(pathInfo.substring(1));
-            if (itemId <= 0) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                responseMap.put("status", "error");
-                responseMap.put("message", "ID sản phẩm không hợp lệ.");
-                resp.getWriter().write(gson.toJson(responseMap));
-                return;
-            }
-
-            Item item = itemDAO.getItemById(itemId);
-
-            if (item != null) {
+            if (pathParts.length == 3 && "bids".equals(pathParts[2])) {
+                int itemId = Integer.parseInt(pathParts[1]);
+                List<BidTransactionDTO> history = bidsDAO.getBidHistoryByItemId(itemId);
                 resp.setStatus(HttpServletResponse.SC_OK);
-                resp.getWriter().write(gson.toJson(item));
-            } else {
-                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                responseMap.put("status", "error");
-                responseMap.put("message", "Không tìm thấy sản phẩm với ID " + itemId);
-                resp.getWriter().write(gson.toJson(responseMap));
+                resp.getWriter().write(gson.toJson(history));
+                return;
             }
+
+            if (pathParts.length == 2) {
+                int itemId = Integer.parseInt(pathParts[1]);
+                String jsonResponse = itemController.handleGetItemDetails(itemId);
+                
+                if (jsonResponse.contains("\"status\":\"success\"")) {
+                    resp.setStatus(HttpServletResponse.SC_OK);
+                } else {
+                    resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                }
+                resp.getWriter().write(jsonResponse);
+                return;
+            }
+
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            resp.getWriter().write("{\"error\":\"URL không hợp lệ.\"}");
+
         } catch (NumberFormatException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            responseMap.put("status", "error");
-            responseMap.put("message", "ID sản phẩm trong URL phải là một con số.");
-            resp.getWriter().write(gson.toJson(responseMap));
-        } catch (Exception e) {
-            System.err.println("Lỗi không xác định trong GetItemDetailAPI (GET): " + e.getMessage());
-            e.printStackTrace();
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            responseMap.put("status", "error");
-            responseMap.put("message", "Đã có lỗi xảy ra ở phía máy chủ.");
-            resp.getWriter().write(gson.toJson(responseMap));
+            resp.getWriter().write("{\"error\":\"ID sản phẩm không hợp lệ.\"}");
         }
     }
 
@@ -79,91 +67,35 @@ public class GetItemDetailAPI extends HttpServlet {
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
-        Map<String, Object> responseMap = new HashMap<>();
+
+        HttpSession session = req.getSession(false);
+        int sellerId = (Integer) session.getAttribute("userId");
+
+        String pathInfo = req.getPathInfo();
+        String[] pathParts = (pathInfo != null) ? pathInfo.split("/") : new String[0];
+
+        if (pathParts.length != 2) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("{\"error\":\"URL không hợp lệ. Định dạng đúng: /api/items/{itemId}\"}");
+            return;
+        }
 
         try {
-            HttpSession session = req.getSession(false);
-            Integer sellerId = null;
-            String userRole = null;
-            if (session != null) {
-                sellerId = (Integer) session.getAttribute("userId");
-                userRole = (String) session.getAttribute("userRole");
-            }
-
-            if (sellerId == null) {
-                resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                responseMap.put("status", "error");
-                responseMap.put("message", "Bạn cần đăng nhập để thực hiện chức năng này.");
-                resp.getWriter().write(gson.toJson(responseMap));
-                return;
-            }
-
-            if (!"SELLER".equals(userRole) && !"ADMIN".equals(userRole)) {
-                resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                responseMap.put("status", "error");
-                responseMap.put("message", "Chỉ người bán mới có thể cập nhật sản phẩm.");
-                resp.getWriter().write(gson.toJson(responseMap));
-                return;
-            }
-
-            String pathInfo = req.getPathInfo();
-            if (pathInfo == null || pathInfo.equals("/")) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                responseMap.put("status", "error");
-                responseMap.put("message", "Thiếu ID của sản phẩm cần cập nhật.");
-                resp.getWriter().write(gson.toJson(responseMap));
-                return;
-            }
-            int itemId = Integer.parseInt(pathInfo.substring(1));
-            if (itemId <= 0) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                responseMap.put("status", "error");
-                responseMap.put("message", "ID sản phẩm không hợp lệ.");
-                resp.getWriter().write(gson.toJson(responseMap));
-                return;
-            }
-
-            Item updatedItem;
-            try {
-                String requestBody = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
-                updatedItem = gson.fromJson(requestBody, Item.class);
-                if (updatedItem == null) {
-                    throw new JsonSyntaxException("Request body is empty or malformed.");
-                }
-            } catch (JsonSyntaxException e) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                responseMap.put("status", "error");
-                responseMap.put("message", "Dữ liệu JSON không hợp lệ.");
-                resp.getWriter().write(gson.toJson(responseMap));
-                return;
-            }
+            int itemId = Integer.parseInt(pathParts[1]);
+            String requestBody = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
             
-            updatedItem.setId(itemId);
+            String jsonResponse = itemController.handleUpdateItem(requestBody, itemId, sellerId);
 
-            boolean isSuccess = itemDAO.updateItem(updatedItem, sellerId);
-
-            if (isSuccess) {
+            if (jsonResponse.contains("\"status\":\"success\"")) {
                 resp.setStatus(HttpServletResponse.SC_OK);
-                responseMap.put("status", "success");
-                responseMap.put("message", "Cập nhật sản phẩm thành công.");
             } else {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                responseMap.put("status", "error");
-                responseMap.put("message", "Cập nhật thất bại. Bạn không phải chủ sở hữu hoặc phiên đấu giá đã bắt đầu.");
             }
+            resp.getWriter().write(jsonResponse);
 
         } catch (NumberFormatException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            responseMap.put("status", "error");
-            responseMap.put("message", "ID sản phẩm trong URL phải là một con số.");
-        } catch (Exception e) {
-            System.err.println("Lỗi không xác định trong GetItemDetailAPI (PUT): " + e.getMessage());
-            e.printStackTrace();
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            responseMap.put("status", "error");
-            responseMap.put("message", "Đã có lỗi xảy ra ở phía máy chủ.");
-        } finally {
-            resp.getWriter().write(gson.toJson(responseMap));
+            resp.getWriter().write("{\"error\":\"ID sản phẩm không hợp lệ.\"}");
         }
     }
 }

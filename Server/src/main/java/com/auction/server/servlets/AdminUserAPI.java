@@ -28,11 +28,13 @@ public class AdminUserAPI extends HttpServlet {
         Map<String, Object> responseMap = new HashMap<>();
 
         try {
-            // Filter đã đảm bảo quyền Admin
             List<UserDTO> users = userDAO.getAllUsers();
-            String jsonResponse = gson.toJson(users);
+            
+            responseMap.put("status", "success");
+            responseMap.put("message", "Lấy danh sách người dùng thành công.");
+            responseMap.put("data", users);
+            
             resp.setStatus(HttpServletResponse.SC_OK);
-            resp.getWriter().write(jsonResponse);
 
         } catch (Exception e) {
             System.err.println("Lỗi không xác định trong AdminUserAPI (GET): " + e.getMessage());
@@ -40,6 +42,7 @@ public class AdminUserAPI extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             responseMap.put("status", "error");
             responseMap.put("message", "Đã có lỗi xảy ra ở phía máy chủ.");
+        } finally {
             resp.getWriter().write(gson.toJson(responseMap));
         }
     }
@@ -51,13 +54,11 @@ public class AdminUserAPI extends HttpServlet {
         Map<String, Object> responseMap = new HashMap<>();
 
         try {
-            // Filter đã đảm bảo quyền Admin
             String pathInfo = req.getPathInfo();
             if (pathInfo == null || pathInfo.equals("/")) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 responseMap.put("status", "error");
                 responseMap.put("message", "Thiếu ID của người dùng cần cập nhật.");
-                resp.getWriter().write(gson.toJson(responseMap));
                 return;
             }
             int userIdToUpdate = Integer.parseInt(pathInfo.substring(1));
@@ -65,7 +66,6 @@ public class AdminUserAPI extends HttpServlet {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 responseMap.put("status", "error");
                 responseMap.put("message", "ID người dùng không hợp lệ.");
-                resp.getWriter().write(gson.toJson(responseMap));
                 return;
             }
 
@@ -84,14 +84,12 @@ public class AdminUserAPI extends HttpServlet {
                     resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     responseMap.put("status", "error");
                     responseMap.put("message", "Trạng thái mới không hợp lệ. Chỉ chấp nhận 'BIDDER', 'SELLER', hoặc 'INACTIVE'.");
-                    resp.getWriter().write(gson.toJson(responseMap));
                     return;
                 }
             } catch (JsonSyntaxException | NullPointerException ex) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 responseMap.put("status", "error");
                 responseMap.put("message", "Dữ liệu JSON không hợp lệ hoặc thiếu trường 'role'.");
-                resp.getWriter().write(gson.toJson(responseMap));
                 return;
             }
 

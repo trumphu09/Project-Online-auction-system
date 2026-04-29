@@ -29,33 +29,30 @@ public class BidderController {
         return gson.toJson(response);
     }
 
-    public String handleGetProfile(String jsonRequest){
+    public String handleGetProfile(int secureUserId){
         try{
-            JsonObject req=gson.fromJson(jsonRequest, JsonObject.class);
-            int bidderId=req.get("bidder_id").getAsInt();
-            BidderDTO profile=bidderService.getBidderProfile(bidderId);
+            BidderDTO profile=bidderService.getBidderProfile(secureUserId);
             if (profile!=null)
-                return createReponse("success","lấy thông tin thành công",gson.toJsonTree(profile));
+                return createReponse("success","Lấy thông tin thành công",gson.toJsonTree(profile));
             else
-                return createReponse("error","không tìm thấy thông tin người đấu giá",null);
-        }catch (JsonSyntaxException | NullPointerException e){
-            return createReponse("error","yêu cầu không hợp lệ",null);
+                return createReponse("error","Không tìm thấy thông tin người đấu giá",null);
+        }catch (Exception e){
+            return createReponse("error","Lỗi hệ thống",null);
         }
     }
 
-    public String handleDeposit(String jsonRequest){
+    public String handleDeposit(String jsonRequest, int secureUserId){
         try{
             JsonObject req=gson.fromJson(jsonRequest,JsonObject.class);
-            int bidderId=req.get("bidder_id").getAsInt();
             double amount=req.get("amount").getAsDouble();
 
-            String result=bidderService.depositMoney(bidderId, amount);
+            String result=bidderService.depositMoney(secureUserId, amount);
             if (result.startsWith("Thành công"))
-                return createReponse("success","nạp tiền thành công",null);
+                return createReponse("success","Nạp tiền thành công",null);
             else
                 return createReponse("error",result,null);
         }catch (Exception e){
-            return createReponse("error","yêu cầu không hợp lệ",null);
+            return createReponse("error","Yêu cầu không hợp lệ",null);
         }
     }
 }

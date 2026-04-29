@@ -1,6 +1,7 @@
 package com.auction.server.websocket;
 
 import com.auction.server.models.Item;
+import com.auction.server.models.ItemDTO;
 import com.auction.server.models.UserDTO;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -87,8 +88,22 @@ public class AuctionWebSocketServer extends WebSocketServer {
         if (winner != null) {
             update.put("winnerUsername", winner.getUsername());
         } else {
-            update.put("winnerUsername", null); // Không có ai thắng
+            update.put("winnerUsername", null);
         }
+        broadcast(gson.toJson(update));
+    }
+
+    public void broadcastNewItem(ItemDTO item) {
+        Map<String, Object> update = new HashMap<>();
+        update.put("type", "NEW_ITEM");
+        update.put("item", item);
+        broadcast(gson.toJson(update));
+    }
+
+    public void broadcastItemUpdated(ItemDTO item) {
+        Map<String, Object> update = new HashMap<>();
+        update.put("type", "ITEM_UPDATED");
+        update.put("item", item);
         broadcast(gson.toJson(update));
     }
 

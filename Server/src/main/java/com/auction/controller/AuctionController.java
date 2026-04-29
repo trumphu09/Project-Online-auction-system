@@ -15,24 +15,20 @@ public class AuctionController {
         this.auctionService = AuctionService.getInstance();
     }
 
-    public String handlePlaceBid(String jsonRequest) {
+    public String handlePlaceBid(String jsonRequest, int secureUserId) {
         try {
-            // 1. Bóc hộp JSON từ Client
             JsonObject req = gson.fromJson(jsonRequest, JsonObject.class);
             
-            // Kiểm tra xem Client có gửi đủ 3 thông tin này không
-            if (!req.has("auction_id") || !req.has("bidder_id") || !req.has("amount")) {
-                return createResponse("error", "Thất bại: Thiếu thông tin bắt buộc!", null);
+            if (req == null || !req.has("auction_id") || !req.has("amount")) {
+                return createResponse("error", "Thất bại: Thiếu 'auction_id' hoặc 'amount'!", null);
             }
 
             int auctionId = req.get("auction_id").getAsInt();
-            int bidderId = req.get("bidder_id").getAsInt();
             double amount = req.get("amount").getAsDouble();
 
-            // 2. Giao cho Trọng tài xử lý (Trọng tài sẽ gọi BidsDAO khóa dòng, trừ tiền...)
-            String result = auctionService.placeBid(auctionId, bidderId, amount);
+            // Sử dụng userId an toàn từ session, không dùng bidder_id từ JSON
+            String result = auctionService.placeBid(auctionId, secureUserId, amount);
 
-            // 3. Đóng gói kết quả trả về
             if (result.startsWith("Thành công")) {
                 return createResponse("success", result, null);
             } else {

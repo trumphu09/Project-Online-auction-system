@@ -1,5 +1,6 @@
 package com.auction.server;
 
+import com.auction.server.dao.DatabaseConnection;
 import com.auction.server.filters.AuthFilter;
 import com.auction.server.scheduler.AuctionStatusScheduler;
 import com.auction.server.servlets.*;
@@ -58,8 +59,6 @@ public class AuctionServer {
             ctx.addServletMappingDecoded("/api/categories/*", "CategoryAPI");
             Tomcat.addServlet(ctx, "PlaceBidAPI", new PlaceBidAPI());
             ctx.addServletMappingDecoded("/api/bids", "PlaceBidAPI");
-            Tomcat.addServlet(ctx, "GetBidHistoryAPI", new GetBidHistoryAPI());
-            ctx.addServletMappingDecoded("/api/items/*/bids", "GetBidHistoryAPI");
             Tomcat.addServlet(ctx, "UserProfileAPI", new UserProfileAPI());
             ctx.addServletMappingDecoded("/api/my/profile/*", "UserProfileAPI");
             Tomcat.addServlet(ctx, "GetMyWonItemsAPI", new GetMyWonItemsAPI());
@@ -79,7 +78,6 @@ public class AuctionServer {
             webSocketServer = new AuctionWebSocketServer();
             webSocketServer.startServer();
             
-            // Khởi động Scheduler sau khi các server đã chạy
             scheduler = new AuctionStatusScheduler();
             scheduler.start();
 
@@ -96,6 +94,7 @@ public class AuctionServer {
             if (scheduler != null) scheduler.stop();
             if (webSocketServer != null) webSocketServer.stopServer();
             if (tomcat != null) tomcat.stop();
+            DatabaseConnection.getInstance().closePool(); // Gọi đóng pool
             System.out.println("Server shutdown completely.");
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,77 +1,49 @@
 package com.auction.server.servlets;
 
-import com.auction.server.dao.UserDAO;
+import com.auction.controller.UserController;
 import com.google.gson.Gson;
-import javax.servlet.ServletException;
+import com.google.gson.JsonObject;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession; // Thêm import này
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class LoginAPI extends HttpServlet {
 
-    private final UserDAO userDAO = new UserDAO();
+    private final UserController userController = new UserController();
     private final Gson gson = new Gson();
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
 
-        Map<String, Object> responseMap = new HashMap<>();
+        String jsonRequest = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+        String jsonResponse = userController.handleLogin(jsonRequest);
 
-        try {
-            String requestBody = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
-            Map<String, String> requestData = gson.fromJson(requestBody, Map.class);
-
-            String email = requestData.get("email");
-            String password = requestData.get("password");
-
-            // Gọi phương thức loginUser mới, trả về Map
-            Map<String, Object> userDetails = userDAO.loginUser(email, password);
-
-            if (userDetails != null) {
-                String userRole = (String) userDetails.get("role");
-                Integer userId = (Integer) userDetails.get("userId");
-
-                if ("INACTIVE".equals(userRole)) {
-                    resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                    responseMap.put("status", "error");
-                    responseMap.put("message", "Tài khoản của bạn đã bị khóa.");
-                } else {
-                    // --- TẠO SESSION VÀ LƯU THÔNG TIN ---
-                    // req.getSession(true) sẽ tạo session mới nếu chưa có
-                    HttpSession session = req.getSession(true); 
-                    session.setAttribute("userId", userId);
-                    session.setAttribute("userRole", userRole);
-                    
-                    // Đặt thời gian timeout cho session (ví dụ: 30 phút)
-                    session.setMaxInactiveInterval(30 * 60); 
-
-                    resp.setStatus(HttpServletResponse.SC_OK);
-                    responseMap.put("status", "success");
-                    responseMap.put("message", "Đăng nhập thành công!");
-                    // Trả về thông tin user để client có thể sử dụng
-                    responseMap.put("userId", userId); 
-                    responseMap.put("role", userRole);
-                }
+        JsonObject respObj = gson.fromJson(jsonResponse, JsonObject.class);
+        if (respObj != null && respObj.has("status") && "success".equals(respObj.get("status").getAsString())) {
+            JsonObject data = respObj.has("data") ? respObj.getAsJsonObject("data") : null;
+            if (data != null && data.has("userId")) {
+                int userId = data.get("userId").getAsInt();
+                String userRole = data.has("role") ? data.get("role").getAsString() : null;
+                
+                HttpSession session = req.getSession(true);
+                session.setAttribute("userId", userId);
+                session.setAttribute("userRole", userRole);
+                session.setMaxInactiveInterval(30 * 60);
+                
+                resp.setStatus(HttpServletResponse.SC_OK);
             } else {
-                resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                responseMap.put("status", "error");
-                responseMap.put("message", "Email hoặc mật khẩu không đúng.");
+                // Lỗi logic: Controller trả về success nhưng không có data
+                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
-
-        } catch (Exception e) {
-            System.err.println("Lỗi trong LoginAPI: " + e.getMessage());
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            responseMap.put("status", "error");
-            responseMap.put("message", "Đã có lỗi xảy ra phía server. Vui lòng thử lại sau.");
-        } finally {
-            resp.getWriter().write(gson.toJson(responseMap));
+        } else {
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         }
+
+        resp.getWriter().write(jsonResponse);
     }
 }
