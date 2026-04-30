@@ -4,6 +4,7 @@ import com.auction.controller.ItemController;
 import com.auction.server.dao.BidsDAO;
 import com.auction.server.models.BidTransactionDTO;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -45,7 +46,8 @@ public class GetItemDetailAPI extends HttpServlet {
                 int itemId = Integer.parseInt(pathParts[1]);
                 String jsonResponse = itemController.handleGetItemDetails(itemId);
                 
-                if (jsonResponse.contains("\"status\":\"success\"")) {
+                JsonObject respObj = gson.fromJson(jsonResponse, JsonObject.class);
+                if (respObj != null && "success".equals(respObj.get("status").getAsString())) {
                     resp.setStatus(HttpServletResponse.SC_OK);
                 } else {
                     resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -86,7 +88,8 @@ public class GetItemDetailAPI extends HttpServlet {
             
             String jsonResponse = itemController.handleUpdateItem(requestBody, itemId, sellerId);
 
-            if (jsonResponse.contains("\"status\":\"success\"")) {
+            JsonObject respObj = gson.fromJson(jsonResponse, JsonObject.class);
+            if (respObj != null && "success".equals(respObj.get("status").getAsString())) {
                 resp.setStatus(HttpServletResponse.SC_OK);
             } else {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);

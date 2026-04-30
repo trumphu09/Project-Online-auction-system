@@ -1,122 +1,58 @@
 package com.auction.server.servlets;
 
-import com.auction.server.dao.UserDAO;
-import com.auction.server.models.UserDTO;
+import com.auction.controller.UserController;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
-
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AdminUserAPI extends HttpServlet {
 
-    private final UserDAO userDAO = new UserDAO();
+    private final UserController userController = new UserController();
     private final Gson gson = new Gson();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
-        Map<String, Object> responseMap = new HashMap<>();
-
-        try {
-            List<UserDTO> users = userDAO.getAllUsers();
-            
-            responseMap.put("status", "success");
-            responseMap.put("message", "Lấy danh sách người dùng thành công.");
-            responseMap.put("data", users);
-            
-            resp.setStatus(HttpServletResponse.SC_OK);
-
-        } catch (Exception e) {
-            System.err.println("Lỗi không xác định trong AdminUserAPI (GET): " + e.getMessage());
-            e.printStackTrace();
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            responseMap.put("status", "error");
-            responseMap.put("message", "Đã có lỗi xảy ra ở phía máy chủ.");
-        } finally {
-            resp.getWriter().write(gson.toJson(responseMap));
-        }
+        
+        String jsonResponse = userController.handleGetAllUsers();
+        resp.setStatus(HttpServletResponse.SC_OK);
+        resp.getWriter().write(jsonResponse);
     }
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
-        Map<String, Object> responseMap = new HashMap<>();
+
+        String pathInfo = req.getPathInfo();
+        String[] pathParts = (pathInfo != null) ? pathInfo.split("/") : new String[0];
+
+        if (pathParts.length != 2) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("{\"error\":\"URL không hợp lệ. Định dạng đúng: /api/admin/users/{userId}\"}");
+            return;
+        }
 
         try {
-            String pathInfo = req.getPathInfo();
-            if (pathInfo == null || pathInfo.equals("/")) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                responseMap.put("status", "error");
-                responseMap.put("message", "Thiếu ID của người dùng cần cập nhật.");
-                return;
-            }
-            int userIdToUpdate = Integer.parseInt(pathInfo.substring(1));
-            if (userIdToUpdate <= 0) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                responseMap.put("status", "error");
-                responseMap.put("message", "ID người dùng không hợp lệ.");
-                return;
-            }
+            int userIdToUpdate = Integer.parseInt(pathParts[1]);
+            String requestBody = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+            
+            String jsonResponse = userController.handleUpdateUserRole(userIdToUpdate, requestBody);
 
-            String newRole;
-            try {
-                String requestBody = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
-                JsonObject requestJson = gson.fromJson(requestBody, JsonObject.class);
-
-                if (requestJson == null || !requestJson.has("role")) {
-                    throw new JsonSyntaxException("Missing 'role' field in JSON body.");
-                }
-                newRole = requestJson.get("role").getAsString();
-
-                List<String> validRoles = Arrays.asList("BIDDER", "SELLER", "INACTIVE");
-                if (newRole == null || newRole.trim().isEmpty() || !validRoles.contains(newRole)) {
-                    resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                    responseMap.put("status", "error");
-                    responseMap.put("message", "Trạng thái mới không hợp lệ. Chỉ chấp nhận 'BIDDER', 'SELLER', hoặc 'INACTIVE'.");
-                    return;
-                }
-            } catch (JsonSyntaxException | NullPointerException ex) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                responseMap.put("status", "error");
-                responseMap.put("message", "Dữ liệu JSON không hợp lệ hoặc thiếu trường 'role'.");
-                return;
-            }
-
-            boolean isSuccess = userDAO.updateUserRole(userIdToUpdate, newRole);
-
-            if (isSuccess) {
-                responseMap.put("status", "success");
-                responseMap.put("message", "Cập nhật trạng thái người dùng thành công.");
+            if (jsonResponse.contains("\"status\":\"success\"")) {
                 resp.setStatus(HttpServletResponse.SC_OK);
             } else {
-                responseMap.put("status", "error");
-                responseMap.put("message", "Không tìm thấy người dùng với ID được cung cấp.");
-                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             }
+            resp.getWriter().write(jsonResponse);
 
         } catch (NumberFormatException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            responseMap.put("status", "error");
-            responseMap.put("message", "ID người dùng trong URL phải là một con số.");
-        } catch (Exception e) {
-            System.err.println("Lỗi không xác định trong AdminUserAPI (PUT): " + e.getMessage());
-            e.printStackTrace();
-            responseMap.put("status", "error");
-            responseMap.put("message", "Đã có lỗi xảy ra ở phía máy chủ.");
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        } finally {
-            resp.getWriter().write(gson.toJson(responseMap));
+            resp.getWriter().write("{\"error\":\"ID người dùng không hợp lệ.\"}");
         }
     }
 }

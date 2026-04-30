@@ -71,6 +71,10 @@ public class AuctionServer {
             ctx.addServletMappingDecoded("/api/admin/users/*", "AdminUserAPI");
             Tomcat.addServlet(ctx, "AdminItemAPI", new AdminItemAPI());
             ctx.addServletMappingDecoded("/api/admin/items/*", "AdminItemAPI");
+            Tomcat.addServlet(ctx, "DepositAPI", new DepositAPI());
+            ctx.addServletMappingDecoded("/api/my/deposit", "DepositAPI");
+            Tomcat.addServlet(ctx, "PaymentAPI", new PaymentAPI());
+            ctx.addServletMappingDecoded("/api/payments", "PaymentAPI");
 
             tomcat.start();
             System.out.println("✓ [HTTP API] Web Server đang chạy ở cổng 8080!");
@@ -94,7 +98,7 @@ public class AuctionServer {
             if (scheduler != null) scheduler.stop();
             if (webSocketServer != null) webSocketServer.stopServer();
             if (tomcat != null) tomcat.stop();
-            DatabaseConnection.getInstance().closePool(); // Gọi đóng pool
+            DatabaseConnection.getInstance().closePool();
             System.out.println("Server shutdown completely.");
         } catch (Exception e) {
             e.printStackTrace();

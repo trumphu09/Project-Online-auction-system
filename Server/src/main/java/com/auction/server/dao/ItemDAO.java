@@ -72,6 +72,44 @@ public class ItemDAO {
         }
     }
 
+    public boolean updateItem(ItemDTO item) {
+        Connection conn = null;
+        try {
+            conn = DatabaseConnection.getInstance().getConnection();
+            conn.setAutoCommit(false);
+
+            String sqlItem = "UPDATE items SET name = ?, description = ?, starting_price = ? WHERE id = ? AND seller_id = ?";
+            try (PreparedStatement pstmtItem = conn.prepareStatement(sqlItem)) {
+                pstmtItem.setString(1, item.getName());
+                pstmtItem.setString(2, item.getDescription());
+                pstmtItem.setDouble(3, item.getStartingPrice());
+                pstmtItem.setInt(4, item.getId());
+                pstmtItem.setInt(5, item.getSellerId());
+
+                int rowsUpdated = pstmtItem.executeUpdate();
+                if (rowsUpdated == 0) {
+                    throw new SQLException("Không tìm thấy sản phẩm hoặc bạn không phải chủ sở hữu.");
+                }
+            }
+
+            IItemSubDAO subDAO = classToDAORegistry.get(item.getClass());
+            if (subDAO != null) {
+                // Giả sử subDAO có phương thức update
+                // subDAO.updateSubItem(conn, item);
+            }
+
+            conn.commit();
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            if (conn != null) try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+            return false;
+        } finally {
+            if (conn != null) try { conn.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
+        }
+    }
+
     public ItemDTO getItemById(int id) {
         String sql = "SELECT * FROM items WHERE id = ?";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
@@ -98,7 +136,7 @@ public class ItemDAO {
         String sql = "SELECT * FROM items ORDER BY created_at DESC LIMIT ? OFFSET ?";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
+
             pstmt.setInt(1, limit);
             pstmt.setInt(2, (page - 1) * limit);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -131,5 +169,122 @@ public class ItemDAO {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    public List<String> getAllCategories() {
+        List<String> categories = new ArrayList<>();
+        String sql = "SELECT DISTINCT category FROM items WHERE category IS NOT NULL AND category != '' ORDER BY category";
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                categories.add(rs.getString("category"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return categories;
+    }
+
+    public List<ItemDTO> getItemsByCategory(String category, int page, int limit) {
+        List<ItemDTO> list = new ArrayList<>();
+        String sql = "SELECT * FROM items WHERE category = ? ORDER BY created_at DESC LIMIT ? OFFSET ?";
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, category);
+            pstmt.setInt(2, limit);
+            pstmt.setInt(3, (page - 1) * limit);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    IItemSubDAO subDAO = categoryToDAORegistry.get(category.toUpperCase());
+                    if (subDAO != null) {
+                        ItemDTO fullItem = subDAO.fetchSubItem(conn, rs);
+                        if (fullItem != null) {
+                            list.add(fullItem);
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public int getCategoryItemCount(String category) {
+        String sql = "SELECT COUNT(*) FROM items WHERE category = ?";
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, category);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public List<ItemDTO> getItemsBySellerId(int sellerId) {
+        List<ItemDTO> list = new ArrayList<>();
+        String sql = "SELECT * FROM items WHERE seller_id = ? ORDER BY created_at DESC";
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, sellerId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    String category = rs.getString("category");
+                    IItemSubDAO subDAO = categoryToDAORegistry.get(category.toUpperCase());
+                    if (subDAO != null) {
+                        ItemDTO fullItem = subDAO.fetchSubItem(conn, rs);
+                        if (fullItem != null) {
+                            list.add(fullItem);
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<ItemDTO> getWonItemsByUserId(int userId) {
+        List<ItemDTO> list = new ArrayList<>();
+        String sql = "SELECT i.* FROM items i JOIN auctions a ON i.id = a.item_id WHERE a.highest_bidder_id = ? AND a.status IN ('FINISHED', 'PAID') ORDER BY a.end_time DESC";
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    String category = rs.getString("category");
+                    IItemSubDAO subDAO = categoryToDAORegistry.get(category.toUpperCase());
+                    if (subDAO != null) {
+                        ItemDTO fullItem = subDAO.fetchSubItem(conn, rs);
+                        if (fullItem != null) {
+                            list.add(fullItem);
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public boolean deleteItem(int itemId) {
+        String sql = "DELETE FROM items WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, itemId);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

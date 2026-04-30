@@ -1,9 +1,11 @@
 package com.auction.controller;
 
 import com.auction.service.UserService;
+import com.auction.server.models.UserDTO;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import java.util.List;
 import java.util.Map;
 
 public class UserController {
@@ -49,6 +51,71 @@ public class UserController {
                 return createSuccessResponse("Đăng ký thành công!", null);
             } else {
                 return createErrorResponse("Đăng ký thất bại. Email hoặc username có thể đã tồn tại.");
+            }
+        } catch (JsonSyntaxException e) {
+            return createErrorResponse("Dữ liệu JSON không hợp lệ.");
+        }
+    }
+
+    public String handleGetProfile(int userId) {
+        try {
+            UserDTO profile = userService.getProfile(userId);
+            if (profile != null) {
+                return createSuccessResponse("Lấy thông tin hồ sơ thành công.", gson.toJsonTree(profile));
+            } else {
+                return createErrorResponse("Không tìm thấy người dùng.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return createErrorResponse("Lỗi hệ thống.");
+        }
+    }
+
+    public String handleChangePassword(int userId, String jsonRequest) {
+        try {
+            JsonObject req = gson.fromJson(jsonRequest, JsonObject.class);
+            if (req == null || !req.has("oldPassword") || !req.has("newPassword")) {
+                return createErrorResponse("Thiếu mật khẩu cũ hoặc mật khẩu mới.");
+            }
+            String oldPassword = req.get("oldPassword").getAsString();
+            String newPassword = req.get("newPassword").getAsString();
+
+            boolean isSuccess = userService.changePassword(userId, oldPassword, newPassword);
+
+            if (isSuccess) {
+                return createSuccessResponse("Đổi mật khẩu thành công.", null);
+            } else {
+                return createErrorResponse("Đổi mật khẩu thất bại. Mật khẩu cũ không đúng.");
+            }
+        } catch (JsonSyntaxException e) {
+            return createErrorResponse("Dữ liệu JSON không hợp lệ.");
+        }
+    }
+
+    public String handleGetAllUsers() {
+        try {
+            List<UserDTO> users = userService.getAllUsers();
+            return createSuccessResponse("Lấy danh sách người dùng thành công.", gson.toJsonTree(users));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return createErrorResponse("Lỗi hệ thống.");
+        }
+    }
+
+    public String handleUpdateUserRole(int userId, String jsonRequest) {
+        try {
+            JsonObject req = gson.fromJson(jsonRequest, JsonObject.class);
+            if (req == null || !req.has("role")) {
+                return createErrorResponse("Thiếu vai trò mới.");
+            }
+            String newRole = req.get("role").getAsString();
+
+            boolean isSuccess = userService.updateUserRole(userId, newRole);
+
+            if (isSuccess) {
+                return createSuccessResponse("Cập nhật vai trò thành công.", null);
+            } else {
+                return createErrorResponse("Cập nhật vai trò thất bại.");
             }
         } catch (JsonSyntaxException e) {
             return createErrorResponse("Dữ liệu JSON không hợp lệ.");

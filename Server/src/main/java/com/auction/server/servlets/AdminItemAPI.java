@@ -1,69 +1,43 @@
 package com.auction.server.servlets;
 
-import com.auction.server.dao.ItemDAO;
-import com.google.gson.Gson;
-
+import com.auction.controller.ItemController;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class AdminItemAPI extends HttpServlet {
 
-    private final ItemDAO itemDAO = new ItemDAO();
-    private final Gson gson = new Gson();
+    private final ItemController itemController = new ItemController();
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
-        Map<String, Object> responseMap = new HashMap<>();
+
+        String pathInfo = req.getPathInfo();
+        String[] pathParts = (pathInfo != null) ? pathInfo.split("/") : new String[0];
+
+        if (pathParts.length != 2) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("{\"error\":\"URL không hợp lệ. Định dạng đúng: /api/admin/items/{itemId}\"}");
+            return;
+        }
 
         try {
-            // Filter đã đảm bảo quyền Admin
-            String pathInfo = req.getPathInfo();
-            if (pathInfo == null || pathInfo.equals("/")) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                responseMap.put("status", "error");
-                responseMap.put("message", "Thiếu ID của sản phẩm cần xóa.");
-                resp.getWriter().write(gson.toJson(responseMap));
-                return;
-            }
-            int itemIdToDelete = Integer.parseInt(pathInfo.substring(1));
-            if (itemIdToDelete <= 0) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                responseMap.put("status", "error");
-                responseMap.put("message", "ID sản phẩm không hợp lệ.");
-                resp.getWriter().write(gson.toJson(responseMap));
-                return;
-            }
+            int itemId = Integer.parseInt(pathParts[1]);
+            String jsonResponse = itemController.handleDeleteItem(itemId);
 
-            boolean isSuccess = itemDAO.deleteItem(itemIdToDelete);
-
-            if (isSuccess) {
-                responseMap.put("status", "success");
-                responseMap.put("message", "Xóa sản phẩm thành công.");
+            if (jsonResponse.contains("\"status\":\"success\"")) {
                 resp.setStatus(HttpServletResponse.SC_OK);
             } else {
-                responseMap.put("status", "error");
-                responseMap.put("message", "Không thể xóa sản phẩm. Sản phẩm có thể không tồn tại.");
                 resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             }
+            resp.getWriter().write(jsonResponse);
 
         } catch (NumberFormatException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            responseMap.put("status", "error");
-            responseMap.put("message", "ID sản phẩm trong URL phải là một con số.");
-        } catch (Exception e) {
-            System.err.println("Lỗi không xác định trong AdminItemAPI: " + e.getMessage());
-            e.printStackTrace();
-            responseMap.put("status", "error");
-            responseMap.put("message", "Đã có lỗi xảy ra ở phía máy chủ.");
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        } finally {
-            resp.getWriter().write(gson.toJson(responseMap));
+            resp.getWriter().write("{\"error\":\"ID sản phẩm không hợp lệ.\"}");
         }
     }
 }
