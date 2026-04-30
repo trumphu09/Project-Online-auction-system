@@ -1,8 +1,7 @@
 package com.auction.server.servlets;
 
+import com.auction.controller.BidController;
 import com.auction.controller.ItemController;
-import com.auction.server.dao.BidsDAO;
-import com.auction.server.models.BidTransactionDTO;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import javax.servlet.http.HttpServlet;
@@ -10,13 +9,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class GetItemDetailAPI extends HttpServlet {
 
     private final ItemController itemController = new ItemController();
-    private final BidsDAO bidsDAO = new BidsDAO();
+    private final BidController bidController = new BidController();
     private final Gson gson = new Gson();
 
     @Override
@@ -36,9 +34,9 @@ public class GetItemDetailAPI extends HttpServlet {
         try {
             if (pathParts.length == 3 && "bids".equals(pathParts[2])) {
                 int itemId = Integer.parseInt(pathParts[1]);
-                List<BidTransactionDTO> history = bidsDAO.getBidHistoryByItemId(itemId);
+                String jsonResponse = bidController.handleGetBidHistory(itemId);
                 resp.setStatus(HttpServletResponse.SC_OK);
-                resp.getWriter().write(gson.toJson(history));
+                resp.getWriter().write(jsonResponse);
                 return;
             }
 
