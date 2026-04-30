@@ -1,16 +1,12 @@
 package com.auction.server.models;
 
-/**
- * Data Transfer Object for User information.
- * Used to send user data to the client without exposing the password.
- */
 public class UserDTO {
     private int id;
     private String username;
     private String email;
-    private String role;
+    private UserRole role; // Thay đổi từ String sang UserRole
 
-    public UserDTO(int id, String username, String email, String role) {
+    public UserDTO(int id, String username, String email, UserRole role) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -42,11 +38,11 @@ public class UserDTO {
         this.email = email;
     }
 
-    public String getRole() {
+    public UserRole getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(UserRole role) {
         this.role = role;
     }
 }

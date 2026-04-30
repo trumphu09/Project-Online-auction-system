@@ -18,7 +18,16 @@ public class SearchItemsAPI extends HttpServlet {
         String keyword = req.getParameter("q");
         int page = 1;
         int limit = 10;
-        // Lấy page, limit...
+        try {
+            if (req.getParameter("page") != null) {
+                page = Integer.parseInt(req.getParameter("page"));
+            }
+            if (req.getParameter("limit") != null) {
+                limit = Integer.parseInt(req.getParameter("limit"));
+            }
+        } catch (NumberFormatException e) {
+            // Giữ giá trị mặc định
+        }
 
         String jsonResponse = itemController.handleSearchItems(keyword, page, limit);
         resp.setStatus(HttpServletResponse.SC_OK);

@@ -1,5 +1,6 @@
 package com.auction.server.filters;
 
+import com.auction.server.models.UserRole;
 import com.google.gson.Gson;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -21,7 +22,6 @@ public class AuthFilter implements Filter {
         HttpServletResponse resp = (HttpServletResponse) response;
         String path = req.getRequestURI();
 
-        // Cho phép các API công khai đi qua mà không cần kiểm tra
         if (path.equals("/api/login") || path.equals("/api/register") || 
             (path.equals("/api/items") && req.getMethod().equals("GET")) ||
             path.startsWith("/api/items/") || path.startsWith("/api/search/") ||
@@ -30,32 +30,28 @@ public class AuthFilter implements Filter {
             return;
         }
 
-        // Từ đây trở đi, tất cả các API đều yêu cầu đăng nhập
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("userId") == null) {
             sendError(resp, HttpServletResponse.SC_UNAUTHORIZED, "Bạn cần đăng nhập để thực hiện chức năng này.");
             return;
         }
 
-        // Kiểm tra quyền ADMIN cho các API admin
+        UserRole userRole = (UserRole) session.getAttribute("userRole");
+
         if (path.startsWith("/api/admin/")) {
-            String userRole = (String) session.getAttribute("userRole");
-            if (!"ADMIN".equals(userRole)) {
+            if (userRole != UserRole.ADMIN) {
                 sendError(resp, HttpServletResponse.SC_FORBIDDEN, "Bạn không có quyền thực hiện hành động này.");
                 return;
             }
         }
         
-        // Kiểm tra quyền SELLER cho API đăng bán
         if (path.equals("/api/items") && req.getMethod().equals("POST")) {
-            String userRole = (String) session.getAttribute("userRole");
-            if (!"SELLER".equals(userRole) && !"ADMIN".equals(userRole)) {
+            if (userRole != UserRole.SELLER && userRole != UserRole.ADMIN) {
                 sendError(resp, HttpServletResponse.SC_FORBIDDEN, "Chỉ người bán (SELLER) mới có thể đăng bán sản phẩm.");
                 return;
             }
         }
 
-        // Nếu tất cả kiểm tra đều qua, cho phép yêu cầu đi tiếp
         chain.doFilter(request, response);
     }
 
@@ -70,12 +66,8 @@ public class AuthFilter implements Filter {
     }
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        // Không cần implement
-    }
+    public void init(FilterConfig filterConfig) throws ServletException {}
 
     @Override
-    public void destroy() {
-        // Không cần implement
-    }
+    public void destroy() {}
 }

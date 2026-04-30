@@ -2,6 +2,7 @@ package com.auction.service;
 
 import com.auction.server.dao.UserDAO;
 import com.auction.server.models.UserDTO;
+import com.auction.server.models.UserRole;
 import java.util.List;
 import java.util.Map;
 
@@ -25,14 +26,13 @@ public class UserService {
         return userDAO.loginUser(email, password);
     }
 
-    public boolean register(String username, String password, String email, String role) {
+    public boolean register(String username, String password, String email, UserRole role) {
         if (username == null || username.trim().isEmpty() || 
             password == null || password.isEmpty() || 
             email == null || email.trim().isEmpty()) {
             return false;
         }
-        String userRole = (role != null && !role.trim().isEmpty()) ? role : "BIDDER";
-        return userDAO.registerUser(username, password, email, userRole);
+        return userDAO.registerUser(username, password, email, role);
     }
 
     public UserDTO getProfile(int userId) {
@@ -53,8 +53,8 @@ public class UserService {
         return userDAO.getAllUsers();
     }
 
-    public boolean updateUserRole(int userId, String newRole) {
-        if (userId <= 0 || newRole == null || newRole.trim().isEmpty()) {
+    public boolean updateUserRole(int userId, UserRole newRole) {
+        if (userId <= 0 || newRole == null) {
             return false;
         }
         return userDAO.updateUserRole(userId, newRole);

@@ -1,6 +1,5 @@
 package com.auction.controller;
 
-import com.auction.server.AuctionServer;
 import com.auction.server.factory.ItemFactory;
 import com.auction.server.models.ItemDTO;
 import com.auction.service.ItemService;
@@ -66,7 +65,6 @@ public class ItemController {
             newItem.setSellerId(sellerId);
             String resultMessage = itemService.addNewItem(newItem);
             if (resultMessage.startsWith("Thành công")) {
-                AuctionServer.getWebSocketServer().broadcastNewItem(newItem);
                 return createResponse("success", resultMessage, null);
             } else {
                 return createResponse("error", resultMessage, null);
@@ -95,7 +93,6 @@ public class ItemController {
             updatedItem.setSellerId(sellerId);
             String resultMessage = itemService.updateItem(updatedItem);
             if (resultMessage.startsWith("Thành công")) {
-                AuctionServer.getWebSocketServer().broadcastItemUpdated(updatedItem);
                 return createResponse("success", resultMessage, null);
             } else {
                 return createResponse("error", resultMessage, null);

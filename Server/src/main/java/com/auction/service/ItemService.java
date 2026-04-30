@@ -1,5 +1,6 @@
 package com.auction.service;
 import com.auction.server.dao.ItemDAO;
+import com.auction.server.models.AuctionManager;
 import com.auction.server.models.ItemDTO;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +21,7 @@ public class ItemService {
     public Map<String, Object> getAllItems(int page, int limit) {
         List<ItemDTO> items = itemDAO.getAllItems(page, limit);
         int totalItems = itemDAO.getTotalItemCount();
-
+        
         Map<String, Object> response = new HashMap<>();
         response.put("items", items);
         response.put("totalItems", totalItems);
@@ -30,7 +31,7 @@ public class ItemService {
     }
 
     public Map<String, Object> searchItems(String keyword, int page, int limit) {
-        // Tương tự getAllItems, cần các phương thức tương ứng trong ItemDAO
+        // ...
         return new HashMap<>();
     }
 
@@ -39,7 +40,7 @@ public class ItemService {
     }
 
     public Map<String, Object> getItemsByCategory(String category, int page, int limit) {
-        // Tương tự getAllItems, cần các phương thức tương ứng trong ItemDAO
+        // ...
         return new HashMap<>();
     }
 
@@ -58,15 +59,22 @@ public class ItemService {
         if (item.getCategory() == null || item.getCategory().trim().isEmpty()) return "Thất bại: Danh mục không được xác định!";
 
         boolean isSuccess = itemDAO.addItem(item);
-        return isSuccess ? "Thành công: Đã đăng bán!" : "Thất bại: Lỗi hệ thống.";
+        if (isSuccess) {
+            AuctionManager.getInstance().broadcastUpdate("NEW_ITEM", item);
+            return "Thành công: Đã đăng bán!";
+        }
+        return "Thất bại: Lỗi hệ thống.";
     }
 
     public String updateItem(ItemDTO item) {
         if (item == null) return "Thất bại: Dữ liệu sản phẩm không hợp lệ!";
-        // Thêm các validation khác nếu cần
-
+        
         boolean isSuccess = itemDAO.updateItem(item);
-        return isSuccess ? "Thành công: Đã cập nhật sản phẩm!" : "Thất bại: Lỗi hệ thống hoặc bạn không có quyền.";
+        if (isSuccess) {
+            AuctionManager.getInstance().broadcastUpdate("ITEM_UPDATED", item);
+            return "Thành công: Đã cập nhật sản phẩm!";
+        }
+        return "Thất bại: Lỗi hệ thống hoặc bạn không có quyền.";
     }
 
     public String deleteItem(int itemId) {

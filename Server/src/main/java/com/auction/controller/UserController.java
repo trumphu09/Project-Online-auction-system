@@ -2,6 +2,7 @@ package com.auction.controller;
 
 import com.auction.service.UserService;
 import com.auction.server.models.UserDTO;
+import com.auction.server.models.UserRole;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
@@ -43,7 +44,7 @@ public class UserController {
             String username = req.get("username").getAsString();
             String password = req.get("password").getAsString();
             String email = req.get("email").getAsString();
-            String role = req.has("role") ? req.get("role").getAsString() : "BIDDER";
+            UserRole role = req.has("role") ? UserRole.fromString(req.get("role").getAsString()) : UserRole.BIDDER;
 
             boolean isSuccess = userService.register(username, password, email, role);
 
@@ -108,7 +109,7 @@ public class UserController {
             if (req == null || !req.has("role")) {
                 return createErrorResponse("Thiếu vai trò mới.");
             }
-            String newRole = req.get("role").getAsString();
+            UserRole newRole = UserRole.fromString(req.get("role").getAsString());
 
             boolean isSuccess = userService.updateUserRole(userId, newRole);
 

@@ -1,14 +1,13 @@
 package com.auction.server.dao;
 
-import com.auction.server.models.User;
 import com.auction.server.models.UserDTO;
+import com.auction.server.models.UserRole;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +15,7 @@ import java.util.Map;
 
 public class UserDAO {
 
-    public boolean registerUser(String username, String password, String email, String role) {
+    public boolean registerUser(String username, String password, String email, UserRole role) {
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
         String sql = "INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, ?)";
         
@@ -26,7 +25,7 @@ public class UserDAO {
             pstmt.setString(1, username);
             pstmt.setString(2, hashedPassword);
             pstmt.setString(3, email); 
-            pstmt.setString(4, role);
+            pstmt.setString(4, role.name());
             return pstmt.executeUpdate() > 0;
 
         } catch (SQLException e) {
@@ -48,7 +47,7 @@ public class UserDAO {
                     if (BCrypt.checkpw(plainPassword, hashedPassword)) {
                         Map<String, Object> userDetails = new HashMap<>();
                         userDetails.put("userId", rs.getInt("id"));
-                        userDetails.put("role", rs.getString("role"));
+                        userDetails.put("role", UserRole.fromString(rs.getString("role")));
                         return userDetails;
                     }
                 }
@@ -59,11 +58,11 @@ public class UserDAO {
         return null;
     }
     
-    public boolean updateUserRole(int userId, String newRole) {
+    public boolean updateUserRole(int userId, UserRole newRole) {
         String sql = "UPDATE users SET role = ? WHERE id = ?";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, newRole);
+            pstmt.setString(1, newRole.name());
             pstmt.setInt(2, userId);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -83,7 +82,7 @@ public class UserDAO {
                         rs.getInt("id"),
                         rs.getString("username"),
                         rs.getString("email"),
-                        rs.getString("role")
+                        UserRole.fromString(rs.getString("role"))
                     );
                 }
             }
@@ -104,7 +103,7 @@ public class UserDAO {
                     rs.getInt("id"),
                     rs.getString("username"),
                     rs.getString("email"),
-                    rs.getString("role")
+                    UserRole.fromString(rs.getString("role"))
                 ));
             }
         } catch (SQLException e) {
