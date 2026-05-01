@@ -13,6 +13,8 @@ import org.java_websocket.server.WebSocketServer;
 import java.net.InetSocketAddress;
 import java.time.LocalDateTime;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class AuctionWebSocketServer extends WebSocketServer implements AuctionUpdateListener {
 
@@ -21,10 +23,12 @@ public class AuctionWebSocketServer extends WebSocketServer implements AuctionUp
     private final Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
             .create();
+            
+    // THÊM: Một luồng chuyên trách việc gửi tin nhắn ra ngoài mạng
+    private final ExecutorService broadcastPool = Executors.newSingleThreadExecutor();
 
     public AuctionWebSocketServer() {
         super(new InetSocketAddress(PORT));
-        // Đăng ký làm "người lắng nghe" cho AuctionManager
         AuctionManager.getInstance().addUpdateListener(this);
     }
 
@@ -47,7 +51,7 @@ public class AuctionWebSocketServer extends WebSocketServer implements AuctionUp
 
     @Override
     public void onError(WebSocket conn, Exception ex) {
-        ex.printStackTrace();
+        System.err.println("✗ [WEBSOCKET] Lỗi: " + ex.getMessage());
     }
 
     @Override
@@ -55,19 +59,24 @@ public class AuctionWebSocketServer extends WebSocketServer implements AuctionUp
         System.out.println("✓ [WEBSOCKET] Server started on port " + PORT);
     }
 
-    /**
-     * Đây là phương thức được AuctionManager gọi khi có sự kiện mới.
-     * Vai trò của nó là biến sự kiện đó thành JSON và phát đi.
-     */
     @Override
     public void onAuctionUpdate(AuctionUpdate update) {
+        // Chuyển object sang JSON ở luồng hiện tại cho nhanh
         String jsonUpdate = gson.toJson(update);
-        System.out.println("Broadcasting update: " + jsonUpdate);
-        for (WebSocket client : clients) {
-            if (client.isOpen()) {
-                client.send(jsonUpdate);
+        
+        // THÊM: Quăng việc gửi tin nhắn cho luồng broadcast xử lý, không bắt Timer đứng đợi
+        broadcastPool.submit(() -> {
+            System.out.println("Broadcasting update: " + jsonUpdate);
+            for (WebSocket client : clients) {
+                if (client.isOpen()) {
+                    try {
+                        client.send(jsonUpdate);
+                    } catch (Exception e) {
+                        System.err.println("Lỗi khi gửi tới client: " + e.getMessage());
+                    }
+                }
             }
-        }
+        });
     }
 
     public void startServer() {
@@ -76,9 +85,13 @@ public class AuctionWebSocketServer extends WebSocketServer implements AuctionUp
 
     public void stopServer() {
         try {
+            // Nhớ đóng cả Thread Pool khi tắt Server nhé
+            if (!broadcastPool.isShutdown()) {
+                broadcastPool.shutdown();
+            }
             this.stop();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (InterruptedException e) {
+            System.err.println("Lỗi khi đóng WebSocket Server: " + e.getMessage());
         }
     }
 }
