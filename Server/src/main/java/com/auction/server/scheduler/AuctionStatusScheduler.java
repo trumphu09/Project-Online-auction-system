@@ -3,7 +3,7 @@ package com.auction.server.scheduler;
 import com.auction.server.dao.ItemDAO;
 import com.auction.server.dao.UserDAO;
 import com.auction.server.models.AuctionManager;
-import com.auction.server.models.Item;
+import com.auction.server.models.ItemDTO;
 import com.auction.server.models.UserDTO;
 
 import java.util.HashMap;
@@ -27,8 +27,8 @@ public class AuctionStatusScheduler {
     private void checkAuctionStatuses() {
         try {
             // 1. Cập nhật PENDING -> RUNNING
-            List<Item> startedItems = itemDAO.updatePendingItemsToRunning();
-            for (Item item : startedItems) {
+            List<ItemDTO> startedItems = itemDAO.updatePendingItemsToRunning();
+            for (ItemDTO item : startedItems) {
                 System.out.println("Scheduler: Item " + item.getId() + " has started.");
                 Map<String, Object> data = new HashMap<>();
                 data.put("itemId", item.getId());
@@ -36,15 +36,16 @@ public class AuctionStatusScheduler {
             }
 
             // 2. Cập nhật RUNNING -> ENDED
-            List<Item> endedItems = itemDAO.updateRunningItemsToEnded();
-            for (Item item : endedItems) {
+            List<ItemDTO> endedItems = itemDAO.updateRunningItemsToEnded();
+            for (ItemDTO item : endedItems) {
                 System.out.println("Scheduler: Item " + item.getId() + " has ended.");
-                UserDTO winner = (item.getHighestBidderId() > 0) ? userDAO.getUserById(item.getHighestBidderId()) : null;
+                // Tạm thời chưa lấy được winner và final price từ ItemDTO
+                // UserDTO winner = (item.getHighestBidderId() > 0) ? userDAO.getUserById(item.getHighestBidderId()) : null;
                 
                 Map<String, Object> data = new HashMap<>();
                 data.put("itemId", item.getId());
-                data.put("finalPrice", item.getCurrentMaxPrice());
-                data.put("winnerUsername", (winner != null) ? winner.getUsername() : null);
+                // data.put("finalPrice", item.getCurrentMaxPrice());
+                // data.put("winnerUsername", (winner != null) ? winner.getUsername() : null);
                 
                 AuctionManager.getInstance().broadcastUpdate("AUCTION_ENDED", data);
             }

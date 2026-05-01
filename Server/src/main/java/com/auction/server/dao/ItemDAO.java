@@ -31,6 +31,68 @@ public class ItemDAO {
         categoryToDAORegistry.put(category.toUpperCase(), dao);
     }
 
+    public List<ItemDTO> updatePendingItemsToRunning() {
+        List<ItemDTO> updatedItems = new ArrayList<>();
+        String findSql = "SELECT * FROM items WHERE status = 'PENDING' AND start_time <= NOW()";
+        String updateSql = "UPDATE items SET status = 'RUNNING' WHERE id = ?";
+        
+        try (Connection conn = DatabaseConnection.getInstance().getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement findStmt = conn.prepareStatement(findSql);
+                 ResultSet rs = findStmt.executeQuery()) {
+                while (rs.next()) {
+                    IItemSubDAO subDAO = categoryToDAORegistry.get(rs.getString("category").toUpperCase());
+                    if (subDAO != null) {
+                        ItemDTO item = subDAO.fetchSubItem(conn, rs);
+                        if (item != null) {
+                             try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                                updateStmt.setInt(1, item.getId());
+                                if (updateStmt.executeUpdate() > 0) {
+                                    updatedItems.add(item);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            conn.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return updatedItems;
+    }
+
+    public List<ItemDTO> updateRunningItemsToEnded() {
+        List<ItemDTO> updatedItems = new ArrayList<>();
+        String findSql = "SELECT i.*, a.highest_bidder_id, a.current_max_price FROM items i JOIN auctions a ON i.id = a.item_id WHERE a.status = 'RUNNING' AND a.end_time <= NOW()";
+        String updateSql = "UPDATE auctions SET status = 'ENDED' WHERE id = ?";
+        
+        try (Connection conn = DatabaseConnection.getInstance().getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement findStmt = conn.prepareStatement(findSql);
+                 ResultSet rs = findStmt.executeQuery()) {
+                while (rs.next()) {
+                    IItemSubDAO subDAO = categoryToDAORegistry.get(rs.getString("category").toUpperCase());
+                    if (subDAO != null) {
+                        ItemDTO item = subDAO.fetchSubItem(conn, rs);
+                        if (item != null) {
+                             try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                                updateStmt.setInt(1, item.getId()); // Assuming auctionId is same as itemId for simplicity
+                                if (updateStmt.executeUpdate() > 0) {
+                                    updatedItems.add(item);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            conn.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return updatedItems;
+    }
+
     public boolean addItem(ItemDTO item) {
         Connection conn = null;
         try {
@@ -85,7 +147,7 @@ public class ItemDAO {
                 pstmtItem.setDouble(3, item.getStartingPrice());
                 pstmtItem.setInt(4, item.getId());
                 pstmtItem.setInt(5, item.getSellerId());
-
+                
                 int rowsUpdated = pstmtItem.executeUpdate();
                 if (rowsUpdated == 0) {
                     throw new SQLException("Không tìm thấy sản phẩm hoặc bạn không phải chủ sở hữu.");
@@ -94,7 +156,6 @@ public class ItemDAO {
 
             IItemSubDAO subDAO = classToDAORegistry.get(item.getClass());
             if (subDAO != null) {
-                // Giả sử subDAO có phương thức update
                 // subDAO.updateSubItem(conn, item);
             }
 
@@ -136,7 +197,7 @@ public class ItemDAO {
         String sql = "SELECT * FROM items ORDER BY created_at DESC LIMIT ? OFFSET ?";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
+            
             pstmt.setInt(1, limit);
             pstmt.setInt(2, (page - 1) * limit);
             try (ResultSet rs = pstmt.executeQuery()) {
