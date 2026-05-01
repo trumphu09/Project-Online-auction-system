@@ -12,13 +12,9 @@ public class AuctionManager {
         this.updateListeners = new CopyOnWriteArrayList<>();
     }
 
-    public static AuctionManager getInstance() {
+    public static synchronized AuctionManager getInstance() {
         if (instance == null) {
-            synchronized (AuctionManager.class) {
-                if (instance == null) {
-                    instance = new AuctionManager();
-                }
-            }
+            instance = new AuctionManager();
         }
         return instance;
     }
