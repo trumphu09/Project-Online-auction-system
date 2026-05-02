@@ -1,64 +1,59 @@
 package com.auction.client.controllers;
 
-import com.auction.client.model.Bidder;
-import com.auction.client.model.Seller;
-import com.auction.client.model.User;
-import javafx.fxml.FXML;
-import javafx.scene.control.TextField;
-import javafx.scene.control.PasswordField;
+import com.auction.client.service.ApiCallback;
+import com.auction.client.service.AuctionFacade;
+import com.google.gson.JsonObject;
 import javafx.event.ActionEvent;
-import static com.auction.client.controllers.Controller.userDatabase;
+import javafx.fxml.FXML;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 
-// KẾ THỪA: Thừa hưởng mọi "phép thuật" từ BaseController
 public class RegisterController extends BaseController {
 
-    @FXML private TextField regUsername;
-    @FXML private PasswordField regPassword;
+  @FXML private TextField regUsername;
+  @FXML private PasswordField regPassword;
 
-    // TÍNH ĐÓNG GÓI: Hàm xử lý nội bộ, che giấu logic đăng ký phức tạp
-    private void processSignUp(String role) {
-        String user = regUsername.getText();
-        String pass = regPassword.getText();
+  private void processSignUp(String role) {
+    String user = regUsername.getText().trim();
+    String pass = regPassword.getText().trim();
 
-        if (!user.endsWith("@gmail.com")) {
-            showAlert("Thông báo", "Tên đăng nhập phải là tài khoản Gmail!");
-            return;
-        }
+    if (!user.endsWith("@gmail.com")) {
+      showAlert("Thông báo", "Tên đăng nhập phải là tài khoản Gmail!");
+      return;
+    }
 
-        for (User u : userDatabase) {
-            if (u.getUsername().equals(user)) {
-                showAlert("Thông báo", "Tài khoản đã tồn tại!");
-                return;
-            }
-        }
-
-        if(role.equals("BIDDER")){
-            userDatabase.add(new Bidder(user, pass));
-        } else if (role.equals("SELLER")) {
-            userDatabase.add(new Seller(user, pass));
-        }
-
-        // ĐA HÌNH (nhẹ): Tùy biến thông báo dựa trên tham số truyền vào
+    // 🚀 GỌI API ĐĂNG KÝ THẬT TỪ FACADE
+    AuctionFacade.getInstance().register(user, pass, role, new ApiCallback<JsonObject>() {
+      @Override
+      public void onSuccess(JsonObject result) {
         String message = "Đã tạo tài khoản " + (role.equals("SELLER") ? "Người Bán" : "Người Mua") + " thành công!";
-        showAlert("Thành công", message + " Quay trở lại màn hình Login để đăng nhập.");
+        showAlert("Thành công", message + "\nQuay trở lại màn hình Login để đăng nhập.");
 
         regUsername.clear();
         regPassword.clear();
-    }
+      }
 
-    @FXML
-    private void handleSignUpSeller(ActionEvent event) {
-        processSignUp("SELLER");
-    }
+      @Override
+      public void onError(String errorMessage) {
+        // Trùng username hoặc lỗi DB sẽ quăng ra đây
+        showAlert("Đăng ký thất bại", errorMessage);
+      }
+    });
+  }
 
-    @FXML
-    private void handleSignUpBidder(ActionEvent event) {
-        processSignUp("BIDDER");
-    }
+  @FXML
+  private void handleSignUpSeller(ActionEvent event) {
+    processSignUp("SELLER");
+  }
 
-    @FXML
-    public void handleBackToLogin(ActionEvent event) {
-        // TÁI SỬ DỤNG: Dùng hàm của lớp cha, không cần try-catch rườm rà ở đây nữa
-        switchScene(event, "/view/View.fxml", "Đăng nhập hệ thống", 800, 500);
-    }
+  @FXML
+  private void handleSignUpBidder(ActionEvent event) {
+    processSignUp("BIDDER");
+  }
+
+  @FXML
+  public void handleBackToLogin(ActionEvent event) {
+    // Chỉ giữ lại một hàm duy nhất này thôi Đại nhé
+    switchScene(event, "/view/View.fxml", "Đăng nhập hệ thống", 800, 500);
+  }
 }
