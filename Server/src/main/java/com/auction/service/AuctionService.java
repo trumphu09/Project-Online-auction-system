@@ -49,35 +49,35 @@ public class AuctionService {
         }
     }
 
-    public String closeAuction(int auctionId) {
+    public AuctionStatus closeAuction(int auctionId) {
         AuctionDataDTO auction = auctionDAO.getAuctionDataById(auctionId);
         if (auction == null) {
-            return "Thất bại: Không tìm thấy phiên đấu giá #" + auctionId;
+            return null;
         }
         if (auction.getStatus() != AuctionStatus.RUNNING) {
-            return "Thất bại: Phiên đấu giá này không ở trạng thái Đang chạy.";
+            return auction.getStatus();
         }
 
         if (auction.getHighestBidderId() > 0) {
             boolean isClosed = auctionDAO.updateAuctionStatus(auctionId, AuctionStatus.FINISHED);
             if (isClosed) {
                 PaymentService paymentService = PaymentService.getInstance();
-                String paymentResult = paymentService.createInvoice(
-                    auctionId, 
-                    auction.getHighestBidderId(), 
-                    auction.getSellerId(), 
+                paymentService.createInvoice(
+                    auctionId,
+                    auction.getHighestBidderId(),
+                    auction.getSellerId(),
                     auction.getCurrentMaxPrice()
                 );
-                
+
                 AuctionManager.getInstance().broadcastUpdate("AUCTION_ENDED", auction);
-                return "Thành công: Đã chốt đơn. " + paymentResult;
+                return AuctionStatus.FINISHED;
             } else {
-                return "Thất bại: Lỗi cơ sở dữ liệu khi đóng phiên đấu giá.";
+                return null;
             }
         } else {
             auctionDAO.updateAuctionStatus(auctionId, AuctionStatus.CANCELED);
             AuctionManager.getInstance().broadcastUpdate("AUCTION_ENDED", auction);
-            return "Thành công: Đã đóng phiên đấu giá. Không có người mua.";
+            return AuctionStatus.CANCELED;
         }
     }
 }
