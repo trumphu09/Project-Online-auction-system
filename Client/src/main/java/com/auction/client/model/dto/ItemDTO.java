@@ -1,11 +1,7 @@
-<<<<<<< HEAD:Client/src/main/java/com/auction/client/model/ItemDTO.java
-package com.auction.client.model;
+package com.auction.client.model.dto;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-=======
-package com.auction.client.model.dto;
->>>>>>> c24e45baf40b4186b642a99dd33143a164c66a2e:Client/src/main/java/com/auction/client/model/dto/ItemDTO.java
 import java.io.Serializable;
 
 public abstract class ItemDTO implements Serializable {

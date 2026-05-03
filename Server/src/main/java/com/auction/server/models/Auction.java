@@ -31,6 +31,8 @@ public class Auction extends Entity {
         this.autoBids = new CopyOnWriteArrayList<>(); 
     }
 
+    public LocalDateTime getEndTime() { return endTime; }
+    
     public AuctionStatus getStatus() { return status; }
     public void setStatus(AuctionStatus newStatus) {
         this.status = newStatus;

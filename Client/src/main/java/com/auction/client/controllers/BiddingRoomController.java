@@ -55,26 +55,41 @@ public class BiddingRoomController extends BaseController {
     private void handleBidAction() {
         String amountStr = txtBidAmount.getText().trim();
 
-        // Sử dụng lại tài sản của cha (BaseController)
         if (amountStr.isEmpty()) {
-            showAlert("Thông báo", "Đại ơi, nhập số tiền muốn đấu giá nhé!");
+            showAlert("Thông báo", "Vui lòng nhập số tiền muốn đấu giá!");
             return;
         }
 
         try {
             double bidAmount = Double.parseDouble(amountStr);
 
-            // TÍNH ĐÓNG GÓI: Logic kiểm tra giá đấu
             if (bidAmount <= currentItem.getStartingPrice()) {
                 showAlert("Lỗi", "Giá đấu phải cao hơn giá hiện tại!");
                 return;
             }
 
-            System.out.println("Gửi lệnh BID: " + bidAmount + " cho sản phẩm: " + currentItem.getName());
-            // Sau này gọi Socket gửi dữ liệu cho Thành/Toản ở đây
+            // ĐÓNG GÓI JSON ĐỂ GỬI LÊN SERVER
+            // Lưu ý: Cần thêm auction_id. Ở đây giả sử auction_id trùng với item_id tạm thời.
+            String jsonPayload = String.format("{\"auction_id\": %d, \"amount\": %f}", 
+                                                currentItem.getId(), bidAmount);
+
+            System.out.println("Gửi lệnh BID: " + jsonPayload);
+
+            // GỌI API BẰNG ApiService
+            com.auction.client.api.ApiService.getInstance().sendPostRequest("/bids", jsonPayload)
+                .thenAccept(response -> {
+                    javafx.application.Platform.runLater(() -> {
+                        if (response.statusCode() == 200) {
+                            showAlert("Thành công", "Đã gửi lệnh đặt giá!");
+                            txtBidAmount.clear();
+                        } else {
+                            showAlert("Thất bại", "Lỗi đặt giá: " + response.body());
+                        }
+                    });
+                });
 
         } catch (NumberFormatException e) {
-            showAlert("Lỗi", "Số tiền phải là con số nhé Đại!");
+            showAlert("Lỗi", "Số tiền phải là con số hợp lệ!");
         }
     }
 }

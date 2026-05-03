@@ -4031,6 +4031,8 @@ package com.auction.server.dao;
 
 import com.auction.server.models.User;
 import com.auction.server.models.Bidder;
+import com.auction.server.models.UserRole;
+import com.auction.server.factory.UserFactory;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -4055,8 +4057,10 @@ public class BidderSubDAO implements IUserSubDAO {
             pst.setInt(1, userId);
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
-                    // Khởi tạo đối tượng Bidder (Dùng constructor thứ 2 có ID trong User)
-                    return new Bidder(userId, username, password, email); 
+                    // Khởi tạo đối tượng Bidder và gán dữ liệu từ database
+                    Bidder bidder = (Bidder) UserFactory.createUser(UserRole.BIDDER, userId, username, password, email); 
+                    bidder.setAccountBalance(rs.getDouble("account_balance"));
+                    return bidder;
                 }
             }
         }
@@ -4940,6 +4944,8 @@ package com.auction.server.dao;
 
 import com.auction.server.models.User;
 import com.auction.server.models.Seller;
+import com.auction.server.models.UserRole;
+import com.auction.server.factory.UserFactory;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -4966,8 +4972,12 @@ public class SellerSubDAO implements IUserSubDAO {
             pst.setInt(1, userId);
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
-                    // Khởi tạo đối tượng Seller (Dùng constructor thứ 2 có ID trong User)
-                    return new Seller(userId, username, password, email);
+                    // Khởi tạo đối tượng Seller và gán dữ liệu từ database
+                    Seller seller = (Seller) UserFactory.createUser(UserRole.SELLER, userId, username, password, email);
+                    seller.setTotalRating(rs.getDouble("total_rating"));
+                    seller.setSaleCount(rs.getInt("sale_count"));
+                    seller.setAccountBalance(rs.getDouble("account_balance"));
+                    return seller;
                 }
             }
         }
@@ -4985,6 +4995,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement; // Nhớ thêm import này
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -4992,25 +5003,83 @@ import java.util.Map;
 
 public class UserDAO {
 
+    // === ĐÃ SỬA: Áp dụng chuẩn OCP và Transaction ===
     public boolean registerUser(String username, String password, String email, UserRole role) {
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-        String sql = "INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, ?)";
+        String sqlUser = "INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, ?)";
         
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        Connection conn = null;
+        try {
+            conn = DatabaseConnection.getInstance().getConnection();
+            conn.setAutoCommit(false); // 1. Mở Transaction (Chống rác DB)
+
+            int generatedUserId = -1;
             
-            pstmt.setString(1, username);
-            pstmt.setString(2, hashedPassword);
-            pstmt.setString(3, email); 
-            pstmt.setString(4, role.name());
-            return pstmt.executeUpdate() > 0;
+            // 2. Thêm vào bảng cha (users) và lấy ID vừa tạo
+            try (PreparedStatement pstmt = conn.prepareStatement(sqlUser, Statement.RETURN_GENERATED_KEYS)) {
+                pstmt.setString(1, username);
+                pstmt.setString(2, hashedPassword);
+                pstmt.setString(3, email);
+                pstmt.setString(4, role.name());
+                
+                int affectedRows = pstmt.executeUpdate();
+                if (affectedRows == 0) {
+                    throw new SQLException("Tạo user thất bại.");
+                }
+
+                // Lấy ID tự tăng từ MySQL
+                try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        generatedUserId = generatedKeys.getInt(1);
+                    } else {
+                        throw new SQLException("Không lấy được ID của user vừa tạo.");
+                    }
+                }
+            }
+
+            // 3. TÍNH ĐA HÌNH (OCP): Gọi Factory để tự động thêm vào bảng con tương ứng
+            // Chỉ thêm bảng con nếu không phải ADMIN
+            if (role != UserRole.ADMIN && role != UserRole.INACTIVE) {
+                if (role == UserRole.BIDDER) {
+                    String sqlBidder = "INSERT INTO bidders (user_id, account_balance) VALUES (?, 0)";
+                    try (PreparedStatement pstmtBidder = conn.prepareStatement(sqlBidder)) {
+                        pstmtBidder.setInt(1, generatedUserId);
+                        pstmtBidder.executeUpdate();
+                    }
+                } else if (role == UserRole.SELLER) {
+                    String sqlSeller = "INSERT INTO sellers (user_id, total_rating, sale_count, account_balance) VALUES (?, 0, 0, 0)";
+                    try (PreparedStatement pstmtSeller = conn.prepareStatement(sqlSeller)) {
+                        pstmtSeller.setInt(1, generatedUserId);
+                        pstmtSeller.executeUpdate();
+                    }
+                }
+            }
+
+            conn.commit(); // 4. Chốt hạ, ghi tất cả vào Database
+            return true;
 
         } catch (SQLException e) {
             e.printStackTrace();
+            if (conn != null) {
+                try {
+                    conn.rollback(); // Có lỗi thì hoàn tác sạch sẽ
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
             return false;
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true); // Trả lại ống nước về trạng thái mặc định
+                    conn.close(); // Quan trọng: Đóng connection để trả về Hikari Pool
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
-
+    // ... (Giữ nguyên các hàm loginUser, getUserById, getAllUsers... ở bên dưới) ...
     public Map<String, Object> loginUser(String email, String plainPassword) {
         String sql = "SELECT id, password, role FROM users WHERE email = ?";
         
@@ -5197,33 +5266,58 @@ public class ItemFactory {
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\factory\UserFactory.java ===  
 package com.auction.server.factory;
 
-import com.auction.server.dao.IUserSubDAO;
-import com.auction.server.dao.BidderSubDAO;
-import com.auction.server.dao.SellerSubDAO;
+import com.auction.server.models.Admin;
+import com.auction.server.models.Bidder;
+import com.auction.server.models.Seller;
+import com.auction.server.models.User;
+import com.auction.server.models.UserRole;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class UserFactory {
     
-    private static final Map<String, IUserSubDAO> registry = new HashMap<>();
+    private static final Map<String, Class<? extends User>> registry = new HashMap<>();
 
     static {
-        // Đăng ký các DAO xử lý bảng con tự động
-        registry.put("BIDDER", new BidderSubDAO());
-        registry.put("SELLER", new SellerSubDAO());
+        registry.put("BIDDER", Bidder.class);
+        registry.put("SELLER", Seller.class);
+        registry.put("ADMIN", Admin.class);
     }
 
-    public static void registerUserType(String role, IUserSubDAO subDAO) {
-        registry.put(role.toUpperCase(), subDAO);
+    public static void registerUserType(String role, Class<? extends User> clazz) {
+        registry.put(role.toUpperCase(), clazz);
     }
 
-    public static IUserSubDAO getSubDAO(String role) {
-        IUserSubDAO subDAO = registry.get(role.toUpperCase());
-        if (subDAO == null) {
-            throw new IllegalArgumentException("Không hỗ trợ xử lý Role: " + role);
+    public static Class<? extends User> getClassByRole(String role) {
+        if (role == null) {
+            return null;
         }
-        return subDAO;
+        return registry.get(role.toUpperCase());
+    }
+
+    public static User createUser(String role) throws Exception {
+        Class<? extends User> clazz = getClassByRole(role);
+        if (clazz != null) {
+            return clazz.getDeclaredConstructor().newInstance();
+        }
+        throw new IllegalArgumentException("Không tìm thấy User Role: " + role);
+    }
+
+    // Phương thức tạo User có sẵn dữ liệu từ DB (dành cho SubDAO)
+    public static User createUser(UserRole role, int id, String username, String password, String email) {
+        if (role == null) return null;
+        switch (role) {
+            case BIDDER:
+                return new Bidder(id, username, password, email);
+            case SELLER:
+                return new Seller(id, username, password, email);
+            case ADMIN:
+                // Admin cần thêm tham số role string trong hàm khởi tạo
+                return new Admin(id, username, password, email, "ADMIN");
+            default:
+                throw new IllegalArgumentException("Không hỗ trợ User Role: " + role);
+        }
     }
 } 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\filters\AuthFilter.java ===  
@@ -5514,6 +5608,8 @@ public class Auction extends Entity {
         this.autoBids = new CopyOnWriteArrayList<>(); 
     }
 
+    public LocalDateTime getEndTime() { return endTime; }
+    
     public AuctionStatus getStatus() { return status; }
     public void setStatus(AuctionStatus newStatus) {
         this.status = newStatus;
@@ -5667,7 +5763,9 @@ public class Auction extends Entity {
             System.out.println(">> Giao dịch thành công! Thuộc về: " + winner.getUsername());
         } else {
             System.out.println(">> Lỗi: Người mua không đủ tiền!");
-       
+        }
+    }
+} 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionDataDTO.java ===  
 package com.auction.server.models;
 
@@ -5803,13 +5901,20 @@ package com.auction.server.models;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+/**
+ * Central manager for broadcasting auction updates and (optionally)
+ * keeping a simple in-memory registry of Auction objects.
+ */
 public class AuctionManager {
 
     private static volatile AuctionManager instance;
     private final List<AuctionUpdateListener> updateListeners;
+    // Optional in-memory auction registry to support AuctionTimer convenience calls
+    private final List<Auction> auctions;
 
     private AuctionManager() {
         this.updateListeners = new CopyOnWriteArrayList<>();
+        this.auctions = new CopyOnWriteArrayList<>();
     }
 
     public static synchronized AuctionManager getInstance() {
@@ -5830,8 +5935,27 @@ public class AuctionManager {
     public void broadcastUpdate(String type, Object data) {
         AuctionUpdate update = new AuctionUpdate(type, data);
         for (AuctionUpdateListener listener : updateListeners) {
-            listener.onAuctionUpdate(update);
+            try {
+                listener.onAuctionUpdate(update);
+            } catch (Exception e) {
+                System.err.println("Error notifying listener: " + e.getMessage());
+            }
         }
+    }
+
+    // In-memory auction registry helpers
+    public List<Auction> getAllAuctions() {
+        return auctions;
+    }
+
+    public void addAuction(Auction a) { auctions.add(a); }
+    public void removeAuction(Auction a) { auctions.remove(a); }
+
+    /**
+     * Convenience method: notify listeners that a specific auction changed.
+     */
+    public void notifyAuctionUpdate(Auction auction) {
+        broadcastUpdate("AUCTION_UPDATED", auction);
     }
 } 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionStatus.java ===  
@@ -5859,7 +5983,7 @@ public class AuctionTimer {
 
     private static volatile AuctionTimer instance;
     private final ScheduledExecutorService scheduler;
-    private AuctionManager auctionManager; // This will be set by AuctionManager
+    // use AuctionManager.getInstance() when needed
     private final AuctionService auctionService; // Add AuctionService instance
 
     private AuctionTimer() {
@@ -5884,18 +6008,9 @@ public class AuctionTimer {
     }
 
 
-    public void setAuctionManager(AuctionManager auctionManager) {
-        this.auctionManager = auctionManager;
-
-    }
-
     // Bắt đầu chạy bộ quét thời gian định kỳ (1 giây / lần)
 
     public void start() {
-        if (auctionManager == null) {
-            throw new IllegalStateException("Cần setAuctionManager trước khi gọi start()!");
-
-        }
 
         scheduler.scheduleAtFixedRate(() -> {
             try {
@@ -5913,7 +6028,7 @@ public class AuctionTimer {
     // Quét và đóng các phiên đấu giá đã hết hạn
 
     private void checkExpiredAuctions() {
-        List<Auction> auctions = auctionManager.getAllAuctions();
+        List<Auction> auctions = AuctionManager.getInstance().getAllAuctions();
         LocalDateTime now = LocalDateTime.now();
 
         for (Auction auction : auctions) {
@@ -5933,7 +6048,7 @@ public class AuctionTimer {
                 }
 
                 // Thông báo qua WebSocket (hoặc Listener) để Client biết phiên đã kết thúc
-                auctionManager.notifyAuctionUpdate(auction);
+                AuctionManager.getInstance().notifyAuctionUpdate(auction);
             }
         }
     }
@@ -5973,24 +6088,40 @@ public class AuctionTimer {
 package com.auction.server.models;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
+/**
+ * General-purpose update object used for broadcasting auction events.
+ * It contains a "type" (e.g. "NEW_BID", "AUCTION_ENDED") and a payload in "data".
+ */
 public class AuctionUpdate {
-    private final int auctionId;
-    private final double currentHighestBid;
-    private final int totalBids;
-    private final LocalDateTime endTime;
+    private final String type;
+    private final Object data;
+    private final LocalDateTime timestamp;
 
-    public AuctionUpdate(int auctionId, double currentHighestBid, int totalBids, LocalDateTime endTime) {
-        this.auctionId = auctionId;
-        this.currentHighestBid = currentHighestBid;
-        this.totalBids = totalBids;
-        this.endTime = endTime;
+    public AuctionUpdate(String type, Object data) {
+        this.type = type;
+        this.data = data;
+        this.timestamp = LocalDateTime.now();
     }
 
-    public int getAuctionId() { return auctionId; }
-    public double getCurrentHighestBid() { return currentHighestBid; }
-    public int getTotalBids() { return totalBids; }
-    public LocalDateTime getEndTime() { return endTime; }
+    // Backwards-compatible convenience constructor that maps the old 4-field
+    // snapshot into a generic payload map.
+    public AuctionUpdate(int auctionId, double currentHighestBid, int totalBids, LocalDateTime endTime) {
+        this.type = "SNAPSHOT";
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("auctionId", auctionId);
+        payload.put("currentHighestBid", currentHighestBid);
+        payload.put("totalBids", totalBids);
+        payload.put("endTime", endTime);
+        this.data = payload;
+        this.timestamp = LocalDateTime.now();
+    }
+
+    public String getType() { return type; }
+    public Object getData() { return data; }
+    public LocalDateTime getTimestamp() { return timestamp; }
 } 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionUpdateListener.java ===  
 package com.auction.server.models;
@@ -7999,35 +8130,35 @@ public class AuctionService {
         }
     }
 
-    public String closeAuction(int auctionId) {
+    public AuctionStatus closeAuction(int auctionId) {
         AuctionDataDTO auction = auctionDAO.getAuctionDataById(auctionId);
         if (auction == null) {
-            return "Thất bại: Không tìm thấy phiên đấu giá #" + auctionId;
+            return null;
         }
         if (auction.getStatus() != AuctionStatus.RUNNING) {
-            return "Thất bại: Phiên đấu giá này không ở trạng thái Đang chạy.";
+            return auction.getStatus();
         }
 
         if (auction.getHighestBidderId() > 0) {
             boolean isClosed = auctionDAO.updateAuctionStatus(auctionId, AuctionStatus.FINISHED);
             if (isClosed) {
                 PaymentService paymentService = PaymentService.getInstance();
-                String paymentResult = paymentService.createInvoice(
-                    auctionId, 
-                    auction.getHighestBidderId(), 
-                    auction.getSellerId(), 
+                paymentService.createInvoice(
+                    auctionId,
+                    auction.getHighestBidderId(),
+                    auction.getSellerId(),
                     auction.getCurrentMaxPrice()
                 );
-                
+
                 AuctionManager.getInstance().broadcastUpdate("AUCTION_ENDED", auction);
-                return "Thành công: Đã chốt đơn. " + paymentResult;
+                return AuctionStatus.FINISHED;
             } else {
-                return "Thất bại: Lỗi cơ sở dữ liệu khi đóng phiên đấu giá.";
+                return null;
             }
         } else {
             auctionDAO.updateAuctionStatus(auctionId, AuctionStatus.CANCELED);
             AuctionManager.getInstance().broadcastUpdate("AUCTION_ENDED", auction);
-            return "Thành công: Đã đóng phiên đấu giá. Không có người mua.";
+            return AuctionStatus.CANCELED;
         }
     }
 }
