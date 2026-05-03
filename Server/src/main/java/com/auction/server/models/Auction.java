@@ -161,7 +161,7 @@ public class Auction extends Entity {
         System.out.println("⏰ EXTENDED: Phiên [" + getId() + "] gia hạn thêm " + extensionMinutes + " phút!");
     }
 
-    public void processPayment() {
+    public synchronized void processPayment() {
         if (this.getStatus() != AuctionStatus.FINISHED) {
             System.out.println("Chưa thể thanh toán! Phiên đấu giá chưa kết thúc.");
             return;
@@ -186,13 +186,4 @@ public class Auction extends Entity {
             System.out.println(">> Lỗi: Người mua không đủ tiền!");
         }
     }
-
-    public List<AutoBid> getAutoBids() { return autoBids; }
-    // Giờ đây getBidHistory trả về luôn mảng an toàn, không cần clone nữa
-    public List<BidTransaction> getBidHistory() { return bidHistory; }
-    
-    public Item getItem() { return item; }
-    public User getSeller() { return seller; }
-    public LocalDateTime getEndTime() { return endTime; }
-    public int getAuctionId() { return this.getId(); }
 }

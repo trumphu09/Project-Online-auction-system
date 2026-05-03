@@ -2,6 +2,8 @@ package com.auction.server.dao;
 
 import com.auction.server.models.User;
 import com.auction.server.models.Bidder;
+import com.auction.server.models.UserRole;
+import com.auction.server.factory.UserFactory;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -26,8 +28,10 @@ public class BidderSubDAO implements IUserSubDAO {
             pst.setInt(1, userId);
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
-                    // Khởi tạo đối tượng Bidder (Dùng constructor thứ 2 có ID trong User)
-                    return new Bidder(userId, username, password, email); 
+                    // Khởi tạo đối tượng Bidder và gán dữ liệu từ database
+                    Bidder bidder = (Bidder) UserFactory.createUser(UserRole.BIDDER, userId, username, password, email); 
+                    bidder.setAccountBalance(rs.getDouble("account_balance"));
+                    return bidder;
                 }
             }
         }

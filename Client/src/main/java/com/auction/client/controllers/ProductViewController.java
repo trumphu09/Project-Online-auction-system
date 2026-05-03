@@ -1,8 +1,7 @@
 package com.auction.client.controllers;
 
-import com.auction.client.model.ArtDTO;
-import com.auction.client.model.ItemDTO;
-import com.auction.client.util.BaseController;
+import com.auction.client.model.dto.ArtDTO;
+import com.auction.client.model.dto.ItemDTO;
 import com.auction.client.util.ItemCard;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;

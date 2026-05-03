@@ -2,6 +2,8 @@ package com.auction.server.dao;
 
 import com.auction.server.models.User;
 import com.auction.server.models.Seller;
+import com.auction.server.models.UserRole;
+import com.auction.server.factory.UserFactory;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -28,8 +30,12 @@ public class SellerSubDAO implements IUserSubDAO {
             pst.setInt(1, userId);
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
-                    // Khởi tạo đối tượng Seller (Dùng constructor thứ 2 có ID trong User)
-                    return new Seller(userId, username, password, email);
+                    // Khởi tạo đối tượng Seller và gán dữ liệu từ database
+                    Seller seller = (Seller) UserFactory.createUser(UserRole.SELLER, userId, username, password, email);
+                    seller.setTotalRating(rs.getDouble("total_rating"));
+                    seller.setSaleCount(rs.getInt("sale_count"));
+                    seller.setAccountBalance(rs.getDouble("account_balance"));
+                    return seller;
                 }
             }
         }

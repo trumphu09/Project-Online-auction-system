@@ -1,10 +1,9 @@
 package com.auction.client.controllers;
 
-import com.auction.client.model.ElectronicsDTO;
-import com.auction.client.model.ArtDTO;
-import com.auction.client.model.VehicleDTO;
-import com.auction.client.model.ItemDTO;
-import com.auction.client.util.BaseController;
+import com.auction.client.model.dto.ElectronicsDTO;
+import com.auction.client.model.dto.ArtDTO;
+import com.auction.client.model.dto.VehicleDTO;
+import com.auction.client.model.dto.ItemDTO;
 import com.auction.client.util.ItemCard; // Import lớp vừa tạo
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -12,7 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.TilePane;
 import javafx.stage.FileChooser;
 import java.io.File;
-import java.time.LocalDate;
+
 import javafx.scene.control.ComboBox;
 import javafx.collections.FXCollections;
 import java.net.URL;

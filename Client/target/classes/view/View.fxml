@@ -5,7 +5,7 @@
 <?import javafx.scene.image.*?>
 <?import javafx.geometry.Insets?>
 
-<BorderPane prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controller.Controller">
+<BorderPane prefWidth="800.0" prefHeight="500.0"  xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.LoginController">
 
     <center>
         <StackPane fx:id="leftPane" style="-fx-border-color: #ccc;">
@@ -36,12 +36,13 @@
 
                 <HBox spacing="20.0" alignment="CENTER">
                     <children>
-                        <RadioButton fx:id="rbBidder" text="Người mua (Bidder)" selected="true">
+                        <RadioButton fx:id="rbBidder" text="BIDDER" selected="true">
                             <toggleGroup>
                                 <ToggleGroup fx:id="roleGroup" />
                             </toggleGroup>
                         </RadioButton>
-                        <RadioButton fx:id="rbSeller" text="Người bán (Seller)" toggleGroup="$roleGroup" />
+                        <RadioButton fx:id="rbSeller" text="SELLER" toggleGroup="$roleGroup" />
+                        <RadioButton fx:id="rbAdmin" text="ADMIN" toggleGroup="$roleGroup" />
                     </children>
                     <padding>
                         <Insets top="10.0" bottom="10.0" />

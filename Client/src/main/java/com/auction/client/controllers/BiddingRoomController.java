@@ -1,7 +1,6 @@
 package com.auction.client.controllers;
 
-import com.auction.client.model.ItemDTO;
-import com.auction.client.util.BaseController;
+import com.auction.client.model.dto.ItemDTO;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
