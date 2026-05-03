@@ -7,6 +7,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import java.util.List;
+import java.util.Map;
 
 public class ItemController {
 
@@ -14,81 +16,117 @@ public class ItemController {
     private final ItemService itemService;
 
     public ItemController() {
-        // Cấu hình Gson in ra JSON có thụt lề cho đẹp (PrettyPrinting)
         this.gson = new GsonBuilder().setPrettyPrinting().create();
         this.itemService = ItemService.getInstance();
     }
 
-    // ==========================================
-    // 1. API: THÊM MỚI SẢN PHẨM (CREATE)
-    // ==========================================
-    public String handleAddItem(String jsonRequest) {
+    public String handleListItems(int page, int limit) {
+        Map<String, Object> data = itemService.getAllItems(page, limit);
+        return createResponse("success", "Lấy danh sách sản phẩm thành công.", gson.toJsonTree(data));
+    }
+
+    public String handleSearchItems(String keyword, int page, int limit) {
+        Map<String, Object> data = itemService.searchItems(keyword, page, limit);
+        return createResponse("success", "Kết quả tìm kiếm cho '" + keyword + "'.", gson.toJsonTree(data));
+    }
+
+    public String handleGetCategories() {
+        List<String> categories = itemService.getAllCategories();
+        return createResponse("success", "Lấy danh sách danh mục thành công.", gson.toJsonTree(categories));
+    }
+
+    public String handleGetItemsByCategory(String category, int page, int limit) {
+        Map<String, Object> data = itemService.getItemsByCategory(category, page, limit);
+        return createResponse("success", "Lấy sản phẩm theo danh mục '" + category + "'.", gson.toJsonTree(data));
+    }
+
+    public String handleGetItemsBySeller(int sellerId) {
+        List<ItemDTO> items = itemService.getItemsBySeller(sellerId);
+        return createResponse("success", "Lấy danh sách sản phẩm của người bán thành công.", gson.toJsonTree(items));
+    }
+
+    public String handleGetWonItems(int userId) {
+        List<ItemDTO> items = itemService.getWonItems(userId);
+        return createResponse("success", "Lấy danh sách sản phẩm đã thắng thành công.", gson.toJsonTree(items));
+    }
+
+    public String handleAddItem(String jsonRequest, int sellerId) {
         try {
-            // Bước 1: Bóc tạm lớp vỏ JSON để "soi" xem người dùng gửi loại hàng gì
             JsonObject rawJson = gson.fromJson(jsonRequest, JsonObject.class);
-            
-            if (!rawJson.has("category")) {
-                return createResponse("error", "Thất bại: JSON bắt buộc phải có trường 'category' (ART, ELECTRONICS, VEHICLE)!", null);
+            if (rawJson == null || !rawJson.has("category")) {
+                return createResponse("error", "Thất bại: JSON bắt buộc phải có trường 'category'!", null);
             }
-
-            // Lấy chữ category (ví dụ: "VEHICLE")
             String category = rawJson.get("category").getAsString().toUpperCase();
-
-            // ---------------------------------------------------------
-            // SỨC MẠNH CỦA FACTORY PATTERN: Không còn một lệnh switch-case nào!
-            // Nhờ Nhà máy tìm đúng Class tương ứng (Ví dụ tìm ra VehicleDTO.class)
-            // ---------------------------------------------------------
             Class<? extends ItemDTO> targetClass = ItemFactory.getClassByCategory(category);
-            
             if (targetClass == null) {
-                return createResponse("error", "Thất bại: Hệ thống chưa hỗ trợ danh mục sản phẩm này (" + category + ")", null);
+                return createResponse("error", "Thất bại: Hệ thống chưa hỗ trợ danh mục này (" + category + ")", null);
             }
-
-            // Bước 2: Bóc toàn bộ JSON đúc vào đúng cái khuôn (Class) vừa tìm được
             ItemDTO newItem = gson.fromJson(jsonRequest, targetClass);
-
-            // Giao cho Service kiểm tra và lưu xuống Database
+            newItem.setSellerId(sellerId);
             String resultMessage = itemService.addNewItem(newItem);
-
-            // Trả kết quả chữ về cho Frontend
             if (resultMessage.startsWith("Thành công")) {
                 return createResponse("success", resultMessage, null);
             } else {
                 return createResponse("error", resultMessage, null);
             }
-
         } catch (JsonSyntaxException e) {
-            return createResponse("error", "Thất bại: JSON sai cú pháp hoặc sai kiểu dữ liệu!", null);
+            return createResponse("error", "Thất bại: JSON sai cú pháp!", null);
         } catch (Exception e) {
-            return createResponse("error", "Lỗi server: " + e.getMessage(), null);
+            e.printStackTrace();
+            return createResponse("error", "Lỗi server không xác định.", null);
         }
     }
 
-    // ==========================================
-    // 2. API: XEM CHI TIẾT SẢN PHẨM (READ)
-    // ==========================================
+    public String handleUpdateItem(String jsonRequest, int itemId, int sellerId) {
+        try {
+            JsonObject rawJson = gson.fromJson(jsonRequest, JsonObject.class);
+            if (rawJson == null || !rawJson.has("category")) {
+                return createResponse("error", "Thất bại: JSON bắt buộc phải có trường 'category'!", null);
+            }
+            String category = rawJson.get("category").getAsString().toUpperCase();
+            Class<? extends ItemDTO> targetClass = ItemFactory.getClassByCategory(category);
+            if (targetClass == null) {
+                return createResponse("error", "Thất bại: Danh mục không hợp lệ.", null);
+            }
+            ItemDTO updatedItem = gson.fromJson(jsonRequest, targetClass);
+            updatedItem.setId(itemId);
+            updatedItem.setSellerId(sellerId);
+            String resultMessage = itemService.updateItem(updatedItem);
+            if (resultMessage.startsWith("Thành công")) {
+                return createResponse("success", resultMessage, null);
+            } else {
+                return createResponse("error", resultMessage, null);
+            }
+        } catch (JsonSyntaxException e) {
+            return createResponse("error", "Thất bại: JSON sai cú pháp!", null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return createResponse("error", "Lỗi server không xác định.", null);
+        }
+    }
+
+    public String handleDeleteItem(int itemId) {
+        String resultMessage = itemService.deleteItem(itemId);
+        if (resultMessage.startsWith("Thành công")) {
+            return createResponse("success", resultMessage, null);
+        } else {
+            return createResponse("error", resultMessage, null);
+        }
+    }
+
     public String handleGetItemDetails(int itemId) {
         try {
-            // Gọi Service lấy dữ liệu (Service lại gọi ItemDAO.getItemById)
             ItemDTO item = itemService.getItemDetails(itemId);
-
             if (item == null) {
                 return createResponse("error", "Không tìm thấy sản phẩm nào có ID là " + itemId, null);
             }
-
-            // SỨC MẠNH CỦA GSON VÀ ĐA HÌNH:
-            // Lúc này biến 'item' có thể là ArtDTO, VehicleDTO,... 
-            // Cứ ném thẳng vào toJsonTree, Gson tự động biết móc ra các biến như artist, brand, mileage... để tạo JSON!
             return createResponse("success", "Lấy thông tin thành công", gson.toJsonTree(item));
-
         } catch (Exception e) {
-            return createResponse("error", "Lỗi server khi lấy chi tiết sản phẩm: " + e.getMessage(), null);
+            e.printStackTrace();
+            return createResponse("error", "Lỗi server khi lấy chi tiết sản phẩm.", null);
         }
     }
 
-    // ==========================================
-    // HÀM TIỆN ÍCH: TẠO CHUẨN JSON TRẢ VỀ
-    // ==========================================
     private String createResponse(String status, String message, com.google.gson.JsonElement data) {
         JsonObject response = new JsonObject();
         response.addProperty("status", status);

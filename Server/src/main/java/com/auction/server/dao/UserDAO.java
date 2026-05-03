@@ -1,88 +1,143 @@
 package com.auction.server.dao;
 
-import com.auction.server.models.User;
+import com.auction.server.models.UserDTO;
+import com.auction.server.models.UserRole;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class UserDAO {
 
-    public boolean registerUser(String username, String password, String email, String role) {
+    public boolean registerUser(String username, String password, String email, UserRole role) {
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
         String sql = "INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, ?)";
+        
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, username);
-            pstmt.setString(2, password);
-            pstmt.setString(3, email); 
-            pstmt.setString(4, role);
-
-            return pstmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.err.println("Lỗi registerUser (String): " + e.getMessage());
-            return false;
-        }
-    }
-
-    public String loginUser(String email, String password){
-        String sql = "SELECT role FROM users WHERE email = ? AND password = ?";
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-             
-            pstmt.setString(1, email);
-            pstmt.setString(2, password);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()){
-                    return rs.getString("role");
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("Lỗi loginUser: " + e.getMessage());
-        }
-        return null;
-    }
-    
-    public boolean updatePassword(String email, String newPassword) {
-        String sql = "UPDATE users SET password = ? WHERE email = ?";
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-             
-            pstmt.setString(1, newPassword);
-            pstmt.setString(2, email);
-            return pstmt.executeUpdate() > 0;
             
+            pstmt.setString(1, username);
+            pstmt.setString(2, hashedPassword);
+            pstmt.setString(3, email); 
+            pstmt.setString(4, role.name());
+            return pstmt.executeUpdate() > 0;
+
         } catch (SQLException e) {
-            System.err.println("Lỗi updatePassword: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
 
-    public boolean registerUser(User user, String role) {
-        String sql = "INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, ?)";
+    public Map<String, Object> loginUser(String email, String plainPassword) {
+        String sql = "SELECT id, password, role FROM users WHERE email = ?";
+        
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
-            pstmt.setString(1, user.getUsername());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getEmail());
-            pstmt.setString(4, role);
-
-            if (pstmt.executeUpdate() > 0) {
-                try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        user.setId(generatedKeys.getInt(1)); 
-                        return true;
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, email);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    String hashedPassword = rs.getString("password");
+                    if (BCrypt.checkpw(plainPassword, hashedPassword)) {
+                        Map<String, Object> userDetails = new HashMap<>();
+                        userDetails.put("userId", rs.getInt("id"));
+                        userDetails.put("role", UserRole.fromString(rs.getString("role")));
+                        return userDetails;
                     }
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi registerUser (OOP): " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public boolean updateUserRole(int userId, UserRole newRole) {
+        String sql = "UPDATE users SET role = ? WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, newRole.name());
+            pstmt.setInt(2, userId);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public UserDTO getUserById(int userId) {
+        String sql = "SELECT id, username, email, role FROM users WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return new UserDTO(
+                        rs.getInt("id"),
+                        rs.getString("username"),
+                        rs.getString("email"),
+                        UserRole.fromString(rs.getString("role"))
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public List<UserDTO> getAllUsers() {
+        List<UserDTO> users = new ArrayList<>();
+        String sql = "SELECT id, username, email, role FROM users ORDER BY id";
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                users.add(new UserDTO(
+                    rs.getInt("id"),
+                    rs.getString("username"),
+                    rs.getString("email"),
+                    UserRole.fromString(rs.getString("role"))
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+
+    public boolean changePassword(int userId, String oldPassword, String newPassword) {
+        String sqlSelect = "SELECT password FROM users WHERE id = ?";
+        String sqlUpdate = "UPDATE users SET password = ? WHERE id = ?";
+        
+        try (Connection conn = DatabaseConnection.getInstance().getConnection()) {
+            String hashedPassword = null;
+            try (PreparedStatement selectStmt = conn.prepareStatement(sqlSelect)) {
+                selectStmt.setInt(1, userId);
+                try (ResultSet rs = selectStmt.executeQuery()) {
+                    if (rs.next()) {
+                        hashedPassword = rs.getString("password");
+                    }
+                }
+            }
+
+            if (hashedPassword != null && BCrypt.checkpw(oldPassword, hashedPassword)) {
+                String newHashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+                try (PreparedStatement updateStmt = conn.prepareStatement(sqlUpdate)) {
+                    updateStmt.setString(1, newHashedPassword);
+                    updateStmt.setInt(2, userId);
+                    return updateStmt.executeUpdate() > 0;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return false;
     }
-
 }

@@ -1,6 +1,5 @@
 package com.auction.controller;
 
-import com.auction.server.models.BidderDTO;
 import com.auction.service.BidderService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -8,18 +7,18 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
 public class BidderController {
-    private Gson gson;
-    private BidderService bidderService;
+    private final Gson gson;
+    private final BidderService bidderService;
 
     public BidderController(){
-        this.bidderService=BidderService.getInstance();
-        this.gson=new GsonBuilder()
+        this.bidderService = BidderService.getInstance();
+        this.gson = new GsonBuilder()
                     .setPrettyPrinting()
                     .excludeFieldsWithoutExposeAnnotation()
                     .create();
     }
 
-    private String createReponse(String status,String message,com.google.gson.JsonElement data){
+    private String createResponse(String status, String message, com.google.gson.JsonElement data){
         JsonObject response = new JsonObject();
         response.addProperty("status", status);
         response.addProperty("message", message);
@@ -29,33 +28,24 @@ public class BidderController {
         return gson.toJson(response);
     }
 
-    public String handleGetProfile(String jsonRequest){
+    public String handleDeposit(String jsonRequest, int secureUserId){
         try{
-            JsonObject req=gson.fromJson(jsonRequest, JsonObject.class);
-            int bidderId=req.get("bidder_id").getAsInt();
-            BidderDTO profile=bidderService.getBidderProfile(bidderId);
-            if (profile!=null)
-                return createReponse("success","lấy thông tin thành công",gson.toJsonTree(profile));
-            else
-                return createReponse("error","không tìm thấy thông tin người đấu giá",null);
-        }catch (JsonSyntaxException | NullPointerException e){
-            return createReponse("error","yêu cầu không hợp lệ",null);
-        }
-    }
+            JsonObject req = gson.fromJson(jsonRequest, JsonObject.class);
+            if (req == null || !req.has("amount")) {
+                return createResponse("error", "Thiếu trường 'amount' trong yêu cầu.", null);
+            }
+            double amount = req.get("amount").getAsDouble();
 
-    public String handleDeposit(String jsonRequest){
-        try{
-            JsonObject req=gson.fromJson(jsonRequest,JsonObject.class);
-            int bidderId=req.get("bidder_id").getAsInt();
-            double amount=req.get("amount").getAsDouble();
-
-            String result=bidderService.depositMoney(bidderId, amount);
+            String result = bidderService.depositMoney(secureUserId, amount);
             if (result.startsWith("Thành công"))
-                return createReponse("success","nạp tiền thành công",null);
+                return createResponse("success", result, null);
             else
-                return createReponse("error",result,null);
-        }catch (Exception e){
-            return createReponse("error","yêu cầu không hợp lệ",null);
+                return createResponse("error", result, null);
+        } catch (JsonSyntaxException | NullPointerException e){
+            return createResponse("error", "Yêu cầu JSON không hợp lệ.", null);
+        } catch (Exception e){
+            e.printStackTrace();
+            return createResponse("error", "Lỗi hệ thống.", null);
         }
     }
 }

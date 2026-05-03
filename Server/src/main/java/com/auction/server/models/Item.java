@@ -12,7 +12,7 @@ public abstract class Item extends Entity {
     protected LocalDateTime endTime;
     private String category;
 
-    public Item(int id,int sellerId, String name, String description, double startingPrice, LocalDateTime startTime, LocalDateTime endTime, String category) {
+    public Item(int id, int sellerId, String name, String description, double startingPrice, LocalDateTime startTime, LocalDateTime endTime, String category) {
         super(id);
         this.sellerId = sellerId;
         this.name = name;
@@ -50,19 +50,58 @@ public abstract class Item extends Entity {
         this.category = category;
     }
 
-    public double getCurrentMaxPrice() { return currentMaxPrice; }
-    public int getHighestBidderId() { return highestBidderId; }
-    public AuctionStatus getStatus() { return status; }
-    public void setStatus(AuctionStatus status) { this.status = status; }
-    public LocalDateTime getStartTime() { return startTime; }
-    public LocalDateTime getEndTime() { return endTime; }
-    public double getStartingPrice() { return startingPrice; }
-    public String getName() { return name; }
-    public int getSellerId() { return sellerId; }
-    public String getCategory() { return category; }
-    public void setHighestBidderId(int bidderId) { this.highestBidderId = bidderId; }
-    public void setCurrentMaxPrice(double newPrice) { this.currentMaxPrice = newPrice;}
-    public void setCategory(String category) { this.category = category; }
+    public double getCurrentMaxPrice() {
+        return currentMaxPrice;
+    }
+
+    public int getHighestBidderId() {
+        return highestBidderId;
+    }
+
+    public AuctionStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(AuctionStatus status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public double getStartingPrice() {
+        return startingPrice;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getSellerId() {
+        return sellerId;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setHighestBidderId(int bidderId) {
+        this.highestBidderId = bidderId;
+    }
+
+    public void setCurrentMaxPrice(double newPrice) {
+        this.currentMaxPrice = newPrice;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
     public abstract void printInfo();
 
     public String getDescription() {

@@ -13,7 +13,6 @@ public class ElectronicsDAO implements IItemSubDAO {
     public void insertSubItem(Connection conn, ItemDTO item) throws SQLException {
         ElectronicsDTO elec = (ElectronicsDTO) item;
         String sql = "INSERT INTO electronics (item_id, warranty_months) VALUES (?, ?)";
-        
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, elec.getId());
             pstmt.setInt(2, elec.getWarrantyMonths());
@@ -22,21 +21,23 @@ public class ElectronicsDAO implements IItemSubDAO {
     }
 
     @Override
-    public ItemDTO fetchSubItem(Connection conn, int itemId, int sellerId, String name, String description, double startingPrice) throws SQLException {
+    public ItemDTO fetchSubItem(Connection conn, ResultSet rs) throws SQLException {
+        int itemId = rs.getInt("id");
+        int sellerId = rs.getInt("seller_id");
+        String name = rs.getString("name");
+        String description = rs.getString("description");
+        double startingPrice = rs.getDouble("starting_price");
+
         String sql = "SELECT * FROM electronics WHERE item_id = ?";
-        
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, itemId);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    // Ráp dữ liệu bảng cha và cột warranty_months của bảng con
-                    return new ElectronicsDTO(
-                            itemId, sellerId, name, description, startingPrice,
-                            rs.getInt("warranty_months")
-                    );
+            try (ResultSet rs2 = pstmt.executeQuery()) {
+                if (rs2.next()) {
+                    return new ElectronicsDTO(itemId, sellerId, name, description, startingPrice,
+                            rs2.getInt("warranty_months"));
                 }
             }
         }
-        return null; // Trả về null nếu không tìm thấy dữ liệu mapping
+        return null;
     }
 }

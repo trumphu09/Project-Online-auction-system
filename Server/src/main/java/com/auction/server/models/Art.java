@@ -24,6 +24,17 @@ public class Art extends Item {
         this.material = material;
     }
 
+    // Constructor số 3: DÀNH RIÊNG CHO CÁI API CREATE ITEM
+    public Art(int id, int sellerId, String name, String description, double startingPrice, LocalDateTime startTime, LocalDateTime endTime, String category) {
+        // 1. Đẩy 8 tham số cơ bản lên cho class cha (Item)
+        super(id, sellerId, name, description, startingPrice, startTime, endTime, category);
+
+        // 2. Gán giá trị mặc định cho các thuộc tính riêng của tác phẩm nghệ thuật
+        this.artist = "Chưa cập nhật";
+        this.creation_year = 0;
+        this.material = "Chưa cập nhật";
+    }
+
     public String getArtist() {
         return artist;
     }

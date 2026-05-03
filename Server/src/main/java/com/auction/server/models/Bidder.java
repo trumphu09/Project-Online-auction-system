@@ -4,21 +4,18 @@ public class Bidder extends User {
 
     private double accountBalance;
 
-    // Constructor 1: Khi TẠO TÀI KHOẢN MỚI
     public Bidder(String username, String password, String email) {
-        super(username, password, email);
+        super(username, password, email, UserRole.BIDDER);
         this.accountBalance = 0.0;
     }
 
-    // Constructor 2: Khi LẤY DỮ LIỆU TỪ DATABASE (CÓ ID)
     public Bidder(int id, String username, String password, String email) {
-        super(id, username, password, email);
+        super(id, username, password, email, UserRole.BIDDER);
         this.accountBalance = 0.0;
     }
 
-    // Constructor 3: CÓ CẢ account_balance
     public Bidder(int id, String username, String password, String email, double accountBalance) {
-        super(id, username, password, email);
+        super(id, username, password, email, UserRole.BIDDER);
         this.accountBalance = accountBalance;
     }
 
@@ -41,7 +38,6 @@ public class Bidder extends User {
     public boolean deductMoney(double amount) {
         if (this.accountBalance >= amount) {
             this.accountBalance -= amount;
-            System.out.println("[-] Bidder [" + getUsername() + "] đã thanh toán: -" + amount + "$. Số dư: " + this.accountBalance + "$");
             return true;
         }
         return false;
@@ -50,13 +46,11 @@ public class Bidder extends User {
     public boolean addMoney(double amount) {
         if (amount > 0) {
             this.accountBalance += amount;
-            System.out.println("[+] Bidder [" + getUsername() + "] nạp tiền: +" + amount + "$. Số dư: " + this.accountBalance + "$");
             return true;
         }
         return false;
     }
 
-    // Getters
     public double getAccountBalance() {
         return accountBalance;
     }

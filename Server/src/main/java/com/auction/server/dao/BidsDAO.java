@@ -6,35 +6,41 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.auction.server.models.BidTransactionDTO;
+import com.auction.server.models.Item;
+import com.auction.server.models.AuctionStatus;
 
 public class BidsDAO {
-    // Thực hiện đặt giá mới (Giữ nguyên vì ông đã bọc try đúng)
+
+    // Thực hiện đặt giá (giữ nguyên logic nhưng đảm bảo try-with-resources và exception handling)
     public boolean executeBid(int auctionId, int newBidderId, double newBidAmount) {
         try (Connection conn = DatabaseConnection.getInstance().getConnection()) {
             conn.setAutoCommit(false);
 
             String checkItemSql = "SELECT current_max_price, highest_bidder_id, status FROM auctions WHERE id = ? FOR UPDATE";
-            double currentMaxPrice = 0;
-            int oldBidderId = 0;
-            
+            double currentMaxPrice;
+            int oldBidderId;
+
             try (PreparedStatement checkStmt = conn.prepareStatement(checkItemSql)) {
                 checkStmt.setInt(1, auctionId);
                 try (ResultSet rs = checkStmt.executeQuery()) {
                     if (rs.next()) {
                         String status = rs.getString("status");
                         if (!"RUNNING".equals(status) && !"OPEN".equals(status)) {
-                            conn.rollback(); return false; 
+                            conn.rollback();
+                            return false;
                         }
                         currentMaxPrice = rs.getDouble("current_max_price");
-                        oldBidderId = rs.getInt("highest_bidder_id"); 
+                        oldBidderId = rs.getInt("highest_bidder_id");
                     } else {
-                        conn.rollback(); return false; 
+                        conn.rollback();
+                        return false;
                     }
                 }
             }
 
             if (newBidAmount <= currentMaxPrice) {
-                conn.rollback(); return false; 
+                conn.rollback();
+                return false;
             }
 
             String deductSql = "UPDATE bidders SET account_balance = account_balance - ? WHERE user_id = ? AND account_balance >= ?";
@@ -43,7 +49,8 @@ public class BidsDAO {
                 deductStmt.setInt(2, newBidderId);
                 deductStmt.setDouble(3, newBidAmount);
                 if (deductStmt.executeUpdate() == 0) {
-                    conn.rollback(); return false; 
+                    conn.rollback();
+                    return false;
                 }
             }
 
@@ -76,35 +83,128 @@ public class BidsDAO {
             return true;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Thay bằng logger nếu có
             return false;
         }
     }
-    
-    // get bid history cua item
-    public List<BidTransactionDTO> getBidHistoryByAuctionId(int auctionId) { 
+
+    // Lấy lịch sử đấu giá theo itemId (join auctions -> bids -> users)
+    public List<BidTransactionDTO> getBidHistoryByItemId(int itemId) {
         List<BidTransactionDTO> history = new ArrayList<>();
         String sql = "SELECT b.id, b.bidder_id, u.username, b.bid_amount, b.bid_time " +
-                     "FROM bids b JOIN users u ON b.bidder_id = u.id WHERE b.auction_id = ? ORDER BY b.bid_time DESC";
-        
-        // ĐÃ SỬA: Nhét Connection vào trong try
+                     "FROM bids b " +
+                     "JOIN users u ON b.bidder_id = u.id " +
+                     "JOIN auctions a ON b.auction_id = a.id " +
+                     "WHERE a.item_id = ? " +
+                     "ORDER BY b.bid_time DESC";
+
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setInt(1, auctionId);
+
+            pstmt.setInt(1, itemId);
             try (ResultSet rs = pstmt.executeQuery()) {
-                while(rs.next()) { 
+                while (rs.next()) {
                     int id = rs.getInt("id");
                     int bidderId = rs.getInt("bidder_id");
                     String bidderUsername = rs.getString("username");
                     double bidAmount = rs.getDouble("bid_amount");
-                    LocalDateTime timestamp = rs.getTimestamp("bid_time").toLocalDateTime();
+                    Timestamp ts = rs.getTimestamp("bid_time");
+                    LocalDateTime timestamp = ts != null ? ts.toLocalDateTime() : null;
                     history.add(new BidTransactionDTO(id, bidderId, bidderUsername, bidAmount, timestamp));
                 }
             }
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-        return history; 
+        return history;
+    }
+
+    // Lấy lịch sử theo auctionId (nếu cần)
+    public List<BidTransactionDTO> getBidHistoryByAuctionId(int auctionId) {
+        List<BidTransactionDTO> history = new ArrayList<>();
+        String sql = "SELECT b.id, b.bidder_id, u.username, b.bid_amount, b.bid_time " +
+                     "FROM bids b JOIN users u ON b.bidder_id = u.id WHERE b.auction_id = ? ORDER BY b.bid_time DESC";
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, auctionId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    int id = rs.getInt("id");
+                    int bidderId = rs.getInt("bidder_id");
+                    String bidderUsername = rs.getString("username");
+                    double bidAmount = rs.getDouble("bid_amount");
+                    Timestamp ts = rs.getTimestamp("bid_time");
+                    LocalDateTime timestamp = ts != null ? ts.toLocalDateTime() : null;
+                    history.add(new BidTransactionDTO(id, bidderId, bidderUsername, bidAmount, timestamp));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return history;
+    }
+
+    /**
+     * Lấy danh sách các sản phẩm mà một người dùng đang tham gia đấu giá (trạng thái RUNNING).
+     */
+    public List<Item> getActiveBidsByUserId(int userId) {
+        List<Item> activeBidItems = new ArrayList<>();
+        String sql = "SELECT i.* FROM items i " +
+                     "JOIN (SELECT DISTINCT a.item_id FROM bids b JOIN auctions a ON b.auction_id = a.id WHERE b.bidder_id = ?) tb " +
+                     "ON i.id = tb.item_id " +
+                     "WHERE i.status = 'RUNNING' " +
+                     "ORDER BY i.id";
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, userId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    activeBidItems.add(mapRowToItem(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return activeBidItems;
+    }
+
+    // Hàm phụ trợ để chuyển row -> Item (giữ tương thích với model Item trong project)
+    private Item mapRowToItem(ResultSet rs) throws SQLException {
+        int id = rs.getInt("id");
+        int sellerId = rs.getInt("seller_id");
+        String name = rs.getString("name");
+        String description = rs.getString("description");
+        double startingPrice = rs.getDouble("starting_price");
+        double currentMaxPrice = rs.getDouble("current_max_price");
+        Timestamp startTs = rs.getTimestamp("start_time");
+        Timestamp endTs = rs.getTimestamp("end_time");
+        java.time.LocalDateTime startTime = startTs != null ? startTs.toLocalDateTime() : null;
+        java.time.LocalDateTime endTime = endTs != null ? endTs.toLocalDateTime() : null;
+        String statusStr = rs.getString("status");
+        // Nếu model Item sử dụng enum khác, điều chỉnh mapping tương ứng
+        AuctionStatus status = null;
+        if (statusStr != null) {
+            try {
+                status = AuctionStatus.valueOf(statusStr);
+            } catch (IllegalArgumentException ignored) { }
+        }
+
+        Item item = new Item(id, sellerId, name, description, startingPrice, startTime, endTime, rs.getString("category")) {
+            @Override
+            public void printInfo() {
+                System.out.println("Item: " + name);
+            }
+        };
+
+        item.setHighestBidderId(rs.getInt("highest_bidder_id"));
+        item.setCurrentMaxPrice(currentMaxPrice);
+        if (status != null) {
+            item.setStatus(status);
+        }
+        return item;
     }
 }

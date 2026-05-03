@@ -1,20 +1,15 @@
 package com.auction.server.models;
+
 public class Admin extends User {
 
-    // Thuộc tính riêng: Phân cấp quyền (ví dụ: SuperAdmin, Moderator)
     private final String adminRole;
 
     public Admin(int id, String username, String password, String email, String adminRole) {
-        super(id, username, password, email);
+        super(id, username, password, email, UserRole.ADMIN);
         this.adminRole = adminRole;
     }
 
-    // Hành động riêng: Can thiệp vào hệ thống
-    // (Lưu ý: Để hàm này chạy được, trong class Auction bạn cần viết thêm hàm setStatus("CANCELED"))
-    // Trong file Admin.java
     public void cancelAuction(Auction targetAuction) {
-       
-        // Cú pháp dùng Enum: TênEnum.GIA_TRI
         targetAuction.setStatus(AuctionStatus.CANCELED);
     }
 
@@ -26,7 +21,6 @@ public class Admin extends User {
         user.setActive(true);
     }
 
-    // Ghi đè phương thức rỗng của lớp cha
     @Override
     public void showDashboard() {
         System.out.println("--- Bảng Điều Khiển Quản Trị Viên ---");

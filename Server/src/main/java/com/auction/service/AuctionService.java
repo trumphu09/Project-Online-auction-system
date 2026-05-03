@@ -2,16 +2,25 @@ package com.auction.service;
 
 import com.auction.server.dao.BidsDAO;
 import com.auction.server.dao.AuctionDAO;
+import com.auction.server.dao.UserDAO;
 import com.auction.server.models.AuctionDataDTO;
+import com.auction.server.models.AuctionManager;
 import com.auction.server.models.AuctionStatus;
+import com.auction.server.models.UserDTO;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class AuctionService {
     private static final AuctionService instance = new AuctionService();
     private final BidsDAO bidsDAO;
     private final AuctionDAO auctionDAO;
+    private final UserDAO userDAO;
 
     private AuctionService() {
         this.bidsDAO = new BidsDAO();
-        this.auctionDAO=new AuctionDAO();
+        this.auctionDAO = new AuctionDAO();
+        this.userDAO = new UserDAO();
     }
 
     public static AuctionService getInstance() {
@@ -24,58 +33,51 @@ public class AuctionService {
         boolean success = bidsDAO.executeBid(auctionId, bidderId, amount);
         
         if (success) {
+            UserDTO bidder = userDAO.getUserById(bidderId);
+            String bidderUsername = (bidder != null) ? bidder.getUsername() : "Một người dùng";
+
+            Map<String, Object> bidData = new HashMap<>();
+            bidData.put("auctionId", auctionId);
+            bidData.put("newPrice", amount);
+            bidData.put("bidderUsername", bidderUsername);
+
+            AuctionManager.getInstance().broadcastUpdate("NEW_BID", bidData);
+
             return "Thành công: Đã chốt giá $" + amount;
         } else {
             return "Thất bại: Giá không đủ cao, phiên đã đóng, hoặc số dư không đủ!";
         }
     }
 
-    /**
-     * NGHIỆP VỤ: Chốt phiên đấu giá khi hết giờ
-     */
     public String closeAuction(int auctionId) {
-        // 1. Nhờ DAO lấy thông tin hiện tại của phiên đấu giá
-        // (Giả sử bạn đã có hàm getAuctionById trong AuctionDAO)
         AuctionDataDTO auction = auctionDAO.getAuctionDataById(auctionId);
-
         if (auction == null) {
             return "Thất bại: Không tìm thấy phiên đấu giá #" + auctionId;
         }
-
-        // Nếu phiên chưa chạy hoặc đã đóng rồi thì không làm gì cả
-        if (!(auction.getStatus()==AuctionStatus.RUNNING)) {
-            return "Thất bại: Phiên đấu giá này không ở trạng thái Đang chạy (RUNNING).";
+        if (auction.getStatus() != AuctionStatus.RUNNING) {
+            return "Thất bại: Phiên đấu giá này không ở trạng thái Đang chạy.";
         }
 
-        // 2. Kiểm tra xem có ai đặt giá không
         if (auction.getHighestBidderId() > 0) {
-            
-            // BƯỚC QUAN TRỌNG 1: Đổi trạng thái phiên đấu giá thành FINISHED (Đã kết thúc)
-            // (Giả sử bạn đã có hàm updateStatus trong AuctionDAO)
             boolean isClosed = auctionDAO.updateAuctionStatus(auctionId, AuctionStatus.FINISHED);
-
             if (isClosed) {
-                // BƯỚC QUAN TRỌNG 2: GỌI KẾ TOÁN TRƯỞNG TẠO HÓA ĐƠN TỰ ĐỘNG
                 PaymentService paymentService = PaymentService.getInstance();
-                
-                // Lấy thông tin từ auction để ném sang cho PaymentService
                 String paymentResult = paymentService.createInvoice(
                     auctionId, 
                     auction.getHighestBidderId(), 
                     auction.getSellerId(), 
                     auction.getCurrentMaxPrice()
                 );
-
-                return "Thành công: Đã chốt đơn cho người chơi #" + auction.getHighestBidderId() + 
-                       ". Hệ thống Kế toán phản hồi: " + paymentResult;
+                
+                AuctionManager.getInstance().broadcastUpdate("AUCTION_ENDED", auction);
+                return "Thành công: Đã chốt đơn. " + paymentResult;
             } else {
                 return "Thất bại: Lỗi cơ sở dữ liệu khi đóng phiên đấu giá.";
             }
-
         } else {
-            // Trường hợp ế khách: Hết giờ mà không có ai đặt giá
-            auctionDAO.updateAuctionStatus(auctionId, AuctionStatus.CANCELED); // Hoặc FINISHED tùy logic nhóm bạn
-            return "Thành công: Đã đóng phiên đấu giá. Không có người mua (Ế hàng!).";
+            auctionDAO.updateAuctionStatus(auctionId, AuctionStatus.CANCELED);
+            AuctionManager.getInstance().broadcastUpdate("AUCTION_ENDED", auction);
+            return "Thành công: Đã đóng phiên đấu giá. Không có người mua.";
         }
     }
 }

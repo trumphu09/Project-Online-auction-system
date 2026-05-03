@@ -1,96 +1,90 @@
-# Project-Online-auction-system
-A real-time online auction platform for buying and selling products through competitive bidding.
+# 🔨 Dự án: Hệ thống Đấu giá Trực tuyến (Online Auction System)
 
-## 🚀 New Advanced Features
+## 1. Khả năng áp dụng lý thuyết đã học
+Dự án áp dụng chặt chẽ các nguyên lý Lập trình Hướng đối tượng (OOP) và Mẫu thiết kế (Design Patterns):
+* **Tính Đa hình & Kế thừa (OOP):** Xây dựng lớp trừu tượng `Item`, kế thừa bởi `Art`, `Electronics`, `Vehicle`. Tương tự với `User` (chia thành `Bidder`, `Seller`).
+* **DAO Pattern (Data Access Object):** Tách biệt hoàn toàn logic truy xuất cơ sở dữ liệu (`ItemDAO`, `UserDAO`) khỏi logic nghiệp vụ, giúp mã nguồn dễ bảo trì.
+* **Singleton Pattern:** Quản lý kết nối Database qua lớp `DatabaseConnection` để tránh quá tải kết nối (Connection Leak).
+* **Observer Pattern / Real-time:** Ứng dụng WebSocket để phát sóng (broadcast) trạng thái cập nhật giá thầu tới tất cả các Client theo thời gian thực.
+* **DTO Pattern (Data Transfer Object):** Sử dụng `BidderDTO`, `ItemDTO` để che giấu thông tin nhạy cảm (như Password) khi truyền dữ liệu qua mạng.
 
-### 1. Auto-Bidding (Đặt giá tự động)
-- **Description**: Cho phép người dùng thiết lập giá đặt tối đa và bước tăng tự động
-- **How to use**:
-  1. Vào trang Bid History của một phiên đấu giá
-  2. Nhập Max Bid (giá tối đa bạn chấp nhận)
-  3. Nhập Increment (bước tăng giá)
-  4. Click "Setup Auto-Bid"
-- **Benefits**: Không cần theo dõi liên tục, hệ thống tự động outbid đối thủ
+## 2. Tiến độ hiện tại (Đạt ~75%)
+* **Cơ sở dữ liệu:** Đã hoàn thiện Schema MySQL với các bảng được chuẩn hóa, áp dụng Khóa ngoại (Foreign Keys) đầy đủ. Các lớp DAO đã hoàn tất và vượt qua Unit Test.
+* **Backend & Mạng:** Đã khởi tạo thành công WebSocket Server lắng nghe cập nhật giá. Đã xây dựng khung xử lý đấu giá đa luồng (AuctionManager).
+* **Giao diện Client:** Dựng xong toàn bộ màn hình JavaFX (Đăng nhập, Trang chủ, Phòng đấu giá, Quản lý kho). Bắt đầu tích hợp bắt sự kiện UI.
 
-### 2. Concurrent Auctions (Đấu giá đồng thời)
-- **Description**: Hỗ trợ nhiều phiên đấu giá chạy song song
-- **Technical**: Sử dụng ExecutorService để xử lý concurrent requests
-- **Benefits**: Tăng hiệu suất và khả năng mở rộng
+## 3. Kế hoạch hoàn thiện (Đến hết kỳ)
+* **Tuần này:** Triển khai REST API (SparkJava) ở Server và HTTP Client ở phía JavaFX để xóa bỏ dữ liệu giả (Mock Data), kết nối luồng Đăng nhập/Đăng ký thực tế.
+* **Tuần sau:** Ghép nối hoàn chỉnh luồng đặt giá (Bid) qua WebSocket. Xử lý đa luồng an toàn trên giao diện (`Platform.runLater`).
+* **Giai đoạn cuối:** Kiểm thử tích hợp toàn hệ thống, bắt các lỗi ngoại lệ đầu vào của người dùng.
 
-### 3. Auction Extension (Gia hạn phiên đấu giá)
-- **Description**: Tự động gia hạn thời gian nếu có bid trong 5 phút cuối
-- **Logic**: Khi có người đặt giá trong 5 phút cuối, gia hạn thêm 5 phút
-- **Benefits**: Đảm bảo công bằng, tránh sniping
+## 4. Khó khăn gặp phải
+* **Bất đồng bộ giao diện:** Gặp khó khăn trong việc cập nhật giao diện JavaFX từ một luồng mạng (Network Thread) của WebSocket gây ra lỗi `Not on FX application thread`.
+* **Quản lý Transaction:** Giải quyết bài toán rủi ro dữ liệu khi phải `INSERT` đồng thời vào bảng cha (`items`) và bảng con (`artworks`) mà mạng bị đứt giữa chừng.
 
-### 4. Real-time Updates (Cập nhật thời gian thực)
-- **Description**: WebSocket server broadcast updates ngay lập tức
-- **Features**:
-  - Giá hiện tại cập nhật realtime
-  - Số lượng bids cập nhật realtime
-  - Thời gian kết thúc cập nhật realtime
-- **Technical**: WebSocket server trên port 8081
+## 5. Bảng phân chia công việc
 
-### 5. Bid History Visualization (Trực quan hóa lịch sử đấu giá)
-- **Description**: Biểu đồ đường cong giá theo thời gian
-- **Features**:
-  - Line chart hiển thị tiến trình giá
-  - Thông tin giá hiện tại, tổng bids, thời gian còn lại
-  - Giao diện trực quan với JavaFX Chart
+| STT | Họ và Tên | Vai trò | Mô tả công việc chi tiết |
+|---|---|---|---|
+| 1 | Thiện | **API Developer** | Xây dựng REST API (SparkJava), xử lý JSON (Gson), thiết kế các Endpoints giao tiếp. |
+| 2 | Toàn | **Backend / Logic** | Xây dựng WebSocket Server, quản lý phiên đấu giá (AuctionManager), xử lý đa luồng. |
+| 3 | Thành | **Database Architect** | Thiết kế MySQL, viết các lớp DAO, tối ưu truy vấn SQL, quản lý Transaction và DTO. |
+| 4 | Đại | **Client / UI** | Thiết kế giao diện JavaFX, xử lý luồng sự kiện UI, gọi API (HTTP Client) và hứng WebSocket. |
 
-## 🛠 Technical Implementation
+## 6. Sơ đồ thiết kế lớp (UML Class Diagram)
+```mermaid
+classDiagram
+    %% Tầng Models
+    class Item {
+        <<abstract>>
+        -id: int
+        -name: String
+        -startingPrice: double
+        +getCategory()* String
+    }
+    class Art {
+        -artist: String
+        -creationYear: int
+    }
+    class Electronics {
+        -warranty: int
+    }
+    Item <|-- Art
+    Item <|-- Electronics
 
-### Server Side
-- **Auction.java**: Enhanced with auto-bidding, extension logic
-- **AuctionManager.java**: Concurrent processing with ExecutorService
-- **AutoBid.java**: Model for automatic bidding
-- **AuctionWebSocketServer.java**: WebSocket server for realtime updates
-- **AutoBidDAO.java**: Database operations for auto-bids
+    %% Tầng DAO
+    class DatabaseConnection {
+        -instance: DatabaseConnection
+        -connection: Connection
+        +getInstance() DatabaseConnection
+        +getConnection() Connection
+    }
+    class ItemDAO {
+        +addItem(Item) boolean
+        +getAllItems() List~Item~
+    }
+    ItemDAO ..> DatabaseConnection : uses
+    ItemDAO ..> Item : manipulates
 
-### Client Side
-- **BidHistoryController.java**: Controller for bid history visualization
-- **BidHistoryView.fxml**: UI with LineChart for price curves
-- **ProductViewController.java**: Updated with navigation to bid history
+    %% Tầng Mạng & API
+    class AuctionWebSocketServer {
+        +onMessage()
+        +broadcastPriceUpdate()
+    }
+    class AuthApiServer {
+        +loginEndpoint()
+    }
 
-### Database
-- **auto_bids table**: Store automatic bidding configurations
-- Enhanced existing tables for better auction management
-
-## 🚀 How to Run
-
-### Start Server
-```bash
-cd Server
-javac -cp "lib/*" src/main/java/com/auction/server/AuctionServer.java
-java -cp "lib/*:src/main/java" com.auction.server.AuctionServer
-```
-
-### Start Client
-```bash
-cd Client
-mvn javafx:run
-```
-
-### WebSocket Connection
-Client tự động kết nối WebSocket server tại `ws://localhost:8081`
-
-## 📊 Features Overview
-
-| Feature | Status | Description |
-|---------|--------|-------------|
-| Auto-Bidding | ✅ Implemented | Automatic bidding with max limits |
-| Concurrent Auctions | ✅ Implemented | Multi-threaded auction processing |
-| Auction Extension | ✅ Implemented | Automatic time extension on late bids |
-| Real-time Updates | ✅ Implemented | WebSocket-based live updates |
-| Bid History Chart | ✅ Implemented | Visual price curve over time |
-
-## 🔧 Dependencies
-
-### Server
-- Java WebSocket API (Java-WebSocket)
-- MySQL Connector/J
-- ExecutorService (built-in)
-
-### Client
-- JavaFX 11+
-- Java-WebSocket client
-- ControlsFX (optional for enhanced charts)
+    %% Tầng Client (JavaFX)
+    class BiddingRoomController {
+        -currentPrice: Label
+        +handleBidAction()
+    }
+    class ApiClient {
+        +sendGetRequest()
+        +sendPostRequest()
+    }
+    
+    BiddingRoomController ..> ApiClient : calls
+    ApiClient ..> AuthApiServer : HTTP JSON
+    BiddingRoomController ..> AuctionWebSocketServer : WebSocket
