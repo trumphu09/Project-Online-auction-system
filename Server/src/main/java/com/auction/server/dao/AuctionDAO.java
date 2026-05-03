@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 public class AuctionDAO {
     public int createAuction(int itemId,int sellerId,LocalDateTime endtime){
         String sql = "INSERT INTO auctions (item_id, seller_id, end_time,status,has_extended,created_at) VALUES (?, ?, ?, ?, ?, ?)";
-        try(Connection conn=DatabaseConnection.getInstance().getConnection()){
-            PreparedStatement pst=conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+        try(Connection conn=DatabaseConnection.getInstance().getConnection();
+            PreparedStatement pst=conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)){
             pst.setInt(1, itemId);
             pst.setInt(2, sellerId);
             pst.setTimestamp(3,Timestamp.valueOf(endtime));
@@ -64,7 +64,7 @@ public class AuctionDAO {
     }
 
     public AuctionDataDTO getAuctionDataById(int auctionId) {
-        String sql = "SELECT item_id, seller_id, end_time, status, has_extended FROM auctions WHERE id = ?";
+        String sql = "SELECT item_id, seller_id, end_time, status, has_extended, current_max_price, highest_bidder_id FROM auctions WHERE id = ?";
         
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pst = conn.prepareStatement(sql)) {
@@ -80,9 +80,15 @@ public class AuctionDAO {
                     LocalDateTime endTime = rs.getTimestamp("end_time").toLocalDateTime(); 
                     AuctionStatus status = AuctionStatus.valueOf(rs.getString("status"));
                     boolean hasExtended = rs.getBoolean("has_extended");
+                    double currentMaxPrice = rs.getDouble("current_max_price");
+                    int highestBidderId = rs.getInt("highest_bidder_id");
                     
                     // Giả sử bạn có một class AuctionDataDTO để truyền dữ liệu cho nhanh
-                    return new AuctionDataDTO(auctionId, itemId, sellerId, endTime, status, hasExtended);                }
+                    AuctionDataDTO dto = new AuctionDataDTO(auctionId, itemId, sellerId, endTime, status, hasExtended);
+                    dto.setCurrentMaxPrice(currentMaxPrice);
+                    dto.setHighestBidderId(highestBidderId);
+                    return dto;
+                }
             }
         } catch (SQLException e) {
             System.err.println("Lỗi tìm kiếm phiên đấu giá: " + e.getMessage());
