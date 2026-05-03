@@ -12,7 +12,7 @@ public class AuctionTimer {
 
     private static volatile AuctionTimer instance;
     private final ScheduledExecutorService scheduler;
-    private AuctionManager auctionManager; // This will be set by AuctionManager
+    // use AuctionManager.getInstance() when needed
     private final AuctionService auctionService; // Add AuctionService instance
 
     private AuctionTimer() {
@@ -37,18 +37,9 @@ public class AuctionTimer {
     }
 
 
-    public void setAuctionManager(AuctionManager auctionManager) {
-        this.auctionManager = auctionManager;
-
-    }
-
     // Bắt đầu chạy bộ quét thời gian định kỳ (1 giây / lần)
 
     public void start() {
-        if (auctionManager == null) {
-            throw new IllegalStateException("Cần setAuctionManager trước khi gọi start()!");
-
-        }
 
         scheduler.scheduleAtFixedRate(() -> {
             try {
@@ -66,7 +57,7 @@ public class AuctionTimer {
     // Quét và đóng các phiên đấu giá đã hết hạn
 
     private void checkExpiredAuctions() {
-        List<Auction> auctions = auctionManager.getAllAuctions();
+        List<Auction> auctions = AuctionManager.getInstance().getAllAuctions();
         LocalDateTime now = LocalDateTime.now();
 
         for (Auction auction : auctions) {
@@ -86,7 +77,7 @@ public class AuctionTimer {
                 }
 
                 // Thông báo qua WebSocket (hoặc Listener) để Client biết phiên đã kết thúc
-                auctionManager.notifyAuctionUpdate(auction);
+                AuctionManager.getInstance().notifyAuctionUpdate(auction);
             }
         }
     }
