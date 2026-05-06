@@ -13,6 +13,10 @@ public class ArtDTO extends ItemDTO {
     @Expose @SerializedName("material")
     private String material;
 
+    public ArtDTO() {
+        this.setCategory("ART");
+    }
+
     public ArtDTO(int id, int sellerId, String name, String description, double startingPrice, 
                   String artist, int creationYear, String material) {
         super(id, sellerId, name, description, startingPrice, "ART");

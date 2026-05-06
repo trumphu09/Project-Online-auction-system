@@ -13,6 +13,10 @@ public class VehicleDTO extends ItemDTO {
     @Expose @SerializedName("condition")
     private String condition;
 
+    public VehicleDTO() {
+        this.setCategory("VEHICLE");
+    }
+    
     public VehicleDTO(int id, int sellerId, String name, String description, double startingPrice, 
                       String brand, int mileage, String condition) {
         super(id, sellerId, name, description, startingPrice, "VEHICLE");

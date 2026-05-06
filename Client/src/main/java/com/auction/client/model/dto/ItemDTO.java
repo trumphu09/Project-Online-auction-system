@@ -5,23 +5,23 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 public abstract class ItemDTO implements Serializable {
-    @Expose @SerializedName("item_id")
-    private int id;
+    @Expose @SerializedName("item_id") private int id;
+    @Expose @SerializedName("seller_id") private int sellerId;
+    @Expose @SerializedName("name") private String name;
+    @Expose @SerializedName("description") private String description;
+    @Expose @SerializedName("starting_price") private double startingPrice;
+    @Expose @SerializedName("category") private String category;
 
-    @Expose @SerializedName("seller_id")
-    private int sellerId;
+    // === BỔ SUNG CÁC TRƯỜNG UI ĐANG THIẾU ===
+    @Expose @SerializedName("price_step") private double priceStep;
+    @Expose @SerializedName("start_time") private String startTime;
+    @Expose @SerializedName("end_time") private String endTime;
+    
+    // Ảnh thường lưu Local URL ở Client, có thể không cần Expose lên Server lúc tạo mới
+    private String imagePath; 
 
-    @Expose @SerializedName("name")
-    private String name;
-
-    @Expose @SerializedName("description")
-    private String description;
-
-    @Expose @SerializedName("starting_price")
-    private double startingPrice;
-
-    @Expose @SerializedName("category")
-    private String category;
+    // === CONSTRUCTOR RỖNG (BẮT BUỘC PHẢI CÓ) ===
+    public ItemDTO() {}
 
     public ItemDTO(int id, int sellerId, String name, String description, double startingPrice, String category) {
         this.id = id;
@@ -32,17 +32,34 @@ public abstract class ItemDTO implements Serializable {
         this.category = category;
     }
 
-    // Getters & Setters
+    // === GETTERS & SETTERS (Bổ sung phần thiếu) ===
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
+    
     public int getSellerId() { return sellerId; }
     public void setSellerId(int sellerId) { this.sellerId = sellerId; }
+    
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+    
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+    
     public double getStartingPrice() { return startingPrice; }
     public void setStartingPrice(double startingPrice) { this.startingPrice = startingPrice; }
+    
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
+
+    public double getPriceStep() { return priceStep; }
+    public void setPriceStep(double priceStep) { this.priceStep = priceStep; }
+
+    public String getStartTime() { return startTime; }
+    public void setStartTime(String startTime) { this.startTime = startTime; }
+
+    public String getEndTime() { return endTime; }
+    public void setEndTime(String endTime) { this.endTime = endTime; }
+
+    public String getImagePath() { return imagePath; }
+    public void setImagePath(String imagePath) { this.imagePath = imagePath; }
 }

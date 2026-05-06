@@ -11,33 +11,6 @@ import com.auction.server.models.BidderDTO;
 public class BidderDAO {
     private UserDAO userDAO = new UserDAO();
 
-    public boolean registerBidder(Bidder bidder) {
-        boolean isUserCreated = userDAO.registerUser(bidder, "BIDDER");
-
-        if (isUserCreated) {
-            String sql = "INSERT INTO bidders (user_id, account_balance) VALUES (?, 0.0)";
-            
-            // ĐÃ SỬA: Gộp chung mở Connection và PreparedStatement vào try
-            try (Connection conn = DatabaseConnection.getInstance().getConnection();
-                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                
-                pstmt.setInt(1, bidder.getId()); 
-                int rowsInserted = pstmt.executeUpdate();
-                return rowsInserted > 0; 
-                
-            } catch (SQLException e) {
-                e.printStackTrace();
-                return false;
-            }
-        }
-        return false;
-    }
-
-    public boolean registerBidder(String username, String password, String email) {
-        Bidder tempBidder = new Bidder(0, username, password, email, 0.0);
-        return registerBidder(tempBidder); 
-    }
-
     public BidderDTO getBidderById(int bidderId){
         String sql = "SELECT u.id, u.username, u.email, b.account_balance "+
                      "FROM users u JOIN bidders b ON u.id = b.user_id WHERE u.id = ?";   

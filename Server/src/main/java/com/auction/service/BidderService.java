@@ -16,17 +16,6 @@ public class BidderService {
         return instance;
     }
 
-    public String registerNewBidder(Bidder newBidder){
-        if (newBidder.getUsername() == null || newBidder.getPassword() == null){
-            return "Thiếu thông tin bắt buộc!";
-        }
-        boolean success = bidderDAO.registerBidder(newBidder);
-        if (success){
-            return "Thành công: đã tạo tài khoản cho " + newBidder.getUsername();
-        }
-        return "Đăng kí thất bại, có thể do username đã tồn tại hoặc lỗi hệ thống!";
-    }
-
     public BidderDTO getBidderProfile(int bidderId){
         if (bidderId <= 0) return null;
         return bidderDAO.getBidderById(bidderId);

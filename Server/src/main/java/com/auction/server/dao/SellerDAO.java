@@ -9,28 +9,6 @@ import com.auction.server.models.SellerDTO;
 public class SellerDAO {
     private UserDAO userDAO = new UserDAO();
 
-    public boolean registerSeller(Seller seller) {
-        boolean isUserCreated = userDAO.registerUser(seller, "SELLER");
-        if (isUserCreated) {
-            String sql = "INSERT INTO sellers (user_id, account_balance) VALUES (?, 0.0)";
-            try (Connection conn = DatabaseConnection.getInstance().getConnection();
-                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                
-                pstmt.setInt(1, seller.getId());
-                return pstmt.executeUpdate() > 0;
-            } catch (SQLException e) {
-                System.err.println("Lỗi registerSeller: " + e.getMessage());
-                return false;
-            }
-        }
-        return false;
-    }
-
-    public boolean registerSeller(String username, String password, String email) {
-        Seller tempSeller = new Seller(0, username, password, email);
-        return registerSeller(tempSeller);
-    }
-
     public SellerDTO getSellerById(int sellerId){
         String sql = "SELECT u.id, u.username, u.email, s.account_balance, s.total_rating, s.sale_count "+
                      "FROM users u JOIN sellers s ON u.id = s.user_id WHERE u.id = ?";

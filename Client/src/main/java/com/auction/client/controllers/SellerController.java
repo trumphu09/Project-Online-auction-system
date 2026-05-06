@@ -12,7 +12,6 @@ import javafx.scene.layout.TilePane;
 import javafx.stage.FileChooser;
 import java.io.File;
 
-import javafx.scene.control.ComboBox;
 import javafx.collections.FXCollections;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -65,7 +64,7 @@ public class SellerController extends BaseController implements Initializable {
 
     // Hàm đóng gói dữ liệu (Vẫn nên có để handlePostItem sạch sẽ)
     private ItemDTO packData() {
-        String category = cbCategory.getValue(); // Lấy loại từ ComboBox
+        String category = cbCategory.getValue(); 
 
         // Thu thập dữ liệu chung
         String name = txtItemName.getText().trim();
@@ -75,16 +74,27 @@ public class SellerController extends BaseController implements Initializable {
         String start = (dateStart.getValue() != null) ? dateStart.getValue().toString() + " " + txtTimeStart.getText() : "";
         String end = (dateEnd.getValue() != null) ? dateEnd.getValue().toString() + " " + txtTimeEnd.getText() : "";
 
-        // TÍNH ĐA HÌNH: Khởi tạo đúng lớp con dựa trên lựa chọn
+        // TÍNH ĐA HÌNH: Khởi tạo rỗng đúng lớp con
+        ItemDTO item;
         if ("Electronics".equals(category)) {
-            return new ElectronicsDTO(name, price, step, desc, currentImagePath, 1, start, end);
+            item = new ElectronicsDTO();
         } else if ("Art".equals(category)) {
-            return new ArtDTO(name, price, step, desc, currentImagePath, 1, start, end);
+            item = new ArtDTO();
         } else {
-            return new VehicleDTO(name, price, step, desc, currentImagePath, 1, start, end);
+            item = new VehicleDTO();
         }
-    }
 
+        // Bơm dữ liệu chung bằng Setter (Sạch sẽ, dễ đọc, dễ bảo trì)
+        item.setName(name);
+        item.setStartingPrice(price);
+        item.setPriceStep(step);
+        item.setDescription(desc);
+        item.setStartTime(start);
+        item.setEndTime(end);
+        item.setImagePath(currentImagePath);
+
+        return item;
+    }
     private void clearFields() {
         txtItemName.clear();
         txtStartingPrice.clear();

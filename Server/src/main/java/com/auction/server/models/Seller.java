@@ -54,4 +54,9 @@ public class Seller extends User {
     public List<Item> getMyProducts() { return myProducts; }
     public double getAccountBalance() { return accountBalance; }
     public int getSale_count() { return sale_count; }
+    public void setSaleCount(int sale_count) { this.sale_count = sale_count; }
+    public void setTotalRating(double total_rating) { this.total_Rating = total_rating; }
+    public void setAccountBalance(double account_balance) { this.accountBalance = account_balance; }
+
+    
 }

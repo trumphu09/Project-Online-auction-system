@@ -14,7 +14,8 @@ public class ApiService {
 
   // ĐẠI LƯU Ý: Sửa lại đường dẫn này cho khớp với Server của Thành/Toản
   // Ví dụ: Nếu Server chạy ở cổng 8080 và mapping là /api/*
-  private final String BASE_URL = "http://localhost:8080/API/login";
+// Sửa dòng này trong ApiService.java
+  private final String BASE_URL = "http://localhost:8080/api";
 
   // Cái ví đựng Cookie (CỰC KỲ QUAN TRỌNG ĐỂ DUY TRÌ ĐĂNG NHẬP)
   private static final CookieManager cookieManager = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
