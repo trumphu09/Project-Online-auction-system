@@ -348,4 +348,22 @@ public class ItemDAO {
             return false;
         }
     }
+
+    // LOGIC: Nếu thời gian hiện tại cách end_time dưới 5 phút, tự động cộng thêm 5 phút vào end_time
+    public boolean extendAuctionTimeIfNeeded(int auctionId) {
+        String sql = "UPDATE auctions SET end_time = DATE_ADD(end_time, INTERVAL 5 MINUTE) " +
+                     "WHERE id = ? AND TIMESTAMPDIFF(MINUTE, NOW(), end_time) <= 5";
+        
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, auctionId);
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0; // Trả về true nếu thực sự đã được gia hạn
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

@@ -374,7 +374,8 @@ public class ApiService {
 
   // ĐẠI LƯU Ý: Sửa lại đường dẫn này cho khớp với Server của Thành/Toản
   // Ví dụ: Nếu Server chạy ở cổng 8080 và mapping là /api/*
-  private final String BASE_URL = "http://localhost:8080/API/login";
+// Sửa dòng này trong ApiService.java
+  private final String BASE_URL = "http://localhost:8080/api";
 
   // Cái ví đựng Cookie (CỰC KỲ QUAN TRỌNG ĐỂ DUY TRÌ ĐĂNG NHẬP)
   private static final CookieManager cookieManager = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
@@ -660,26 +661,52 @@ public class BiddingRoomController extends BaseController {
     private void handleBidAction() {
         String amountStr = txtBidAmount.getText().trim();
 
-        // Sử dụng lại tài sản của cha (BaseController)
         if (amountStr.isEmpty()) {
-            showAlert("Thông báo", "Đại ơi, nhập số tiền muốn đấu giá nhé!");
+            showAlert("Thông báo", "Vui lòng nhập số tiền muốn đấu giá!");
             return;
         }
 
         try {
             double bidAmount = Double.parseDouble(amountStr);
 
-            // TÍNH ĐÓNG GÓI: Logic kiểm tra giá đấu
             if (bidAmount <= currentItem.getStartingPrice()) {
                 showAlert("Lỗi", "Giá đấu phải cao hơn giá hiện tại!");
                 return;
             }
 
-            System.out.println("Gửi lệnh BID: " + bidAmount + " cho sản phẩm: " + currentItem.getName());
-            // Sau này gọi Socket gửi dữ liệu cho Thành/Toản ở đây
+            // ĐÓNG GÓI JSON ĐỂ GỬI LÊN SERVER
+            // Lưu ý: Cần thêm auction_id. Ở đây giả sử auction_id trùng với item_id tạm thời.
+            String jsonPayload = String.format("{\"auction_id\": %d, \"amount\": %f}", 
+                                                currentItem.getId(), bidAmount);
+
+            System.out.println("Gửi lệnh BID: " + jsonPayload);
+
+            // GỌI API BẰNG ApiService
+            com.auction.client.api.ApiService.getInstance().sendPostRequest("/bids", jsonPayload)
+                .thenAccept(response -> {
+                    javafx.application.Platform.runLater(() -> {
+                        if (response.statusCode() == 200) {
+                            showAlert("Thành công", "Đã gửi lệnh đặt giá!");
+                            txtBidAmount.clear();
+                        } else {
+                            showAlert("Thất bại", "Lỗi đặt giá: " + response.body());
+                        }
+                    });
+                })
+                .exceptionally(ex -> {
+                    javafx.application.Platform.runLater(() -> {
+                        // Thêm xử lý lỗi kết nối chuyên biệt
+                        if (ex.getCause() instanceof java.net.ConnectException) {
+                            showAlert("Lỗi Kết Nối", "Không thể kết nối đến máy chủ. Vui lòng đảm bảo máy chủ đang chạy!");
+                        } else {
+                            showAlert("Lỗi", "Đã xảy ra lỗi không mong muốn khi đặt giá: " + ex.getMessage());
+                        }
+                    });
+                    return null; // Bắt buộc phải trả về giá trị trong exceptionally
+                });
 
         } catch (NumberFormatException e) {
-            showAlert("Lỗi", "Số tiền phải là con số nhé Đại!");
+            showAlert("Lỗi", "Số tiền phải là con số hợp lệ!");
         }
     }
 } 
@@ -1103,7 +1130,6 @@ import javafx.scene.layout.TilePane;
 import javafx.stage.FileChooser;
 import java.io.File;
 
-import javafx.scene.control.ComboBox;
 import javafx.collections.FXCollections;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -1156,7 +1182,7 @@ public class SellerController extends BaseController implements Initializable {
 
     // Hàm đóng gói dữ liệu (Vẫn nên có để handlePostItem sạch sẽ)
     private ItemDTO packData() {
-        String category = cbCategory.getValue(); // Lấy loại từ ComboBox
+        String category = cbCategory.getValue(); 
 
         // Thu thập dữ liệu chung
         String name = txtItemName.getText().trim();
@@ -1166,16 +1192,27 @@ public class SellerController extends BaseController implements Initializable {
         String start = (dateStart.getValue() != null) ? dateStart.getValue().toString() + " " + txtTimeStart.getText() : "";
         String end = (dateEnd.getValue() != null) ? dateEnd.getValue().toString() + " " + txtTimeEnd.getText() : "";
 
-        // TÍNH ĐA HÌNH: Khởi tạo đúng lớp con dựa trên lựa chọn
+        // TÍNH ĐA HÌNH: Khởi tạo rỗng đúng lớp con
+        ItemDTO item;
         if ("Electronics".equals(category)) {
-            return new ElectronicsDTO(name, price, step, desc, currentImagePath, 1, start, end);
+            item = new ElectronicsDTO();
         } else if ("Art".equals(category)) {
-            return new ArtDTO(name, price, step, desc, currentImagePath, 1, start, end);
+            item = new ArtDTO();
         } else {
-            return new VehicleDTO(name, price, step, desc, currentImagePath, 1, start, end);
+            item = new VehicleDTO();
         }
-    }
 
+        // Bơm dữ liệu chung bằng Setter (Sạch sẽ, dễ đọc, dễ bảo trì)
+        item.setName(name);
+        item.setStartingPrice(price);
+        item.setPriceStep(step);
+        item.setDescription(desc);
+        item.setStartTime(start);
+        item.setEndTime(end);
+        item.setImagePath(currentImagePath);
+
+        return item;
+    }
     private void clearFields() {
         txtItemName.clear();
         txtStartingPrice.clear();
@@ -1214,8 +1251,99 @@ public class Admin extends User {
 }
 
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\AuctionDTO.java ===  
+// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\Bidder.java ===  
 package com.auction.client.model;
+
+public class Bidder extends User {
+    public Bidder(String username, String password) { super(username, password, "BIDDER");}
+
+    @Override
+    public String getDashboardFXML() {
+        return "/view/ProductView.fxml";
+    }
+} 
+// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\Seller.java ===  
+package com.auction.client.model;
+
+public class Seller extends User {
+    public Seller(String username, String password) { super(username, password, "SELLER"); }
+
+    @Override
+    public String getDashboardFXML() {
+        return "/view/ProductView.fxml";
+    }
+}
+ 
+// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\User.java ===  
+package com.auction.client.model;
+
+import java.io.Serializable;
+
+public abstract class User implements Serializable {
+    protected String username;
+    protected String password;
+    protected String role;
+    protected boolean locked;
+
+    public User(String username, String password, String role) {
+        this.username = username;
+        this.password = password;
+        this.role = role;
+    }
+
+    // Getter và Setter chung
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password;}
+
+    public String getRole() { return role; }
+
+    public boolean isLocked() { return locked; }
+    public void setLocked(boolean locked) { this.locked = locked; }
+
+    // Phương thức trừu tượng: Mỗi loại User sẽ có một bảng điều khiển riêng
+    public abstract String getDashboardFXML();
+} 
+// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\ArtDTO.java ===  
+package com.auction.client.model.dto;
+
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+public class ArtDTO extends ItemDTO {
+    @Expose @SerializedName("artist")
+    private String artist;
+
+    @Expose @SerializedName("creation_year")
+    private int creationYear;
+
+    @Expose @SerializedName("material")
+    private String material;
+
+    public ArtDTO() {
+        this.setCategory("ART");
+    }
+
+    public ArtDTO(int id, int sellerId, String name, String description, double startingPrice, 
+                  String artist, int creationYear, String material) {
+        super(id, sellerId, name, description, startingPrice, "ART");
+        this.artist = artist;
+        this.creationYear = creationYear;
+        this.material = material;
+    }
+
+    // Getters & Setters
+    public String getArtist() { return artist; }
+    public void setArtist(String artist) { this.artist = artist; }
+    public int getCreationYear() { return creationYear; }
+    public void setCreationYear(int creationYear) { this.creationYear = creationYear; }
+    public String getMaterial() { return material; }
+    public void setMaterial(String material) { this.material = material; }
+} 
+// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\AuctionDTO.java ===  
+package com.auction.client.model.dto;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -1301,99 +1429,6 @@ public class AuctionDTO implements Serializable {
     public int getHighestBidderId() { return highestBidderId; }
     public void setHighestBidderId(int highestBidderId) { this.highestBidderId = highestBidderId; }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\Bidder.java ===  
-package com.auction.client.model;
-
-public class Bidder extends User {
-    public Bidder(String username, String password) { super(username, password, "BIDDER");}
-
-    @Override
-    public String getDashboardFXML() {
-        return "/view/ProductView.fxml";
-    }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\Seller.java ===  
-package com.auction.client.model;
-
-public class Seller extends User {
-    public Seller(String username, String password) { super(username, password, "SELLER"); }
-
-    @Override
-    public String getDashboardFXML() {
-        return "/view/ProductView.fxml";
-    }
-}
- 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\User.java ===  
-package com.auction.client.model;
-
-import java.io.Serializable;
-
-public abstract class User implements Serializable {
-    protected String username;
-    protected String password;
-    protected String role;
-    protected boolean locked;
-
-    public User(String username, String password, String role) {
-        this.username = username;
-        this.password = password;
-        this.role = role;
-    }
-
-    // Getter và Setter chung
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
-
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password;}
-
-    public String getRole() { return role; }
-
-    public boolean isLocked() { return locked; }
-    public void setLocked(boolean locked) { this.locked = locked; }
-
-    // Phương thức trừu tượng: Mỗi loại User sẽ có một bảng điều khiển riêng
-    public abstract String getDashboardFXML();
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\ArtDTO.java ===  
-package com.auction.client.model.dto;
-
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-
-public class ArtDTO extends ItemDTO {
-    @Expose @SerializedName("artist")
-    private String artist;
-
-    @Expose @SerializedName("creation_year")
-    private int creationYear;
-
-    @Expose @SerializedName("material")
-    private String material;
-
-    public ArtDTO(int id, int sellerId, String name, String description, double startingPrice, 
-                  String artist, int creationYear, String material) {
-        super(id, sellerId, name, description, startingPrice, "ART");
-        this.artist = artist;
-        this.creationYear = creationYear;
-        this.material = material;
-    }
-
-    // Getters & Setters
-    public String getArtist() { return artist; }
-    public void setArtist(String artist) { this.artist = artist; }
-    public int getCreationYear() { return creationYear; }
-    public void setCreationYear(int creationYear) { this.creationYear = creationYear; }
-    public String getMaterial() { return material; }
-    public void setMaterial(String material) { this.material = material; }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\AuctionDTO.java ===  
-package com.auction.client.model.dto;
-
-public class AuctionDTO {
-}
- 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\BidDTO.java ===  
 package com.auction.client.model.dto;
 
@@ -1467,6 +1502,10 @@ public class ElectronicsDTO extends ItemDTO {
     @Expose @SerializedName("warranty_months")
     private int warrantyMonths;
 
+    public ElectronicsDTO() {
+        this.setCategory("ELECTRONICS");
+    }
+    
     public ElectronicsDTO(int id, int sellerId, String name, String description, double startingPrice, int warrantyMonths) {
         super(id, sellerId, name, description, startingPrice, "ELECTRONICS");
         this.warrantyMonths = warrantyMonths;
@@ -1476,34 +1515,30 @@ public class ElectronicsDTO extends ItemDTO {
     public void setWarrantyMonths(int warrantyMonths) { this.warrantyMonths = warrantyMonths; }
 } 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\ItemDTO.java ===  
-<<<<<<< HEAD:Client/src/main/java/com/auction/client/model/ItemDTO.java
-package com.auction.client.model;
+package com.auction.client.model.dto;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-=======
-package com.auction.client.model.dto;
->>>>>>> c24e45baf40b4186b642a99dd33143a164c66a2e:Client/src/main/java/com/auction/client/model/dto/ItemDTO.java
 import java.io.Serializable;
 
 public abstract class ItemDTO implements Serializable {
-    @Expose @SerializedName("item_id")
-    private int id;
+    @Expose @SerializedName("item_id") private int id;
+    @Expose @SerializedName("seller_id") private int sellerId;
+    @Expose @SerializedName("name") private String name;
+    @Expose @SerializedName("description") private String description;
+    @Expose @SerializedName("starting_price") private double startingPrice;
+    @Expose @SerializedName("category") private String category;
 
-    @Expose @SerializedName("seller_id")
-    private int sellerId;
+    // === BỔ SUNG CÁC TRƯỜNG UI ĐANG THIẾU ===
+    @Expose @SerializedName("price_step") private double priceStep;
+    @Expose @SerializedName("start_time") private String startTime;
+    @Expose @SerializedName("end_time") private String endTime;
+    
+    // Ảnh thường lưu Local URL ở Client, có thể không cần Expose lên Server lúc tạo mới
+    private String imagePath; 
 
-    @Expose @SerializedName("name")
-    private String name;
-
-    @Expose @SerializedName("description")
-    private String description;
-
-    @Expose @SerializedName("starting_price")
-    private double startingPrice;
-
-    @Expose @SerializedName("category")
-    private String category;
+    // === CONSTRUCTOR RỖNG (BẮT BUỘC PHẢI CÓ) ===
+    public ItemDTO() {}
 
     public ItemDTO(int id, int sellerId, String name, String description, double startingPrice, String category) {
         this.id = id;
@@ -1514,19 +1549,36 @@ public abstract class ItemDTO implements Serializable {
         this.category = category;
     }
 
-    // Getters & Setters
+    // === GETTERS & SETTERS (Bổ sung phần thiếu) ===
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
+    
     public int getSellerId() { return sellerId; }
     public void setSellerId(int sellerId) { this.sellerId = sellerId; }
+    
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+    
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+    
     public double getStartingPrice() { return startingPrice; }
     public void setStartingPrice(double startingPrice) { this.startingPrice = startingPrice; }
+    
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
+
+    public double getPriceStep() { return priceStep; }
+    public void setPriceStep(double priceStep) { this.priceStep = priceStep; }
+
+    public String getStartTime() { return startTime; }
+    public void setStartTime(String startTime) { this.startTime = startTime; }
+
+    public String getEndTime() { return endTime; }
+    public void setEndTime(String endTime) { this.endTime = endTime; }
+
+    public String getImagePath() { return imagePath; }
+    public void setImagePath(String imagePath) { this.imagePath = imagePath; }
 } 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\VehicleDTO.java ===  
 package com.auction.client.model.dto;
@@ -1544,6 +1596,10 @@ public class VehicleDTO extends ItemDTO {
     @Expose @SerializedName("condition")
     private String condition;
 
+    public VehicleDTO() {
+        this.setCategory("VEHICLE");
+    }
+    
     public VehicleDTO(int id, int sellerId, String name, String description, double startingPrice, 
                       String brand, int mileage, String condition) {
         super(id, sellerId, name, description, startingPrice, "VEHICLE");
@@ -1727,85 +1783,6 @@ public class ItemCard extends VBox {
 //        // Có thể thêm hiệu ứng di chuột tại đây để dùng chung cho cả App
 //        this.setOnMouseEntered(e -> this.setStyle(this.getStyle() + "-fx-border-color: #2196F3;"));
 //        this.setOnMouseExited(e -> this.setStyle(this.getStyle().replace("-fx-border-color: #2196F3;", "-fx-border-color: #ddd;")));
-    }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\org\example\controller\ProductViewController.java ===  
-package org.example.controller;
-
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.TilePane;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.geometry.Pos;
-import javafx.stage.Stage;
-import java.io.IOException;
-
-public class ProductViewController {
-
-    @FXML
-    private TilePane productGridContainer;
-
-    @FXML
-    public void initialize() {
-        // Tạo thử 8 ô sản phẩm
-        for (int i = 1; i <= 12; i++) {
-            // Tạo một cái khung VBox cho từng sản phẩm
-            VBox productCard = new VBox();
-            productCard.setPrefSize(180, 250); // Kích thước mỗi ô
-            productCard.setStyle("-fx-background-color: white; " +
-                    "-fx-border-color: #ccc; " +
-                    "-fx-border-radius: 10; " +
-                    "-fx-background-radius: 10; " +
-                    "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);");
-            productCard.setAlignment(Pos.CENTER);
-            //căn lề các thành phần con (như ảnh, tên sản phẩm, giá tiền) vào chính giữa cái khung VBox
-
-            // Tạo một cái hình chữ nhật giả làm ảnh
-            Rectangle mockImage = new Rectangle(150, 150);
-            mockImage.setFill(Color.LIGHTSTEELBLUE);
-
-            // Thêm chữ để phân biệt
-            Label label = new Label("Sản phẩm " + i);
-            label.setStyle("-fx-font-weight: bold; -fx-padding: 10 0 0 0;");
-
-            // Add bid history button
-            Button bidHistoryBtn = new Button("View Bid History");
-            bidHistoryBtn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-padding: 5 10 5 10;");
-            int finalI = i;
-            bidHistoryBtn.setOnAction(event -> viewBidHistory(event, finalI));
-
-            productCard.getChildren().addAll(mockImage, label, bidHistoryBtn);
-            // them anh va label
-
-            productGridContainer.getChildren().add(productCard);
-            // Thêm cái thẻ vừa tạo vào TilePane
-        }
-    }
-
-    private void viewBidHistory(ActionEvent event, int auctionId) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BidHistoryView.fxml"));
-            Parent root = loader.load();
-
-            // Pass auction ID to controller
-            BidHistoryController controller = loader.getController();
-            // Note: In real implementation, you'd set the auction ID programmatically
-
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root, 1000, 700));
-            stage.setTitle("Bid History - Auction " + auctionId);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 } 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\AdminView.fxml ===  
@@ -2606,7 +2583,7 @@ public class ProductViewController {
 <?import javafx.scene.text.*?>
 <?import javafx.geometry.*?>
 
-<StackPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controller.RegisterController"
+<StackPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.RegisterController"
            prefHeight="500.0" prefWidth="800.0"
            style="-fx-background-color: linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%);">
 
@@ -3935,33 +3912,6 @@ import com.auction.server.models.BidderDTO;
 public class BidderDAO {
     private UserDAO userDAO = new UserDAO();
 
-    public boolean registerBidder(Bidder bidder) {
-        boolean isUserCreated = userDAO.registerUser(bidder, "BIDDER");
-
-        if (isUserCreated) {
-            String sql = "INSERT INTO bidders (user_id, account_balance) VALUES (?, 0.0)";
-            
-            // ĐÃ SỬA: Gộp chung mở Connection và PreparedStatement vào try
-            try (Connection conn = DatabaseConnection.getInstance().getConnection();
-                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                
-                pstmt.setInt(1, bidder.getId()); 
-                int rowsInserted = pstmt.executeUpdate();
-                return rowsInserted > 0; 
-                
-            } catch (SQLException e) {
-                e.printStackTrace();
-                return false;
-            }
-        }
-        return false;
-    }
-
-    public boolean registerBidder(String username, String password, String email) {
-        Bidder tempBidder = new Bidder(0, username, password, email, 0.0);
-        return registerBidder(tempBidder); 
-    }
-
     public BidderDTO getBidderById(int bidderId){
         String sql = "SELECT u.id, u.username, u.email, b.account_balance "+
                      "FROM users u JOIN bidders b ON u.id = b.user_id WHERE u.id = ?";   
@@ -4870,28 +4820,6 @@ import com.auction.server.models.SellerDTO;
 
 public class SellerDAO {
     private UserDAO userDAO = new UserDAO();
-
-    public boolean registerSeller(Seller seller) {
-        boolean isUserCreated = userDAO.registerUser(seller, "SELLER");
-        if (isUserCreated) {
-            String sql = "INSERT INTO sellers (user_id, account_balance) VALUES (?, 0.0)";
-            try (Connection conn = DatabaseConnection.getInstance().getConnection();
-                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                
-                pstmt.setInt(1, seller.getId());
-                return pstmt.executeUpdate() > 0;
-            } catch (SQLException e) {
-                System.err.println("Lỗi registerSeller: " + e.getMessage());
-                return false;
-            }
-        }
-        return false;
-    }
-
-    public boolean registerSeller(String username, String password, String email) {
-        Seller tempSeller = new Seller(0, username, password, email);
-        return registerSeller(tempSeller);
-    }
 
     public SellerDTO getSellerById(int sellerId){
         String sql = "SELECT u.id, u.username, u.email, s.account_balance, s.total_rating, s.sale_count "+
@@ -6797,6 +6725,11 @@ public class Seller extends User {
     public List<Item> getMyProducts() { return myProducts; }
     public double getAccountBalance() { return accountBalance; }
     public int getSale_count() { return sale_count; }
+    public void setSaleCount(int sale_count) { this.sale_count = sale_count; }
+    public void setTotalRating(double total_rating) { this.total_Rating = total_rating; }
+    public void setAccountBalance(double account_balance) { this.accountBalance = account_balance; }
+
+    
 } 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\SellerDTO.java ===  
 package com.auction.server.models;
@@ -8180,17 +8113,6 @@ public class BidderService {
 
     public static BidderService getInstance() {
         return instance;
-    }
-
-    public String registerNewBidder(Bidder newBidder){
-        if (newBidder.getUsername() == null || newBidder.getPassword() == null){
-            return "Thiếu thông tin bắt buộc!";
-        }
-        boolean success = bidderDAO.registerBidder(newBidder);
-        if (success){
-            return "Thành công: đã tạo tài khoản cho " + newBidder.getUsername();
-        }
-        return "Đăng kí thất bại, có thể do username đã tồn tại hoặc lỗi hệ thống!";
     }
 
     public BidderDTO getBidderProfile(int bidderId){

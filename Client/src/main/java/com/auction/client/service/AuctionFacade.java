@@ -40,10 +40,12 @@ public class AuctionFacade {
   // CÁC HÀM NGHIỆP VỤ (CHỈ MẤT 3-4 DÒNG CHO MỖI CHỨC NĂNG)
   // =========================================================================
 
-  // 1. ĐĂNG NHẬP
+  // 1. ĐĂNG NHẬP (Đã sửa lại key thành email cho khớp với Server)
   public void login(String username, String password, ApiCallback<JsonObject> callback) {
     Map<String, String> credentials = new HashMap<>();
-    credentials.put("username", username);
+    
+    // Đổi key "username" thành "email"
+    credentials.put("email", username); 
     credentials.put("password", password);
 
     executeRequest(apiService.sendPostRequest("/login", gson.toJson(credentials)), JsonObject.class, callback);
@@ -52,8 +54,13 @@ public class AuctionFacade {
   // 2. ĐĂNG KÝ
   public void register(String username, String password, String role, ApiCallback<JsonObject> callback) {
     Map<String, String> data = new HashMap<>();
-    data.put("username", username);
+    
+    // Tách "nguyenvana@gmail.com" thành username: "nguyenvana" và email: "nguyenvana@gmail.com"
+    String displayUsername = username.contains("@") ? username.split("@")[0] : username;
+
+    data.put("username", displayUsername);
     data.put("password", password);
+    data.put("email", username); // BỔ SUNG TRƯỜNG BỊ THIẾU Ở ĐÂY
     data.put("role", role);
 
     executeRequest(apiService.sendPostRequest("/register", gson.toJson(data)), JsonObject.class, callback);

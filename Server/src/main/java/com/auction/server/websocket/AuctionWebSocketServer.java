@@ -16,8 +16,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class AuctionWebSocketServer extends WebSocketServer implements AuctionUpdateListener {
 
+public class AuctionWebSocketServer extends WebSocketServer implements AuctionUpdateListener {
+    
     private static final int PORT = 8081;
     private final CopyOnWriteArraySet<WebSocket> clients = new CopyOnWriteArraySet<>();
     private final Gson gson = new GsonBuilder()
@@ -92,6 +93,22 @@ public class AuctionWebSocketServer extends WebSocketServer implements AuctionUp
             this.stop();
         } catch (InterruptedException e) {
             System.err.println("Lỗi khi đóng WebSocket Server: " + e.getMessage());
+        }
+    }
+
+    // Hàm này dùng để bắn thông báo giá mới cho toàn bộ Client đang xem Live
+    public void broadcastPriceUpdate(int auctionId, double newPrice) {
+        String message = String.format("{\"type\": \"PRICE_UPDATE\", \"auctionId\": %d, \"newPrice\": %.2f}", auctionId, newPrice);
+        
+        // Duyệt qua tập hợp clients của ông
+        for (org.java_websocket.WebSocket client : clients) { 
+            if (client != null && client.isOpen()) {
+                try {
+                    client.send(message); // Thư viện này gửi tin nhắn cực kỳ ngắn gọn
+                } catch (Exception e) {
+                    System.err.println("Lỗi gửi WebSocket tới 1 client: " + e.getMessage());
+                }
+            }
         }
     }
 }

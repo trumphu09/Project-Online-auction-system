@@ -86,6 +86,17 @@ public class BiddingRoomController extends BaseController {
                             showAlert("Thất bại", "Lỗi đặt giá: " + response.body());
                         }
                     });
+                })
+                .exceptionally(ex -> {
+                    javafx.application.Platform.runLater(() -> {
+                        // Thêm xử lý lỗi kết nối chuyên biệt
+                        if (ex.getCause() instanceof java.net.ConnectException) {
+                            showAlert("Lỗi Kết Nối", "Không thể kết nối đến máy chủ. Vui lòng đảm bảo máy chủ đang chạy!");
+                        } else {
+                            showAlert("Lỗi", "Đã xảy ra lỗi không mong muốn khi đặt giá: " + ex.getMessage());
+                        }
+                    });
+                    return null; // Bắt buộc phải trả về giá trị trong exceptionally
                 });
 
         } catch (NumberFormatException e) {

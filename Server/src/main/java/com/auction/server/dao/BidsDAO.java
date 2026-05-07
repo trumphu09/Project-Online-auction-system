@@ -14,7 +14,7 @@ public class BidsDAO {
     // Thực hiện đặt giá (giữ nguyên logic nhưng đảm bảo try-with-resources và exception handling)
     public boolean executeBid(int auctionId, int newBidderId, double newBidAmount) {
         try (Connection conn = DatabaseConnection.getInstance().getConnection()) {
-            conn.setAutoCommit(false);
+            conn.setAutoCommit(false); // Khóa Transaction an toàn tuyệt đối
 
             String checkItemSql = "SELECT current_max_price, highest_bidder_id, status FROM auctions WHERE id = ? FOR UPDATE";
             double currentMaxPrice;
@@ -43,26 +43,48 @@ public class BidsDAO {
                 return false;
             }
 
-            String deductSql = "UPDATE bidders SET account_balance = account_balance - ? WHERE user_id = ? AND account_balance >= ?";
-            try (PreparedStatement deductStmt = conn.prepareStatement(deductSql)) {
-                deductStmt.setDouble(1, newBidAmount);
-                deductStmt.setInt(2, newBidderId);
-                deductStmt.setDouble(3, newBidAmount);
-                if (deductStmt.executeUpdate() == 0) {
-                    conn.rollback();
-                    return false;
+            // === LOGIC HOÀN TIỀN VÀ TRỪ TIỀN CHUẨN MỰC ===
+            if (oldBidderId == newBidderId) {
+                // KỊCH BẢN 1: Tự outplay chính mình (Nâng giá bid của bản thân lên)
+                // Phép thuật ở đây: Chỉ trừ đúng số tiền chênh lệch (newBidAmount - currentMaxPrice)
+                double difference = newBidAmount - currentMaxPrice;
+                String deductDiffSql = "UPDATE bidders SET account_balance = account_balance - ? WHERE user_id = ? AND account_balance >= ?";
+                try (PreparedStatement deductStmt = conn.prepareStatement(deductDiffSql)) {
+                    deductStmt.setDouble(1, difference);
+                    deductStmt.setInt(2, newBidderId);
+                    deductStmt.setDouble(3, difference);
+                    if (deductStmt.executeUpdate() == 0) {
+                        conn.rollback();
+                        return false; // Ví không đủ trả phần chênh lệch
+                    }
+                }
+            } else {
+                // KỊCH BẢN 2: Tranh giá với người khác
+                // BƯỚC 1: Hoàn tiền ngay lập tức cho người cũ (Giải phóng vốn)
+                if (oldBidderId != 0) {
+                    String refundSql = "UPDATE bidders SET account_balance = account_balance + ? WHERE user_id = ?";
+                    try (PreparedStatement refundStmt = conn.prepareStatement(refundSql)) {
+                        refundStmt.setDouble(1, currentMaxPrice);
+                        refundStmt.setInt(2, oldBidderId);
+                        refundStmt.executeUpdate();
+                    }
+                }
+
+                // BƯỚC 2: Trừ toàn bộ tiền của người đặt mới
+                String deductSql = "UPDATE bidders SET account_balance = account_balance - ? WHERE user_id = ? AND account_balance >= ?";
+                try (PreparedStatement deductStmt = conn.prepareStatement(deductSql)) {
+                    deductStmt.setDouble(1, newBidAmount);
+                    deductStmt.setInt(2, newBidderId);
+                    deductStmt.setDouble(3, newBidAmount);
+                    if (deductStmt.executeUpdate() == 0) {
+                        conn.rollback();
+                        return false; // Người mới không đủ tiền
+                    }
                 }
             }
+            // ===============================================
 
-            if (oldBidderId != 0) {
-                String refundSql = "UPDATE bidders SET account_balance = account_balance + ? WHERE user_id = ?";
-                try (PreparedStatement refundStmt = conn.prepareStatement(refundSql)) {
-                    refundStmt.setDouble(1, currentMaxPrice);
-                    refundStmt.setInt(2, oldBidderId);
-                    refundStmt.executeUpdate();
-                }
-            }
-
+            // Cập nhật giá mới nhất và người thắng tạm thời vào phiên đấu giá
             String updateItemSql = "UPDATE auctions SET current_max_price = ?, highest_bidder_id = ? WHERE id = ?";
             try (PreparedStatement updateItemStmt = conn.prepareStatement(updateItemSql)) {
                 updateItemStmt.setDouble(1, newBidAmount);
@@ -71,6 +93,7 @@ public class BidsDAO {
                 updateItemStmt.executeUpdate();
             }
 
+            // Ghi lịch sử giao dịch (bids table)
             String insertHistorySql = "INSERT INTO bids (auction_id, bidder_id, bid_amount) VALUES (?, ?, ?)";
             try (PreparedStatement insertHistoryStmt = conn.prepareStatement(insertHistorySql)) {
                 insertHistoryStmt.setInt(1, auctionId);
@@ -79,11 +102,11 @@ public class BidsDAO {
                 insertHistoryStmt.executeUpdate();
             }
 
-            conn.commit();
+            conn.commit(); // Ghi toàn bộ thao tác xuống DB thành công
             return true;
 
         } catch (SQLException e) {
-            e.printStackTrace(); // Thay bằng logger nếu có
+            e.printStackTrace();
             return false;
         }
     }
