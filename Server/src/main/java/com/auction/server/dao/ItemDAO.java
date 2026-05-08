@@ -94,18 +94,46 @@ public class ItemDAO {
     }
 
     public boolean addItem(ItemDTO item) {
+        // 1. XỬ LÝ LƯU FILE ẢNH VÀO HỆ THỐNG
+        if (item.getBase64Image() != null) {
+            try {
+                // Tạo thư mục uploads nếu chưa có
+                String uploadDir = "uploads/";
+                java.io.File dir = new java.io.File(uploadDir);
+                if (!dir.exists()) dir.mkdirs();
+
+                // Đặt tên file duy nhất (dùng timestamp để không bị trùng)
+                String fileName = System.currentTimeMillis() + "_" + item.getImagePath();
+                String fullPath = uploadDir + fileName;
+
+                // Giải mã Base64 và ghi ra file
+                byte[] imageBytes = java.util.Base64.getDecoder().decode(item.getBase64Image());
+                try (java.io.FileOutputStream fos = new java.io.FileOutputStream(fullPath)) {
+                    fos.write(imageBytes);
+                }
+
+                // CẬP NHẬT ĐƯỜNG DẪN MỚI (Đường dẫn tương đối trong hệ thống)
+                item.setImagePath(new java.io.File(fullPath).getAbsolutePath()); 
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        // 2. LƯU VÀO DATABASE (SQL giữ nguyên nhưng image_path giờ là đường dẫn của Server)
         Connection conn = null;
         try {
             conn = DatabaseConnection.getInstance().getConnection();
             conn.setAutoCommit(false);
 
-            String sqlItem = "INSERT INTO items (seller_id, name, description, starting_price, category) VALUES (?, ?, ?, ?, ?)";
+            String sqlItem = "INSERT INTO items (seller_id, name, description, starting_price, category, image_path) VALUES (?, ?, ?, ?, ?, ?)";
             try (PreparedStatement pstmtItem = conn.prepareStatement(sqlItem, Statement.RETURN_GENERATED_KEYS)) {
                 pstmtItem.setInt(1, item.getSellerId());
                 pstmtItem.setString(2, item.getName());
                 pstmtItem.setString(3, item.getDescription());
                 pstmtItem.setDouble(4, item.getStartingPrice());
                 pstmtItem.setString(5, item.getCategory());
+                pstmtItem.setString(6, item.getImagePath());
+
                 pstmtItem.executeUpdate();
 
                 try (ResultSet rs = pstmtItem.getGeneratedKeys()) {
@@ -291,28 +319,61 @@ public class ItemDAO {
 
     public List<ItemDTO> getItemsBySellerId(int sellerId) {
         List<ItemDTO> list = new ArrayList<>();
-        String sql = "SELECT * FROM items WHERE seller_id = ? ORDER BY created_at DESC";
+        // Dùng LEFT JOIN để lấy hết thông tin từ bảng chính và các bảng thuộc tính riêng
+        String sql = "SELECT i.*, e.warranty_months, v.brand, v.mileage, v.condition_state, " +
+                    "a.artist, a.creation_year, a.material " +
+                    "FROM items i " +
+                    "LEFT JOIN electronics e ON i.id = e.item_id " +
+                    "LEFT JOIN vehicles v ON i.id = v.item_id " +
+                    "LEFT JOIN artworks a ON i.id = a.item_id " +
+                    "WHERE i.seller_id = ? ORDER BY i.created_at DESC";
+
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, sellerId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     String category = rs.getString("category");
-                    IItemSubDAO subDAO = categoryToDAORegistry.get(category.toUpperCase());
-                    if (subDAO != null) {
-                        ItemDTO fullItem = subDAO.fetchSubItem(conn, rs);
-                        if (fullItem != null) {
-                            list.add(fullItem);
-                        }
+                    ItemDTO item;
+
+                    // Khởi tạo đúng loại DTO dựa trên Category
+                    if ("ELECTRONICS".equalsIgnoreCase(category)) {
+                        ElectronicsDTO e = new ElectronicsDTO();
+                        e.setWarrantyMonths(rs.getInt("warranty_months"));
+                        item = e;
+                    } else if ("VEHICLE".equalsIgnoreCase(category)) {
+                        VehicleDTO v = new VehicleDTO();
+                        v.setBrand(rs.getString("brand"));
+                        v.setMileage(rs.getInt("mileage"));
+                        v.setCondition(rs.getString("condition_state"));
+                        item = v;
+                    } else if ("ART".equalsIgnoreCase(category) || "ARTWORK".equalsIgnoreCase(category)) {
+                        ArtDTO art = new ArtDTO();
+                        art.setArtist(rs.getString("artist"));
+                        art.setCreationYear(rs.getInt("creation_year"));
+                        art.setMaterial(rs.getString("material"));
+                        item = art;
+                    } else {
+                        item = new ItemDTO();
                     }
+
+                    // Gán các thông tin chung
+                    item.setId(rs.getInt("id"));
+                    item.setName(rs.getString("name"));
+                    item.setDescription(rs.getString("description"));
+                    item.setStartingPrice(rs.getDouble("starting_price"));
+                    item.setCategory(category);
+                    item.setImagePath(rs.getString("image_path"));
+                    java.sql.Timestamp ts = rs.getTimestamp("created_at");
+                    if (ts != null) {
+                        item.setCreatedAt(ts.toString()); // Chuyển timestamp về chuỗi để gửi qua API
+                    }                    
+                    list.add(item);
                 }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
         return list;
     }
-
     public List<ItemDTO> getWonItemsByUserId(int userId) {
         List<ItemDTO> list = new ArrayList<>();
         String sql = "SELECT i.* FROM items i JOIN auctions a ON i.id = a.item_id WHERE a.highest_bidder_id = ? AND a.status IN ('FINISHED', 'PAID') ORDER BY a.end_time DESC";

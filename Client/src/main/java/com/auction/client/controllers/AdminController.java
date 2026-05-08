@@ -1,6 +1,13 @@
 package com.auction.client.controllers;
 
 import com.auction.client.model.dto.ItemDTO;
+import com.auction.client.model.dto.UserDTO;
+import com.auction.client.service.ApiCallback;
+import com.auction.client.service.AuctionFacade;
+import com.google.gson.JsonObject;
+
+import java.util.List;
+
 import com.auction.client.model.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -115,9 +122,69 @@ public class AdminController extends BaseController {
         // Sau khi xóa thành công sẽ cập nhật lại TableView
     }
 
+    @FXML private TableView<UserDTO> tableUsers;
+
+    private void loadUsers() {
+        AuctionFacade.getInstance().getAllUsers(new ApiCallback<List<UserDTO>>() {
+            @Override
+            public void onSuccess(List<UserDTO> users) {
+                tableUsers.getItems().setAll(users);
+            }
+            @Override public void onError(String err) { showAlert("Lỗi", err); }
+        });
+    }
+
+    // Gắn hàm này vào một nút "Khóa tài khoản" trên giao diện Admin
+    @FXML
+    private void handleBanUser() {
+        UserDTO selectedUser = tableUsers.getSelectionModel().getSelectedItem();
+        if (selectedUser == null) {
+            showAlert("Lỗi", "Hãy chọn một người dùng từ bảng!");
+            return;
+        }
+
+        AuctionFacade.getInstance().updateUserStatus(selectedUser.getId(), "ban", new ApiCallback<JsonObject>() {
+            @Override
+            public void onSuccess(JsonObject result) {
+                showAlert("Thành công", "Đã khóa tài khoản " + selectedUser.getUsername());
+                loadUsers(); // Tải lại bảng
+            }
+            @Override public void onError(String err) { showAlert("Lỗi", err); }
+        });
+    }
+    @FXML private TableView<ItemDTO> tableItems;
+
+    @FXML
+    private void handleDeleteItem() {
+        ItemDTO selectedItem = tableItems.getSelectionModel().getSelectedItem();
+        if (selectedItem == null) return;
+
+        AuctionFacade.getInstance().adminDeleteItem(selectedItem.getId(), new ApiCallback<JsonObject>() {
+            @Override
+            public void onSuccess(JsonObject result) {
+                showAlert("Thành công", "Đã gỡ sản phẩm khỏi hệ thống!");
+                // Gọi lại hàm loadItems() của ông để refresh bảng
+            }
+            @Override public void onError(String err) { showAlert("Lỗi", err); }
+        });
+    }
+
     @FXML
     private void handleLogout(ActionEvent event) {
-        // Tái sử dụng hàm từ BaseController
-        switchScene(event, "/view/View.fxml", "Đăng nhập", 800, 500);
+        AuctionFacade.getInstance().logout(new ApiCallback<JsonObject>() {
+            @Override
+            public void onSuccess(JsonObject result) {
+                System.out.println("Server đã hủy Session.");
+                // Dùng switchScene từ BaseController cha
+                switchScene(event, "/view/View.fxml", "Đăng nhập hệ thống", 800, 500);
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                System.err.println("Lỗi đăng xuất Server: " + errorMessage);
+                // Dù Server lỗi (mất mạng), vẫn ép Client về trang Login cho an toàn
+                switchScene(event, "/view/View.fxml", "Đăng nhập hệ thống", 800, 500);
+            }
+        });
     }
 }

@@ -26,6 +26,8 @@ public class ArtDTO extends ItemDTO {
     // ==========================================
     // Constructor
     // ==========================================
+    public ArtDTO() {}
+
     public ArtDTO(int id, int sellerId, String name, String description, double startingPrice, 
                   String artist, int creationYear, String material) {
         super(id, sellerId, name, description, startingPrice, "ART");

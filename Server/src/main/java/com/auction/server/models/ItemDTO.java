@@ -33,9 +33,32 @@ public class ItemDTO {
     @SerializedName("category")
     private String category;
 
+    @Expose
+    @SerializedName("image_path")
+    private String imagePath; // THÊM DÒNG NÀY
+    // 1. Thêm thuộc tính này để hứng dữ liệu từ DB
+    @SerializedName("created_at")
+    private String createdAt;
+    private String base64Image; 
+
+    public String getBase64Image() { return base64Image; }
+    public void setBase64Image(String base64Image) { this.base64Image = base64Image; }
+
+    // 2. Thêm Getter và Setter cho nó
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+
+
     // ==========================================
     // Constructor
     // ==========================================
+    public ItemDTO() {}
+
     public ItemDTO(int id, int sellerId, String name, String description, double startingPrice, String category) {
         this.id = id;
         this.sellerId = sellerId;
@@ -65,4 +88,8 @@ public class ItemDTO {
 
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
+    
+    // Thêm Getter/Setter cho nó
+    public String getImagePath() { return imagePath; }
+    public void setImagePath(String imagePath) { this.imagePath = imagePath; }
 }

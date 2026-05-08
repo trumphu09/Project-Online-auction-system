@@ -4,7 +4,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
-public abstract class ItemDTO implements Serializable {
+public class ItemDTO implements Serializable {
     @Expose @SerializedName("item_id") private int id;
     @Expose @SerializedName("seller_id") private int sellerId;
     @Expose @SerializedName("name") private String name;
@@ -18,7 +18,13 @@ public abstract class ItemDTO implements Serializable {
     @Expose @SerializedName("end_time") private String endTime;
     
     // Ảnh thường lưu Local URL ở Client, có thể không cần Expose lên Server lúc tạo mới
+    @com.google.gson.annotations.SerializedName("image_path")
     private String imagePath; 
+    private String base64Image;
+    // 1. Thêm thuộc tính này để hứng dữ liệu từ DB
+    @com.google.gson.annotations.SerializedName("created_at")
+    private String createdAt;
+
 
     // === CONSTRUCTOR RỖNG (BẮT BUỘC PHẢI CÓ) ===
     public ItemDTO() {}
@@ -62,4 +68,14 @@ public abstract class ItemDTO implements Serializable {
 
     public String getImagePath() { return imagePath; }
     public void setImagePath(String imagePath) { this.imagePath = imagePath; }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+    public String getBase64Image() { return base64Image; }
+    public void setBase64Image(String base64Image) { this.base64Image = base64Image; }
 }

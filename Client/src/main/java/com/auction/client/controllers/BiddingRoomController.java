@@ -51,10 +51,9 @@ public class BiddingRoomController extends BaseController {
         }
     }
 
-    @FXML
+@FXML
     private void handleBidAction() {
         String amountStr = txtBidAmount.getText().trim();
-
         if (amountStr.isEmpty()) {
             showAlert("Thông báo", "Vui lòng nhập số tiền muốn đấu giá!");
             return;
@@ -62,42 +61,25 @@ public class BiddingRoomController extends BaseController {
 
         try {
             double bidAmount = Double.parseDouble(amountStr);
-
-            if (bidAmount <= currentItem.getStartingPrice()) {
+            if (bidAmount <= currentItem.getStartingPrice()) { 
                 showAlert("Lỗi", "Giá đấu phải cao hơn giá hiện tại!");
                 return;
             }
 
-            // ĐÓNG GÓI JSON ĐỂ GỬI LÊN SERVER
-            // Lưu ý: Cần thêm auction_id. Ở đây giả sử auction_id trùng với item_id tạm thời.
-            String jsonPayload = String.format("{\"auction_id\": %d, \"amount\": %f}", 
-                                                currentItem.getId(), bidAmount);
+            // GỌI API ĐẶT GIÁ XUỐNG DB
+            com.auction.client.service.AuctionFacade.getInstance().placeBid(currentItem.getId(), bidAmount, new com.auction.client.service.ApiCallback<com.google.gson.JsonObject>() {
+                @Override
+                public void onSuccess(com.google.gson.JsonObject result) {
+                    showAlert("Thành công", "Lệnh đặt giá $" + bidAmount + " đã được ghi nhận!");
+                    txtBidAmount.clear();
+                    lblCurrentPrice.setText(String.format("%,.0f VNĐ", bidAmount));
+                }
 
-            System.out.println("Gửi lệnh BID: " + jsonPayload);
-
-            // GỌI API BẰNG ApiService
-            com.auction.client.api.ApiService.getInstance().sendPostRequest("/bids", jsonPayload)
-                .thenAccept(response -> {
-                    javafx.application.Platform.runLater(() -> {
-                        if (response.statusCode() == 200) {
-                            showAlert("Thành công", "Đã gửi lệnh đặt giá!");
-                            txtBidAmount.clear();
-                        } else {
-                            showAlert("Thất bại", "Lỗi đặt giá: " + response.body());
-                        }
-                    });
-                })
-                .exceptionally(ex -> {
-                    javafx.application.Platform.runLater(() -> {
-                        // Thêm xử lý lỗi kết nối chuyên biệt
-                        if (ex.getCause() instanceof java.net.ConnectException) {
-                            showAlert("Lỗi Kết Nối", "Không thể kết nối đến máy chủ. Vui lòng đảm bảo máy chủ đang chạy!");
-                        } else {
-                            showAlert("Lỗi", "Đã xảy ra lỗi không mong muốn khi đặt giá: " + ex.getMessage());
-                        }
-                    });
-                    return null; // Bắt buộc phải trả về giá trị trong exceptionally
-                });
+                @Override
+                public void onError(String errorMessage) {
+                    showAlert("Từ chối giá", errorMessage);
+                }
+            });
 
         } catch (NumberFormatException e) {
             showAlert("Lỗi", "Số tiền phải là con số hợp lệ!");

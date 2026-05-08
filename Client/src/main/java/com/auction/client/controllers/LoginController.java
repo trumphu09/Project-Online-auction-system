@@ -52,12 +52,12 @@ public class LoginController extends BaseController implements Initializable { /
     }
 
     // 🚀 GỌI API ĐĂNG NHẬP THẬT TỪ FACADE
-    AuctionFacade.getInstance().login(user, pass, new ApiCallback<JsonObject>() {
+  AuctionFacade.getInstance().login(user, pass, new ApiCallback<JsonObject>() {
       @Override
       public void onSuccess(JsonObject result) {
-        // Đọc Role từ JSON Server trả về (Dựa theo chuẩn file LoginAPI của nhóm bạn)
-        JsonObject data = result.getAsJsonObject("data");
-        String role = data.get("role").getAsString();
+        // SỬA Ở ĐÂY: result lúc này ĐÃ LÀ phần "data" lõi rồi, không bóc thêm lần nữa!
+        // Lấy thẳng role từ result
+        String role = result.get("role").getAsString();
 
         showAlert("Thông báo", "Đăng nhập thành công với vai trò: " + role);
 

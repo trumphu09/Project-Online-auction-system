@@ -1,21 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.TilePane?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
-<AnchorPane prefHeight="600.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.ProductViewController">
-    <children>
-        <ScrollPane fitToWidth="true" prefHeight="600.0" prefWidth="500.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+<BorderPane prefHeight="700.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.ProductViewController">
+    
+    <top>
+        <HBox spacing="15" alignment="CENTER_LEFT" style="-fx-background-color: #2c3e50; -fx-padding: 15;">
+            <Label text="CHỢ ĐẤU GIÁ" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: white;"/>
+            <Region HBox.hgrow="ALWAYS" /> <TextField fx:id="txtSearch" promptText="Tìm tên sản phẩm..." prefWidth="300" style="-fx-background-radius: 15;"/>
+            <Button text="Tìm kiếm" onAction="#handleSearchAction" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 15; -fx-cursor: hand;"/>
+            
+            <Region HBox.hgrow="ALWAYS" />
+            <Button text="Đăng xuất" onAction="#handleLogout" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;"/>
+        </HBox>
+    </top>
+
+    <left>
+        <VBox spacing="20" prefWidth="250" style="-fx-background-color: #ecf0f1; -fx-padding: 20; -fx-border-color: #bdc3c7; -fx-border-width: 0 1 0 0;">
+            
+            <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);">
+                <Label fx:id="lblFullName" text="Đang tải..." style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                <HBox spacing="5">
+                    <Label text="Số dư:" />
+                    <Label fx:id="lblBalance" text="0 VNĐ" style="-fx-text-fill: #27ae60; -fx-font-weight: bold;"/>
+                </HBox>
+                <Separator />
+                <Label text="Nạp thêm tiền:" style="-fx-font-size: 11; -fx-text-fill: #7f8c8d;"/>
+                <HBox spacing="5">
+                    <TextField fx:id="txtDepositAmount" promptText="Nhập số tiền" prefWidth="120" />
+                    <Button text="Nạp" onAction="#handleDepositAction" style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-cursor: hand;"/>
+                </HBox>
+            </VBox>
+
+            <VBox spacing="10">
+                <Label text="DANH MỤC SẢN PHẨM" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
+                <Button text="💻 Đồ Điện Tử" onAction="#handleFilterElectronics" maxWidth="Infinity" style="-fx-alignment: center-left; -fx-cursor: hand;"/>
+                <Button text="🚗 Xe Cộ" onAction="#handleFilterVehicles" maxWidth="Infinity" style="-fx-alignment: center-left; -fx-cursor: hand;"/>
+                <Button text="🎨 Nghệ Thuật" onAction="#handleFilterArts" maxWidth="Infinity" style="-fx-alignment: center-left; -fx-cursor: hand;"/>
+                <Button text="🔄 Tất cả" onAction="#handleSearchAction" maxWidth="Infinity" style="-fx-alignment: center-left; -fx-cursor: hand;"/>
+            </VBox>
+        </VBox>
+    </left>
+
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
             <content>
-                <TilePane fx:id="productGridContainer"
-                          prefColumns="3"
-                          hgap="20.0"
-                          vgap="20.0"
-                          alignment="CENTER"
-                          style="-fx-padding: 30; -fx-background-color: white;" />
+                <TilePane fx:id="productGridContainer" hgap="20.0" vgap="20.0" alignment="TOP_LEFT" style="-fx-padding: 30; -fx-background-color: white;" />
             </content>
         </ScrollPane>
-    </children>
-</AnchorPane>
-        <!-- prefColumns="3": cho toi da 3 san pham tren 1 hang-->
-<!-- TilePane chính là một "Khuôn đúc ô gạch" tự động dàn hàng và cột cho các sản phẩm mà không cần phải tính toán tọa độ X, Y thủ công. Cứ mỗi khi bạn thêm một sản phẩm mới, nó sẽ tự tìm ô trống tiếp theo để đặt vào.-->
+    </center>
+
+    <right>
+        <VBox spacing="15" prefWidth="250" style="-fx-background-color: #f9f9f9; -fx-padding: 20; -fx-border-color: #bdc3c7; -fx-border-width: 0 0 0 1;">
+            <Label text="LỊCH SỬ ĐẤU GIÁ" style="-fx-font-weight: bold; -fx-font-size: 14; -fx-text-fill: #2c3e50;"/>
+            
+            <Label text="Đang tham gia:" style="-fx-font-size: 12;"/>
+            <ListView fx:id="listActiveBids" prefHeight="200" style="-fx-background-radius: 5;"/>
+            
+            <Label text="Đã chiến thắng:" style="-fx-font-size: 12; -fx-text-fill: #d35400;"/>
+            <ListView fx:id="listWonItems" prefHeight="200" style="-fx-background-radius: 5;"/>
+        </VBox>
+    </right>
+
+</BorderPane>

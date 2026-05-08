@@ -20,6 +20,8 @@
     <left>
         <VBox spacing="15" prefWidth="300.0" style="-fx-background-color: #f8f9fa; -fx-padding: 20; -fx-border-color: #dee2e6; -fx-border-width: 0 1 0 0;">
             <children>
+                
+                <Button text="← Đăng xuất" onAction="#handleLogout" style="-fx-background-color: #ff4d4d; -fx-text-fill: white; -fx-cursor: hand;"/>
 
                 <Label text="ĐĂNG SẢN PHẨM MỚI" style="-fx-font-weight: bold; -fx-font-size: 14; -fx-text-fill: #2c3e50;" />
 
@@ -31,7 +33,6 @@
 
                     <children>
                         <Label text="Tên SP:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
-<!--                        GridPane.rowIndex="0" GridPane.columnIndex="0" hang 0 cot 0-->
                         <TextField fx:id="txtItemName" promptText="Nhập tên..." GridPane.rowIndex="0" GridPane.columnIndex="1" />
 
                         <Label text="Giá đầu:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
@@ -41,33 +42,32 @@
                         <TextField fx:id="txtPriceStep" promptText="Số tiền tối thiểu" GridPane.rowIndex="2" GridPane.columnIndex="1" />
 
                         <Label text="Loại SP:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
-                        <ComboBox fx:id="cbCategory" promptText="Chọn phân loại"
-                                  GridPane.rowIndex="3" GridPane.columnIndex="1" maxWidth="Infinity" />
+                        <ComboBox fx:id="cbCategory" promptText="Chọn phân loại" GridPane.rowIndex="3" GridPane.columnIndex="1" maxWidth="Infinity" />
 
-                        <Label text="Mô tả:" GridPane.rowIndex="4" GridPane.columnIndex="0" />
-                        <TextArea fx:id="txtDescription" prefHeight="80" wrapText="true" GridPane.rowIndex="4" GridPane.columnIndex="1" />
+                        <VBox fx:id="dynamicFieldsContainer" spacing="10" GridPane.rowIndex="4" GridPane.columnIndex="0" GridPane.columnSpan="2" style="-fx-padding: 5 0 5 0;" />
 
-                        <Label text="Hình ảnh:" GridPane.rowIndex="5" GridPane.columnIndex="0" />
-                        <HBox spacing="10" GridPane.rowIndex="5" GridPane.columnIndex="1">
+                        <Label text="Mô tả:" GridPane.rowIndex="5" GridPane.columnIndex="0" />
+                        <TextArea fx:id="txtDescription" prefHeight="80" wrapText="true" GridPane.rowIndex="5" GridPane.columnIndex="1" />
+
+                        <Label text="Hình ảnh:" GridPane.rowIndex="6" GridPane.columnIndex="0" />
+                        <HBox spacing="10" GridPane.rowIndex="6" GridPane.columnIndex="1">
                             <children>
                                 <Button text="Chọn ảnh" onAction="#handleSelectImage" />
                                 <Label fx:id="lblFileName" text="Chưa chọn file" style="-fx-text-fill: #7f8c8d; -fx-font-style: italic;" />
                             </children>
                         </HBox>
 
-                        <Label text="Bắt đầu:" GridPane.rowIndex="6" GridPane.columnIndex="0" />
-                        <HBox spacing="10" GridPane.rowIndex="6" GridPane.columnIndex="1">
+                        <Label text="Bắt đầu:" GridPane.rowIndex="7" GridPane.columnIndex="0" />
+                        <HBox spacing="10" GridPane.rowIndex="7" GridPane.columnIndex="1">
                             <DatePicker fx:id="dateStart" prefWidth="150" promptText="Chọn ngày" />
                             <TextField fx:id="txtTimeStart" prefWidth="80" promptText="HH:mm" text="08:00" />
                         </HBox>
-<!--                        DatePicker luôn trả về một định dạng chuẩn xác (kiểu LocalDate), giong 1 ban lich-->
 
-                        <Label text="Kết thúc:" GridPane.rowIndex="7" GridPane.columnIndex="0" />
-                        <HBox spacing="10" GridPane.rowIndex="7" GridPane.columnIndex="1">
+                        <Label text="Kết thúc:" GridPane.rowIndex="8" GridPane.columnIndex="0" />
+                        <HBox spacing="10" GridPane.rowIndex="8" GridPane.columnIndex="1">
                             <DatePicker fx:id="dateEnd" prefWidth="150" promptText="Chọn ngày" />
                             <TextField fx:id="txtTimeEnd" prefWidth="80" promptText="HH:mm" text="20:00" />
                         </HBox>
-
                     </children>
                 </GridPane>
 
@@ -98,3 +98,4 @@
     </right>
 
 </BorderPane>
+

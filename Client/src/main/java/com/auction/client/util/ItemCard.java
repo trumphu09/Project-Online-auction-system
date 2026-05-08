@@ -19,8 +19,27 @@ public class ItemCard extends VBox {
 
         // 1. Xử lý ảnh
         ImageView imageView = new ImageView();
+// --- XỬ LÝ HÌNH ẢNH CỰC CHUẨN ---
         if (item.getImagePath() != null && !item.getImagePath().isEmpty()) {
-            imageView.setImage(new Image("file:" + item.getImagePath()));
+            try {
+                String path = item.getImagePath();
+                // Nếu là link web hoặc chuẩn uri rồi thì giữ nguyên, nếu là đường dẫn Windows thì format lại
+                if (!path.startsWith("http") && !path.startsWith("file:")) {
+                    // Đổi \ thành / và thêm file:/// để JavaFX đọc mượt trên Windows
+                    path = "file:///" + path.replace("\\", "/"); 
+                }
+                
+                Image img = new Image(path, true); // true = load ngầm không đơ app
+                
+                // Bắt lỗi nếu ảnh bị hỏng hoặc xóa mất trên máy
+                img.errorProperty().addListener((obs, oldVal, newVal) -> {
+                    if (newVal) System.err.println("Không tải được ảnh từ đường dẫn: " + item.getImagePath());
+                });
+                
+                imageView.setImage(img);
+            } catch (Exception e) {
+                System.err.println("Lỗi format đường dẫn ảnh: " + e.getMessage());
+            }
         }
         imageView.setFitWidth(width);
         imageView.setFitHeight(height);

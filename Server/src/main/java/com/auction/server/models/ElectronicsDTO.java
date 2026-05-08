@@ -13,6 +13,8 @@ public class ElectronicsDTO extends ItemDTO {
     @SerializedName("warranty_months")
     private int warrantyMonths;
 
+    public ElectronicsDTO() {}
+
     public ElectronicsDTO(int id, int sellerId, String name, String description, double startingPrice, 
                           int warrantyMonths) {
         super(id, sellerId, name, description, startingPrice, "ELECTRONICS");
