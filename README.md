@@ -1,90 +1,201 @@
-# 🔨 Dự án: Hệ thống Đấu giá Trực tuyến (Online Auction System)
+# 🔨 Hệ Thống Đấu Giá Trực Tuyến (Online Auction System)
 
-## 1. Khả năng áp dụng lý thuyết đã học
-Dự án áp dụng chặt chẽ các nguyên lý Lập trình Hướng đối tượng (OOP) và Mẫu thiết kế (Design Patterns):
-* **Tính Đa hình & Kế thừa (OOP):** Xây dựng lớp trừu tượng `Item`, kế thừa bởi `Art`, `Electronics`, `Vehicle`. Tương tự với `User` (chia thành `Bidder`, `Seller`).
-* **DAO Pattern (Data Access Object):** Tách biệt hoàn toàn logic truy xuất cơ sở dữ liệu (`ItemDAO`, `UserDAO`) khỏi logic nghiệp vụ, giúp mã nguồn dễ bảo trì.
-* **Singleton Pattern:** Quản lý kết nối Database qua lớp `DatabaseConnection` để tránh quá tải kết nối (Connection Leak).
-* **Observer Pattern / Real-time:** Ứng dụng WebSocket để phát sóng (broadcast) trạng thái cập nhật giá thầu tới tất cả các Client theo thời gian thực.
-* **DTO Pattern (Data Transfer Object):** Sử dụng `BidderDTO`, `ItemDTO` để che giấu thông tin nhạy cảm (như Password) khi truyền dữ liệu qua mạng.
+![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=java&logoColor=white)
+![JavaFX](https://img.shields.io/badge/JavaFX-FF9E0F?style=for-the-badge&logo=java&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
+![SparkJava](https://img.shields.io/badge/SparkJava-000000?style=for-the-badge)
+![WebSocket](https://img.shields.io/badge/WebSocket-010101?style=for-the-badge)
+![HikariCP](https://img.shields.io/badge/HikariCP-Connection_Pooling-00B4AB?style=for-the-badge)
 
-## 2. Tiến độ hiện tại (Đạt ~75%)
-* **Cơ sở dữ liệu:** Đã hoàn thiện Schema MySQL với các bảng được chuẩn hóa, áp dụng Khóa ngoại (Foreign Keys) đầy đủ. Các lớp DAO đã hoàn tất và vượt qua Unit Test.
-* **Backend & Mạng:** Đã khởi tạo thành công WebSocket Server lắng nghe cập nhật giá. Đã xây dựng khung xử lý đấu giá đa luồng (AuctionManager).
-* **Giao diện Client:** Dựng xong toàn bộ màn hình JavaFX (Đăng nhập, Trang chủ, Phòng đấu giá, Quản lý kho). Bắt đầu tích hợp bắt sự kiện UI.
+Dự án Hệ thống Đấu giá Trực tuyến là bài tập lớn môn Lập trình nâng cao. Hệ thống áp dụng kiến trúc Client-Server, sử dụng JavaFX cho giao diện người dùng, SparkJava cho RESTful API, WebSocket cho tính năng cập nhật giá thời gian thực (Real-time), và MySQL để quản lý dữ liệu.
 
-## 3. Kế hoạch hoàn thiện (Đến hết kỳ)
-* **Tuần này:** Triển khai REST API (SparkJava) ở Server và HTTP Client ở phía JavaFX để xóa bỏ dữ liệu giả (Mock Data), kết nối luồng Đăng nhập/Đăng ký thực tế.
-* **Tuần sau:** Ghép nối hoàn chỉnh luồng đặt giá (Bid) qua WebSocket. Xử lý đa luồng an toàn trên giao diện (`Platform.runLater`).
-* **Giai đoạn cuối:** Kiểm thử tích hợp toàn hệ thống, bắt các lỗi ngoại lệ đầu vào của người dùng.
+---
 
-## 4. Khó khăn gặp phải
-* **Bất đồng bộ giao diện:** Gặp khó khăn trong việc cập nhật giao diện JavaFX từ một luồng mạng (Network Thread) của WebSocket gây ra lỗi `Not on FX application thread`.
-* **Quản lý Transaction:** Giải quyết bài toán rủi ro dữ liệu khi phải `INSERT` đồng thời vào bảng cha (`items`) và bảng con (`artworks`) mà mạng bị đứt giữa chừng.
+## 1. Khả năng áp dụng lý thuyết & Kiến trúc phần mềm
+Dự án được xây dựng dựa trên các nền tảng kiến thức cốt lõi và các tiêu chuẩn khắt khe trong thiết kế phần mềm:
 
-## 5. Bảng phân chia công việc
+* **Tư duy Hướng đối tượng (OOP) & SOLID:**
+    * **Tuân thủ tuyệt đối OCP (Open/Closed Principle):** Hệ thống khởi tạo và truy vấn dữ liệu được thiết kế dạng "Plug-and-Play". Khi cần bán thêm loại sản phẩm mới (ví dụ: Bất động sản), chỉ cần đăng ký Class mới vào hệ thống mà **không cần sửa đổi** bất kỳ câu lệnh `switch-case` hay `if-else` nào ở các lớp lõi.
+    * **Đa hình (Polymorphism):** Xử lý chung các loại sản phẩm (`Art`, `Electronics`, `Vehicle`) và vai trò người dùng (`Bidder`, `Seller`, `Admin`) qua các Interface/Abstract Class.
+* **Mẫu thiết kế (Design Patterns) nâng cao:**
+    * **Factory & Registry Pattern:** Sử dụng `ItemFactory` kết hợp với Bộ đăng ký (Registry Map) để tự động phân luồng và lắp ráp các đối tượng `Item` một cách linh hoạt (Dynamic Instantiation).
+    * **Strategy Pattern:** Lớp `ItemDAO` đóng vai trò Context, ủy quyền việc Ghi/Đọc dữ liệu bảng con cho các chiến lược `IItemSubDAO` tương ứng (`ArtDAO`, `VehicleDAO`), giúp mã nguồn sạch và dễ bảo trì.
+    * **DAO Pattern (Data Access Object):** Tách biệt hoàn toàn logic SQL khỏi logic nghiệp vụ.
+    * **Singleton Pattern:** Quản lý tập trung `DatabaseConnection`, `AuctionManager`.
+    * **Observer Pattern:** Phát sóng (broadcast) trạng thái đấu giá ngay lập tức tới tất cả Client qua `WebSocket`.
+* **Cơ sở dữ liệu & Quản lý kết nối (Connection Pooling):** * Thiết kế CSDL mô hình **Class Table Inheritance** với 10 bảng chuẩn hóa cao (tránh NULL thừa).
+    * Áp dụng thư viện **HikariCP** để quản lý Connection Pooling, khắc phục lỗi thắt cổ chai, hỗ trợ đa luồng xử lý đồng thời hàng ngàn truy vấn (High Concurrency).
+    * Quản lý **Transaction (Rollback/Commit)** chặt chẽ cùng kỹ thuật khóa dòng (`FOR UPDATE`) để chống xung đột luồng tranh mua, tranh thanh toán.
 
-| STT | Họ và Tên | Vai trò | Mô tả công việc chi tiết |
-|---|---|---|---|
-| 1 | Thiện | **API Developer** | Xây dựng REST API (SparkJava), xử lý JSON (Gson), thiết kế các Endpoints giao tiếp. |
-| 2 | Toàn | **Backend / Logic** | Xây dựng WebSocket Server, quản lý phiên đấu giá (AuctionManager), xử lý đa luồng. |
-| 3 | Thành | **Database Architect** | Thiết kế MySQL, viết các lớp DAO, tối ưu truy vấn SQL, quản lý Transaction và DTO. |
-| 4 | Đại | **Client / UI** | Thiết kế giao diện JavaFX, xử lý luồng sự kiện UI, gọi API (HTTP Client) và hứng WebSocket. |
+---
 
-## 6. Sơ đồ thiết kế lớp (UML Class Diagram)
+## 2. Tiến độ hiện tại (Đạt 90%)
+
+* **Database & Tầng DAO:**
+    * Hoàn thiện Schema MySQL (10 bảng) và toàn bộ các lớp DAO.
+    * Đã refactor thành công tầng DAO chuẩn OCP. Áp dụng cấu trúc `try-with-resources` nghiêm ngặt để chống rò rỉ bộ nhớ (Memory Leak).
+* **Backend (Server):** * Xây dựng thành công `AuctionManager` (dùng `ExecutorService`) xử lý tự động đấu giá đa luồng.
+    * Mở cổng WebSocket chạy độc lập cho Real-time Bidding.
+* **Client (UI):** Dựng xong toàn bộ màn hình bằng JavaFX (Login, Product, BiddingRoom, Seller/Admin Dashboard).
+* **Giao tiếp (API):** Hoàn thiện bộ Model/DTO đồng nhất. 
+
+---
+
+## 3. Kế hoạch hoàn thiện (Giai đoạn nước rút)
+
+* **Tích hợp API:** Khởi chạy `SparkJava` trên Server. Nối `ApiClient` ở giao diện JavaFX vào các API này để thay thế hoàn toàn dữ liệu Mock tĩnh.
+* **Ghép nối WebSocket:** Hoàn thiện luồng giao diện cập nhật tiền trực tiếp tại phòng đấu giá (`BiddingRoom`).
+
+---
+
+## 4. Phân công công việc
+
+| STT | Họ và tên | Vai trò | Trách nhiệm chính |
+| :---: | :--- | :--- | :--- |
+| 1 | **Thiện** | API Developer | Xây dựng REST API (SparkJava), xử lý JSON (Gson), thiết kế các Endpoints giao tiếp. |
+| 2 | **Toàn** | Backend / Logic | Xây dựng WebSocket Server, quản lý phiên đấu giá (`AuctionManager`), xử lý đa luồng. |
+| 3 | **Thành** | Database Architect | Thiết kế MySQL, thiết kế tầng DAO chuẩn OCP, cấu hình HikariCP, quản lý Transaction SQL. |
+| 4 | **Đại** | Client / UI | Thiết kế giao diện JavaFX, xử lý luồng sự kiện UI bất đồng bộ, tích hợp `ApiClient`. |
+
+---
+
+## 5. Sơ đồ Thiết kế Lớp (UML Class Diagram - Core Architecture)
+
+Sơ đồ dưới đây minh họa kiến trúc OCP và các Mẫu thiết kế được áp dụng tại tầng xử lý lõi của Server.
+
 ```mermaid
 classDiagram
-    %% Tầng Models
-    class Item {
-        <<abstract>>
-        -id: int
-        -name: String
-        -startingPrice: double
-        +getCategory()* String
+    %% ==========================================
+    %% 1. TẦNG CLIENT - JAVAFX (Giao diện & Xử lý bất đồng bộ)
+    %% ==========================================
+    class BiddingRoomController {
+        <<JavaFX UI>>
+        -lblPrice: Label
+        -btnBid: Button
+        +handleBidAction()
+        +updateUIRafely() "Dùng Platform.runLater()"
     }
-    class Art {
-        -artist: String
-        -creationYear: int
-    }
-    class Electronics {
-        -warranty: int
-    }
-    Item <|-- Art
-    Item <|-- Electronics
 
-    %% Tầng DAO
+    class ApiClient {
+        <<HTTP Client>>
+        +postRequest(url, jsonBody) Response
+        +getRequest(url) Response
+    }
+
+    class WebSocketClient {
+        <<Real-time>>
+        +connectToServer()
+        +sendBidAmount(amount)
+        +onMessageReceived(data)
+    }
+
+    BiddingRoomController --> ApiClient : Gọi API (Login, Lấy đồ)
+    BiddingRoomController --> WebSocketClient : Truyền giá trực tiếp
+    WebSocketClient ..> BiddingRoomController : Gọi updateUIRafely()
+
+    %% ==========================================
+    %% 2. TẦNG MẠNG (Giao thức truyền tải)
+    %% ==========================================
+    class Internet {
+        <<Network Layer>>
+        +HTTP_REST_API
+        +WebSocket_WSS
+    }
+    ApiClient --|> Internet : JSON (Port 8080)
+    WebSocketClient --|> Internet : Binary/Text (Port 8081)
+
+    %% ==========================================
+    %% 3. TẦNG SERVER - ROUTER & REAL-TIME
+    %% ==========================================
+    class SparkJavaRouter {
+        <<API Gateway>>
+        +post("/api/login", LoginHandler)
+        +post("/api/items", ItemHandler)
+    }
+
+    class AuctionWebSocketServer {
+        <<Observer>>
+        -connectedClients: List
+        +onOpen()
+        +onMessage()
+        +broadcastToAll()
+    }
+
+    Internet --|> SparkJavaRouter : Request
+    Internet --|> AuctionWebSocketServer : Socket Stream
+
+    %% ==========================================
+    %% 4. TẦNG BUSINESS LOGIC & FACTORY (Chuẩn OCP)
+    %% ==========================================
+    class AuctionManager {
+        <<Singleton>>
+        -executor: ExecutorService "Thread Pool"
+        +processBidRequest() "Xử lý kẹt xe đa luồng"
+    }
+
+    class ItemFactory {
+        <<Registry Pattern>>
+        -registry: Map~String, Class~
+        +registerItemType()
+        +getClassByCategory()
+    }
+
+    SparkJavaRouter --> ItemFactory : Map JSON -> Object
+    AuctionWebSocketServer --> AuctionManager : Ném giá vào hàng đợi
+
+    %% ==========================================
+    %% 5. TẦNG DAO & DATABASE (Lõi thao tác dữ liệu)
+    %% ==========================================
     class DatabaseConnection {
-        -instance: DatabaseConnection
-        -connection: Connection
-        +getInstance() DatabaseConnection
+        <<Singleton>>
+        -dataSource: HikariDataSource
+        +getInstance()
         +getConnection() Connection
     }
+
+    class BidsDAO {
+        +executeBid(auctionId, userId, amount)
+        "Dùng FOR UPDATE & Rollback"
+    }
+
     class ItemDAO {
-        +addItem(Item) boolean
-        +getAllItems() List~Item~
-    }
-    ItemDAO ..> DatabaseConnection : uses
-    ItemDAO ..> Item : manipulates
-
-    %% Tầng Mạng & API
-    class AuctionWebSocketServer {
-        +onMessage()
-        +broadcastPriceUpdate()
-    }
-    class AuthApiServer {
-        +loginEndpoint()
+        +addItem(ItemDTO)
+        +getAllItems()
     }
 
-    %% Tầng Client (JavaFX)
-    class BiddingRoomController {
-        -currentPrice: Label
-        +handleBidAction()
-    }
-    class ApiClient {
-        +sendGetRequest()
-        +sendPostRequest()
+    class IItemSubDAO {
+        <<Strategy Interface>>
+        +insertSubItem(conn, item)
+        +fetchSubItem()
     }
     
-    BiddingRoomController ..> ApiClient : calls
-    ApiClient ..> AuthApiServer : HTTP JSON
-    BiddingRoomController ..> AuctionWebSocketServer : WebSocket
+    class ArtDAO
+    class VehicleDAO
+    class ElectronicsDAO
+
+    %% Ráp nối DAO
+    ItemDAO o-- IItemSubDAO : Phân nhánh OCP
+    IItemSubDAO <|.. ArtDAO : Implements
+    IItemSubDAO <|.. VehicleDAO : Implements
+    IItemSubDAO <|.. ElectronicsDAO : Implements
+
+    AuctionManager --> BidsDAO : Ghi lịch sử & trừ tiền
+    SparkJavaRouter --> ItemDAO : Lưu sản phẩm mới
+
+    %% Tất cả DAO đều phải mượn ống nước từ HikariCP
+    BidsDAO ..> DatabaseConnection : mượn Connection
+    ItemDAO ..> DatabaseConnection : mượn Connection
+    IItemSubDAO ..> DatabaseConnection : dùng chung Connection cha
+
+    %% ==========================================
+    %% 6. TẦNG VẬT LÝ (Database)
+    %% ==========================================
+    class MySQL {
+        <<Database>>
+        +Table_Users
+        +Table_Items
+        +Table_Artworks
+        +Table_Bids
+    }
+
+    DatabaseConnection --> MySQL : HikariCP (Max 50 Connections)
