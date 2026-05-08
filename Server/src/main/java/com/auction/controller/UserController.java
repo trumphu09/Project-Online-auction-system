@@ -1,6 +1,7 @@
 package com.auction.controller;
 
 import com.auction.service.UserService;
+import com.auction.server.models.AccountStatus;
 import com.auction.server.models.UserDTO;
 import com.auction.server.models.UserRole;
 import com.google.gson.Gson;
@@ -28,7 +29,7 @@ public class UserController {
             if (userDetails != null) {
                 return createSuccessResponse("Đăng nhập thành công!", gson.toJsonTree(userDetails));
             } else {
-                return createErrorResponse("Email hoặc mật khẩu không đúng.");
+                return createErrorResponse("Email, mật khẩu không đúng hoặc tài khoản đã bị khóa.");
             }
         } catch (JsonSyntaxException e) {
             return createErrorResponse("Dữ liệu JSON không hợp lệ.");
@@ -117,6 +118,26 @@ public class UserController {
                 return createSuccessResponse("Cập nhật vai trò thành công.", null);
             } else {
                 return createErrorResponse("Cập nhật vai trò thất bại.");
+            }
+        } catch (JsonSyntaxException e) {
+            return createErrorResponse("Dữ liệu JSON không hợp lệ.");
+        }
+    }
+    
+    public String handleUpdateUserStatus(int userId, String jsonRequest) {
+        try {
+            JsonObject req = gson.fromJson(jsonRequest, JsonObject.class);
+            if (req == null || !req.has("status")) {
+                return createErrorResponse("Thiếu trạng thái mới.");
+            }
+            AccountStatus newStatus = AccountStatus.fromString(req.get("status").getAsString());
+
+            boolean isSuccess = userService.updateUserStatus(userId, newStatus);
+
+            if (isSuccess) {
+                return createSuccessResponse("Cập nhật trạng thái thành công.", null);
+            } else {
+                return createErrorResponse("Cập nhật trạng thái thất bại.");
             }
         } catch (JsonSyntaxException e) {
             return createErrorResponse("Dữ liệu JSON không hợp lệ.");

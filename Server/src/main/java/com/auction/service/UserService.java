@@ -1,6 +1,7 @@
 package com.auction.service;
 
 import com.auction.server.dao.UserDAO;
+import com.auction.server.models.AccountStatus;
 import com.auction.server.models.UserDTO;
 import com.auction.server.models.UserRole;
 import java.util.List;
@@ -58,5 +59,12 @@ public class UserService {
             return false;
         }
         return userDAO.updateUserRole(userId, newRole);
+    }
+
+    public boolean updateUserStatus(int userId, AccountStatus newStatus) {
+        if (userId <= 0 || newStatus == null) {
+            return false;
+        }
+        return userDAO.updateUserStatus(userId, newStatus);
     }
 }

@@ -6,7 +6,7 @@ public abstract class User extends Entity {
     private String password;
     private final String email;
     private UserRole role;
-    private boolean active = true; // Thêm lại trường active
+    private AccountStatus status; // Thay thế boolean active
 
     public User(String username, String password, String email, UserRole role) {
         super();
@@ -14,14 +14,16 @@ public abstract class User extends Entity {
         this.password = password;
         this.email = email;
         this.role = role;
+        this.status = AccountStatus.ACTIVE; // Mặc định là ACTIVE
     }
 
-    public User(int id, String username, String password, String email, UserRole role) {
+    public User(int id, String username, String password, String email, UserRole role, AccountStatus status) {
         super(id);
         this.username = username;
         this.password = password;
         this.email = email;
         this.role = role;
+        this.status = status;
     }
 
     // Getters and setters
@@ -32,15 +34,8 @@ public abstract class User extends Entity {
     public String getEmail() { return email; }
     public UserRole getRole() { return role; }
     public void setRole(UserRole role) { this.role = role; }
-
-    // Thêm lại các phương thức cho active
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
+    public AccountStatus getStatus() { return status; }
+    public void setStatus(AccountStatus status) { this.status = status; }
 
     public abstract void showDashboard();
 }
