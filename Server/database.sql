@@ -125,7 +125,7 @@ CREATE TABLE IF NOT EXISTS auto_bids (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY unique_auto_bid (auction_id, user_id)
 );
--- 12. Watchlist (Giỏ hàng / Danh sách theo dõi - Tính năng sán tạo)
+-- 12. Watchlist (Giỏ hàng / Danh sách theo dõi - Tính năng sáng tạo)
 CREATE TABLE watchlist (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,

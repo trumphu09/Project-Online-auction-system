@@ -37,14 +37,20 @@ public class SellerController extends BaseController implements Initializable {
     @FXML private TilePane inventoryGrid;
     @FXML private ComboBox<String> cbCategory;
     @FXML private VBox dynamicFieldsContainer;
-    // Khai báo các Label thống kê (Đảm bảo bên SellerView.fxml đã có fx:id này)
+
+    // Labels thống kê bên phải
     @FXML private Label lblRating;
     @FXML private Label lblSaleCount;
     @FXML private Label lblAccountBalance;
-    
-    // Khai báo TextField tìm kiếm
+
+    // ListView lịch sử giao dịch (khai báo đúng khớp với fx:id trong SellerView.fxml)
+    @FXML private ListView<String> historyList;
+
+    // TextField tìm kiếm
     @FXML private TextField txtSearch;
-    private List<ItemDTO> allItems = new ArrayList<>(); // Lưu tạm để search nhanh
+
+    // Danh sách tạm để search nhanh không cần gọi lại server
+    private List<ItemDTO> allItems = new ArrayList<>();
 
     // Biến lưu trữ ảnh
     private String currentImagePath = "";
@@ -53,13 +59,13 @@ public class SellerController extends BaseController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         cbCategory.setItems(FXCollections.observableArrayList("Electronics", "Art", "Vehicle"));
-        
+
         cbCategory.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
                 updateDynamicFields(newVal);
             }
         });
-        
+
         cbCategory.getSelectionModel().selectFirst();
         loadSellerInventory();
         loadUserProfile();
@@ -71,13 +77,11 @@ public class SellerController extends BaseController implements Initializable {
 
         if ("ELECTRONICS".equals(key)) {
             addTextField("txtWarranty", "Thời gian bảo hành (tháng)");
-        } 
-        else if ("VEHICLE".equals(key)) {
+        } else if ("VEHICLE".equals(key)) {
             addTextField("txtBrand", "Thương hiệu xe");
             addTextField("txtMileage", "Số KM đã đi (mileage)");
             addTextField("txtCondition", "Tình trạng xe (condition state)");
-        } 
-        else if ("ART".equals(key)) {
+        } else if ("ART".equals(key)) {
             addTextField("txtArtist", "Tên họa sĩ");
             addTextField("txtYear", "Năm sáng tác (creation year)");
             addTextField("txtMaterial", "Chất liệu (material)");
@@ -106,7 +110,7 @@ public class SellerController extends BaseController implements Initializable {
                     Platform.runLater(() -> {
                         clearFields();
                         showAlert("Thành công", "Đã ném sản phẩm lên sàn đấu giá thành công!");
-                        loadSellerInventory(); 
+                        loadSellerInventory();
                     });
                 }
 
@@ -134,7 +138,7 @@ public class SellerController extends BaseController implements Initializable {
             VehicleDTO v = new VehicleDTO();
             v.setBrand(getTextFromField("txtBrand"));
             v.setMileage(getIntFromField("txtMileage"));
-            v.setCondition(getTextFromField("txtCondition")); 
+            v.setCondition(getTextFromField("txtCondition"));
             item = v;
         } else if ("ART".equals(key)) {
             ArtDTO a = new ArtDTO();
@@ -147,27 +151,22 @@ public class SellerController extends BaseController implements Initializable {
         }
 
         item.setName(txtItemName.getText());
-        item.setName(txtItemName.getText());
         try {
             item.setStartingPrice(Double.parseDouble(txtStartingPrice.getText()));
             item.setPriceStep(Double.parseDouble(txtPriceStep.getText()));
-            
-            // --- ĐOẠN CODE BỔ SUNG: LẤY THỜI GIAN ĐẤU GIÁ ---
+
             if (dateStart.getValue() != null) {
                 item.setStartTime(dateStart.getValue().toString() + " " + txtTimeStart.getText().trim() + ":00");
             }
             if (dateEnd.getValue() != null) {
-                // Sẽ tạo ra chuỗi chuẩn SQL: "2024-05-15 20:00:00"
                 item.setEndTime(dateEnd.getValue().toString() + " " + txtTimeEnd.getText().trim() + ":00");
             }
-            // ------------------------------------------------
-            
         } catch (NumberFormatException ignored) {}
-        
-        item.setCategory(key); 
+
+        item.setCategory(key);
         item.setDescription(txtDescription.getText());
         item.setImagePath(currentImagePath);
-        item.setBase64Image(this.currentBase64Image); 
+        item.setBase64Image(this.currentBase64Image);
         return item;
     }
 
@@ -190,7 +189,7 @@ public class SellerController extends BaseController implements Initializable {
         dateEnd.setValue(null);
         lblFileName.setText("Chưa chọn ảnh");
         currentImagePath = "";
-        currentBase64Image = null; 
+        currentBase64Image = null;
     }
 
     @FXML
@@ -203,10 +202,10 @@ public class SellerController extends BaseController implements Initializable {
             try {
                 byte[] fileContent = java.nio.file.Files.readAllBytes(selectedFile.toPath());
                 String base64String = java.util.Base64.getEncoder().encodeToString(fileContent);
-                
-                this.currentBase64Image = base64String; 
-                this.currentImagePath = selectedFile.getName(); 
-                
+
+                this.currentBase64Image = base64String;
+                this.currentImagePath = selectedFile.getName();
+
                 lblFileName.setText(selectedFile.getName());
             } catch (IOException e) {
                 showAlert("Lỗi", "Không thể đọc file ảnh!");
@@ -220,13 +219,13 @@ public class SellerController extends BaseController implements Initializable {
             @Override
             public void onSuccess(List<ItemDTO> items) {
                 Platform.runLater(() -> {
+                    // Xóa grid cũ và cập nhật danh sách tạm
+                    inventoryGrid.getChildren().clear();
+                    allItems.clear();
                     if (items != null) {
-                        for (ItemDTO item : items) {
-                            ItemCard card = new ItemCard(item, 180, 150, false);
-                            card.setOnMouseClicked(event -> showItemDetailPopup(item));
-                            inventoryGrid.getChildren().add(card);
-                        }
+                        allItems.addAll(items);
                     }
+                    renderGrid(allItems);
                 });
             }
 
@@ -247,21 +246,19 @@ public class SellerController extends BaseController implements Initializable {
         renderGrid(filtered);
     }
 
+    // FIX: truyền đúng 4 tham số — isBuyer = false vì đây là màn hình Seller
     private void renderGrid(List<ItemDTO> items) {
-        inventoryGrid.getChildren().clear(); 
+        inventoryGrid.getChildren().clear();
         if (items != null) {
             for (ItemDTO item : items) {
-                // ItemCard giờ sẽ tự lấy thông tin Electronics/Vehicle/Art để hiển thị
-                ItemCard card = new ItemCard(item, 200, 220); 
-                
-                // Gắn sự kiện click để vẫn mở được popup chi tiết/sửa
+                ItemCard card = new ItemCard(item, 200, 220, false);
                 card.setOnMouseClicked(event -> showItemDetailPopup(item));
                 card.setCursor(javafx.scene.Cursor.HAND);
-                
                 inventoryGrid.getChildren().add(card);
             }
         }
     }
+
     private void showItemDetailPopup(ItemDTO item) {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Chi tiết sản phẩm");
@@ -270,7 +267,6 @@ public class SellerController extends BaseController implements Initializable {
         VBox content = new VBox(10);
         content.setStyle("-fx-padding: 10; -fx-font-size: 14px;");
 
-        // Thông tin chung từ bảng items và auctions
         content.getChildren().addAll(
             new Label("Mô tả: " + item.getDescription()),
             new Label("Giá khởi điểm: " + item.getStartingPrice() + " VNĐ"),
@@ -280,7 +276,6 @@ public class SellerController extends BaseController implements Initializable {
             new Separator()
         );
 
-        // Thông tin riêng từ các bảng con
         if (item instanceof ElectronicsDTO) {
             content.getChildren().add(new Label("Thời gian bảo hành: " + ((ElectronicsDTO) item).getWarrantyMonths() + " tháng"));
         } else if (item instanceof VehicleDTO) {
@@ -301,18 +296,17 @@ public class SellerController extends BaseController implements Initializable {
 
         dialog.getDialogPane().setContent(content);
 
-        // Thêm nút Chỉnh sửa và Đóng
         ButtonType editBtn = new ButtonType("Chỉnh sửa", ButtonBar.ButtonData.OK_DONE);
         ButtonType closeBtn = new ButtonType("Đóng", ButtonBar.ButtonData.CANCEL_CLOSE);
         dialog.getDialogPane().getButtonTypes().addAll(editBtn, closeBtn);
 
         dialog.setResultConverter(btn -> {
             if (btn == editBtn) {
-                openEditDialog(item); // Mở hộp thoại chỉnh sửa
+                openEditDialog(item);
             }
             return null;
         });
-        
+
         dialog.showAndWait();
     }
 
@@ -320,7 +314,6 @@ public class SellerController extends BaseController implements Initializable {
         Dialog<ItemDTO> editDialog = new Dialog<>();
         editDialog.setTitle("Chỉnh sửa: " + item.getName());
 
-        // Các trường nhập liệu chung
         TextField nameField = new TextField(item.getName());
         TextArea descField = new TextArea(item.getDescription());
         descField.setPrefRowCount(3);
@@ -329,13 +322,12 @@ public class SellerController extends BaseController implements Initializable {
         VBox form = new VBox(10);
         form.setStyle("-fx-padding: 10;");
         form.getChildren().addAll(
-            new Label("Tên SP:"), nameField, 
-            new Label("Mô tả:"), descField, 
+            new Label("Tên SP:"), nameField,
+            new Label("Mô tả:"), descField,
             new Label("Giá khởi điểm:"), priceField,
             new Separator()
         );
 
-        // Các trường nhập liệu riêng tùy loại
         TextField specificField1 = new TextField();
         TextField specificField2 = new TextField();
         TextField specificField3 = new TextField();
@@ -374,43 +366,40 @@ public class SellerController extends BaseController implements Initializable {
 
         editDialog.setResultConverter(btn -> {
             if (btn == btnSave) {
-                // Cập nhật thông tin chung vào DTO
                 item.setName(nameField.getText());
                 item.setDescription(descField.getText());
                 try { item.setStartingPrice(Double.parseDouble(priceField.getText())); } catch (Exception ignored) {}
 
-                // Cập nhật thông tin riêng vào DTO
                 if (item instanceof ArtDTO) {
                     ArtDTO art = (ArtDTO) item;
                     art.setArtist(specificField1.getText());
-                    try { art.setCreationYear(Integer.parseInt(specificField2.getText())); } catch(Exception ignored){}
+                    try { art.setCreationYear(Integer.parseInt(specificField2.getText())); } catch (Exception ignored) {}
                     art.setMaterial(specificField3.getText());
                 } else if (item instanceof ElectronicsDTO) {
                     ElectronicsDTO elec = (ElectronicsDTO) item;
-                    try { elec.setWarrantyMonths(Integer.parseInt(specificField1.getText())); } catch(Exception ignored){}
+                    try { elec.setWarrantyMonths(Integer.parseInt(specificField1.getText())); } catch (Exception ignored) {}
                 } else if (item instanceof VehicleDTO) {
                     VehicleDTO v = (VehicleDTO) item;
                     v.setBrand(specificField1.getText());
-                    try { v.setMileage(Integer.parseInt(specificField2.getText())); } catch(Exception ignored){}
+                    try { v.setMileage(Integer.parseInt(specificField2.getText())); } catch (Exception ignored) {}
                     v.setCondition(specificField3.getText());
                 }
-                
+
                 callUpdateAPI(item);
             }
             return null;
         });
-        
+
         editDialog.showAndWait();
     }
 
     private void callUpdateAPI(ItemDTO item) {
-        // Lưu ý: Cần tạo sẵn phương thức updateItem(item, callback) trong AuctionFacade
         AuctionFacade.getInstance().updateItem(item, new ApiCallback<JsonObject>() {
             @Override
             public void onSuccess(JsonObject result) {
                 Platform.runLater(() -> {
                     showAlert("Thành công", "Đã cập nhật sản phẩm thành công!");
-                    loadSellerInventory(); // Load lại lưới đồ để hiển thị thông tin mới nhất
+                    loadSellerInventory();
                 });
             }
 
@@ -442,13 +431,13 @@ public class SellerController extends BaseController implements Initializable {
             public void onSuccess(UserDTO user) {
                 Platform.runLater(() -> {
                     if (user != null) {
-                        // Đổ dữ liệu vào các nhãn trên màn hình bên phải
                         lblAccountBalance.setText(String.format("%,.0f VNĐ", user.getBalance()));
                         lblRating.setText(String.format("%.1f / 5.0", user.getTotalRating()));
                         lblSaleCount.setText(user.getSaleCount() + " sản phẩm");
                     }
                 });
             }
+
             @Override
             public void onError(String msg) { /* Handle error */ }
         });
