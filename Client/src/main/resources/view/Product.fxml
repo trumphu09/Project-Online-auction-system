@@ -2,10 +2,14 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.TilePane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
 
-<AnchorPane prefHeight="600.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.ProductViewController">
+<StackPane prefHeight="600.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.ProductViewController">
     <children>
-        <ScrollPane fitToWidth="true" prefHeight="600.0" prefWidth="500.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+
+        <ScrollPane fitToWidth="true" style="-fx-background-color: white;">
             <content>
                 <TilePane fx:id="productGridContainer"
                           prefColumns="3"
@@ -15,7 +19,27 @@
                           style="-fx-padding: 30; -fx-background-color: white;" />
             </content>
         </ScrollPane>
+
+        <VBox fx:id="cartSidebar"
+              maxWidth="250.0"
+              StackPane.alignment="TOP_RIGHT"
+              style="-fx-background-color: #f9f9f9; -fx-border-color: #cccccc; -fx-border-width: 0 0 0 1; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, -2, 0);"
+              visible="false"
+              managed="false">
+
+            <children>
+                <Label text="Danh sách theo dõi" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 15;" />
+
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
+                    <content>
+                        <VBox fx:id="vboxCartItems" spacing="10.0" style="-fx-padding: 10;" />
+                    </content>
+                </ScrollPane>
+            </children>
+
+        </VBox>
+
     </children>
-</AnchorPane>
+</StackPane>
         <!-- prefColumns="3": cho toi da 3 san pham tren 1 hang-->
 <!-- TilePane chính là một "Khuôn đúc ô gạch" tự động dàn hàng và cột cho các sản phẩm mà không cần phải tính toán tọa độ X, Y thủ công. Cứ mỗi khi bạn thêm một sản phẩm mới, nó sẽ tự tìm ô trống tiếp theo để đặt vào.-->
