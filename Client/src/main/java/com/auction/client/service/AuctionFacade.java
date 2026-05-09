@@ -1,12 +1,9 @@
 package com.auction.client.service;
 
-import com.auction.client.api.ApiService;
+import com.auction.client.network.ApiService;
 import com.auction.client.model.dto.ItemDTO;
 import com.auction.client.model.dto.UserDTO;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
 import javafx.application.Platform;
 
 import java.lang.reflect.Type;
@@ -195,6 +192,25 @@ public class AuctionFacade {
     public void adminDeleteItem(int itemId, ApiCallback<JsonObject> callback) {
         executeRequest(apiService.sendDeleteRequest("/admin/items/" + itemId), JsonObject.class, callback);
     }
+
+  // ==========================================
+  // 5. NHÓM GIỎ HÀNG (Watchlist)
+  // ==========================================
+
+  // 1. Thêm sản phẩm vào giỏ hàng
+  public void addToWatchlist(int itemId, ApiCallback<JsonObject> callback) {
+    JsonObject json = new JsonObject();
+    json.addProperty("itemId", itemId);
+    // Gửi POST request kèm theo body là {"itemId": 123}
+    executeRequest(apiService.sendPostRequest("/my/watchlist", gson.toJson(json)), JsonObject.class, callback);
+  }
+
+  // 2. Lấy danh sách giỏ hàng
+  public void getWatchlist(ApiCallback<List<ItemDTO>> callback) {
+    // Gửi GET request và hứng mảng List<ItemDTO> từ trường "data" của Server
+    executeRequest(apiService.sendGetRequest("/my/watchlist"),
+      new com.google.gson.reflect.TypeToken<List<ItemDTO>>(){}.getType(), callback);
+  }
   
 
   // =========================================================================

@@ -92,7 +92,7 @@ public class SellerController extends BaseController implements Initializable {
                 @Override
                 public void onSuccess(JsonObject result) {
                     Platform.runLater(() -> {
-                        ItemCard card = new ItemCard(newItem, 180, 120);
+                        ItemCard card = new ItemCard(newItem, 180, 120, false);
                         inventoryGrid.getChildren().add(card);
                         clearFields();
                         showAlert("Thành công", "Đã ném sản phẩm lên sàn đấu giá thành công!");
@@ -201,7 +201,7 @@ public class SellerController extends BaseController implements Initializable {
                     inventoryGrid.getChildren().clear(); 
                     if (items != null) {
                         for (ItemDTO item : items) {
-                            ItemCard card = new ItemCard(item, 180, 150);
+                            ItemCard card = new ItemCard(item, 180, 150, false);
                             card.setOnMouseClicked(event -> showItemDetailPopup(item));
                             inventoryGrid.getChildren().add(card);
                         }

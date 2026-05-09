@@ -125,3 +125,17 @@ CREATE TABLE IF NOT EXISTS auto_bids (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY unique_auto_bid (auction_id, user_id)
 );
+-- 12. Watchlist (Giỏ hàng / Danh sách theo dõi - Tính năng sán tạo)
+CREATE TABLE watchlist (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    item_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    -- Ràng buộc khóa ngoại để đảm bảo tính toàn vẹn dữ liệu
+    CONSTRAINT fk_watchlist_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_watchlist_item FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE,
+
+    -- Đảm bảo 1 user không thể thêm 1 item vào giỏ 2 lần
+    UNIQUE KEY unique_user_item (user_id, item_id)
+);

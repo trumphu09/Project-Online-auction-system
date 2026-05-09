@@ -1,4 +1,4 @@
-package com.auction.client.api;
+package com.auction.client.network;
 
 import java.net.CookieManager;
 import java.net.CookiePolicy;
