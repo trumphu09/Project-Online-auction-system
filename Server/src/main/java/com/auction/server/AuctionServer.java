@@ -75,6 +75,9 @@ public class AuctionServer {
             ctx.addServletMappingDecoded("/api/my/deposit", "DepositAPI");
             Tomcat.addServlet(ctx, "PaymentAPI", new PaymentAPI());
             ctx.addServletMappingDecoded("/api/payments", "PaymentAPI");
+            // ĐĂNG KÝ API GIỎ HÀNG
+            Tomcat.addServlet(ctx, "WatchlistAPI", new WatchlistAPI());
+            ctx.addServletMappingDecoded("/api/my/watchlist", "WatchlistAPI");
 
             tomcat.start();
             System.out.println("✓ [HTTP API] Web Server đang chạy ở cổng 8080!");

@@ -7,6 +7,7 @@ import com.auction.client.service.AuctionFacade;
 import com.auction.client.util.ItemCard;
 import com.google.gson.JsonObject;
 
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -19,7 +20,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.TilePane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.net.URL;
@@ -40,6 +43,11 @@ public class ProductViewController extends BaseController {
     // --- CÁC ID CỦA LỊCH SỬ ĐẤU GIÁ ---
     @FXML private ListView<String> listActiveBids;
     @FXML private ListView<String> listWonItems;
+
+    // --- CÁC ID CỦA GIỎ HÀNG ---
+    @FXML private VBox cartSidebar;
+    @FXML private VBox cartItemsContainer;
+    private boolean isCartOpen = false;
 
     @FXML
     public void initialize(URL url, ResourceBundle rb) {
@@ -68,7 +76,7 @@ public class ProductViewController extends BaseController {
         productGridContainer.getChildren().clear();
         if (items != null) {
             for (ItemDTO item : items) {
-                ItemCard card = new ItemCard(item, 180, 150);
+                ItemCard card = new ItemCard(item, 180, 150, true);
                 card.setUserData(item); // Cất dữ liệu vào card
                 card.setCursor(javafx.scene.Cursor.HAND);
                 card.setOnMouseClicked(this::openBiddingRoom);
@@ -225,6 +233,42 @@ public class ProductViewController extends BaseController {
             e.printStackTrace();
         }
     }
+
+    // ==========================================
+    // PHẦN 6: GIỎ HÀNG
+    // ==========================================
+  @FXML
+  private void handleToggleCart() {
+    TranslateTransition transition = new TranslateTransition(Duration.millis(300), cartSidebar);
+    if (isCartOpen) {
+      transition.setToX(300); // Trượt giấu đi
+      isCartOpen = false;
+    } else {
+      transition.setToX(0);   // Trượt hiện ra
+      isCartOpen = true;
+      loadCartItems();        // Gọi dữ liệu khi mở
+    }
+    transition.play();
+  }
+
+  private void loadCartItems() {
+    AuctionFacade.getInstance().getWatchlist(new ApiCallback<List<ItemDTO>>() {
+      @Override
+      public void onSuccess(List<ItemDTO> items) {
+        Platform.runLater(() -> {
+          cartItemsContainer.getChildren().clear();
+          for (ItemDTO item : items) {
+            // Tạo một Label hoặc MiniItemCard cho từng món
+            cartItemsContainer.getChildren().add(new Label(item.getName() + " - " + item.getStartingPrice()));
+          }
+        });
+      }
+      @Override
+      public void onError(String err) {
+        // Xử lý lỗi
+      }
+    });
+  }
 
     @FXML
     private void handleLogout(ActionEvent event) {

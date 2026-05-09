@@ -221,8 +221,11 @@ public class SellerController extends BaseController implements Initializable {
             public void onSuccess(List<ItemDTO> items) {
                 Platform.runLater(() -> {
                     if (items != null) {
-                        allItems = items; // Lưu vào danh sách gốc để tìm kiếm
-                        renderGrid(items);
+                        for (ItemDTO item : items) {
+                            ItemCard card = new ItemCard(item, 180, 150, false);
+                            card.setOnMouseClicked(event -> showItemDetailPopup(item));
+                            inventoryGrid.getChildren().add(card);
+                        }
                     }
                 });
             }

@@ -1,4 +1,331 @@
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\.idea\compiler.xml ===  
+Folder PATH listing
+Volume serial number is 58EF-6D51
+C:.
+|   .gitignore
+|   allcode.txt
+|   API_USAGE_GUIDE.md
+|   README.md
+|   run.bat
+|   
++---.idea
+|       .gitignore
+|       compiler.xml
+|       copilot.data.migration.ask2agent.xml
+|       encodings.xml
+|       jarRepositories.xml
+|       misc.xml
+|       modules.xml
+|       Project-Online-auction-system.iml
+|       vcs.xml
+|       workspace.xml
+|       
++---.vscode
+|       settings.json
+|       
++---Client
+|   |   pom.xml
+|   |   
+|   +---.idea
+|   |       .gitignore
+|   |       compiler.xml
+|   |       encodings.xml
+|   |       jarRepositories.xml
+|   |       misc.xml
+|   |       vcs.xml
+|   |       workspace.xml
+|   |       
+|   +---src
+|   |   \---main
+|   |       +---java
+|   |       |   +---.idea
+|   |       |   |       .gitignore
+|   |       |   |       misc.xml
+|   |       |   |       modules.xml
+|   |       |   |       workspace.xml
+|   |       |   |       
+|   |       |   \---com
+|   |       |       \---auction
+|   |       |           \---client
+|   |       |               |   Main.java
+|   |       |               |   MainApp.java
+|   |       |               |   
+|   |       |               +---controllers
+|   |       |               |       .gitkeep
+|   |       |               |       AdminController.java
+|   |       |               |       BaseController.java
+|   |       |               |       BiddingRoomController.java
+|   |       |               |       BidHistoryController.java
+|   |       |               |       LoginController.java
+|   |       |               |       ProductViewController.java
+|   |       |               |       RegisterController.java
+|   |       |               |       SellerController.java
+|   |       |               |       
+|   |       |               +---model
+|   |       |               |   |   Admin.java
+|   |       |               |   |   Bidder.java
+|   |       |               |   |   Seller.java
+|   |       |               |   |   User.java
+|   |       |               |   |   
+|   |       |               |   \---dto
+|   |       |               |           ArtDTO.java
+|   |       |               |           AuctionDTO.java
+|   |       |               |           BidDTO.java
+|   |       |               |           ElectronicsDTO.java
+|   |       |               |           ItemDTO.java
+|   |       |               |           UserDTO.java
+|   |       |               |           VehicleDTO.java
+|   |       |               |           
+|   |       |               +---network
+|   |       |               |       ApiService.java
+|   |       |               |       
+|   |       |               +---service
+|   |       |               |       ApiCallback.java
+|   |       |               |       AuctionFacade.java
+|   |       |               |       
+|   |       |               \---util
+|   |       |                       ItemCard.java
+|   |       |                       
+|   |       \---resources
+|   |           \---view
+|   |                   AdminView.fxml
+|   |                   BiddingRoomView.fxml
+|   |                   BidHistoryView.fxml
+|   |                   Product.fxml
+|   |                   Register.fxml
+|   |                   SellerView.fxml
+|   |                   View.fxml
+|   |                   
+|   \---target
+|       +---classes
+|       |   +---com
+|       |   |   \---auction
+|       |   |       \---client
+|       |   |           |   Main.class
+|       |   |           |   MainApp.class
+|       |   |           |   
+|       |   |           +---api
+|       |   |           |       ApiService.class
+|       |   |           |       
+|       |   |           +---controllers
+|       |   |           |       AdminController$1.class
+|       |   |           |       AdminController$2.class
+|       |   |           |       AdminController$3.class
+|       |   |           |       AdminController$4.class
+|       |   |           |       AdminController.class
+|       |   |           |       BaseController.class
+|       |   |           |       BiddingRoomController$1.class
+|       |   |           |       BiddingRoomController.class
+|       |   |           |       BidHistoryController$1.class
+|       |   |           |       BidHistoryController.class
+|       |   |           |       LoginController$1.class
+|       |   |           |       LoginController.class
+|       |   |           |       ProductViewController$1.class
+|       |   |           |       ProductViewController$2.class
+|       |   |           |       ProductViewController$3.class
+|       |   |           |       ProductViewController$4.class
+|       |   |           |       ProductViewController$5.class
+|       |   |           |       ProductViewController$6.class
+|       |   |           |       ProductViewController$7.class
+|       |   |           |       ProductViewController$8.class
+|       |   |           |       ProductViewController.class
+|       |   |           |       RegisterController$1.class
+|       |   |           |       RegisterController.class
+|       |   |           |       SellerController$1.class
+|       |   |           |       SellerController$2.class
+|       |   |           |       SellerController$3.class
+|       |   |           |       SellerController.class
+|       |   |           |       
+|       |   |           +---model
+|       |   |           |   |   Admin.class
+|       |   |           |   |   Bidder.class
+|       |   |           |   |   Seller.class
+|       |   |           |   |   User.class
+|       |   |           |   |   
+|       |   |           |   \---dto
+|       |   |           |           ArtDTO.class
+|       |   |           |           AuctionDTO.class
+|       |   |           |           BidDTO.class
+|       |   |           |           ElectronicsDTO.class
+|       |   |           |           ItemDTO.class
+|       |   |           |           UserDTO.class
+|       |   |           |           VehicleDTO.class
+|       |   |           |           
+|       |   |           +---service
+|       |   |           |       ApiCallback.class
+|       |   |           |       AuctionFacade$1.class
+|       |   |           |       AuctionFacade$2.class
+|       |   |           |       AuctionFacade$3.class
+|       |   |           |       AuctionFacade$4.class
+|       |   |           |       AuctionFacade$5.class
+|       |   |           |       AuctionFacade$6.class
+|       |   |           |       AuctionFacade$7.class
+|       |   |           |       AuctionFacade$8.class
+|       |   |           |       AuctionFacade.class
+|       |   |           |       
+|       |   |           \---util
+|       |   |                   ItemCard.class
+|       |   |                   
+|       |   \---view
+|       |           AdminView.fxml
+|       |           BiddingRoomView.fxml
+|       |           BidHistoryView.fxml
+|       |           Product.fxml
+|       |           Register.fxml
+|       |           SellerView.fxml
+|       |           View.fxml
+|       |           
+|       \---generated-sources
+|           \---annotations
++---Server
+|   |   database.sql
+|   |   pom.xml
+|   |   run-tests.bat
+|   |   setup-maven-manual.bat
+|   |   setup-maven.ps1
+|   |   TEST_SETUP_GUIDE.md
+|   |   
+|   +---.vscode
+|   |       settings.json
+|   |       
+|   +---src
+|   |   \---main
+|   |       \---java
+|   |           \---com
+|   |               \---auction
+|   |                   +---controller
+|   |                   |       AuctionController.java
+|   |                   |       BidController.java
+|   |                   |       BidderController.java
+|   |                   |       ItemController.java
+|   |                   |       PaymentController.java
+|   |                   |       UserController.java
+|   |                   |       WatchlistController.java
+|   |                   |       
+|   |                   +---server
+|   |                   |   |   AuctionServer.java
+|   |                   |   |   servlets.zip
+|   |                   |   |   
+|   |                   |   +---dao
+|   |                   |   |       AdminDAO.java
+|   |                   |   |       ArtDAO.java
+|   |                   |   |       AuctionDAO.java
+|   |                   |   |       BidderDAO.java
+|   |                   |   |       BidderSubDAO.java
+|   |                   |   |       BidsDAO.java
+|   |                   |   |       DatabaseConnection.java
+|   |                   |   |       ElectronicsDAO.java
+|   |                   |   |       IItemSubDAO.java
+|   |                   |   |       ItemDAO.java
+|   |                   |   |       IUserSubDAO.java
+|   |                   |   |       PaymentDAO.java
+|   |                   |   |       SellerDAO.java
+|   |                   |   |       SellerSubDAO.java
+|   |                   |   |       UserDAO.java
+|   |                   |   |       VehicleDAO.java
+|   |                   |   |       WatchlistDAO.java
+|   |                   |   |       
+|   |                   |   +---factory
+|   |                   |   |       ItemFactory.java
+|   |                   |   |       UserFactory.java
+|   |                   |   |       
+|   |                   |   +---filters
+|   |                   |   |       AuthFilter.java
+|   |                   |   |       
+|   |                   |   +---models
+|   |                   |   |       .gitkeep
+|   |                   |   |       Admin.java
+|   |                   |   |       AdminDTO.java
+|   |                   |   |       Art.java
+|   |                   |   |       ArtDTO.java
+|   |                   |   |       Auction.java
+|   |                   |   |       AuctionDataDTO.java
+|   |                   |   |       AuctionManager.java
+|   |                   |   |       AuctionStatus.java
+|   |                   |   |       AuctionTimer.java
+|   |                   |   |       AuctionUpdate.java
+|   |                   |   |       AuctionUpdateListener.java
+|   |                   |   |       AutoBid.java
+|   |                   |   |       Bidder.java
+|   |                   |   |       BidderDTO.java
+|   |                   |   |       BidTransaction.java
+|   |                   |   |       BidTransactionDTO.java
+|   |                   |   |       Electronics.java
+|   |                   |   |       ElectronicsDTO.java
+|   |                   |   |       Entity.java
+|   |                   |   |       Item.java
+|   |                   |   |       ItemDTO.java
+|   |                   |   |       Payment.java
+|   |                   |   |       PaymentDTO.java
+|   |                   |   |       PaymentStatus.java
+|   |                   |   |       Seller.java
+|   |                   |   |       SellerDTO.java
+|   |                   |   |       User.java
+|   |                   |   |       UserDTO.java
+|   |                   |   |       UserRole.java
+|   |                   |   |       Vehicle.java
+|   |                   |   |       VehicleDTO.java
+|   |                   |   |       
+|   |                   |   +---scheduler
+|   |                   |   |       AuctionStatusScheduler.java
+|   |                   |   |       
+|   |                   |   +---servlets
+|   |                   |   |       AdminItemAPI.java
+|   |                   |   |       AdminUserAPI.java
+|   |                   |   |       CategoryAPI.java
+|   |                   |   |       DepositAPI.java
+|   |                   |   |       GetBidHistoryAPI.java
+|   |                   |   |       GetItemDetailAPI.java
+|   |                   |   |       GetItemsAPI.java
+|   |                   |   |       GetMyActiveBidsAPI.java
+|   |                   |   |       GetMyItemsForSaleAPI.java
+|   |                   |   |       GetMyWonItemsAPI.java
+|   |                   |   |       ItemsAPI.java
+|   |                   |   |       LoginAPI.java
+|   |                   |   |       LogoutAPI.java
+|   |                   |   |       PaymentAPI.java
+|   |                   |   |       PlaceBidAPI.java
+|   |                   |   |       RegisterAPI.java
+|   |                   |   |       SearchItemsAPI.java
+|   |                   |   |       UserProfileAPI.java
+|   |                   |   |       WatchlistAPI.java
+|   |                   |   |       
+|   |                   |   +---utils
+|   |                   |   |       LocalDateTimeAdapter.java
+|   |                   |   |       
+|   |                   |   \---websocket
+|   |                   |           AuctionWebSocketServer.java
+|   |                   |           
+|   |                   \---service
+|   |                           AuctionService.java
+|   |                           BidderService.java
+|   |                           BidService.java
+|   |                           ItemService.java
+|   |                           PaymentService.java
+|   |                           UserService.java
+|   |                           
+|   \---target
+|       \---classes
+|           \---com
+|               \---auction
+|                   \---server
+|                       |   AuctionServer.class
+|                       |   
+|                       +---models
+|                       |       AuctionUpdate.class
+|                       |       AuctionUpdateListener.class
+|                       |       AutoBid.class
+|                       |       
+|                       \---websocket
+|                               AuctionWebSocketServer.class
+|                               
+\---uploads
+        1778259594914_anh-nen-one-piec-3.jpeg
+        videoframe_6940.png
+        
+ 
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\.idea\compiler.xml 
+============================================================ 
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
@@ -13,14 +340,18 @@
     </annotationProcessing>
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\.idea\copilot.data.migration.ask2agent.xml ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\.idea\copilot.data.migration.ask2agent.xml 
+============================================================ 
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Ask2AgentMigrationStateService">
     <option name="migrationStatus" value="COMPLETED" />
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\.idea\encodings.xml ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\.idea\encodings.xml 
+============================================================ 
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
@@ -30,7 +361,9 @@
     <file url="file://$PROJECT_DIR$/Server/src/main/resources" charset="UTF-8" />
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\.idea\jarRepositories.xml ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\.idea\jarRepositories.xml 
+============================================================ 
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="RemoteRepositoriesConfiguration">
@@ -51,7 +384,9 @@
     </remote-repository>
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\.idea\misc.xml ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\.idea\misc.xml 
+============================================================ 
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ExternalStorageConfigurationManager" enabled="true" />
@@ -67,7 +402,9 @@
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\.idea\modules.xml ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\.idea\modules.xml 
+============================================================ 
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ProjectModuleManager">
@@ -76,104 +413,111 @@
     </modules>
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\.idea\vcs.xml ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\.idea\vcs.xml 
+============================================================ 
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\.idea\workspace.xml ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\.idea\workspace.xml 
+============================================================ 
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9571ff96-5405-4d16-8a48-c798be255f7c" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Server/src/main/java/com/auction/server/models/AuctionManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/com/auction/server/models/AuctionManager.java" afterDir="false" />
+    <list default="true" id="b0bc4b18-4132-4dd7-a5dd-f68d263e4439" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Server/src/main/java/com/auction/controller/WatchlistController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Server/src/main/java/com/auction/server/dao/WatchlistDAO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Server/src/main/java/com/auction/server/servlets/WatchlistAPI.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/api/ApiService.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/network/ApiService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controllers/ProductViewController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controllers/ProductViewController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controllers/SellerController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/controllers/SellerController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/service/AuctionFacade.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/service/AuctionFacade.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/util/ItemCard.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/java/com/auction/client/util/ItemCard.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/main/resources/view/Product.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/main/resources/view/Product.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/database.sql" beforeDir="false" afterPath="$PROJECT_DIR$/Server/database.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Server/src/main/java/com/auction/server/AuctionServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/com/auction/server/AuctionServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/allcode.txt" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;ductoan0002007-ai&quot;
-  }
-}</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/trumphu09/Project-Online-auction-system.git&quot;,
-    &quot;accountId&quot;: &quot;e2386736-2b3f-485c-b7c7-da9ebc34992c&quot;
-  }
-}</component>
-  <component name="McpProjectServerCommands">
-    <commands />
-    <urls />
-  </component>
   <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 0
+  &quot;associatedIndex&quot;: 5
 }</component>
-  <component name="ProjectId" id="3BQNUlGX5pHV2uOR47kpzT05WZS" />
+  <component name="ProjectId" id="3CLv0ngIAScTA05Ktu4GP0lBL5H" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/My computer/OneDrive/Documents/Project-Online-auction-system&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Dai/Desktop/Project-Online-auction-system&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.editor&quot;
   }
 }</component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.31033.145" />
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.31033.145" />
-      </set>
-    </attachedChunks>
+  <component name="RunManager">
+    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.auction.client.Main" />
+      <module name="testjavafx" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.auction.client.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.Main" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="9571ff96-5405-4d16-8a48-c798be255f7c" name="Changes" comment="" />
-      <created>1774417352483</created>
+      <changelist id="b0bc4b18-4132-4dd7-a5dd-f68d263e4439" name="Changes" comment="" />
+      <created>1776177443700</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1774417352483</updated>
-      <workItem from="1774417353870" duration="369000" />
-      <workItem from="1774430674645" duration="14000" />
-      <workItem from="1774507217966" duration="132000" />
+      <updated>1776177443700</updated>
     </task>
     <servers />
   </component>
-  <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="3" />
-  </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\pom.xml ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\pom.xml 
+============================================================ 
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -213,7 +557,9 @@
         </dependency>
     </dependencies>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\.idea\compiler.xml ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\.idea\compiler.xml 
+============================================================ 
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
@@ -227,7 +573,9 @@
     </annotationProcessing>
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\.idea\encodings.xml ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\.idea\encodings.xml 
+============================================================ 
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
@@ -235,7 +583,9 @@
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\.idea\jarRepositories.xml ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\.idea\jarRepositories.xml 
+============================================================ 
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="RemoteRepositoriesConfiguration">
@@ -256,7 +606,9 @@
     </remote-repository>
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\.idea\misc.xml ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\.idea\misc.xml 
+============================================================ 
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ExternalStorageConfigurationManager" enabled="true" />
@@ -271,21 +623,140 @@
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\.idea\vcs.xml ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\.idea\vcs.xml 
+============================================================ 
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$/.." vcs="Git" />
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\.idea\misc.xml ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\.idea\workspace.xml 
+============================================================ 
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="3eeadeb6-31f1-41e7-9221-e5e7ba0ed3a5" name="Changes" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="FxmlFile" />
+        <option value="Class" />
+        <option value="Interface" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
+  <component name="ProjectId" id="3Bcfp2SWpbMA29iDa9tsj6Fhipb" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.Main.executor": "Run",
+    "Application.MainApp.executor": "Run",
+    "Application.com.auction.client..executor": "Run",
+    "Application.com.auction.client.MainApp.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/Dai/Desktop/Project-Online-auction-system/Client/pom.xml",
+    "onboarding.tips.debug.path": "C:/Users/Dai/Desktop/testjavafx/src/main/java/org/example/Main.java",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.JavaFX"
+  }
+}]]></component>
+  <component name="RunManager" selected="Application.Main">
+    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.auction.client.Main" />
+      <module name="testjavafx" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.auction.client.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MainApp" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="org.example.MainApp" />
+      <module name="testjavafx" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="org.example.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="com.auction.client.MainApp" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.auction.client.MainApp" />
+      <module name="testjavafx" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.auction.client.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.Main" />
+        <item itemvalue="Application.com.auction.client.MainApp" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="3eeadeb6-31f1-41e7-9221-e5e7ba0ed3a5" name="Changes" comment="" />
+      <created>1774793460280</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1774793460280</updated>
+    </task>
+    <servers />
+  </component>
+</project> 
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\.idea\misc.xml 
+============================================================ 
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ProjectRootManager" version="2" languageLevel="JDK_25" default="true" project-jdk-name="25" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\.idea\modules.xml ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\.idea\modules.xml 
+============================================================ 
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ProjectModuleManager">
@@ -294,7 +765,48 @@
     </modules>
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\Main.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\.idea\workspace.xml 
+============================================================ 
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="3ef69cf2-5fcc-4de5-bed2-61555e31ded1" name="Changes" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 2
+}]]></component>
+  <component name="ProjectId" id="3Bh10OfxG0F9W96yDh8HWfDmqNV" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/Dai/Desktop/testjavafx/src/main/java"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="3ef69cf2-5fcc-4de5-bed2-61555e31ded1" name="Changes" comment="" />
+      <created>1774926263353</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1774926263353</updated>
+    </task>
+    <servers />
+  </component>
+</project> 
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\Main.java 
+============================================================ 
 package com.auction.client;
 
 public class Main {
@@ -303,7 +815,9 @@ public class Main {
         MainApp.main(args);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\MainApp.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\MainApp.java 
+============================================================ 
 package com.auction.client;
 
 import javafx.application.Application;
@@ -357,91 +871,9 @@ public class MainApp extends Application {
 //        launch(args);
 //    }
 //} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\api\ApiService.java ===  
-package com.auction.client.api;
-
-import java.net.CookieManager;
-import java.net.CookiePolicy;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.concurrent.CompletableFuture;
-
-public class ApiService {
-  private static ApiService instance;
-  private final HttpClient httpClient;
-
-  // ĐẠI LƯU Ý: Sửa lại đường dẫn này cho khớp với Server của Thành/Toản
-  // Ví dụ: Nếu Server chạy ở cổng 8080 và mapping là /api/*
-// Sửa dòng này trong ApiService.java
-  private final String BASE_URL = "http://localhost:8080/api";
-
-  // Cái ví đựng Cookie (CỰC KỲ QUAN TRỌNG ĐỂ DUY TRÌ ĐĂNG NHẬP)
-  private static final CookieManager cookieManager = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
-
-  // Khởi tạo HttpClient với CookieManager
-  private ApiService() {
-    this.httpClient = HttpClient.newBuilder()
-      .cookieHandler(cookieManager) // Gắn ví Cookie vào Shipper
-      .build();
-  }
-
-  // Singleton Pattern
-  public static ApiService getInstance() {
-    if (instance == null) {
-      instance = new ApiService();
-    }
-    return instance;
-  }
-
-  // =====================================================================
-  // 1. HÀM GET (Dùng cho: Lấy danh sách sản phẩm, Xem lịch sử, Xem Profile)
-  // =====================================================================
-  public CompletableFuture<HttpResponse<String>> sendGetRequest(String endpoint) {
-    HttpRequest request = HttpRequest.newBuilder()
-      .uri(URI.create(BASE_URL + endpoint))
-      .GET()
-      .build();
-    return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
-  }
-
-  // =====================================================================
-  // 2. HÀM POST (Dùng cho: Đăng nhập, Đăng ký, Đặt giá Bid, Thêm sản phẩm)
-  // =====================================================================
-  public CompletableFuture<HttpResponse<String>> sendPostRequest(String endpoint, String jsonBody) {
-    HttpRequest request = HttpRequest.newBuilder()
-      .uri(URI.create(BASE_URL + endpoint))
-      .header("Content-Type", "application/json") // Báo cho Server biết mình gửi JSON
-      .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-      .build();
-    return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
-  }
-
-  // =====================================================================
-  // 3. HÀM PUT (Dùng cho: Sửa thông tin cá nhân, Đổi mật khẩu)
-  // =====================================================================
-  public CompletableFuture<HttpResponse<String>> sendPutRequest(String endpoint, String jsonBody) {
-    HttpRequest request = HttpRequest.newBuilder()
-      .uri(URI.create(BASE_URL + endpoint))
-      .header("Content-Type", "application/json")
-      .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
-      .build();
-    return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
-  }
-
-  // =====================================================================
-  // 4. HÀM DELETE (Dùng cho: Admin xóa sản phẩm)
-  // =====================================================================
-  public CompletableFuture<HttpResponse<String>> sendDeleteRequest(String endpoint) {
-    HttpRequest request = HttpRequest.newBuilder()
-      .uri(URI.create(BASE_URL + endpoint))
-      .DELETE()
-      .build();
-    return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
-  }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\AdminController.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\AdminController.java 
+============================================================ 
 package com.auction.client.controllers;
 
 import com.auction.client.model.dto.ItemDTO;
@@ -696,7 +1128,9 @@ private void handleLockUnlock() {
         });
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\BaseController.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\BaseController.java 
+============================================================ 
 package com.auction.client.controllers;
 
 import javafx.event.Event;
@@ -734,7 +1168,9 @@ public abstract class BaseController {
     }
 }
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\BiddingRoomController.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\BiddingRoomController.java 
+============================================================ 
 package com.auction.client.controllers;
 
 import com.auction.client.model.dto.ItemDTO;
@@ -823,7 +1259,9 @@ public class BiddingRoomController extends BaseController {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\BidHistoryController.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\BidHistoryController.java 
+============================================================ 
 package com.auction.client.controllers;
 
 import javafx.application.Platform;
@@ -1011,7 +1449,9 @@ public class BidHistoryController extends BaseController {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\LoginController.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\LoginController.java 
+============================================================ 
 package com.auction.client.controllers;
 
 import com.auction.client.model.Admin;
@@ -1093,7 +1533,9 @@ public class LoginController extends BaseController implements Initializable { /
     });
   }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\ProductViewController.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\ProductViewController.java 
+============================================================ 
 package com.auction.client.controllers;
 
 import com.auction.client.model.dto.ItemDTO;
@@ -1103,6 +1545,7 @@ import com.auction.client.service.AuctionFacade;
 import com.auction.client.util.ItemCard;
 import com.google.gson.JsonObject;
 
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -1115,7 +1558,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.TilePane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.net.URL;
@@ -1136,6 +1581,11 @@ public class ProductViewController extends BaseController {
     // --- CÁC ID CỦA LỊCH SỬ ĐẤU GIÁ ---
     @FXML private ListView<String> listActiveBids;
     @FXML private ListView<String> listWonItems;
+
+    // --- CÁC ID CỦA GIỎ HÀNG ---
+    @FXML private VBox cartSidebar;
+    @FXML private VBox cartItemsContainer;
+    private boolean isCartOpen = false;
 
     @FXML
     public void initialize(URL url, ResourceBundle rb) {
@@ -1164,7 +1614,7 @@ public class ProductViewController extends BaseController {
         productGridContainer.getChildren().clear();
         if (items != null) {
             for (ItemDTO item : items) {
-                ItemCard card = new ItemCard(item, 180, 150);
+                ItemCard card = new ItemCard(item, 180, 150, true);
                 card.setUserData(item); // Cất dữ liệu vào card
                 card.setCursor(javafx.scene.Cursor.HAND);
                 card.setOnMouseClicked(this::openBiddingRoom);
@@ -1322,6 +1772,42 @@ public class ProductViewController extends BaseController {
         }
     }
 
+    // ==========================================
+    // PHẦN 6: GIỎ HÀNG
+    // ==========================================
+  @FXML
+  private void handleToggleCart() {
+    TranslateTransition transition = new TranslateTransition(Duration.millis(300), cartSidebar);
+    if (isCartOpen) {
+      transition.setToX(300); // Trượt giấu đi
+      isCartOpen = false;
+    } else {
+      transition.setToX(0);   // Trượt hiện ra
+      isCartOpen = true;
+      loadCartItems();        // Gọi dữ liệu khi mở
+    }
+    transition.play();
+  }
+
+  private void loadCartItems() {
+    AuctionFacade.getInstance().getWatchlist(new ApiCallback<List<ItemDTO>>() {
+      @Override
+      public void onSuccess(List<ItemDTO> items) {
+        Platform.runLater(() -> {
+          cartItemsContainer.getChildren().clear();
+          for (ItemDTO item : items) {
+            // Tạo một Label hoặc MiniItemCard cho từng món
+            cartItemsContainer.getChildren().add(new Label(item.getName() + " - " + item.getStartingPrice()));
+          }
+        });
+      }
+      @Override
+      public void onError(String err) {
+        // Xử lý lỗi
+      }
+    });
+  }
+
     @FXML
     private void handleLogout(ActionEvent event) {
         AuctionFacade.getInstance().logout(new ApiCallback<JsonObject>() {
@@ -1336,7 +1822,9 @@ public class ProductViewController extends BaseController {
         });
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\RegisterController.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\RegisterController.java 
+============================================================ 
 package com.auction.client.controllers;
 
 import com.auction.client.service.ApiCallback;
@@ -1396,7 +1884,9 @@ public class RegisterController extends BaseController {
     switchScene(event, "/view/View.fxml", "Đăng nhập hệ thống", 800, 500);
   }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\SellerController.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\SellerController.java 
+============================================================ 
 package com.auction.client.controllers;
 
 import com.auction.client.model.dto.ElectronicsDTO;
@@ -1405,7 +1895,10 @@ import com.auction.client.model.dto.VehicleDTO;
 import com.auction.client.service.ApiCallback;
 import com.auction.client.service.AuctionFacade;
 import com.auction.client.model.dto.ItemDTO;
+<<<<<<< HEAD
 import com.auction.client.model.dto.UserDTO;
+=======
+>>>>>>> c259c774493665a46b76d2a727ab5bb8a02ae76d
 import com.auction.client.util.ItemCard;
 import com.google.gson.JsonObject;
 
@@ -1425,7 +1918,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+<<<<<<< HEAD
 import java.util.stream.Collectors;
+=======
+>>>>>>> c259c774493665a46b76d2a727ab5bb8a02ae76d
 
 public class SellerController extends BaseController implements Initializable {
 
@@ -1444,6 +1940,10 @@ public class SellerController extends BaseController implements Initializable {
     // Khai báo TextField tìm kiếm
     @FXML private TextField txtSearch;
     private List<ItemDTO> allItems = new ArrayList<>(); // Lưu tạm để search nhanh
+
+    // Biến lưu trữ ảnh
+    private String currentImagePath = "";
+    private String currentBase64Image = null;
 
     // Biến lưu trữ ảnh
     private String currentImagePath = "";
@@ -1503,8 +2003,16 @@ public class SellerController extends BaseController implements Initializable {
                 @Override
                 public void onSuccess(JsonObject result) {
                     Platform.runLater(() -> {
+<<<<<<< HEAD
                         clearFields();
                         showAlert("Thành công", "Đã ném sản phẩm lên sàn đấu giá thành công!");
+=======
+                        ItemCard card = new ItemCard(newItem, 180, 120, false);
+                        inventoryGrid.getChildren().add(card);
+                        clearFields();
+                        showAlert("Thành công", "Đã ném sản phẩm lên sàn đấu giá thành công!");
+                        // Load lại cho chắc ăn để lấy hình ảnh chuẩn từ server
+>>>>>>> c259c774493665a46b76d2a727ab5bb8a02ae76d
                         loadSellerInventory(); 
                     });
                 }
@@ -1533,7 +2041,11 @@ public class SellerController extends BaseController implements Initializable {
             VehicleDTO v = new VehicleDTO();
             v.setBrand(getTextFromField("txtBrand"));
             v.setMileage(getIntFromField("txtMileage"));
+<<<<<<< HEAD
             v.setCondition(getTextFromField("txtCondition")); 
+=======
+            v.setCondition(getTextFromField("txtCondition")); // Lưu ý: hàm set là setConditionState hay setCondition tùy DTO của ông
+>>>>>>> c259c774493665a46b76d2a727ab5bb8a02ae76d
             item = v;
         } else if ("ART".equals(key)) {
             ArtDTO a = new ArtDTO();
@@ -1546,6 +2058,7 @@ public class SellerController extends BaseController implements Initializable {
         }
 
         item.setName(txtItemName.getText());
+<<<<<<< HEAD
         item.setName(txtItemName.getText());
         try {
             item.setStartingPrice(Double.parseDouble(txtStartingPrice.getText()));
@@ -1561,12 +2074,21 @@ public class SellerController extends BaseController implements Initializable {
             }
             // ------------------------------------------------
             
+=======
+        try {
+            item.setStartingPrice(Double.parseDouble(txtStartingPrice.getText()));
+            item.setPriceStep(Double.parseDouble(txtPriceStep.getText()));
+>>>>>>> c259c774493665a46b76d2a727ab5bb8a02ae76d
         } catch (NumberFormatException ignored) {}
         
         item.setCategory(key); 
         item.setDescription(txtDescription.getText());
         item.setImagePath(currentImagePath);
+<<<<<<< HEAD
         item.setBase64Image(this.currentBase64Image); 
+=======
+        item.setBase64Image(this.currentBase64Image); // Sửa lỗi gán nhầm biến ở đây
+>>>>>>> c259c774493665a46b76d2a727ab5bb8a02ae76d
         return item;
     }
 
@@ -1589,7 +2111,11 @@ public class SellerController extends BaseController implements Initializable {
         dateEnd.setValue(null);
         lblFileName.setText("Chưa chọn ảnh");
         currentImagePath = "";
+<<<<<<< HEAD
         currentBase64Image = null; 
+=======
+        currentBase64Image = null; // Xóa luôn base64
+>>>>>>> c259c774493665a46b76d2a727ab5bb8a02ae76d
     }
 
     @FXML
@@ -1613,15 +2139,29 @@ public class SellerController extends BaseController implements Initializable {
         }
     }
 
+<<<<<<< HEAD
     @FXML
     public void loadSellerInventory() {
+=======
+    private void loadSellerInventory() {
+>>>>>>> c259c774493665a46b76d2a727ab5bb8a02ae76d
         AuctionFacade.getInstance().getMyItems(new ApiCallback<List<ItemDTO>>() {
             @Override
             public void onSuccess(List<ItemDTO> items) {
                 Platform.runLater(() -> {
+<<<<<<< HEAD
                     if (items != null) {
                         allItems = items; // Lưu vào danh sách gốc để tìm kiếm
                         renderGrid(items);
+=======
+                    inventoryGrid.getChildren().clear(); 
+                    if (items != null) {
+                        for (ItemDTO item : items) {
+                            ItemCard card = new ItemCard(item, 180, 150, false);
+                            card.setOnMouseClicked(event -> showItemDetailPopup(item));
+                            inventoryGrid.getChildren().add(card);
+                        }
+>>>>>>> c259c774493665a46b76d2a727ab5bb8a02ae76d
                     }
                 });
             }
@@ -1633,6 +2173,7 @@ public class SellerController extends BaseController implements Initializable {
         });
     }
 
+<<<<<<< HEAD
     @FXML
     private void handleSearch() {
         if (txtSearch == null) return;
@@ -1815,6 +2356,40 @@ public class SellerController extends BaseController implements Initializable {
                 Platform.runLater(() -> showAlert("Lỗi cập nhật", errorMessage));
             }
         });
+=======
+    private void showItemDetailPopup(ItemDTO item) {
+        StringBuilder detail = new StringBuilder();
+        detail.append("--- THÔNG TIN CHUNG ---\n");
+        detail.append("Tên: ").append(item.getName()).append("\n");
+        detail.append("Giá khởi điểm: ").append(item.getStartingPrice()).append(" VNĐ\n");
+        // Kiểm tra null cho ngày tạo để tránh lỗi
+        if(item.getCreatedAt() != null) {
+            detail.append("Ngày tạo: ").append(item.getCreatedAt()).append("\n");
+        }
+        detail.append("Mô tả: ").append(item.getDescription()).append("\n\n");
+
+        detail.append("--- THÔNG TIN RIÊNG (").append(item.getCategory()).append(") ---\n");
+
+        if (item instanceof ElectronicsDTO) {
+            detail.append("Bảo hành: ").append(((ElectronicsDTO) item).getWarrantyMonths()).append(" tháng\n");
+        } else if (item instanceof VehicleDTO) {
+            VehicleDTO v = (VehicleDTO) item;
+            detail.append("Thương hiệu: ").append(v.getBrand()).append("\n");
+            detail.append("Số KM: ").append(v.getMileage()).append(" km\n");
+            detail.append("Tình trạng: ").append(v.getCondition() != null ? v.getCondition() : "Không rõ").append("\n");
+        } else if (item instanceof ArtDTO) {
+            ArtDTO a = (ArtDTO) item;
+            detail.append("Họa sĩ: ").append(a.getArtist()).append("\n");
+            detail.append("Năm sáng tác: ").append(a.getCreationYear()).append("\n");
+            detail.append("Chất liệu: ").append(a.getMaterial()).append("\n");
+        }
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Chi tiết sản phẩm");
+        alert.setHeaderText(item.getName());
+        alert.setContentText(detail.toString());
+        alert.showAndWait();
+>>>>>>> c259c774493665a46b76d2a727ab5bb8a02ae76d
     }
 
     @FXML
@@ -1822,11 +2397,19 @@ public class SellerController extends BaseController implements Initializable {
         AuctionFacade.getInstance().logout(new ApiCallback<JsonObject>() {
             @Override
             public void onSuccess(JsonObject result) {
+<<<<<<< HEAD
                 Platform.runLater(() -> switchScene(event, "/view/View.fxml", "Đăng nhập hệ thống", 800, 500));
+=======
+                Platform.runLater(() -> {
+                    System.out.println("Server đã hủy Session.");
+                    switchScene(event, "/view/View.fxml", "Đăng nhập hệ thống", 800, 500);
+                });
+>>>>>>> c259c774493665a46b76d2a727ab5bb8a02ae76d
             }
 
             @Override
             public void onError(String errorMessage) {
+<<<<<<< HEAD
                 Platform.runLater(() -> switchScene(event, "/view/View.fxml", "Đăng nhập hệ thống", 800, 500));
             }
         });
@@ -1851,6 +2434,19 @@ public class SellerController extends BaseController implements Initializable {
     }
 } 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\Admin.java ===  
+=======
+                Platform.runLater(() -> {
+                    System.err.println("Lỗi đăng xuất Server: " + errorMessage);
+                    switchScene(event, "/view/View.fxml", "Đăng nhập hệ thống", 800, 500);
+                });
+            }
+        });
+    }
+} 
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\Admin.java 
+============================================================ 
+>>>>>>> c259c774493665a46b76d2a727ab5bb8a02ae76d
 package com.auction.client.model;
 
 public class Admin extends User {
@@ -1863,7 +2459,9 @@ public class Admin extends User {
 }
 
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\Bidder.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\Bidder.java 
+============================================================ 
 package com.auction.client.model;
 
 public class Bidder extends User {
@@ -1874,7 +2472,9 @@ public class Bidder extends User {
         return "/view/ProductView.fxml";
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\Seller.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\Seller.java 
+============================================================ 
 package com.auction.client.model;
 
 public class Seller extends User {
@@ -1886,7 +2486,9 @@ public class Seller extends User {
     }
 }
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\User.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\User.java 
+============================================================ 
 package com.auction.client.model;
 
 import java.io.Serializable;
@@ -1918,7 +2520,9 @@ public abstract class User implements Serializable {
     // Phương thức trừu tượng: Mỗi loại User sẽ có một bảng điều khiển riêng
     public abstract String getDashboardFXML();
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\ArtDTO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\ArtDTO.java 
+============================================================ 
 package com.auction.client.model.dto;
 
 import com.google.gson.annotations.Expose;
@@ -1954,7 +2558,9 @@ public class ArtDTO extends ItemDTO {
     public String getMaterial() { return material; }
     public void setMaterial(String material) { this.material = material; }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\AuctionDTO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\AuctionDTO.java 
+============================================================ 
 package com.auction.client.model.dto;
 
 import com.google.gson.annotations.Expose;
@@ -2041,7 +2647,9 @@ public class AuctionDTO implements Serializable {
     public int getHighestBidderId() { return highestBidderId; }
     public void setHighestBidderId(int highestBidderId) { this.highestBidderId = highestBidderId; }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\BidDTO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\BidDTO.java 
+============================================================ 
 package com.auction.client.model.dto;
 
 import com.google.gson.annotations.Expose;
@@ -2104,7 +2712,9 @@ public class BidDTO implements Serializable {
     public void setTimestamp(String timestamp) { this.timestamp = timestamp; }
 }
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\ElectronicsDTO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\ElectronicsDTO.java 
+============================================================ 
 package com.auction.client.model.dto;
 
 import com.google.gson.annotations.Expose;
@@ -2126,7 +2736,9 @@ public class ElectronicsDTO extends ItemDTO {
     public int getWarrantyMonths() { return warrantyMonths; }
     public void setWarrantyMonths(int warrantyMonths) { this.warrantyMonths = warrantyMonths; }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\ItemDTO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\ItemDTO.java 
+============================================================ 
 package com.auction.client.model.dto;
 
 import com.google.gson.annotations.Expose;
@@ -2215,6 +2827,7 @@ public class ItemDTO implements Serializable {
     }
     public String getBase64Image() { return base64Image; }
     public void setBase64Image(String base64Image) { this.base64Image = base64Image; }
+<<<<<<< HEAD
     
     public int getAuctionId() { return auctionId; }
     public void setAuctionId(int auctionId) { this.auctionId = auctionId; }
@@ -2224,8 +2837,12 @@ public class ItemDTO implements Serializable {
     public void setHighestBidderId(int highestBidderId) { this.highestBidderId = highestBidderId; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+=======
+>>>>>>> c259c774493665a46b76d2a727ab5bb8a02ae76d
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\UserDTO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\UserDTO.java 
+============================================================ 
 package com.auction.client.model.dto;
 
 import com.google.gson.annotations.SerializedName;
@@ -2283,7 +2900,9 @@ public class UserDTO implements Serializable {
     public int getSaleCount() { return saleCount; }
     public void setSaleCount(int saleCount) { this.saleCount = saleCount; }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\VehicleDTO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\VehicleDTO.java 
+============================================================ 
 package com.auction.client.model.dto;
 
 import com.google.gson.annotations.Expose;
@@ -2319,7 +2938,95 @@ public class VehicleDTO extends ItemDTO {
     public String getCondition() { return condition; }
     public void setCondition(String condition) { this.condition = condition; }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\service\ApiCallback.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\network\ApiService.java 
+============================================================ 
+package com.auction.client.network;
+
+import java.net.CookieManager;
+import java.net.CookiePolicy;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.concurrent.CompletableFuture;
+
+public class ApiService {
+  private static ApiService instance;
+  private final HttpClient httpClient;
+
+  // ĐẠI LƯU Ý: Sửa lại đường dẫn này cho khớp với Server của Thành/Toản
+  // Ví dụ: Nếu Server chạy ở cổng 8080 và mapping là /api/*
+// Sửa dòng này trong ApiService.java
+  private final String BASE_URL = "http://localhost:8080/api";
+
+  // Cái ví đựng Cookie (CỰC KỲ QUAN TRỌNG ĐỂ DUY TRÌ ĐĂNG NHẬP)
+  private static final CookieManager cookieManager = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
+
+  // Khởi tạo HttpClient với CookieManager
+  private ApiService() {
+    this.httpClient = HttpClient.newBuilder()
+      .cookieHandler(cookieManager) // Gắn ví Cookie vào Shipper
+      .build();
+  }
+
+  // Singleton Pattern
+  public static ApiService getInstance() {
+    if (instance == null) {
+      instance = new ApiService();
+    }
+    return instance;
+  }
+
+  // =====================================================================
+  // 1. HÀM GET (Dùng cho: Lấy danh sách sản phẩm, Xem lịch sử, Xem Profile)
+  // =====================================================================
+  public CompletableFuture<HttpResponse<String>> sendGetRequest(String endpoint) {
+    HttpRequest request = HttpRequest.newBuilder()
+      .uri(URI.create(BASE_URL + endpoint))
+      .GET()
+      .build();
+    return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+  }
+
+  // =====================================================================
+  // 2. HÀM POST (Dùng cho: Đăng nhập, Đăng ký, Đặt giá Bid, Thêm sản phẩm)
+  // =====================================================================
+  public CompletableFuture<HttpResponse<String>> sendPostRequest(String endpoint, String jsonBody) {
+    HttpRequest request = HttpRequest.newBuilder()
+      .uri(URI.create(BASE_URL + endpoint))
+      .header("Content-Type", "application/json") // Báo cho Server biết mình gửi JSON
+      .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+      .build();
+    return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+  }
+
+  // =====================================================================
+  // 3. HÀM PUT (Dùng cho: Sửa thông tin cá nhân, Đổi mật khẩu)
+  // =====================================================================
+  public CompletableFuture<HttpResponse<String>> sendPutRequest(String endpoint, String jsonBody) {
+    HttpRequest request = HttpRequest.newBuilder()
+      .uri(URI.create(BASE_URL + endpoint))
+      .header("Content-Type", "application/json")
+      .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
+      .build();
+    return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+  }
+
+  // =====================================================================
+  // 4. HÀM DELETE (Dùng cho: Admin xóa sản phẩm)
+  // =====================================================================
+  public CompletableFuture<HttpResponse<String>> sendDeleteRequest(String endpoint) {
+    HttpRequest request = HttpRequest.newBuilder()
+      .uri(URI.create(BASE_URL + endpoint))
+      .DELETE()
+      .build();
+    return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+  }
+} 
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\service\ApiCallback.java 
+============================================================ 
 package com.auction.client.service;
 
 /**
@@ -2331,16 +3038,15 @@ public interface ApiCallback<T> {
   void onError(String errorMessage);
 }
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\service\AuctionFacade.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\service\AuctionFacade.java 
+============================================================ 
 package com.auction.client.service;
 
-import com.auction.client.api.ApiService;
+import com.auction.client.network.ApiService;
 import com.auction.client.model.dto.ItemDTO;
 import com.auction.client.model.dto.UserDTO;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
 import javafx.application.Platform;
 
 import java.lang.reflect.Type;
@@ -2531,6 +3237,7 @@ public class AuctionFacade {
     public void adminDeleteItem(int itemId, ApiCallback<JsonObject> callback) {
         executeRequest(apiService.sendDeleteRequest("/admin/items/" + itemId), JsonObject.class, callback);
     }
+<<<<<<< HEAD
     // --- HÀM BỔ SUNG: CẬP NHẬT SẢN PHẨM ---
     public void updateItem(ItemDTO item, ApiCallback<JsonObject> callback) {
         if (item == null || item.getId() <= 0) {
@@ -2541,6 +3248,28 @@ public class AuctionFacade {
         executeRequest(apiService.sendPutRequest("/items/" + item.getId(), jsonBody), JsonObject.class, callback);
     }
     
+=======
+
+  // ==========================================
+  // 5. NHÓM GIỎ HÀNG (Watchlist)
+  // ==========================================
+
+  // 1. Thêm sản phẩm vào giỏ hàng
+  public void addToWatchlist(int itemId, ApiCallback<JsonObject> callback) {
+    JsonObject json = new JsonObject();
+    json.addProperty("itemId", itemId);
+    // Gửi POST request kèm theo body là {"itemId": 123}
+    executeRequest(apiService.sendPostRequest("/my/watchlist", gson.toJson(json)), JsonObject.class, callback);
+  }
+
+  // 2. Lấy danh sách giỏ hàng
+  public void getWatchlist(ApiCallback<List<ItemDTO>> callback) {
+    // Gửi GET request và hứng mảng List<ItemDTO> từ trường "data" của Server
+    executeRequest(apiService.sendGetRequest("/my/watchlist"),
+      new com.google.gson.reflect.TypeToken<List<ItemDTO>>(){}.getType(), callback);
+  }
+  
+>>>>>>> c259c774493665a46b76d2a727ab5bb8a02ae76d
 
   // =========================================================================
   // HÀM "LÕI" XỬ LÝ CHUNG (CORE PROCESSOR) - ĐẠI YÊU CẦU
@@ -2581,22 +3310,40 @@ public class AuctionFacade {
     });
   }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\util\ItemCard.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\util\ItemCard.java 
+============================================================ 
 package com.auction.client.util;
 
+<<<<<<< HEAD
 import com.auction.client.model.dto.*;
 import javafx.geometry.Insets;
+=======
+import com.auction.client.service.ApiCallback;
+import com.auction.client.service.AuctionFacade;
+
+import com.google.gson.JsonObject;
+import javafx.application.Platform;
+import com.auction.client.model.dto.ItemDTO;
+>>>>>>> c259c774493665a46b76d2a727ab5bb8a02ae76d
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 // TÍNH KẾ THỪA: Thừa hưởng mọi thứ của VBox
 public class ItemCard extends VBox {
 
+<<<<<<< HEAD
     public ItemCard(ItemDTO item, double width, double height) {
         // Cấu hình khung bên ngoài
+=======
+    public ItemCard(ItemDTO item, double width, double height, boolean isBuyer) {
+        // Cấu hình khung bên ngoài (Thay cho setStyle rườm rà)
+>>>>>>> c259c774493665a46b76d2a727ab5bb8a02ae76d
         this.setSpacing(10);
         this.setAlignment(Pos.CENTER);
         this.setPrefWidth(200);
@@ -2660,6 +3407,7 @@ public class ItemCard extends VBox {
         // Đóng gói các thành phần vào chính nó (this)
         this.getChildren().addAll(imageView, nameLabel, specificAttrLabel, priceLabel, statusLabel);
 
+<<<<<<< HEAD
         // Hiệu ứng di chuột (Hover) làm sáng Card
         this.setOnMouseEntered(e -> this.setStyle(this.getStyle() + "-fx-border-color: #3498db;"));
         this.setOnMouseExited(e -> this.setStyle(this.getStyle().replace("-fx-border-color: #3498db;", "-fx-border-color: #ffffff;")));
@@ -2675,9 +3423,50 @@ public class ItemCard extends VBox {
         } else {
             label.setStyle(baseStyle + "-fx-background-color: #3498db;"); // Xanh dương (OPEN)
         }
+=======
+      // CHỈ TẠO NÚT NẾU LÀ NGƯỜI MUA (BUYER)
+      if (isBuyer) {
+        Button btnAddToCart = new Button("🛒 Thêm vào giỏ");
+        btnAddToCart.setStyle("-fx-background-color: #ff8c00; -fx-text-fill: white; -fx-cursor: hand;");
+
+        btnAddToCart.setOnAction(e -> {
+          e.consume(); // Chặn click lan ra ngoài thẻ
+          // Gọi thư ký Facade để báo cho Back-end
+          AuctionFacade.getInstance().addToWatchlist(item.getId(), new ApiCallback<JsonObject>() {
+
+            @Override
+            public void onSuccess(JsonObject result) {
+              Platform.runLater(() -> {
+                System.out.println("Đã thêm thành công!");
+                // Gợi ý: Chỗ này có thể dùng showAlert() để báo cho người dùng biết
+              });
+            }
+
+            @Override
+            public void onError(String err) {
+              Platform.runLater(() -> {
+                System.out.println("Lỗi: " + err);
+                // Gợi ý: showAlert("Lỗi", err);
+              });
+            }
+
+          });
+        });
+        // Cho vào HBox căn phải rồi ép vào cuối ItemCard
+        HBox bottom = new HBox(btnAddToCart);
+        bottom.setAlignment(Pos.CENTER_RIGHT);
+        this.getChildren().add(bottom);
+      }
+
+//        // Có thể thêm hiệu ứng di chuột tại đây để dùng chung cho cả App
+//        this.setOnMouseEntered(e -> this.setStyle(this.getStyle() + "-fx-border-color: #2196F3;"));
+//        this.setOnMouseExited(e -> this.setStyle(this.getStyle().replace("-fx-border-color: #2196F3;", "-fx-border-color: #ddd;")));
+>>>>>>> c259c774493665a46b76d2a727ab5bb8a02ae76d
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\AdminView.fxml ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\resources\view\AdminView.fxml 
+============================================================ 
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.*?>
@@ -2729,8 +3518,16 @@ public class ItemCard extends VBox {
             </children>
         </VBox>
     </center>
+<<<<<<< HEAD
 </BorderPane> 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\BiddingRoomView.fxml ===  
+=======
+</BorderPane>
+ 
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\resources\view\BiddingRoomView.fxml 
+============================================================ 
+>>>>>>> c259c774493665a46b76d2a727ab5bb8a02ae76d
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
@@ -2867,7 +3664,9 @@ public class ItemCard extends VBox {
     </right>
 </BorderPane>
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\BidHistoryView.fxml ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\resources\view\BidHistoryView.fxml 
+============================================================ 
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.chart.*?>
@@ -2921,74 +3720,101 @@ public class ItemCard extends VBox {
       </HBox>
    </children>
 </VBox> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\Product.fxml ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\resources\view\Product.fxml 
+============================================================ 
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<BorderPane prefHeight="700.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.ProductViewController">
-    
-    <top>
-        <HBox spacing="15" alignment="CENTER_LEFT" style="-fx-background-color: #2c3e50; -fx-padding: 15;">
-            <Label text="CHỢ ĐẤU GIÁ" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: white;"/>
-            <Region HBox.hgrow="ALWAYS" /> <TextField fx:id="txtSearch" promptText="Tìm tên sản phẩm..." prefWidth="300" style="-fx-background-radius: 15;"/>
-            <Button text="Tìm kiếm" onAction="#handleSearchAction" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 15; -fx-cursor: hand;"/>
-            
+<StackPane fx:id="rootPane" prefHeight="700.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.ProductViewController">
+
+    <BorderPane>
+        <top>
+            <HBox spacing="15" alignment="CENTER_LEFT" style="-fx-background-color: #2c3e50; -fx-padding: 15;">
+                <Label text="CHỢ ĐẤU GIÁ" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                <Region HBox.hgrow="ALWAYS" />
+                <TextField fx:id="txtSearch" promptText="Tìm tên sản phẩm..." prefWidth="300" style="-fx-background-radius: 15;"/>
+                <Button text="Tìm kiếm" onAction="#handleSearchAction" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 15; -fx-cursor: hand;"/>
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <Button text="🛒 Giỏ hàng" onAction="#handleToggleCart" style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"/>
+
+                <Button text="Đăng xuất" onAction="#handleLogout" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;"/>
+            </HBox>
+        </top>
+
+        <left>
+            <VBox spacing="20" prefWidth="250" style="-fx-background-color: #ecf0f1; -fx-padding: 20; -fx-border-color: #bdc3c7; -fx-border-width: 0 1 0 0;">
+
+                <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);">
+                    <Label fx:id="lblFullName" text="Đang tải..." style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                    <HBox spacing="5">
+                        <Label text="Số dư:" />
+                        <Label fx:id="lblBalance" text="0 VNĐ" style="-fx-text-fill: #27ae60; -fx-font-weight: bold;"/>
+                    </HBox>
+                    <Separator />
+                    <Label text="Nạp thêm tiền:" style="-fx-font-size: 11; -fx-text-fill: #7f8c8d;"/>
+                    <HBox spacing="5">
+                        <TextField fx:id="txtDepositAmount" promptText="Nhập số tiền" prefWidth="120" />
+                        <Button text="Nạp" onAction="#handleDepositAction" style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-cursor: hand;"/>
+                    </HBox>
+                </VBox>
+
+                <VBox spacing="10">
+                    <Label text="DANH MỤC SẢN PHẨM" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
+                    <Button text="💻 Đồ Điện Tử" onAction="#handleFilterElectronics" maxWidth="Infinity" style="-fx-alignment: center-left; -fx-cursor: hand;"/>
+                    <Button text="🚗 Xe Cộ" onAction="#handleFilterVehicles" maxWidth="Infinity" style="-fx-alignment: center-left; -fx-cursor: hand;"/>
+                    <Button text="🎨 Nghệ Thuật" onAction="#handleFilterArts" maxWidth="Infinity" style="-fx-alignment: center-left; -fx-cursor: hand;"/>
+                    <Button text="🔄 Tất cả" onAction="#handleSearchAction" maxWidth="Infinity" style="-fx-alignment: center-left; -fx-cursor: hand;"/>
+                </VBox>
+            </VBox>
+        </left>
+
+        <center>
+            <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+                <content>
+                    <TilePane fx:id="productGridContainer" hgap="20.0" vgap="20.0" alignment="TOP_LEFT" style="-fx-padding: 30; -fx-background-color: white;" />
+                </content>
+            </ScrollPane>
+        </center>
+
+        <right>
+            <VBox spacing="15" prefWidth="250" style="-fx-background-color: #f9f9f9; -fx-padding: 20; -fx-border-color: #bdc3c7; -fx-border-width: 0 0 0 1;">
+                <Label text="LỊCH SỬ ĐẤU GIÁ" style="-fx-font-weight: bold; -fx-font-size: 14; -fx-text-fill: #2c3e50;"/>
+
+                <Label text="Đang tham gia:" style="-fx-font-size: 12;"/>
+                <ListView fx:id="listActiveBids" prefHeight="200" style="-fx-background-radius: 5;"/>
+
+                <Label text="Đã chiến thắng:" style="-fx-font-size: 12; -fx-text-fill: #d35400;"/>
+                <ListView fx:id="listWonItems" prefHeight="200" style="-fx-background-radius: 5;"/>
+            </VBox>
+        </right>
+    </BorderPane>
+
+    <VBox fx:id="cartSidebar" maxWidth="350.0" prefWidth="350.0" translateX="350.0"
+          StackPane.alignment="CENTER_RIGHT"
+          style="-fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 15, 0, -3, 0);">
+
+        <HBox alignment="CENTER_LEFT" style="-fx-padding: 15; -fx-background-color: #f8f9fa; -fx-border-color: #ddd; -fx-border-width: 0 0 1 0;">
+            <Label text="🛒 DANH SÁCH THEO DÕI" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
             <Region HBox.hgrow="ALWAYS" />
-            <Button text="Đăng xuất" onAction="#handleLogout" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;"/>
+            <Button text="✕" onAction="#handleToggleCart" style="-fx-background-color: transparent; -fx-text-fill: #e74c3c; -fx-font-weight: bold; -fx-cursor: hand;" />
         </HBox>
-    </top>
 
-    <left>
-        <VBox spacing="20" prefWidth="250" style="-fx-background-color: #ecf0f1; -fx-padding: 20; -fx-border-color: #bdc3c7; -fx-border-width: 0 1 0 0;">
-            
-            <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);">
-                <Label fx:id="lblFullName" text="Đang tải..." style="-fx-font-weight: bold; -fx-font-size: 14;"/>
-                <HBox spacing="5">
-                    <Label text="Số dư:" />
-                    <Label fx:id="lblBalance" text="0 VNĐ" style="-fx-text-fill: #27ae60; -fx-font-weight: bold;"/>
-                </HBox>
-                <Separator />
-                <Label text="Nạp thêm tiền:" style="-fx-font-size: 11; -fx-text-fill: #7f8c8d;"/>
-                <HBox spacing="5">
-                    <TextField fx:id="txtDepositAmount" promptText="Nhập số tiền" prefWidth="120" />
-                    <Button text="Nạp" onAction="#handleDepositAction" style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-cursor: hand;"/>
-                </HBox>
-            </VBox>
-
-            <VBox spacing="10">
-                <Label text="DANH MỤC SẢN PHẨM" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
-                <Button text="💻 Đồ Điện Tử" onAction="#handleFilterElectronics" maxWidth="Infinity" style="-fx-alignment: center-left; -fx-cursor: hand;"/>
-                <Button text="🚗 Xe Cộ" onAction="#handleFilterVehicles" maxWidth="Infinity" style="-fx-alignment: center-left; -fx-cursor: hand;"/>
-                <Button text="🎨 Nghệ Thuật" onAction="#handleFilterArts" maxWidth="Infinity" style="-fx-alignment: center-left; -fx-cursor: hand;"/>
-                <Button text="🔄 Tất cả" onAction="#handleSearchAction" maxWidth="Infinity" style="-fx-alignment: center-left; -fx-cursor: hand;"/>
-            </VBox>
-        </VBox>
-    </left>
-
-    <center>
-        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: white;">
             <content>
-                <TilePane fx:id="productGridContainer" hgap="20.0" vgap="20.0" alignment="TOP_LEFT" style="-fx-padding: 30; -fx-background-color: white;" />
+                <VBox fx:id="cartItemsContainer" spacing="10.0" style="-fx-padding: 15;" />
             </content>
         </ScrollPane>
-    </center>
+    </VBox>
 
-    <right>
-        <VBox spacing="15" prefWidth="250" style="-fx-background-color: #f9f9f9; -fx-padding: 20; -fx-border-color: #bdc3c7; -fx-border-width: 0 0 0 1;">
-            <Label text="LỊCH SỬ ĐẤU GIÁ" style="-fx-font-weight: bold; -fx-font-size: 14; -fx-text-fill: #2c3e50;"/>
-            
-            <Label text="Đang tham gia:" style="-fx-font-size: 12;"/>
-            <ListView fx:id="listActiveBids" prefHeight="200" style="-fx-background-radius: 5;"/>
-            
-            <Label text="Đã chiến thắng:" style="-fx-font-size: 12; -fx-text-fill: #d35400;"/>
-            <ListView fx:id="listWonItems" prefHeight="200" style="-fx-background-radius: 5;"/>
-        </VBox>
-    </right>
-
-</BorderPane> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\Register.fxml ===  
+</StackPane> 
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\resources\view\Register.fxml 
+============================================================ 
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.*?>
@@ -3061,8 +3887,14 @@ public class ItemCard extends VBox {
         </VBox>
     </children>
 </StackPane> 
+<<<<<<< HEAD
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\SellerView.fxml ===  
 <?xml version="1.0" encoding="UTF-8"?>
+=======
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\resources\view\SellerView.fxml 
+============================================================ 
+>>>>>>> c259c774493665a46b76d2a727ab5bb8a02ae76d
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Label?>
@@ -3186,8 +4018,17 @@ public class ItemCard extends VBox {
         </VBox>
     </right>
 
+<<<<<<< HEAD
 </BorderPane> 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\View.fxml ===  
+=======
+</BorderPane>
+
+ 
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\resources\view\View.fxml 
+============================================================ 
+>>>>>>> c259c774493665a46b76d2a727ab5bb8a02ae76d
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.*?>
@@ -3255,6 +4096,7 @@ public class ItemCard extends VBox {
     </right>
 
 </BorderPane> 
+<<<<<<< HEAD
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\.idea\misc.xml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
@@ -3272,6 +4114,11 @@ public class ItemCard extends VBox {
   </component>
 </project> 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\AdminView.fxml ===  
+=======
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\target\classes\view\AdminView.fxml 
+============================================================ 
+>>>>>>> c259c774493665a46b76d2a727ab5bb8a02ae76d
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.*?>
@@ -3323,8 +4170,16 @@ public class ItemCard extends VBox {
             </children>
         </VBox>
     </center>
+<<<<<<< HEAD
 </BorderPane> 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\BiddingRoomView.fxml ===  
+=======
+</BorderPane>
+ 
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\target\classes\view\BiddingRoomView.fxml 
+============================================================ 
+>>>>>>> c259c774493665a46b76d2a727ab5bb8a02ae76d
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
@@ -3461,7 +4316,9 @@ public class ItemCard extends VBox {
     </right>
 </BorderPane>
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\BidHistoryView.fxml ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\target\classes\view\BidHistoryView.fxml 
+============================================================ 
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.chart.*?>
@@ -3515,7 +4372,9 @@ public class ItemCard extends VBox {
       </HBox>
    </children>
 </VBox> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\Product.fxml ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\target\classes\view\Product.fxml 
+============================================================ 
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -3582,7 +4441,9 @@ public class ItemCard extends VBox {
     </right>
 
 </BorderPane> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\Register.fxml ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\target\classes\view\Register.fxml 
+============================================================ 
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.*?>
@@ -3655,8 +4516,14 @@ public class ItemCard extends VBox {
         </VBox>
     </children>
 </StackPane> 
+<<<<<<< HEAD
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\SellerView.fxml ===  
 <?xml version="1.0" encoding="UTF-8"?>
+=======
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\target\classes\view\SellerView.fxml 
+============================================================ 
+>>>>>>> c259c774493665a46b76d2a727ab5bb8a02ae76d
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Label?>
@@ -3780,8 +4647,17 @@ public class ItemCard extends VBox {
         </VBox>
     </right>
 
+<<<<<<< HEAD
 </BorderPane> 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\View.fxml ===  
+=======
+</BorderPane>
+
+ 
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\target\classes\view\View.fxml 
+============================================================ 
+>>>>>>> c259c774493665a46b76d2a727ab5bb8a02ae76d
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.*?>
@@ -3849,7 +4725,9 @@ public class ItemCard extends VBox {
     </right>
 
 </BorderPane> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\pom.xml ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\pom.xml 
+============================================================ 
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -3911,6 +4789,7 @@ public class ItemCard extends VBox {
         </dependency>
     </dependencies>
 </project> 
+<<<<<<< HEAD
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\database.sql ===  
 USE defaultdb;
 
@@ -4041,6 +4920,11 @@ CREATE TABLE IF NOT EXISTS auto_bids (
 );
  
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\AuctionController.java ===  
+=======
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\controller\AuctionController.java 
+============================================================ 
+>>>>>>> c259c774493665a46b76d2a727ab5bb8a02ae76d
 package com.auction.controller;
 
 import com.auction.service.AuctionService;
@@ -4095,7 +4979,9 @@ public class AuctionController {
         return gson.toJson(response);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\BidController.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\controller\BidController.java 
+============================================================ 
 package com.auction.controller;
 
 import com.auction.service.BidService;
@@ -4146,7 +5032,9 @@ public class BidController {
         return gson.toJson(response);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\BidderController.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\controller\BidderController.java 
+============================================================ 
 package com.auction.controller;
 
 import com.auction.service.BidderService;
@@ -4199,7 +5087,9 @@ public class BidderController {
     }
 }
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\ItemController.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\controller\ItemController.java 
+============================================================ 
 package com.auction.controller;
 
 import com.auction.server.factory.ItemFactory;
@@ -4340,7 +5230,9 @@ public class ItemController {
         return gson.toJson(response);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\PaymentController.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\controller\PaymentController.java 
+============================================================ 
 package com.auction.controller;
 import com.auction.server.models.Payment;
 import com.auction.service.PaymentService;
@@ -4449,7 +5341,9 @@ public class PaymentController {
     }
 }
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\UserController.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\controller\UserController.java 
+============================================================ 
 package com.auction.controller;
 
 import com.auction.service.UserService;
@@ -4633,7 +5527,59 @@ public class UserController {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\AuctionServer.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\controller\WatchlistController.java 
+============================================================ 
+package com.auction.controller;
+
+import com.auction.server.dao.WatchlistDAO;
+import com.auction.server.models.ItemDTO;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class WatchlistController {
+  private static WatchlistController instance;
+
+  private WatchlistController() {}
+
+  public static WatchlistController getInstance() {
+    if (instance == null) {
+      instance = new WatchlistController();
+    }
+    return instance;
+  }
+
+  // 1. Hàm xử lý khi Client muốn Thêm vào giỏ
+  public Map<String, Object> handleAddToWatchlist(int userId, int itemId) {
+    Map<String, Object> response = new HashMap<>();
+
+    boolean success = WatchlistDAO.getInstance().addToWatchlist(userId, itemId);
+
+    if (success) {
+      response.put("status", "success");
+      response.put("message", "Đã thêm sản phẩm vào danh sách theo dõi!");
+    } else {
+      response.put("status", "error");
+      response.put("message", "Sản phẩm đã có trong giỏ hoặc ID không hợp lệ.");
+    }
+    return response;
+  }
+
+  // 2. Hàm xử lý khi Client mở thanh Giỏ hàng (Cần lấy danh sách)
+  public Map<String, Object> handleGetWatchlist(int userId) {
+    Map<String, Object> response = new HashMap<>();
+
+    List<ItemDTO> items = WatchlistDAO.getInstance().getWatchlistByUserId(userId);
+
+    response.put("status", "success");
+    response.put("data", items); // Ném nguyên cái List vào đây để gửi về Client
+    return response;
+  }
+} 
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\AuctionServer.java 
+============================================================ 
 package com.auction.server;
 
 import com.auction.server.dao.DatabaseConnection;
@@ -4711,6 +5657,9 @@ public class AuctionServer {
             ctx.addServletMappingDecoded("/api/my/deposit", "DepositAPI");
             Tomcat.addServlet(ctx, "PaymentAPI", new PaymentAPI());
             ctx.addServletMappingDecoded("/api/payments", "PaymentAPI");
+            // ĐĂNG KÝ API GIỎ HÀNG
+            Tomcat.addServlet(ctx, "WatchlistAPI", new WatchlistAPI());
+            ctx.addServletMappingDecoded("/api/my/watchlist", "WatchlistAPI");
 
             tomcat.start();
             System.out.println("✓ [HTTP API] Web Server đang chạy ở cổng 8080!");
@@ -4742,7 +5691,9 @@ public class AuctionServer {
         System.exit(0);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\AdminDAO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\AdminDAO.java 
+============================================================ 
 package com.auction.server.dao;
 
 import com.auction.server.models.BidderDTO;
@@ -4836,7 +5787,9 @@ public class AdminDAO {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\ArtDAO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\ArtDAO.java 
+============================================================ 
 package com.auction.server.dao;
 
 import com.auction.server.models.ArtDTO;
@@ -4883,7 +5836,9 @@ public class ArtDAO implements IItemSubDAO {
         return null;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\AuctionDAO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\AuctionDAO.java 
+============================================================ 
 package com.auction.server.dao;
 import com.auction.server.models.AuctionDataDTO;
 import com.auction.server.models.AuctionStatus;
@@ -4983,7 +5938,9 @@ public class AuctionDAO {
 
 }
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\BidderDAO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\BidderDAO.java 
+============================================================ 
 package com.auction.server.dao;
 
 import java.sql.Connection;
@@ -5061,7 +6018,9 @@ public class BidderDAO {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\BidderSubDAO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\BidderSubDAO.java 
+============================================================ 
 package com.auction.server.dao;
 
 import com.auction.server.models.User;
@@ -5102,7 +6061,9 @@ public class BidderSubDAO implements IUserSubDAO {
         return null;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\BidsDAO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\BidsDAO.java 
+============================================================ 
 package com.auction.server.dao;
 
 import java.sql.*;
@@ -5336,7 +6297,9 @@ public class BidsDAO {
         return item;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\DatabaseConnection.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\DatabaseConnection.java 
+============================================================ 
 package com.auction.server.dao;
 
 import com.zaxxer.hikari.HikariConfig;
@@ -5382,7 +6345,9 @@ public class DatabaseConnection {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\ElectronicsDAO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\ElectronicsDAO.java 
+============================================================ 
 package com.auction.server.dao;
 
 import com.auction.server.models.ElectronicsDTO;
@@ -5426,7 +6391,9 @@ public class ElectronicsDAO implements IItemSubDAO {
         return null;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\IItemSubDAO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\IItemSubDAO.java 
+============================================================ 
 package com.auction.server.dao;
 
 import com.auction.server.models.ItemDTO;
@@ -5438,7 +6405,9 @@ public interface IItemSubDAO {
     void insertSubItem(Connection conn, ItemDTO item) throws SQLException;
     ItemDTO fetchSubItem(Connection conn, ResultSet rs) throws SQLException;
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\ItemDAO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\ItemDAO.java 
+============================================================ 
 package com.auction.server.dao;
 
 import com.auction.server.models.ItemDTO;
@@ -5927,7 +6896,9 @@ public List<ItemDTO> getItemsBySellerId(int sellerId) {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\IUserSubDAO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\IUserSubDAO.java 
+============================================================ 
 package com.auction.server.dao;
 
 import com.auction.server.models.User;
@@ -5941,7 +6912,9 @@ public interface IUserSubDAO {
     // Xử lý lấy và map dữ liệu từ bảng con thành đối tượng User cụ thể (Bidder, Seller)
     User getSubUser(Connection conn, int userId, String username, String password, String email) throws SQLException;
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\PaymentDAO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\PaymentDAO.java 
+============================================================ 
 package com.auction.server.dao;
 
 import com.auction.server.models.Payment;
@@ -6054,7 +7027,9 @@ public class PaymentDAO {
         return history;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\SellerDAO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\SellerDAO.java 
+============================================================ 
 package com.auction.server.dao;
 
 import java.sql.Connection;
@@ -6112,7 +7087,9 @@ public class SellerDAO {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\SellerSubDAO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\SellerSubDAO.java 
+============================================================ 
 package com.auction.server.dao;
 
 import com.auction.server.models.User;
@@ -6157,7 +7134,9 @@ public class SellerSubDAO implements IUserSubDAO {
         return null;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\UserDAO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\UserDAO.java 
+============================================================ 
 package com.auction.server.dao;
 
 import com.auction.server.models.UserDTO;
@@ -6393,7 +7372,9 @@ public class UserDAO {
         return false;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\VehicleDAO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\VehicleDAO.java 
+============================================================ 
 package com.auction.server.dao;
 
 import com.auction.server.models.VehicleDTO;
@@ -6441,7 +7422,102 @@ public class VehicleDAO implements IItemSubDAO {
         return null;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\factory\ItemFactory.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\WatchlistDAO.java 
+============================================================ 
+package com.auction.server.dao;
+
+import com.auction.server.models.ItemDTO;
+import com.auction.server.dao.DatabaseConnection;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class WatchlistDAO {
+  private static WatchlistDAO instance;
+
+  private WatchlistDAO() {}
+
+  public static WatchlistDAO getInstance() {
+    if (instance == null) {
+      instance = new WatchlistDAO();
+    }
+    return instance;
+  }
+
+  // 1. Thêm sản phẩm vào giỏ hàng
+  public boolean addToWatchlist(int userId, int itemId) {
+    String sql = "INSERT INTO watchlist (user_id, item_id) VALUES (?, ?)";
+    try (Connection conn = DatabaseConnection.getInstance().getConnection(); // Chú ý: Import đúng DatabaseConnection của nhóm
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+      stmt.setInt(1, userId);
+      stmt.setInt(2, itemId);
+      return stmt.executeUpdate() > 0;
+
+    } catch (SQLException e) {
+      System.err.println("Lỗi thêm watchlist (Có thể do đã tồn tại trong giỏ): " + e.getMessage());
+      return false;
+    }
+  }
+
+  // 2. Lấy danh sách sản phẩm trong giỏ hàng của 1 User
+  public List<ItemDTO> getWatchlistByUserId(int userId) {
+    List<ItemDTO> list = new ArrayList<>();
+    // Lấy toàn bộ thông tin tĩnh của Items dựa vào Giỏ hàng của User
+    String sql = "SELECT i.* FROM items i JOIN watchlist w ON i.id = w.item_id WHERE w.user_id = ?";
+
+    try (Connection conn = DatabaseConnection.getInstance().getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+      stmt.setInt(1, userId);
+      ResultSet rs = stmt.executeQuery();
+
+      while (rs.next()) {
+        ItemDTO item = new ItemDTO();
+
+        // MAPPING CHUẨN XÁC THEO ItemDTO BẠN CUNG CẤP
+        item.setId(rs.getInt("id"));
+        item.setSellerId(rs.getInt("seller_id"));
+        item.setName(rs.getString("name"));
+        item.setDescription(rs.getString("description"));
+        item.setStartingPrice(rs.getDouble("starting_price"));
+        item.setCategory(rs.getString("category"));
+        item.setImagePath(rs.getString("image_path"));
+
+        // Cột created_at trong DB thường là TIMESTAMP, gọi getString() để khớp với String createdAt trong DTO
+        if (rs.getTimestamp("created_at") != null) {
+          item.setCreatedAt(rs.getTimestamp("created_at").toString());
+        }
+
+        list.add(item);
+      }
+    } catch (SQLException e) {
+      System.err.println("Lỗi lấy danh sách watchlist: " + e.getMessage());
+    }
+    return list;
+  }
+
+  // 3. (Tùy chọn) Xóa một sản phẩm khỏi giỏ hàng
+  public boolean removeFromWatchlist(int userId, int itemId) {
+    String sql = "DELETE FROM watchlist WHERE user_id = ? AND item_id = ?";
+    try (Connection conn = DatabaseConnection.getInstance().getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+      stmt.setInt(1, userId);
+      stmt.setInt(2, itemId);
+      return stmt.executeUpdate() > 0;
+
+    } catch (SQLException e) {
+      System.err.println("Lỗi xóa khỏi watchlist: " + e.getMessage());
+      return false;
+    }
+  }
+} 
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\factory\ItemFactory.java 
+============================================================ 
 package com.auction.server.factory;
 
 import com.auction.server.models.*;
@@ -6469,7 +7545,9 @@ public class ItemFactory {
         return registry.get(category.toUpperCase());
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\factory\UserFactory.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\factory\UserFactory.java 
+============================================================ 
 package com.auction.server.factory;
 
 import com.auction.server.models.Admin;
@@ -6526,7 +7604,9 @@ public class UserFactory {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\filters\AuthFilter.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\filters\AuthFilter.java 
+============================================================ 
 package com.auction.server.filters;
 
 import com.auction.server.models.UserRole;
@@ -6600,7 +7680,9 @@ public class AuthFilter implements Filter {
     @Override
     public void destroy() {}
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Admin.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Admin.java 
+============================================================ 
 package com.auction.server.models;
 
 public class Admin extends User {
@@ -6630,7 +7712,9 @@ public class Admin extends User {
         System.out.println("Xin chào sếp: " + getUsername() + " (Quyền: " + adminRole + ")");
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AdminDTO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AdminDTO.java 
+============================================================ 
 package com.auction.server.models;
 //DataTransferObject for Admin, used to send admin info to clients without exposing sensitive data like password
 public class AdminDTO {
@@ -6652,7 +7736,9 @@ public class AdminDTO {
     public String getEmail() { return email; }
     public String getAdminRole() { return adminRole; }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Art.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Art.java 
+============================================================ 
 package com.auction.server.models;
 
 import java.time.LocalDateTime;
@@ -6717,7 +7803,9 @@ public class Art extends Item {
         System.out.println("Giá khởi điểm: $" + getStartingPrice());
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\ArtDTO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\ArtDTO.java 
+============================================================ 
 package com.auction.server.models;
 
 import com.google.gson.annotations.Expose;
@@ -6782,7 +7870,9 @@ public class ArtDTO extends ItemDTO {
     }
 }
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Auction.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Auction.java 
+============================================================ 
 package com.auction.server.models;
 
 import java.time.LocalDateTime;
@@ -6974,7 +8064,9 @@ public class Auction extends Entity {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionDataDTO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionDataDTO.java 
+============================================================ 
 package com.auction.server.models;
 
 import com.google.gson.annotations.Expose;
@@ -7103,7 +8195,9 @@ public class AuctionDataDTO {
         this.currentMaxPrice = currentMaxPrice;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionManager.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionManager.java 
+============================================================ 
 package com.auction.server.models;
 
 import java.util.List;
@@ -7166,7 +8260,9 @@ public class AuctionManager {
         broadcastUpdate("AUCTION_UPDATED", auction);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionStatus.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionStatus.java 
+============================================================ 
 package com.auction.server.models;
 // AuctionStatus.java
 public enum AuctionStatus {
@@ -7176,7 +8272,9 @@ public enum AuctionStatus {
     PAID,       // Đã thanh toán
     CANCELED    // Bị hủy bỏ
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionTimer.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionTimer.java 
+============================================================ 
 package com.auction.server.models;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -7292,7 +8390,9 @@ public class AuctionTimer {
     }
 
 }  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionUpdate.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionUpdate.java 
+============================================================ 
 package com.auction.server.models;
 
 import java.time.LocalDateTime;
@@ -7331,13 +8431,17 @@ public class AuctionUpdate {
     public Object getData() { return data; }
     public LocalDateTime getTimestamp() { return timestamp; }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionUpdateListener.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionUpdateListener.java 
+============================================================ 
 package com.auction.server.models;
 
 public interface AuctionUpdateListener {
     void onAuctionUpdate(AuctionUpdate update);
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AutoBid.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AutoBid.java 
+============================================================ 
 package com.auction.server.models;
 
 import java.time.LocalDateTime;
@@ -7376,7 +8480,9 @@ public class AutoBid extends Entity {
         return Math.min(currentHighestBid + incrementAmount, maxBidAmount);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Bidder.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Bidder.java 
+============================================================ 
 package com.auction.server.models;
 
 public class Bidder extends User {
@@ -7438,7 +8544,9 @@ public class Bidder extends User {
         this.accountBalance = accountBalance;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\BidderDTO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\BidderDTO.java 
+============================================================ 
 package com.auction.server.models;
 
 import com.google.gson.annotations.Expose;
@@ -7474,7 +8582,9 @@ public class BidderDTO {
     public String getEmail() { return email; }
     public double getAccountBalance() { return accountBalance; }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\BidTransaction.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\BidTransaction.java 
+============================================================ 
 package com.auction.server.models;
 import java.time.LocalDateTime;
 
@@ -7505,7 +8615,9 @@ public class BidTransaction extends Entity {
     }
 
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\BidTransactionDTO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\BidTransactionDTO.java 
+============================================================ 
 package com.auction.server.models;
 import java.time.LocalDateTime;
 
@@ -7533,7 +8645,9 @@ public class BidTransactionDTO {
     public double getBidAmount() { return bidAmount; }
     public LocalDateTime getTimestamp() { return timestamp; }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Electronics.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Electronics.java 
+============================================================ 
 package com.auction.server.models;
 
 import java.time.LocalDateTime;
@@ -7576,7 +8690,9 @@ public class Electronics extends Item {
 
     // KHÔNG CÓ SETTER vì thuộc tính là final (Thiết kế như này là rất chặt chẽ, tốt!)
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\ElectronicsDTO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\ElectronicsDTO.java 
+============================================================ 
 package com.auction.server.models;
 
 import com.google.gson.annotations.Expose;
@@ -7610,7 +8726,9 @@ public class ElectronicsDTO extends ItemDTO {
     }
 }
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Entity.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Entity.java 
+============================================================ 
 package com.auction.server.models;
 
 public abstract class Entity {
@@ -7633,7 +8751,9 @@ public abstract class Entity {
 
 }
   
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Item.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Item.java 
+============================================================ 
 package com.auction.server.models;
 import java.time.LocalDateTime;
 public abstract class Item extends Entity {
@@ -7744,7 +8864,9 @@ public abstract class Item extends Entity {
         return description;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\ItemDTO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\ItemDTO.java 
+============================================================ 
 package com.auction.server.models;
 
 import com.google.gson.annotations.Expose;
@@ -7790,6 +8912,7 @@ public class ItemDTO {
 
     public String getBase64Image() { return base64Image; }
     public void setBase64Image(String base64Image) { this.base64Image = base64Image; }
+<<<<<<< HEAD
 
     // ... các trường cũ (id, name, description, startingPrice, category, imagePath, createdAt) ...
 
@@ -7832,6 +8955,8 @@ public class ItemDTO {
     public void setHighestBidderId(int highestBidderId) { this.highestBidderId = highestBidderId; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+=======
+>>>>>>> c259c774493665a46b76d2a727ab5bb8a02ae76d
 
     // 2. Thêm Getter và Setter cho nó
     public String getCreatedAt() {
@@ -7882,7 +9007,9 @@ public class ItemDTO {
     public String getImagePath() { return imagePath; }
     public void setImagePath(String imagePath) { this.imagePath = imagePath; }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Payment.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Payment.java 
+============================================================ 
 package com.auction.server.models;
 
 import java.time.LocalDateTime;
@@ -7916,7 +9043,9 @@ public class Payment {
     public LocalDateTime getPaymentDate() { return paymentDate; }
 }
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\PaymentDTO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\PaymentDTO.java 
+============================================================ 
 package com.auction.server.models;
 
 import com.google.gson.annotations.Expose;
@@ -8011,7 +9140,9 @@ public class PaymentDTO {
         this.paymentTime = paymentTime;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\PaymentStatus.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\PaymentStatus.java 
+============================================================ 
 package com.auction.server.models;
 
 public enum PaymentStatus {
@@ -8019,7 +9150,9 @@ public enum PaymentStatus {
     COMPLETED,  // Đã hoàn thành
     FAILED      // Thất bại
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Seller.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Seller.java 
+============================================================ 
 package com.auction.server.models;
 import java.util.ArrayList;
 import java.util.List;
@@ -8082,7 +9215,9 @@ public class Seller extends User {
 
     
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\SellerDTO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\SellerDTO.java 
+============================================================ 
 package com.auction.server.models;
 
 //DataTransferObject for Seller, used to send seller info to clients without exposing sensitive data like password
@@ -8112,7 +9247,9 @@ public class SellerDTO {
     public double getTotalRating() { return totalRating; }
     public int getSaleCount() { return saleCount; }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\User.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\User.java 
+============================================================ 
 package com.auction.server.models;
 
 public abstract class User extends Entity {
@@ -8159,7 +9296,9 @@ public abstract class User extends Entity {
 
     public abstract void showDashboard();
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\UserDTO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\UserDTO.java 
+============================================================ 
 package com.auction.server.models;
 
 import com.google.gson.annotations.SerializedName;
@@ -8215,7 +9354,9 @@ public class UserDTO implements Serializable {
     public int getSaleCount() { return saleCount; }
     public void setSaleCount(int saleCount) { this.saleCount = saleCount; }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\UserRole.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\UserRole.java 
+============================================================ 
 package com.auction.server.models;
 
 public enum UserRole {
@@ -8240,7 +9381,9 @@ public enum UserRole {
         return INACTIVE; // Trả về giá trị mặc định an toàn
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Vehicle.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Vehicle.java 
+============================================================ 
 package com.auction.server.models;
 
 import java.time.LocalDateTime;
@@ -8308,7 +9451,9 @@ public class Vehicle extends Item {
         this.condition = condition;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\VehicleDTO.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\VehicleDTO.java 
+============================================================ 
 package com.auction.server.models;
 
 import com.google.gson.annotations.Expose;
@@ -8367,7 +9512,9 @@ public class VehicleDTO extends ItemDTO {
         this.condition = condition;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\scheduler\AuctionStatusScheduler.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\scheduler\AuctionStatusScheduler.java 
+============================================================ 
 package com.auction.server.scheduler;
 
 import com.auction.server.dao.DatabaseConnection;
@@ -8455,7 +9602,9 @@ public class AuctionStatusScheduler {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\AdminItemAPI.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\AdminItemAPI.java 
+============================================================ 
 package com.auction.server.servlets;
 
 import com.auction.controller.ItemController;
@@ -8499,7 +9648,9 @@ public class AdminItemAPI extends HttpServlet {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\AdminUserAPI.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\AdminUserAPI.java 
+============================================================ 
 package com.auction.server.servlets;
 
 import com.auction.controller.UserController;
@@ -8592,7 +9743,9 @@ public class AdminUserAPI extends HttpServlet {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\CategoryAPI.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\CategoryAPI.java 
+============================================================ 
 package com.auction.server.servlets;
 
 import com.auction.controller.ItemController;
@@ -8636,7 +9789,9 @@ public class CategoryAPI extends HttpServlet {
         resp.getWriter().write(jsonResponse);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\DepositAPI.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\DepositAPI.java 
+============================================================ 
 package com.auction.server.servlets;
 
 import com.auction.controller.BidderController;
@@ -8672,7 +9827,9 @@ public class DepositAPI extends HttpServlet {
         resp.getWriter().write(jsonResponse);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetBidHistoryAPI.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetBidHistoryAPI.java 
+============================================================ 
 package com.auction.server.servlets;
 
 import com.auction.server.dao.BidsDAO;
@@ -8745,7 +9902,9 @@ public class GetBidHistoryAPI extends HttpServlet {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetItemDetailAPI.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetItemDetailAPI.java 
+============================================================ 
 package com.auction.server.servlets;
 
 import com.auction.controller.BidController;
@@ -8848,7 +10007,9 @@ public class GetItemDetailAPI extends HttpServlet {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetItemsAPI.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetItemsAPI.java 
+============================================================ 
 package com.auction.server.servlets;
 
 import com.auction.controller.ItemController;
@@ -8884,7 +10045,9 @@ public class GetItemsAPI extends HttpServlet {
         resp.getWriter().write(jsonResponse);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetMyActiveBidsAPI.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetMyActiveBidsAPI.java 
+============================================================ 
 package com.auction.server.servlets;
 
 import com.auction.controller.BidController;
@@ -8912,7 +10075,9 @@ public class GetMyActiveBidsAPI extends HttpServlet {
         resp.getWriter().write(jsonResponse);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetMyItemsForSaleAPI.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetMyItemsForSaleAPI.java 
+============================================================ 
 package com.auction.server.servlets;
 
 import com.auction.controller.ItemController;
@@ -8939,7 +10104,9 @@ public class GetMyItemsForSaleAPI extends HttpServlet {
         resp.getWriter().write(jsonResponse);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetMyWonItemsAPI.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetMyWonItemsAPI.java 
+============================================================ 
 package com.auction.server.servlets;
 
 import com.auction.controller.ItemController;
@@ -8966,7 +10133,9 @@ public class GetMyWonItemsAPI extends HttpServlet {
         resp.getWriter().write(jsonResponse);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\ItemsAPI.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\ItemsAPI.java 
+============================================================ 
 package com.auction.server.servlets;
 
 import com.auction.controller.ItemController;
@@ -9017,7 +10186,9 @@ public class ItemsAPI extends HttpServlet {
         resp.getWriter().write(jsonResponse);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\LoginAPI.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\LoginAPI.java 
+============================================================ 
 package com.auction.server.servlets;
 
 import com.auction.controller.UserController;
@@ -9074,7 +10245,9 @@ public class LoginAPI extends HttpServlet {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\LogoutAPI.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\LogoutAPI.java 
+============================================================ 
 package com.auction.server.servlets;
 
 import com.google.gson.Gson;
@@ -9118,7 +10291,9 @@ public class LogoutAPI extends HttpServlet {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\PaymentAPI.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\PaymentAPI.java 
+============================================================ 
 package com.auction.server.servlets;
 
 import com.auction.controller.PaymentController;
@@ -9150,7 +10325,9 @@ public class PaymentAPI extends HttpServlet {
         resp.getWriter().write(jsonResponse);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\PlaceBidAPI.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\PlaceBidAPI.java 
+============================================================ 
 package com.auction.server.servlets;
 
 import com.auction.controller.AuctionController;
@@ -9190,7 +10367,9 @@ public class PlaceBidAPI extends HttpServlet {
         resp.getWriter().write(jsonResponse);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\RegisterAPI.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\RegisterAPI.java 
+============================================================ 
 package com.auction.server.servlets;
 
 import com.auction.controller.UserController;
@@ -9221,7 +10400,9 @@ public class RegisterAPI extends HttpServlet {
         resp.getWriter().write(jsonResponse);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\SearchItemsAPI.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\SearchItemsAPI.java 
+============================================================ 
 package com.auction.server.servlets;
 
 import com.auction.controller.ItemController;
@@ -9258,7 +10439,9 @@ public class SearchItemsAPI extends HttpServlet {
         resp.getWriter().write(jsonResponse);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\UserProfileAPI.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\UserProfileAPI.java 
+============================================================ 
 package com.auction.server.servlets;
 
 import com.auction.controller.UserController;
@@ -9315,7 +10498,70 @@ public class UserProfileAPI extends HttpServlet {
         resp.getWriter().write(jsonResponse);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\utils\LocalDateTimeAdapter.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\WatchlistAPI.java 
+============================================================ 
+package com.auction.server.servlets;
+
+import com.auction.controller.WatchlistController;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+import java.util.Map;
+
+public class WatchlistAPI extends HttpServlet {
+  private final Gson gson = new Gson();
+  private final WatchlistController watchlistController = WatchlistController.getInstance();
+
+  // Xử lý API Lấy danh sách giỏ hàng (GET request)
+  @Override
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    resp.setContentType("application/json");
+    resp.setCharacterEncoding("UTF-8");
+
+    try {
+      // Lấy userId từ AuthFilter (Filter của nhóm Đại thường ép sẵn userId vào Attribute khi đã đăng nhập)
+      int userId = (int) req.getAttribute("userId");
+
+      Map<String, Object> result = watchlistController.handleGetWatchlist(userId);
+      resp.getWriter().write(gson.toJson(result));
+
+    } catch (Exception e) {
+      resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      resp.getWriter().write("{\"status\":\"error\", \"message\":\"Lỗi lấy giỏ hàng\"}");
+    }
+  }
+
+  // Xử lý API Thêm vào giỏ hàng (POST request)
+  @Override
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    resp.setContentType("application/json");
+    resp.setCharacterEncoding("UTF-8");
+
+    try {
+      int userId = (int) req.getAttribute("userId"); // Lấy người đang đăng nhập
+
+      // Đọc dữ liệu Front-end gửi lên (chứa itemId)
+      JsonObject requestBody = gson.fromJson(req.getReader(), JsonObject.class);
+      int itemId = requestBody.get("itemId").getAsInt();
+
+      Map<String, Object> result = watchlistController.handleAddToWatchlist(userId, itemId);
+      resp.getWriter().write(gson.toJson(result));
+
+    } catch (Exception e) {
+      resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      resp.getWriter().write("{\"status\":\"error\", \"message\":\"Dữ liệu gửi lên không hợp lệ\"}");
+    }
+  }
+} 
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\utils\LocalDateTimeAdapter.java 
+============================================================ 
 package com.auction.server.utils;
 
 import com.google.gson.TypeAdapter;
@@ -9346,7 +10592,9 @@ public class LocalDateTimeAdapter extends TypeAdapter<LocalDateTime> {
         return LocalDateTime.parse(in.nextString(), FORMATTER);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\websocket\AuctionWebSocketServer.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\websocket\AuctionWebSocketServer.java 
+============================================================ 
 package com.auction.server.websocket;
 
 import com.auction.server.models.AuctionManager;
@@ -9461,7 +10709,9 @@ public class AuctionWebSocketServer extends WebSocketServer implements AuctionUp
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\service\AuctionService.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\service\AuctionService.java 
+============================================================ 
 package com.auction.service;
 
 import com.auction.server.dao.BidsDAO;
@@ -9546,7 +10796,9 @@ public class AuctionService {
     }
 }
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\service\BidderService.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\service\BidderService.java 
+============================================================ 
 package com.auction.service;
 
 import com.auction.server.dao.BidderDAO;
@@ -9596,7 +10848,9 @@ public class BidderService {
         return "Thanh toán thất bại: Lỗi hệ thống!";
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\service\BidService.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\service\BidService.java 
+============================================================ 
 package com.auction.service;
 
 import com.auction.server.dao.BidsDAO;
@@ -9688,7 +10942,9 @@ public class BidService {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\service\ItemService.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\service\ItemService.java 
+============================================================ 
 package com.auction.service;
 import com.auction.server.dao.ItemDAO;
 import com.auction.server.models.AuctionManager;
@@ -9779,7 +11035,9 @@ public class ItemService {
         return itemDAO.getItemById(itemId);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\service\PaymentService.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\service\PaymentService.java 
+============================================================ 
 package com.auction.service;
 
 import com.auction.server.dao.PaymentDAO;
@@ -9859,7 +11117,9 @@ public class PaymentService {
         return paymentDAO.getPaymentHistoryByUser(userId);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\service\UserService.java ===  
+============================================================ 
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\service\UserService.java 
+============================================================ 
 package com.auction.service;
 
 import com.auction.server.dao.UserDAO;
@@ -9921,4 +11181,4 @@ public class UserService {
         }
         return userDAO.updateUserRole(userId, newRole);
     }
-} 
+}
