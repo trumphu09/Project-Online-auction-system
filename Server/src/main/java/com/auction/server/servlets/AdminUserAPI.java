@@ -55,4 +55,38 @@ public class AdminUserAPI extends HttpServlet {
             resp.getWriter().write("{\"error\":\"ID người dùng không hợp lệ.\"}");
         }
     }
+    // AdminUserAPI.java — thêm method doPost
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+
+        String pathInfo = req.getPathInfo();
+        String[] pathParts = (pathInfo != null) ? pathInfo.split("/") : new String[0];
+
+        if (pathParts.length != 2) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("{\"status\":\"error\",\"message\":\"URL không hợp lệ.\"}");
+            return;
+        }
+
+        try {
+            int userId = Integer.parseInt(pathParts[1]);
+            String requestBody = req.getReader().lines()
+                    .collect(java.util.stream.Collectors.joining(System.lineSeparator()));
+
+            String jsonResponse = userController.handleBanUser(userId, requestBody);
+
+            if (jsonResponse.contains("\"status\":\"success\"")) {
+                resp.setStatus(HttpServletResponse.SC_OK);
+            } else {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            }
+            resp.getWriter().write(jsonResponse);
+
+        } catch (NumberFormatException e) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("{\"status\":\"error\",\"message\":\"ID người dùng không hợp lệ.\"}");
+        }
+    }
 }

@@ -44,6 +44,48 @@ public class ItemDTO {
     public String getBase64Image() { return base64Image; }
     public void setBase64Image(String base64Image) { this.base64Image = base64Image; }
 
+    // ... các trường cũ (id, name, description, startingPrice, category, imagePath, createdAt) ...
+
+    // Thêm các trường từ bảng auctions
+    @com.google.gson.annotations.SerializedName("auction_id")
+    private int auctionId;
+    @com.google.gson.annotations.SerializedName("current_max_price")
+    private double currentMaxPrice;
+    @com.google.gson.annotations.SerializedName("highest_bidder_id")
+    private int highestBidderId;
+    @com.google.gson.annotations.SerializedName("status")
+    private String status; // Trạng thái đấu giá
+
+    @com.google.gson.annotations.SerializedName("start_time")
+    private String startTime;
+
+    @com.google.gson.annotations.SerializedName("end_time")
+    private String endTime;
+    // Getters và Setters cho các trường mới
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
+    }
+    public int getAuctionId() { return auctionId; }
+    public void setAuctionId(int auctionId) { this.auctionId = auctionId; }
+    public double getCurrentMaxPrice() { return currentMaxPrice; }
+    public void setCurrentMaxPrice(double currentMaxPrice) { this.currentMaxPrice = currentMaxPrice; }
+    public int getHighestBidderId() { return highestBidderId; }
+    public void setHighestBidderId(int highestBidderId) { this.highestBidderId = highestBidderId; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
     // 2. Thêm Getter và Setter cho nó
     public String getCreatedAt() {
         return createdAt;

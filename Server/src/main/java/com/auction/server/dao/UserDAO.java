@@ -92,18 +92,29 @@ public class UserDAO {
             }
         }
     }
-    // ... (Giữ nguyên các hàm loginUser, getUserById, getAllUsers... ở bên dưới) ...
+
     public Map<String, Object> loginUser(String email, String plainPassword) {
-        String sql = "SELECT id, password, role FROM users WHERE email = ?";
+        // THÊM isActive vào SELECT để kiểm tra
+        String sql = "SELECT id, password, role, isActive FROM users WHERE email = ?";
         
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             pstmt.setString(1, email);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     String hashedPassword = rs.getString("password");
                     if (BCrypt.checkpw(plainPassword, hashedPassword)) {
+                        
+                        // ✅ THÊM: Kiểm tra tài khoản có bị khóa không
+                        boolean isActive = rs.getBoolean("isActive");
+                        if (!isActive) {
+                            // Trả về null đặc biệt để báo bị khóa
+                            Map<String, Object> banned = new HashMap<>();
+                            banned.put("banned", true);
+                            return banned;
+                        }
+                        
                         Map<String, Object> userDetails = new HashMap<>();
                         userDetails.put("userId", rs.getInt("id"));
                         userDetails.put("role", UserRole.fromString(rs.getString("role")));
@@ -131,18 +142,38 @@ public class UserDAO {
     }
 
     public UserDTO getUserById(int userId) {
-        String sql = "SELECT id, username, email, role FROM users WHERE id = ?";
+        // Dùng LEFT JOIN để móc dữ liệu từ bảng sellers và bidders dựa vào user_id
+        String sql = "SELECT u.id, u.username, u.email, u.role, " +
+                     "s.total_rating, s.sale_count, s.account_balance AS seller_balance, " +
+                     "b.account_balance AS bidder_balance " +
+                     "FROM users u " +
+                     "LEFT JOIN sellers s ON u.id = s.user_id " +
+                     "LEFT JOIN bidders b ON u.id = b.user_id " +
+                     "WHERE u.id = ?";
+                     
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             
             pstmt.setInt(1, userId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return new UserDTO(
-                        rs.getInt("id"),
-                        rs.getString("username"),
-                        rs.getString("email"),
-                        UserRole.fromString(rs.getString("role"))
-                    );
+                    UserDTO user = new UserDTO();
+                    user.setId(rs.getInt("id"));
+                    user.setUsername(rs.getString("username"));
+                    user.setEmail(rs.getString("email"));
+                    String role = rs.getString("role");
+                    user.setRole(role);
+                    
+                    // Phân loại Role để lấy đúng dữ liệu từ bảng con tương ứng
+                    if ("SELLER".equalsIgnoreCase(role)) {
+                        user.setBalance(rs.getDouble("seller_balance"));
+                        user.setTotalRating(rs.getDouble("total_rating"));
+                        user.setSaleCount(rs.getInt("sale_count"));
+                    } else if ("BIDDER".equalsIgnoreCase(role)) {
+                        user.setBalance(rs.getDouble("bidder_balance"));
+                    }
+                    
+                    return user;
                 }
             }
         } catch (SQLException e) {
@@ -150,20 +181,22 @@ public class UserDAO {
         }
         return null;
     }
-
     public List<UserDTO> getAllUsers() {
         List<UserDTO> users = new ArrayList<>();
-        String sql = "SELECT id, username, email, role FROM users ORDER BY id";
+        // THÊM isActive vào câu truy vấn
+        String sql = "SELECT id, username, email, role, isActive FROM users ORDER BY id";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery()) {
+            
             while (rs.next()) {
-                users.add(new UserDTO(
-                    rs.getInt("id"),
-                    rs.getString("username"),
-                    rs.getString("email"),
-                    UserRole.fromString(rs.getString("role"))
-                ));
+                UserDTO user = new UserDTO();
+                user.setId(rs.getInt("id"));
+                user.setUsername(rs.getString("username"));
+                user.setEmail(rs.getString("email"));
+                user.setRole(rs.getString("role"));
+                user.setActive(rs.getBoolean("isActive")); // ✅ THÊM
+                users.add(user);
             }
         } catch (SQLException e) {
             e.printStackTrace();

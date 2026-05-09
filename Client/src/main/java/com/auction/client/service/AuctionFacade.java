@@ -180,9 +180,11 @@ public class AuctionFacade {
     // 4. NHÓM ADMIN (Quản trị hệ thống)
     // ==========================================
 
+    // Lấy toàn bộ danh sách người dùng cho Admin
     public void getAllUsers(ApiCallback<List<UserDTO>> callback) {
-        executeRequest(apiService.sendGetRequest("/admin/users"), 
-            new com.google.gson.reflect.TypeToken<List<UserDTO>>(){}.getType(), callback);
+        Type type = new TypeToken<List<UserDTO>>(){}.getType();
+        // Giả định đường dẫn API của Server là /admin/users (Ông có thể chỉnh lại nếu Server viết khác)
+        executeRequest(apiService.sendGetRequest("/admin/users"), type, callback);
     }
 
     public void updateUserStatus(int userId, String action, ApiCallback<JsonObject> callback) {
@@ -195,7 +197,16 @@ public class AuctionFacade {
     public void adminDeleteItem(int itemId, ApiCallback<JsonObject> callback) {
         executeRequest(apiService.sendDeleteRequest("/admin/items/" + itemId), JsonObject.class, callback);
     }
-  
+    // --- HÀM BỔ SUNG: CẬP NHẬT SẢN PHẨM ---
+    public void updateItem(ItemDTO item, ApiCallback<JsonObject> callback) {
+        if (item == null || item.getId() <= 0) {
+            callback.onError("Dữ liệu sản phẩm không hợp lệ!");
+            return;
+        }
+        String jsonBody = gson.toJson(item);
+        executeRequest(apiService.sendPutRequest("/items/" + item.getId(), jsonBody), JsonObject.class, callback);
+    }
+    
 
   // =========================================================================
   // HÀM "LÕI" XỬ LÝ CHUNG (CORE PROCESSOR) - ĐẠI YÊU CẦU

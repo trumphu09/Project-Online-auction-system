@@ -5,6 +5,6 @@ public class Seller extends User {
 
     @Override
     public String getDashboardFXML() {
-        return "/view/ProductView.fxml";
+        return "/view/SellerView.fxml";
     }
 }

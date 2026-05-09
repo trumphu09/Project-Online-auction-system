@@ -24,6 +24,14 @@ public class ItemDTO implements Serializable {
     // 1. Thêm thuộc tính này để hứng dữ liệu từ DB
     @com.google.gson.annotations.SerializedName("created_at")
     private String createdAt;
+    @SerializedName("auction_id")
+    private int auctionId;
+    @SerializedName("current_max_price")
+    private double currentMaxPrice;
+    @SerializedName("highest_bidder_id")
+    private int highestBidderId;
+    @SerializedName("status")
+    private String status; // Trạng thái đấu giá
 
 
     // === CONSTRUCTOR RỖNG (BẮT BUỘC PHẢI CÓ) ===
@@ -78,4 +86,13 @@ public class ItemDTO implements Serializable {
     }
     public String getBase64Image() { return base64Image; }
     public void setBase64Image(String base64Image) { this.base64Image = base64Image; }
+    
+    public int getAuctionId() { return auctionId; }
+    public void setAuctionId(int auctionId) { this.auctionId = auctionId; }
+    public double getCurrentMaxPrice() { return currentMaxPrice; }
+    public void setCurrentMaxPrice(double currentMaxPrice) { this.currentMaxPrice = currentMaxPrice; }
+    public int getHighestBidderId() { return highestBidderId; }
+    public void setHighestBidderId(int highestBidderId) { this.highestBidderId = highestBidderId; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 }

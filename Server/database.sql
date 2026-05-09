@@ -37,7 +37,7 @@ CREATE TABLE items (
     starting_price DOUBLE NOT NULL,
     category VARCHAR(50) NOT NULL, -- Sẽ lưu giá trị 'ART', 'ELECTRONICS', hoặc 'VEHICLE'
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    image_path VARCHAR(255);    
+    image_path VARCHAR(255),    
     
     
     CONSTRAINT fk_items_seller FOREIGN KEY (seller_id) REFERENCES users(id) ON DELETE CASCADE

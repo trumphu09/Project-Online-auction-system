@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Label?>
@@ -11,7 +12,6 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.HBox?>
-
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.ComboBox?>
 
@@ -82,20 +82,44 @@
     </left>
 
     <center>
-        <ScrollPane fitToWidth="true">
-            <content>
-                <TilePane fx:id="inventoryGrid" hgap="10" vgap="10" style="-fx-padding: 20;" />
-            </content>
-        </ScrollPane>
+        <VBox spacing="10" style="-fx-padding: 10;">
+            <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 0 10 0 10;">
+                <TextField fx:id="txtSearch" promptText="🔍 Tìm tên sản phẩm..." prefWidth="300" style="-fx-background-radius: 15; -fx-padding: 5 10;"/>
+                <Button text="Tìm kiếm" onAction="#handleSearch" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 15; -fx-cursor: hand;"/>
+                <Button text="Làm mới" onAction="#loadSellerInventory" style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-background-radius: 15; -fx-cursor: hand;"/>
+            </HBox>
+            
+            <Separator />
+            
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
+                <content>
+                    <TilePane fx:id="inventoryGrid" hgap="15" vgap="15" style="-fx-padding: 10;" />
+                </content>
+            </ScrollPane>
+        </VBox>
     </center>
 
     <right>
         <VBox spacing="10" style="-fx-padding: 20; -fx-background-color: #f9f9f9;" prefWidth="240">
+            <Label text="THỐNG KÊ NGƯỜI BÁN" style="-fx-font-weight: bold; -fx-font-size: 13;" />
+            <HBox spacing="5">
+                <Label text="⭐ Đánh giá:" />
+                <Label fx:id="lblRating" text="0.0" style="-fx-text-fill: #f1c40f; -fx-font-weight: bold;" />
+            </HBox>
+            <HBox spacing="5">
+                <Label text="📦 Đã bán:" />
+                <Label fx:id="lblSaleCount" text="0" style="-fx-font-weight: bold;" />
+            </HBox>
+            <HBox spacing="5">
+                <Label text="💰 Số dư ví:" />
+                <Label fx:id="lblAccountBalance" text="0 VNĐ" style="-fx-text-fill: #27ae60; -fx-font-weight: bold;" />
+            </HBox>
+            
+            <Separator style="-fx-padding: 10 0 10 0;" />
+            
             <Label text="LỊCH SỬ GIAO DỊCH" style="-fx-font-weight: bold;" />
             <ListView fx:id="historyList" prefHeight="300" />
-            <Label text="THỐNG KÊ DOANH THU" style="-fx-font-weight: bold;" />
         </VBox>
     </right>
 
 </BorderPane>
-

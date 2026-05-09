@@ -1,6 +1,7 @@
 package com.auction.controller;
 
 import com.auction.service.UserService;
+import com.auction.server.dao.AdminDAO;
 import com.auction.server.models.UserDTO;
 import com.auction.server.models.UserRole;
 import com.google.gson.Gson;
@@ -8,6 +9,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import java.util.List;
 import java.util.Map;
+import com.auction.server.dao.AdminDAO;
 
 public class UserController {
 
@@ -20,12 +22,16 @@ public class UserController {
             if (req == null || !req.has("email") || !req.has("password")) {
                 return createErrorResponse("Thiếu email hoặc mật khẩu.");
             }
-            String email = req.get("email").getAsString();
+            String email    = req.get("email").getAsString();
             String password = req.get("password").getAsString();
 
             Map<String, Object> userDetails = userService.login(email, password);
 
             if (userDetails != null) {
+                // ✅ THÊM: Kiểm tra bị banned trước khi cho vào
+                if (userDetails.containsKey("banned")) {
+                    return createErrorResponse("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin.");
+                }
                 return createSuccessResponse("Đăng nhập thành công!", gson.toJsonTree(userDetails));
             } else {
                 return createErrorResponse("Email hoặc mật khẩu không đúng.");
@@ -138,5 +144,40 @@ public class UserController {
         response.addProperty("status", "error");
         response.addProperty("message", message);
         return gson.toJson(response);
+    }
+
+    // UserController.java — thêm method này
+    public String handleBanUser(int userId, String jsonRequest) {
+        try {
+            JsonObject req = gson.fromJson(jsonRequest, JsonObject.class);
+            if (req == null || !req.has("action")) {
+                return createErrorResponse("Thiếu trường 'action' (ban/unban).");
+            }
+
+            String action = req.get("action").getAsString();
+            boolean shouldActive;
+
+            if ("ban".equalsIgnoreCase(action)) {
+                shouldActive = false;   // Khóa
+            } else if ("unban".equalsIgnoreCase(action)) {
+                shouldActive = true;    // Mở khóa
+            } else {
+                return createErrorResponse("Hành động không hợp lệ. Chỉ chấp nhận 'ban' hoặc 'unban'.");
+            }
+
+            // AdminDAO đã có sẵn hàm setUserStatus
+            AdminDAO adminDAO = new AdminDAO();
+            boolean success = adminDAO.setUserStatus(userId, shouldActive);
+
+            if (success) {
+                String msg = shouldActive ? "Đã mở khóa tài khoản thành công." : "Đã khóa tài khoản thành công.";
+                return createSuccessResponse(msg, null);
+            } else {
+                return createErrorResponse("Không tìm thấy người dùng hoặc lỗi hệ thống.");
+            }
+
+        } catch (JsonSyntaxException e) {
+            return createErrorResponse("Dữ liệu JSON không hợp lệ.");
+        }
     }
 }

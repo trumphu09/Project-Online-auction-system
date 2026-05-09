@@ -22,14 +22,14 @@ public class ItemController {
 
     public String handleListItems(int page, int limit) {
         Map<String, Object> data = itemService.getAllItems(page, limit);
-        return createResponse("success", "Lấy danh sách sản phẩm thành công.", gson.toJsonTree(data));
+        List<?> items = (List<?>) data.get("items"); // Lấy đúng mảng items
+        return createResponse("success", "Lấy danh sách sản phẩm thành công.", gson.toJsonTree(items));
     }
-
     public String handleSearchItems(String keyword, int page, int limit) {
         Map<String, Object> data = itemService.searchItems(keyword, page, limit);
-        return createResponse("success", "Kết quả tìm kiếm cho '" + keyword + "'.", gson.toJsonTree(data));
+        List<?> items = (List<?>) data.get("items");
+        return createResponse("success", "...", gson.toJsonTree(items));
     }
-
     public String handleGetCategories() {
         List<String> categories = itemService.getAllCategories();
         return createResponse("success", "Lấy danh sách danh mục thành công.", gson.toJsonTree(categories));
@@ -37,7 +37,8 @@ public class ItemController {
 
     public String handleGetItemsByCategory(String category, int page, int limit) {
         Map<String, Object> data = itemService.getItemsByCategory(category, page, limit);
-        return createResponse("success", "Lấy sản phẩm theo danh mục '" + category + "'.", gson.toJsonTree(data));
+        List<?> items = (List<?>) data.get("items");
+        return createResponse("success", "...", gson.toJsonTree(items));
     }
 
     public String handleGetItemsBySeller(int sellerId) {

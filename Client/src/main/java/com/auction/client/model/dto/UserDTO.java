@@ -1,16 +1,36 @@
 package com.auction.client.model.dto;
 
+import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 public class UserDTO implements Serializable {
     private int id;
     private String username;
     private String email;
+    
+    @SerializedName("full_name")
     private String fullName;
+    
     private String role; // "ADMIN", "BIDDER", "SELLER"
+    
+    @SerializedName("balance")
     private double balance;
 
-    // Getters and Setters
+    // --- BỔ SUNG CÁC TRƯỜNG THỐNG KÊ CỦA SELLER ---
+    @SerializedName("total_rating")
+    private double totalRating;
+
+    @SerializedName("sale_count")
+    private int saleCount;
+    // Thêm trường này:
+    @SerializedName("isActive")
+    private boolean active;
+
+    // Thêm getter/setter:
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
+
+    // --- Getters and Setters ---
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -28,4 +48,10 @@ public class UserDTO implements Serializable {
 
     public double getBalance() { return balance; }
     public void setBalance(double balance) { this.balance = balance; }
+
+    public double getTotalRating() { return totalRating; }
+    public void setTotalRating(double totalRating) { this.totalRating = totalRating; }
+
+    public int getSaleCount() { return saleCount; }
+    public void setSaleCount(int saleCount) { this.saleCount = saleCount; }
 }

@@ -149,7 +149,25 @@ public class ItemDAO {
             if (subDAO != null) {
                 subDAO.insertSubItem(conn, item);
             }
-
+            
+            // 3. TẠO PHIÊN ĐẤU GIÁ TRONG BẢNG AUCTIONS
+            // Bổ sung seller_id và end_time vào câu lệnh SQL
+            String sqlAuction = "INSERT INTO auctions (item_id, seller_id, current_max_price, end_time, status) VALUES (?, ?, ?, ?, 'OPEN')";
+            try (PreparedStatement pstmtAuction = conn.prepareStatement(sqlAuction)) {
+                pstmtAuction.setInt(1, item.getId());
+                pstmtAuction.setInt(2, item.getSellerId()); // Trỏ đúng người bán
+                pstmtAuction.setDouble(3, item.getStartingPrice());
+                
+                // An toàn: Đổi chuỗi ngày tháng sang Timestamp cho DB. 
+                // Nếu User quên nhập, mặc định cho phép đấu giá kéo dài 7 ngày.
+                if (item.getEndTime() != null && !item.getEndTime().isEmpty()) {
+                    pstmtAuction.setTimestamp(4, java.sql.Timestamp.valueOf(item.getEndTime()));
+                } else {
+                    pstmtAuction.setTimestamp(4, new java.sql.Timestamp(System.currentTimeMillis() + 7L * 24 * 3600 * 1000));
+                }
+                
+                pstmtAuction.executeUpdate();
+            }
             conn.commit();
             return true;
 
@@ -162,40 +180,64 @@ public class ItemDAO {
         }
     }
 
-    public boolean updateItem(ItemDTO item) {
+public boolean updateItem(ItemDTO item) {
         Connection conn = null;
         try {
             conn = DatabaseConnection.getInstance().getConnection();
             conn.setAutoCommit(false);
 
-            String sqlItem = "UPDATE items SET name = ?, description = ?, starting_price = ? WHERE id = ? AND seller_id = ?";
-            try (PreparedStatement pstmtItem = conn.prepareStatement(sqlItem)) {
-                pstmtItem.setString(1, item.getName());
-                pstmtItem.setString(2, item.getDescription());
-                pstmtItem.setDouble(3, item.getStartingPrice());
-                pstmtItem.setInt(4, item.getId());
-                pstmtItem.setInt(5, item.getSellerId());
-                
-                int rowsUpdated = pstmtItem.executeUpdate();
-                if (rowsUpdated == 0) {
-                    throw new SQLException("Không tìm thấy sản phẩm hoặc bạn không phải chủ sở hữu.");
-                }
+            // 1. Cập nhật bảng items
+            String sqlItem = "UPDATE items SET name = ?, description = ?, starting_price = ?, category = ? WHERE id = ?";
+            PreparedStatement pstmtItem = conn.prepareStatement(sqlItem);
+            pstmtItem.setString(1, item.getName());
+            pstmtItem.setString(2, item.getDescription());
+            pstmtItem.setDouble(3, item.getStartingPrice());
+            pstmtItem.setString(4, item.getCategory());
+            pstmtItem.setInt(5, item.getId());
+            pstmtItem.executeUpdate();
+
+            // 2. Cập nhật bảng con tùy theo loại
+            if (item instanceof ArtDTO) {
+                ArtDTO art = (ArtDTO) item;
+                String sqlArt = "UPDATE artworks SET artist = ?, creation_year = ?, material = ? WHERE item_id = ?";
+                PreparedStatement pstmtArt = conn.prepareStatement(sqlArt);
+                pstmtArt.setString(1, art.getArtist());
+                pstmtArt.setInt(2, art.getCreationYear());
+                pstmtArt.setString(3, art.getMaterial());
+                pstmtArt.setInt(4, art.getId());
+                pstmtArt.executeUpdate();
+            } else if (item instanceof ElectronicsDTO) {
+                ElectronicsDTO elec = (ElectronicsDTO) item;
+                String sqlElec = "UPDATE electronics SET warranty_months = ? WHERE item_id = ?";
+                PreparedStatement pstmtElec = conn.prepareStatement(sqlElec);
+                pstmtElec.setInt(1, elec.getWarrantyMonths());
+                pstmtElec.setInt(2, elec.getId());
+                pstmtElec.executeUpdate();
+            } else if (item instanceof VehicleDTO) {
+                VehicleDTO v = (VehicleDTO) item;
+                String sqlVeh = "UPDATE vehicles SET brand = ?, mileage = ?, condition_state = ? WHERE item_id = ?";
+                PreparedStatement pstmtVeh = conn.prepareStatement(sqlVeh);
+                pstmtVeh.setString(1, v.getBrand());
+                pstmtVeh.setInt(2, v.getMileage());
+                pstmtVeh.setString(3, v.getCondition()); // Hoặc v.getConditionState() tùy model của bạn
+                pstmtVeh.setInt(4, v.getId());
+                pstmtVeh.executeUpdate();
             }
 
-            IItemSubDAO subDAO = classToDAORegistry.get(item.getClass());
-            if (subDAO != null) {
-                // subDAO.updateSubItem(conn, item);
+            // 3. Cập nhật trạng thái bảng auctions
+            String sqlAuction = "UPDATE auctions SET status = ? WHERE item_id = ?";
+            try (PreparedStatement pstmtAuction = conn.prepareStatement(sqlAuction)) {
+                pstmtAuction.setString(1, item.getStatus() != null ? item.getStatus() : "OPEN");
+                pstmtAuction.setInt(2, item.getId());
+                pstmtAuction.executeUpdate();
             }
 
             conn.commit();
             return true;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
             if (conn != null) try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+            e.printStackTrace();
             return false;
-        } finally {
-            if (conn != null) try { conn.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
         }
     }
 
@@ -222,7 +264,11 @@ public class ItemDAO {
 
     public List<ItemDTO> getAllItems(int page, int limit) {
         List<ItemDTO> list = new ArrayList<>();
-        String sql = "SELECT * FROM items ORDER BY created_at DESC LIMIT ? OFFSET ?";
+        // JOIN với bảng auctions để lấy status và giá hiện tại
+        String sql = "SELECT i.*, auc.id as auction_id, auc.status as auction_status, auc.current_max_price, auc.highest_bidder_id " +
+                     "FROM items i " +
+                     "LEFT JOIN auctions auc ON i.id = auc.item_id " +
+                     "ORDER BY i.created_at DESC LIMIT ? OFFSET ?";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
@@ -235,6 +281,11 @@ public class ItemDAO {
                     if (subDAO != null) {
                         ItemDTO fullItem = subDAO.fetchSubItem(conn, rs);
                         if (fullItem != null) {
+                            // Gán thêm thông tin đấu giá vào ItemDTO
+                            fullItem.setAuctionId(rs.getInt("auction_id"));
+                            fullItem.setStatus(rs.getString("auction_status"));
+                            fullItem.setCurrentMaxPrice(rs.getDouble("current_max_price"));
+                            fullItem.setHighestBidderId(rs.getInt("highest_bidder_id"));
                             list.add(fullItem);
                         }
                     }
@@ -245,7 +296,6 @@ public class ItemDAO {
         }
         return list;
     }
-
     public int getTotalItemCount() {
         String sql = "SELECT COUNT(*) FROM items";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
@@ -317,26 +367,27 @@ public class ItemDAO {
         return 0;
     }
 
-    public List<ItemDTO> getItemsBySellerId(int sellerId) {
+public List<ItemDTO> getItemsBySellerId(int sellerId) {
         List<ItemDTO> list = new ArrayList<>();
-        // Dùng LEFT JOIN để lấy hết thông tin từ bảng chính và các bảng thuộc tính riêng
-        String sql = "SELECT i.*, e.warranty_months, v.brand, v.mileage, v.condition_state, " +
-                    "a.artist, a.creation_year, a.material " +
-                    "FROM items i " +
-                    "LEFT JOIN electronics e ON i.id = e.item_id " +
-                    "LEFT JOIN vehicles v ON i.id = v.item_id " +
-                    "LEFT JOIN artworks a ON i.id = a.item_id " +
-                    "WHERE i.seller_id = ? ORDER BY i.created_at DESC";
+        // LEFT JOIN thêm bảng auctions
+        String sql = "SELECT i.*, auc.id as auction_id, auc.status as auction_status, auc.current_max_price, auc.highest_bidder_id, " +
+                     "e.warranty_months, v.brand, v.mileage, v.condition_state, " +
+                     "a.artist, a.creation_year, a.material " +
+                     "FROM items i " +
+                     "LEFT JOIN auctions auc ON i.id = auc.item_id " +
+                     "LEFT JOIN electronics e ON i.id = e.item_id " +
+                     "LEFT JOIN vehicles v ON i.id = v.item_id " +
+                     "LEFT JOIN artworks a ON i.id = a.item_id " +
+                     "WHERE i.seller_id = ? ORDER BY i.created_at DESC";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, sellerId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     String category = rs.getString("category");
                     ItemDTO item;
 
-                    // Khởi tạo đúng loại DTO dựa trên Category
                     if ("ELECTRONICS".equalsIgnoreCase(category)) {
                         ElectronicsDTO e = new ElectronicsDTO();
                         e.setWarrantyMonths(rs.getInt("warranty_months"));
@@ -357,7 +408,7 @@ public class ItemDAO {
                         item = new ItemDTO();
                     }
 
-                    // Gán các thông tin chung
+                    // Thông tin items
                     item.setId(rs.getInt("id"));
                     item.setName(rs.getString("name"));
                     item.setDescription(rs.getString("description"));
@@ -366,8 +417,15 @@ public class ItemDAO {
                     item.setImagePath(rs.getString("image_path"));
                     java.sql.Timestamp ts = rs.getTimestamp("created_at");
                     if (ts != null) {
-                        item.setCreatedAt(ts.toString()); // Chuyển timestamp về chuỗi để gửi qua API
+                        item.setCreatedAt(ts.toString());
                     }                    
+
+                    // Gán thêm thông tin từ auctions
+                    item.setAuctionId(rs.getInt("auction_id"));
+                    item.setStatus(rs.getString("auction_status"));
+                    item.setCurrentMaxPrice(rs.getDouble("current_max_price"));
+                    item.setHighestBidderId(rs.getInt("highest_bidder_id"));
+
                     list.add(item);
                 }
             }

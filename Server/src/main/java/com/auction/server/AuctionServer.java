@@ -60,7 +60,7 @@ public class AuctionServer {
             Tomcat.addServlet(ctx, "PlaceBidAPI", new PlaceBidAPI());
             ctx.addServletMappingDecoded("/api/bids", "PlaceBidAPI");
             Tomcat.addServlet(ctx, "UserProfileAPI", new UserProfileAPI());
-            ctx.addServletMappingDecoded("/api/my/profile/*", "UserProfileAPI");
+            ctx.addServletMappingDecoded("/api/my/profile", "UserProfileAPI");
             Tomcat.addServlet(ctx, "GetMyWonItemsAPI", new GetMyWonItemsAPI());
             ctx.addServletMappingDecoded("/api/my/won-items", "GetMyWonItemsAPI");
             Tomcat.addServlet(ctx, "GetMyItemsForSaleAPI", new GetMyItemsForSaleAPI());

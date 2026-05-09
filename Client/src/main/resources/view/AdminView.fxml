@@ -16,6 +16,7 @@
                 <Separator opacity="0.3"/>
                 <Button fx:id="btnManageUsers" onAction="#showUserManagement" text="Quản lý Người dùng" maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-cursor: hand;"/>
                 <Button fx:id="btnManageItems" onAction="#showItemManagement" text="Quản lý Sản phẩm" maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-cursor: hand;"/>
+              
                 <Region VBox.vgrow="ALWAYS" />
                 <Button onAction="#handleLogout" text="Đăng xuất" maxWidth="Infinity" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;"/>
             </children>
@@ -41,8 +42,8 @@
 
                 <HBox spacing="15.0" alignment="CENTER_RIGHT">
                     <children>
-                        <Button fx:id="btnLock" text="Khóa / Mở khóa" style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-cursor: hand;"/>
-                        <Button fx:id="btnDelete" onAction="#handleDelete" text="Xóa vĩnh viễn" style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-cursor: hand;"/>
+                        <Button fx:id="btnLock" onAction="#handleLockUnlock" text="Khóa Tài Khoản" style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-cursor: hand;"/>
+                        <Button fx:id="btnDelete" onAction="#handleDelete" text="Xóa Sản Phẩm" style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-cursor: hand;"/>
                     </children>
                 </HBox>
             </children>
