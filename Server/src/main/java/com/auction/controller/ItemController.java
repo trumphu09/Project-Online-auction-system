@@ -2,6 +2,7 @@ package com.auction.controller;
 
 import com.auction.server.factory.ItemFactory;
 import com.auction.server.models.ItemDTO;
+import com.auction.server.dao.ItemDAO;
 import com.auction.service.ItemService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -20,25 +21,81 @@ public class ItemController {
         this.itemService = ItemService.getInstance();
     }
 
+    /**
+     * FIX: handleListItems — Đảm bảo trả về List thẳng trong "data" (không phải Map lồng).
+     * Client mong đợi "data" là một mảng JSON [...], không phải object {"items":[...],...}.
+     */
     public String handleListItems(int page, int limit) {
-        Map<String, Object> data = itemService.getAllItems(page, limit);
-        List<?> items = (List<?>) data.get("items"); // Lấy đúng mảng items
-        return createResponse("success", "Lấy danh sách sản phẩm thành công.", gson.toJsonTree(items));
+        try {
+            List<ItemDTO> items = ItemService.getInstance().getItemList(page, limit);
+
+            JsonObject response = new JsonObject();
+            response.addProperty("status", "success");
+            response.add("data", gson.toJsonTree(items));
+            return gson.toJson(response);
+
+        } catch (Exception e) {
+            System.err.println("Lỗi handleListItems: " + e.getMessage());
+            JsonObject error = new JsonObject();
+            error.addProperty("status", "error");
+            error.addProperty("message", "Lỗi tải danh sách sản phẩm: " + e.getMessage());
+            return gson.toJson(error);
+        }
     }
+ 
+    /**
+     * FIX: handleSearchItems trước đây trả về dữ liệu không đúng format
+     * hoặc gọi ItemService.searchItems() vốn trả về HashMap rỗng.
+     * 
+     * Giờ gọi đúng ItemService.searchItems(keyword) → trả về List<ItemDTO>.
+     */
     public String handleSearchItems(String keyword, int page, int limit) {
-        Map<String, Object> data = itemService.searchItems(keyword, page, limit);
-        List<?> items = (List<?>) data.get("items");
-        return createResponse("success", "...", gson.toJsonTree(items));
+        try {
+            // Gọi phương thức search đã được sửa trong ItemService
+            List<ItemDTO> items = ItemService.getInstance().searchItems(keyword);
+ 
+            // Bọc vào format chuẩn {"status":"success","data":[...]}
+            JsonObject response = new JsonObject();
+            response.addProperty("status", "success");
+            response.add("data", gson.toJsonTree(items));
+            return gson.toJson(response);
+ 
+        } catch (Exception e) {
+            System.err.println("Lỗi handleSearchItems: " + e.getMessage());
+            JsonObject error = new JsonObject();
+            error.addProperty("status", "error");
+            error.addProperty("message", "Lỗi tìm kiếm sản phẩm: " + e.getMessage());
+            return gson.toJson(error);
+        }
     }
+ 
     public String handleGetCategories() {
         List<String> categories = itemService.getAllCategories();
         return createResponse("success", "Lấy danh sách danh mục thành công.", gson.toJsonTree(categories));
     }
 
+    /**
+     * FIX: handleGetItemsByCategory trước đây gọi ItemService.getItemsByCategory()
+     * vốn trả về HashMap rỗng.
+     *
+     * Giờ gọi đúng và trả về List<ItemDTO>.
+     */
     public String handleGetItemsByCategory(String category, int page, int limit) {
-        Map<String, Object> data = itemService.getItemsByCategory(category, page, limit);
-        List<?> items = (List<?>) data.get("items");
-        return createResponse("success", "...", gson.toJsonTree(items));
+        try {
+            List<ItemDTO> items = ItemService.getInstance().getItemsByCategory(category);
+ 
+            JsonObject response = new JsonObject();
+            response.addProperty("status", "success");
+            response.add("data", gson.toJsonTree(items));
+            return gson.toJson(response);
+ 
+        } catch (Exception e) {
+            System.err.println("Lỗi handleGetItemsByCategory: " + e.getMessage());
+            JsonObject error = new JsonObject();
+            error.addProperty("status", "error");
+            error.addProperty("message", "Lỗi lọc danh mục: " + e.getMessage());
+            return gson.toJson(error);
+        }
     }
 
     public String handleGetItemsBySeller(int sellerId) {
@@ -137,4 +194,5 @@ public class ItemController {
         }
         return gson.toJson(response);
     }
+    
 }

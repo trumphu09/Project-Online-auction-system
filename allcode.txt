@@ -672,6 +672,10 @@ public abstract class BaseController {
 package com.auction.client.controllers;
 
 import com.auction.client.model.dto.ItemDTO;
+import com.auction.client.model.dto.UserDTO;
+import com.auction.client.service.ApiCallback;
+import com.auction.client.service.AuctionFacade;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
@@ -685,6 +689,7 @@ public class BiddingRoomController extends BaseController {
     @FXML private ImageView imgProduct;
     @FXML private Label lblDescription, lblSeller, lblStartPrice, lblStepPrice, lblStartTime, lblEndTime;
     @FXML private Label lblTimer, lblCurrentPrice, lblHighestBidder;
+    @FXML private Label lblCurrentUser, lblUserBalance, lblCategory;
     @FXML private LineChart<String, Number> chartHistory;
     @FXML private TextField txtBidAmount;
     @FXML private Button btnBid;
@@ -698,7 +703,34 @@ public class BiddingRoomController extends BaseController {
         series.setName("Lịch sử giá");
         chartHistory.getData().add(series);
 
-        lblTimer.setStyle("-fx-font-size: 40px; -fx-text-fill: red; -fx-font-weight: bold;");
+        if (lblTimer != null) {
+            lblTimer.setStyle("-fx-font-size: 40px; -fx-text-fill: red; -fx-font-weight: bold;");
+        }
+        
+        // Load thông tin user khi vào phòng đấu giá
+        loadCurrentUserInfo();
+    }
+    
+    // Load thông tin người dùng hiện tại
+    private void loadCurrentUserInfo() {
+        AuctionFacade.getInstance().getUserProfile(new ApiCallback<UserDTO>() {
+            @Override
+            public void onSuccess(UserDTO user) {
+                Platform.runLater(() -> {
+                    if (user != null && lblCurrentUser != null && lblUserBalance != null) {
+                        String displayName = (user.getFullName() != null && !user.getFullName().isEmpty())
+                                ? user.getFullName()
+                                : user.getUsername();
+                        lblCurrentUser.setText("Người dùng: " + displayName);
+                        lblUserBalance.setText("Số dư: " + String.format("%,.0f VNĐ", user.getBalance()));
+                    }
+                });
+            }
+            @Override
+            public void onError(String errorMessage) {
+                System.err.println("Lỗi tải thông tin user: " + errorMessage);
+            }
+        });
     }
 
     // 2. SỬA HÀM setData: Nhận đầu vào là ItemDTO xịn từ ProductViewController
@@ -706,19 +738,27 @@ public class BiddingRoomController extends BaseController {
         this.currentItem = item; // Lưu lại để dùng cho nút BID
 
         // Đổ dữ liệu từ "thùng hàng" DTO ra các Label
-        lblDescription.setText(item.getDescription());
-        lblStartPrice.setText(String.format("%,.0f VNĐ", item.getStartingPrice()));
-        lblStepPrice.setText(String.format("%,.0f VNĐ", item.getPriceStep()));
-        lblStartTime.setText("Bắt đầu: " + item.getStartTime());
-        lblEndTime.setText("Kết thúc: " + item.getEndTime());
+        if (lblDescription != null) lblDescription.setText(item.getDescription());
+        if (lblStartPrice != null) lblStartPrice.setText(String.format("%,.0f VNĐ", item.getStartingPrice()));
+        if (lblStepPrice != null) lblStepPrice.setText(String.format("%,.0f VNĐ", item.getPriceStep()));
+        if (lblStartTime != null) lblStartTime.setText("Bắt đầu: " + item.getStartTime());
+        if (lblEndTime != null) lblEndTime.setText("Kết thúc: " + item.getEndTime());
+        if (lblCategory != null) lblCategory.setText("Loại: " + (item.getCategory() != null ? item.getCategory() : "N/A"));
 
         // Giá hiện tại lúc mới mở phòng chính là giá khởi điểm
-        lblCurrentPrice.setText(String.format("%,.0f VNĐ", item.getStartingPrice()));
-        lblHighestBidder.setText("Chưa có người ra giá");
+        if (lblCurrentPrice != null) lblCurrentPrice.setText(String.format("%,.0f VNĐ", item.getStartingPrice()));
+        if (lblHighestBidder != null) lblHighestBidder.setText("Chưa có người ra giá");
 
         // Cập nhật ảnh nếu có
         if (item.getImagePath() != null && !item.getImagePath().isEmpty()) {
-            imgProduct.setImage(new Image("file:" + item.getImagePath()));
+            try {
+                Image img = new Image("file:" + item.getImagePath(), true);
+                if (imgProduct != null) {
+                    imgProduct.setImage(img);
+                }
+            } catch (Exception e) {
+                System.err.println("Lỗi load ảnh: " + e.getMessage());
+            }
         }
     }
 
@@ -1043,6 +1083,7 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -1059,7 +1100,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class ProductViewController extends BaseController {
+public class ProductViewController extends BaseController implements Initializable {
 
     // --- CÁC ID CỦA SẢN PHẨM & TÌM KIẾM ---
     @FXML private TilePane productGridContainer;
@@ -1078,12 +1119,26 @@ public class ProductViewController extends BaseController {
     @FXML private VBox cartSidebar;
     @FXML private VBox cartItemsContainer;
     private boolean isCartOpen = false;
+    
+    // Lưu trữ tất cả items cho tìm kiếm cục bộ
+    private List<ItemDTO> allItems = new java.util.ArrayList<>();
 
     @FXML
     public void initialize(URL url, ResourceBundle rb) {
-        loadAllItems();        // Tải toàn bộ sản phẩm
-        loadUserProfile();     // Tải thông tin người dùng & số dư ví
-        loadBidderHistory();   // Tải lịch sử đấu giá
+
+        // loading state
+        if (lblFullName != null) {
+            lblFullName.setText("Đang tải...");
+        }
+
+        if (lblBalance != null) {
+            lblBalance.setText("Đang tải...");
+        }
+
+        // LOAD DATA - ưu tiên tải items trước, sau đó tải user profile
+        loadAllItems();         // Tải danh sách sản phẩm TRƯỚC
+        loadUserProfile();      // Sau đó tải thông tin người dùng
+        loadBidderHistory();    // Tải lịch sử đấu giá
     }
 
     // ==========================================
@@ -1093,30 +1148,45 @@ public class ProductViewController extends BaseController {
         AuctionFacade.getInstance().getAllItems(new ApiCallback<List<ItemDTO>>() {
             @Override
             public void onSuccess(List<ItemDTO> items) {
-                Platform.runLater(() -> updateProductGrid(items));
+                Platform.runLater(() -> {
+                    allItems.clear();
+                    if (items != null && !items.isEmpty()) {
+                        allItems.addAll(items);
+                        System.out.println("Đã tải " + items.size() + " sản phẩm");
+                    } else {
+                        System.out.println("Danh sách sản phẩm rỗng");
+                    }
+                    updateProductGrid(allItems);
+                });
             }
             @Override
             public void onError(String errorMessage) {
-                Platform.runLater(() -> showAlert("Lỗi tải dữ liệu", errorMessage));
+                Platform.runLater(() -> {
+                    System.err.println("Lỗi tải dữ liệu sản phẩm: " + errorMessage);
+                    showAlert("Lỗi tải dữ liệu", errorMessage);
+                });
             }
         });
     }
 
     private void updateProductGrid(List<ItemDTO> items) {
         productGridContainer.getChildren().clear();
-        if (items != null) {
+        if (items != null && !items.isEmpty()) {
             for (ItemDTO item : items) {
                 ItemCard card = new ItemCard(item, 180, 150, true);
-                card.setUserData(item); // Cất dữ liệu vào card
+                card.setUserData(item);
                 card.setCursor(javafx.scene.Cursor.HAND);
                 card.setOnMouseClicked(this::openBiddingRoom);
                 productGridContainer.getChildren().add(card);
             }
+        } else {
+            Label emptyLabel = new Label("Không có sản phẩm nào");
+            productGridContainer.getChildren().add(emptyLabel);
         }
     }
 
     // ==========================================
-    // PHẦN 2: THÔNG TIN CÁ NHÂN & NẠP TIẾN
+    // PHẦN 2: THÔNG TIN CÁ NHÂN & NẠP TIỀN
     // ==========================================
     private void loadUserProfile() {
         AuctionFacade.getInstance().getUserProfile(new ApiCallback<UserDTO>() {
@@ -1124,14 +1194,32 @@ public class ProductViewController extends BaseController {
             public void onSuccess(UserDTO user) {
                 Platform.runLater(() -> {
                     if (user != null) {
-                        if (lblFullName != null) lblFullName.setText("Chào, " + user.getFullName());
-                        if (lblBalance != null) lblBalance.setText(String.format("%,.0f VNĐ", user.getBalance()));
+                        // === FIX LỖI 1: fullName thường null → fallback về username ===
+                        // Server lưu trường "username", không phải "full_name" nên fullName luôn null.
+                        // Ưu tiên fullName nếu có, còn không thì dùng username.
+                        String displayName = (user.getFullName() != null && !user.getFullName().isEmpty())
+                                ? user.getFullName()
+                                : user.getUsername();
+
+                        if (lblFullName != null) {
+                            lblFullName.setText("Chào, " + (displayName != null ? displayName : "Người dùng"));
+                        }
+                        if (lblBalance != null) {
+                            lblBalance.setText(String.format("%,.0f VNĐ", user.getBalance()));
+                        }
+                    } else {
+                        if (lblFullName != null) lblFullName.setText("Lỗi: Không thể tải tên");
+                        if (lblBalance != null) lblBalance.setText("0 VNĐ");
                     }
                 });
             }
             @Override
             public void onError(String errorMessage) {
-                System.err.println("Lỗi tải Profile: " + errorMessage);
+                Platform.runLater(() -> {
+                    System.err.println("Lỗi tải Profile: " + errorMessage);
+                    if (lblFullName != null) lblFullName.setText("Lỗi tải thông tin");
+                    if (lblBalance != null) lblBalance.setText("0 VNĐ");
+                });
             }
         });
     }
@@ -1151,7 +1239,7 @@ public class ProductViewController extends BaseController {
                     Platform.runLater(() -> {
                         showAlert("Thành công", "Đã nạp " + String.format("%,.0f", amount) + " VNĐ vào ví!");
                         txtDepositAmount.clear();
-                        loadUserProfile(); // Cập nhật lại số dư trên nhãn ngay lập tức
+                        loadUserProfile(); // Cập nhật lại số dư + tên người dùng
                     });
                 }
                 @Override
@@ -1169,39 +1257,37 @@ public class ProductViewController extends BaseController {
     // ==========================================
     @FXML
     private void handleSearchAction() {
-        String keyword = txtSearch.getText().trim();
+        String keyword = txtSearch.getText().trim().toLowerCase();
         if (keyword.isEmpty()) {
-            loadAllItems();
+            // Nếu search trống, hiển thị tất cả
+            updateProductGrid(allItems);
             return;
         }
 
-        AuctionFacade.getInstance().searchItems(keyword, new ApiCallback<List<ItemDTO>>() {
-            @Override
-            public void onSuccess(List<ItemDTO> items) {
-                Platform.runLater(() -> updateProductGrid(items));
+        // Tìm kiếm cục bộ từ danh sách allItems
+        List<ItemDTO> filtered = new java.util.ArrayList<>();
+        for (ItemDTO item : allItems) {
+            if (item.getName().toLowerCase().contains(keyword) || 
+                item.getDescription().toLowerCase().contains(keyword)) {
+                filtered.add(item);
             }
-            @Override
-            public void onError(String errorMessage) {
-                Platform.runLater(() -> showAlert("Lỗi tìm kiếm", errorMessage));
-            }
-        });
+        }
+        updateProductGrid(filtered);
     }
 
     @FXML private void handleFilterElectronics() { filterByCategory("ELECTRONICS"); }
-    @FXML private void handleFilterVehicles() { filterByCategory("VEHICLE"); }
-    @FXML private void handleFilterArts() { filterByCategory("ART"); }
+    @FXML private void handleFilterVehicles()    { filterByCategory("VEHICLE"); }
+    @FXML private void handleFilterArts()        { filterByCategory("ART"); }
 
     private void filterByCategory(String category) {
-        AuctionFacade.getInstance().getItemsByCategory(category, new ApiCallback<List<ItemDTO>>() {
-            @Override
-            public void onSuccess(List<ItemDTO> items) {
-                Platform.runLater(() -> updateProductGrid(items));
+        // Lọc cục bộ từ danh sách allItems
+        List<ItemDTO> filtered = new java.util.ArrayList<>();
+        for (ItemDTO item : allItems) {
+            if (category.equalsIgnoreCase(item.getCategory())) {
+                filtered.add(item);
             }
-            @Override
-            public void onError(String errorMessage) {
-                Platform.runLater(() -> showAlert("Lỗi lọc danh mục", errorMessage));
-            }
-        });
+        }
+        updateProductGrid(filtered);
     }
 
     // ==========================================
@@ -1215,7 +1301,10 @@ public class ProductViewController extends BaseController {
                     if (listActiveBids != null) listActiveBids.getItems().clear();
                     if (bids != null) {
                         for (JsonObject bid : bids) {
-                            listActiveBids.getItems().add("SP ID: " + bid.get("auction_id").getAsInt() + " | Bạn Bid: " + String.format("%,.0f", bid.get("amount").getAsDouble()));
+                            listActiveBids.getItems().add(
+                                "SP ID: " + bid.get("auction_id").getAsInt()
+                                + " | Bạn Bid: " + String.format("%,.0f", bid.get("amount").getAsDouble())
+                            );
                         }
                     }
                 });
@@ -1267,38 +1356,48 @@ public class ProductViewController extends BaseController {
     // ==========================================
     // PHẦN 6: GIỎ HÀNG
     // ==========================================
-  @FXML
-  private void handleToggleCart() {
-    TranslateTransition transition = new TranslateTransition(Duration.millis(300), cartSidebar);
-    if (isCartOpen) {
-      transition.setToX(300); // Trượt giấu đi
-      isCartOpen = false;
-    } else {
-      transition.setToX(0);   // Trượt hiện ra
-      isCartOpen = true;
-      loadCartItems();        // Gọi dữ liệu khi mở
+    @FXML
+    private void handleToggleCart() {
+        TranslateTransition transition = new TranslateTransition(Duration.millis(300), cartSidebar);
+        if (isCartOpen) {
+            transition.setToX(350);
+            isCartOpen = false;
+        } else {
+            transition.setToX(0);
+            isCartOpen = true;
+            loadCartItems();
+        }
+        transition.play();
     }
-    transition.play();
-  }
 
-  private void loadCartItems() {
-    AuctionFacade.getInstance().getWatchlist(new ApiCallback<List<ItemDTO>>() {
-      @Override
-      public void onSuccess(List<ItemDTO> items) {
-        Platform.runLater(() -> {
-          cartItemsContainer.getChildren().clear();
-          for (ItemDTO item : items) {
-            // Tạo một Label hoặc MiniItemCard cho từng món
-            cartItemsContainer.getChildren().add(new Label(item.getName() + " - " + item.getStartingPrice()));
-          }
+    private void loadCartItems() {
+        AuctionFacade.getInstance().getWatchlist(new ApiCallback<List<ItemDTO>>() {
+            @Override
+            public void onSuccess(List<ItemDTO> items) {
+                Platform.runLater(() -> {
+                    cartItemsContainer.getChildren().clear();
+                    if (items != null && !items.isEmpty()) {
+                        for (ItemDTO item : items) {
+                            VBox itemBox = new VBox(5);
+                            itemBox.setStyle("-fx-padding: 10; -fx-border-color: #ddd; -fx-border-width: 0 0 1 0;");
+                            itemBox.getChildren().addAll(
+                                new Label(item.getName()),
+                                new Label("Giá khởi: " + String.format("%,.0f VNĐ", item.getStartingPrice())),
+                                new Label("Bước giá: " + String.format("%,.0f VNĐ", item.getPriceStep()))
+                            );
+                            cartItemsContainer.getChildren().add(itemBox);
+                        }
+                    } else {
+                        cartItemsContainer.getChildren().add(new Label("Chưa có sản phẩm yêu thích"));
+                    }
+                });
+            }
+            @Override
+            public void onError(String err) {
+                Platform.runLater(() -> cartItemsContainer.getChildren().clear());
+            }
         });
-      }
-      @Override
-      public void onError(String err) {
-        // Xử lý lỗi
-      }
-    });
-  }
+    }
 
     @FXML
     private void handleLogout(ActionEvent event) {
@@ -1414,32 +1513,41 @@ public class SellerController extends BaseController implements Initializable {
     @FXML private TilePane inventoryGrid;
     @FXML private ComboBox<String> cbCategory;
     @FXML private VBox dynamicFieldsContainer;
-    // Khai báo các Label thống kê (Đảm bảo bên SellerView.fxml đã có fx:id này)
+
+    // Labels thống kê bên phải
     @FXML private Label lblRating;
     @FXML private Label lblSaleCount;
     @FXML private Label lblAccountBalance;
-    
-    // Khai báo TextField tìm kiếm
+
+    // ListView lịch sử giao dịch (khai báo đúng khớp với fx:id trong SellerView.fxml)
+    @FXML private ListView<String> historyList;
+
+    // TextField tìm kiếm
     @FXML private TextField txtSearch;
-    private List<ItemDTO> allItems = new ArrayList<>(); // Lưu tạm để search nhanh
+
+    // Danh sách tạm để search nhanh không cần gọi lại server
+    private List<ItemDTO> allItems = new ArrayList<>();
 
     // Biến lưu trữ ảnh
     private String currentImagePath = "";
     private String currentBase64Image = null;
 
     @Override
-    public void initialize(URL url, ResourceBundle rb) {
+    public void initialize(URL location, ResourceBundle resources) {
+        // Cấu hình ComboBox
         cbCategory.setItems(FXCollections.observableArrayList("Electronics", "Art", "Vehicle"));
-        
+
         cbCategory.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
                 updateDynamicFields(newVal);
             }
         });
-        
+
         cbCategory.getSelectionModel().selectFirst();
-        loadSellerInventory();
-        loadUserProfile();
+
+        // --- BỔ SUNG GỌI HÀM ĐỂ HIỂN THỊ DỮ LIỆU NGAY KHI MỞ MÀN HÌNH ---
+        loadUserProfile();       // Cập nhật ví, số sao và số lượng đã bán
+        loadSellerInventory();   // Hiển thị danh sách sản phẩm đang bán
     }
 
     private void updateDynamicFields(String category) {
@@ -1448,13 +1556,11 @@ public class SellerController extends BaseController implements Initializable {
 
         if ("ELECTRONICS".equals(key)) {
             addTextField("txtWarranty", "Thời gian bảo hành (tháng)");
-        } 
-        else if ("VEHICLE".equals(key)) {
+        } else if ("VEHICLE".equals(key)) {
             addTextField("txtBrand", "Thương hiệu xe");
             addTextField("txtMileage", "Số KM đã đi (mileage)");
             addTextField("txtCondition", "Tình trạng xe (condition state)");
-        } 
-        else if ("ART".equals(key)) {
+        } else if ("ART".equals(key)) {
             addTextField("txtArtist", "Tên họa sĩ");
             addTextField("txtYear", "Năm sáng tác (creation year)");
             addTextField("txtMaterial", "Chất liệu (material)");
@@ -1471,11 +1577,128 @@ public class SellerController extends BaseController implements Initializable {
     @FXML
     private void handlePostItem(ActionEvent event) {
         try {
-            ItemDTO newItem = packData();
-            if (newItem.getName() == null || newItem.getName().isEmpty() || newItem.getStartingPrice() <= 0) {
-                showAlert("Lỗi", "Hãy nhập tên và giá hợp lệ nhé!");
+            // === VALIDATION CÁC TRƯỜNG BẮT BUỘC ===
+            String itemName = txtItemName.getText().trim();
+            if (itemName.isEmpty()) {
+                showAlert("Lỗi", "Vui lòng nhập tên sản phẩm!");
                 return;
             }
+            
+            if (txtStartingPrice.getText().trim().isEmpty()) {
+                showAlert("Lỗi", "Vui lòng nhập giá khởi điểm!");
+                return;
+            }
+            
+            if (txtPriceStep.getText().trim().isEmpty()) {
+                showAlert("Lỗi", "Vui lòng nhập bước giá!");
+                return;
+            }
+            
+            String selectedCategory = cbCategory.getValue();
+            if (selectedCategory == null || selectedCategory.isEmpty()) {
+                showAlert("Lỗi", "Vui lòng chọn loại sản phẩm!");
+                return;
+            }
+            
+            if (txtDescription.getText().trim().isEmpty()) {
+                showAlert("Lỗi", "Vui lòng nhập mô tả sản phẩm!");
+                return;
+            }
+            
+            if (currentImagePath == null || currentImagePath.isEmpty()) {
+                showAlert("Lỗi", "Vui lòng chọn hình ảnh sản phẩm!");
+                return;
+            }
+            
+            if (dateStart.getValue() == null) {
+                showAlert("Lỗi", "Vui lòng chọn ngày bắt đầu đấu giá!");
+                return;
+            }
+            
+            if (dateEnd.getValue() == null) {
+                showAlert("Lỗi", "Vui lòng chọn ngày kết thúc đấu giá!");
+                return;
+            }
+            
+            // Validate định dạng thời gian
+            String timeStart = txtTimeStart.getText().trim();
+            String timeEnd = txtTimeEnd.getText().trim();
+            
+            if (!timeStart.matches("^([01]?[0-9]|2[0-3]):[0-5][0-9]$")) {
+                showAlert("Lỗi", "Giờ bắt đầu phải có định dạng HH:mm (ví dụ: 08:00)!");
+                return;
+            }
+            
+            if (!timeEnd.matches("^([01]?[0-9]|2[0-3]):[0-5][0-9]$")) {
+                showAlert("Lỗi", "Giờ kết thúc phải có định dạng HH:mm (ví dụ: 20:00)!");
+                return;
+            }
+            
+            // Validate giá và bước giá là số dương
+            try {
+                double startingPrice = Double.parseDouble(txtStartingPrice.getText());
+                double priceStep = Double.parseDouble(txtPriceStep.getText());
+                
+                if (startingPrice <= 0) {
+                    showAlert("Lỗi", "Giá khởi điểm phải lớn hơn 0!");
+                    return;
+                }
+                
+                if (priceStep <= 0) {
+                    showAlert("Lỗi", "Bước giá phải lớn hơn 0!");
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                showAlert("Lỗi", "Giá phải là số hợp lệ!");
+                return;
+            }
+            
+            // Validate category-specific fields
+            String key = selectedCategory.toUpperCase();
+            if ("ELECTRONICS".equals(key)) {
+                TextField warrantyField = (TextField) dynamicFieldsContainer.lookup("#txtWarranty");
+                if (warrantyField != null && warrantyField.getText().trim().isEmpty()) {
+                    showAlert("Lỗi", "Vui lòng nhập thời gian bảo hành (tháng)!");
+                    return;
+                }
+            } else if ("VEHICLE".equals(key)) {
+                TextField brandField = (TextField) dynamicFieldsContainer.lookup("#txtBrand");
+                TextField mileageField = (TextField) dynamicFieldsContainer.lookup("#txtMileage");
+                TextField conditionField = (TextField) dynamicFieldsContainer.lookup("#txtCondition");
+                
+                if (brandField != null && brandField.getText().trim().isEmpty()) {
+                    showAlert("Lỗi", "Vui lòng nhập thương hiệu xe!");
+                    return;
+                }
+                if (mileageField != null && mileageField.getText().trim().isEmpty()) {
+                    showAlert("Lỗi", "Vui lòng nhập số KM đã đi!");
+                    return;
+                }
+                if (conditionField != null && conditionField.getText().trim().isEmpty()) {
+                    showAlert("Lỗi", "Vui lòng nhập tình trạng xe!");
+                    return;
+                }
+            } else if ("ART".equals(key)) {
+                TextField artistField = (TextField) dynamicFieldsContainer.lookup("#txtArtist");
+                TextField yearField = (TextField) dynamicFieldsContainer.lookup("#txtYear");
+                TextField materialField = (TextField) dynamicFieldsContainer.lookup("#txtMaterial");
+                
+                if (artistField != null && artistField.getText().trim().isEmpty()) {
+                    showAlert("Lỗi", "Vui lòng nhập tên họa sĩ!");
+                    return;
+                }
+                if (yearField != null && yearField.getText().trim().isEmpty()) {
+                    showAlert("Lỗi", "Vui lòng nhập năm sáng tác!");
+                    return;
+                }
+                if (materialField != null && materialField.getText().trim().isEmpty()) {
+                    showAlert("Lỗi", "Vui lòng nhập chất liệu!");
+                    return;
+                }
+            }
+            
+            // Nếu tất cả validation đều pass, thực hiện packData và post item
+            ItemDTO newItem = packData();
 
             AuctionFacade.getInstance().addItem(newItem, new ApiCallback<JsonObject>() {
                 @Override
@@ -1483,7 +1706,7 @@ public class SellerController extends BaseController implements Initializable {
                     Platform.runLater(() -> {
                         clearFields();
                         showAlert("Thành công", "Đã ném sản phẩm lên sàn đấu giá thành công!");
-                        loadSellerInventory(); 
+                        loadSellerInventory();
                     });
                 }
 
@@ -1511,7 +1734,7 @@ public class SellerController extends BaseController implements Initializable {
             VehicleDTO v = new VehicleDTO();
             v.setBrand(getTextFromField("txtBrand"));
             v.setMileage(getIntFromField("txtMileage"));
-            v.setCondition(getTextFromField("txtCondition")); 
+            v.setCondition(getTextFromField("txtCondition"));
             item = v;
         } else if ("ART".equals(key)) {
             ArtDTO a = new ArtDTO();
@@ -1524,27 +1747,22 @@ public class SellerController extends BaseController implements Initializable {
         }
 
         item.setName(txtItemName.getText());
-        item.setName(txtItemName.getText());
         try {
             item.setStartingPrice(Double.parseDouble(txtStartingPrice.getText()));
             item.setPriceStep(Double.parseDouble(txtPriceStep.getText()));
-            
-            // --- ĐOẠN CODE BỔ SUNG: LẤY THỜI GIAN ĐẤU GIÁ ---
+
             if (dateStart.getValue() != null) {
                 item.setStartTime(dateStart.getValue().toString() + " " + txtTimeStart.getText().trim() + ":00");
             }
             if (dateEnd.getValue() != null) {
-                // Sẽ tạo ra chuỗi chuẩn SQL: "2024-05-15 20:00:00"
                 item.setEndTime(dateEnd.getValue().toString() + " " + txtTimeEnd.getText().trim() + ":00");
             }
-            // ------------------------------------------------
-            
         } catch (NumberFormatException ignored) {}
-        
-        item.setCategory(key); 
+
+        item.setCategory(key);
         item.setDescription(txtDescription.getText());
         item.setImagePath(currentImagePath);
-        item.setBase64Image(this.currentBase64Image); 
+        item.setBase64Image(this.currentBase64Image);
         return item;
     }
 
@@ -1567,7 +1785,7 @@ public class SellerController extends BaseController implements Initializable {
         dateEnd.setValue(null);
         lblFileName.setText("Chưa chọn ảnh");
         currentImagePath = "";
-        currentBase64Image = null; 
+        currentBase64Image = null;
     }
 
     @FXML
@@ -1580,10 +1798,10 @@ public class SellerController extends BaseController implements Initializable {
             try {
                 byte[] fileContent = java.nio.file.Files.readAllBytes(selectedFile.toPath());
                 String base64String = java.util.Base64.getEncoder().encodeToString(fileContent);
-                
-                this.currentBase64Image = base64String; 
-                this.currentImagePath = selectedFile.getName(); 
-                
+
+                this.currentBase64Image = base64String;
+                this.currentImagePath = selectedFile.getName();
+
                 lblFileName.setText(selectedFile.getName());
             } catch (IOException e) {
                 showAlert("Lỗi", "Không thể đọc file ảnh!");
@@ -1597,13 +1815,13 @@ public class SellerController extends BaseController implements Initializable {
             @Override
             public void onSuccess(List<ItemDTO> items) {
                 Platform.runLater(() -> {
+                    // Xóa grid cũ và cập nhật danh sách tạm
+                    inventoryGrid.getChildren().clear();
+                    allItems.clear();
                     if (items != null) {
-                        for (ItemDTO item : items) {
-                            ItemCard card = new ItemCard(item, 180, 150, false);
-                            card.setOnMouseClicked(event -> showItemDetailPopup(item));
-                            inventoryGrid.getChildren().add(card);
-                        }
+                        allItems.addAll(items);
                     }
+                    renderGrid(allItems);
                 });
             }
 
@@ -1624,72 +1842,110 @@ public class SellerController extends BaseController implements Initializable {
         renderGrid(filtered);
     }
 
+    // FIX: truyền đúng 4 tham số — isBuyer = false vì đây là màn hình Seller
     private void renderGrid(List<ItemDTO> items) {
-        inventoryGrid.getChildren().clear(); 
+        inventoryGrid.getChildren().clear();
         if (items != null) {
             for (ItemDTO item : items) {
-                // ItemCard giờ sẽ tự lấy thông tin Electronics/Vehicle/Art để hiển thị
-                ItemCard card = new ItemCard(item, 200, 220); 
-                
-                // Gắn sự kiện click để vẫn mở được popup chi tiết/sửa
+                ItemCard card = new ItemCard(item, 200, 220, false);
                 card.setOnMouseClicked(event -> showItemDetailPopup(item));
                 card.setCursor(javafx.scene.Cursor.HAND);
-                
                 inventoryGrid.getChildren().add(card);
             }
         }
     }
+
     private void showItemDetailPopup(ItemDTO item) {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Chi tiết sản phẩm");
         dialog.setHeaderText(item.getName());
 
+        ScrollPane scrollPane = new ScrollPane();
         VBox content = new VBox(10);
-        content.setStyle("-fx-padding: 10; -fx-font-size: 14px;");
+        content.setStyle("-fx-padding: 15; -fx-font-size: 13px;");
 
-        // Thông tin chung từ bảng items và auctions
-        content.getChildren().addAll(
+        // Thông tin cơ bản
+        VBox basicInfo = new VBox(8);
+        basicInfo.setStyle("-fx-border-color: #ddd; -fx-padding: 10; -fx-background-color: #f9f9f9;");
+        basicInfo.getChildren().addAll(
+            new Label("THÔNG TIN CƠ BẢN"),
+            new Label("━━━━━━━━━━━━━━━━━━━━━━"),
             new Label("Mô tả: " + item.getDescription()),
-            new Label("Giá khởi điểm: " + item.getStartingPrice() + " VNĐ"),
-            new Label("Giá đấu cao nhất: " + item.getCurrentMaxPrice() + " VNĐ"),
-            new Label("ID Người đấu giá cao nhất: " + item.getHighestBidderId()),
-            new Label("Trạng thái phiên đấu: " + (item.getStatus() != null ? item.getStatus() : "Chưa cập nhật")),
-            new Separator()
+            new Label("Loại sản phẩm: " + (item.getCategory() != null ? item.getCategory() : "Không xác định")),
+            new Separator(),
+            new Label("THÔNG TIN GIÁ"),
+            new Label("━━━━━━━━━━━━━━━━━━━━━━"),
+            new Label("Giá khởi điểm: " + String.format("%,.0f VNĐ", item.getStartingPrice())),
+            new Label("Bước giá tối thiểu: " + String.format("%,.0f VNĐ", item.getPriceStep())),
+            new Label("Giá cao nhất hiện tại: " + String.format("%,.0f VNĐ", item.getCurrentMaxPrice())),
+            new Separator(),
+            new Label("THÔNG TIN THỜI GIAN"),
+            new Label("━━━━━━━━━━━━━━━━━━━━━━"),
+            new Label("Bắt đầu: " + (item.getStartTime() != null ? item.getStartTime() : "Chưa xác định")),
+            new Label("Kết thúc: " + (item.getEndTime() != null ? item.getEndTime() : "Chưa xác định")),
+            new Separator(),
+            new Label("THÔNG TIN PHIÊN ĐẤU"),
+            new Label("━━━━━━━━━━━━━━━━━━━━━━"),
+            new Label("Người đấu giá cao nhất: ID " + item.getHighestBidderId()),
+            new Label("Trạng thái: " + (item.getStatus() != null ? item.getStatus() : "Chưa cập nhật"))
         );
+        
+        content.getChildren().add(basicInfo);
 
-        // Thông tin riêng từ các bảng con
+        // Category-specific info
         if (item instanceof ElectronicsDTO) {
-            content.getChildren().add(new Label("Thời gian bảo hành: " + ((ElectronicsDTO) item).getWarrantyMonths() + " tháng"));
+            ElectronicsDTO elec = (ElectronicsDTO) item;
+            VBox electronicsInfo = new VBox(8);
+            electronicsInfo.setStyle("-fx-border-color: #ddd; -fx-padding: 10; -fx-background-color: #f0f8ff;");
+            electronicsInfo.getChildren().addAll(
+                new Label("THÔNG TIN ĐIỆN TỬ"),
+                new Label("━━━━━━━━━━━━━━━━━━━━━━"),
+                new Label("Bảo hành: " + elec.getWarrantyMonths() + " tháng")
+            );
+            content.getChildren().add(electronicsInfo);
         } else if (item instanceof VehicleDTO) {
             VehicleDTO v = (VehicleDTO) item;
-            content.getChildren().addAll(
+            VBox vehicleInfo = new VBox(8);
+            vehicleInfo.setStyle("-fx-border-color: #ddd; -fx-padding: 10; -fx-background-color: #f0f8ff;");
+            vehicleInfo.getChildren().addAll(
+                new Label("THÔNG TIN XE CỘ"),
+                new Label("━━━━━━━━━━━━━━━━━━━━━━"),
                 new Label("Thương hiệu: " + v.getBrand()),
                 new Label("Số KM đã đi: " + v.getMileage() + " km"),
-                new Label("Tình trạng xe: " + (v.getCondition() != null ? v.getCondition() : "Không rõ"))
+                new Label("Tình trạng: " + (v.getCondition() != null ? v.getCondition() : "Không rõ"))
             );
+            content.getChildren().add(vehicleInfo);
         } else if (item instanceof ArtDTO) {
             ArtDTO a = (ArtDTO) item;
-            content.getChildren().addAll(
+            VBox artInfo = new VBox(8);
+            artInfo.setStyle("-fx-border-color: #ddd; -fx-padding: 10; -fx-background-color: #f0f8ff;");
+            artInfo.getChildren().addAll(
+                new Label("THÔNG TIN NGHỆ THUẬT"),
+                new Label("━━━━━━━━━━━━━━━━━━━━━━"),
                 new Label("Họa sĩ: " + a.getArtist()),
                 new Label("Năm sáng tác: " + a.getCreationYear()),
                 new Label("Chất liệu: " + a.getMaterial())
             );
+            content.getChildren().add(artInfo);
         }
 
-        dialog.getDialogPane().setContent(content);
+        scrollPane.setContent(content);
+        scrollPane.setFitToWidth(true);
+        dialog.getDialogPane().setContent(scrollPane);
+        dialog.getDialogPane().setPrefWidth(500);
+        dialog.getDialogPane().setPrefHeight(600);
 
-        // Thêm nút Chỉnh sửa và Đóng
         ButtonType editBtn = new ButtonType("Chỉnh sửa", ButtonBar.ButtonData.OK_DONE);
         ButtonType closeBtn = new ButtonType("Đóng", ButtonBar.ButtonData.CANCEL_CLOSE);
         dialog.getDialogPane().getButtonTypes().addAll(editBtn, closeBtn);
 
         dialog.setResultConverter(btn -> {
             if (btn == editBtn) {
-                openEditDialog(item); // Mở hộp thoại chỉnh sửa
+                openEditDialog(item);
             }
             return null;
         });
-        
+
         dialog.showAndWait();
     }
 
@@ -1697,22 +1953,26 @@ public class SellerController extends BaseController implements Initializable {
         Dialog<ItemDTO> editDialog = new Dialog<>();
         editDialog.setTitle("Chỉnh sửa: " + item.getName());
 
-        // Các trường nhập liệu chung
         TextField nameField = new TextField(item.getName());
         TextArea descField = new TextArea(item.getDescription());
         descField.setPrefRowCount(3);
         TextField priceField = new TextField(String.valueOf(item.getStartingPrice()));
+        TextField priceStepField = new TextField(String.valueOf(item.getPriceStep()));
+        TextField startTimeField = new TextField(item.getStartTime() != null ? item.getStartTime() : "");
+        TextField endTimeField = new TextField(item.getEndTime() != null ? item.getEndTime() : "");
 
         VBox form = new VBox(10);
         form.setStyle("-fx-padding: 10;");
         form.getChildren().addAll(
-            new Label("Tên SP:"), nameField, 
-            new Label("Mô tả:"), descField, 
+            new Label("Tên SP:"), nameField,
+            new Label("Mô tả:"), descField,
             new Label("Giá khởi điểm:"), priceField,
+            new Label("Bước giá:"), priceStepField,
+            new Label("Thời gian bắt đầu:"), startTimeField,
+            new Label("Thời gian kết thúc:"), endTimeField,
             new Separator()
         );
 
-        // Các trường nhập liệu riêng tùy loại
         TextField specificField1 = new TextField();
         TextField specificField2 = new TextField();
         TextField specificField3 = new TextField();
@@ -1751,43 +2011,44 @@ public class SellerController extends BaseController implements Initializable {
 
         editDialog.setResultConverter(btn -> {
             if (btn == btnSave) {
-                // Cập nhật thông tin chung vào DTO
                 item.setName(nameField.getText());
                 item.setDescription(descField.getText());
                 try { item.setStartingPrice(Double.parseDouble(priceField.getText())); } catch (Exception ignored) {}
+                try { item.setPriceStep(Double.parseDouble(priceStepField.getText())); } catch (Exception ignored) {}
 
-                // Cập nhật thông tin riêng vào DTO
+                item.setStartTime(normalizeDateTime(startTimeField.getText()));
+                item.setEndTime(normalizeDateTime(endTimeField.getText()));
+
                 if (item instanceof ArtDTO) {
                     ArtDTO art = (ArtDTO) item;
                     art.setArtist(specificField1.getText());
-                    try { art.setCreationYear(Integer.parseInt(specificField2.getText())); } catch(Exception ignored){}
+                    try { art.setCreationYear(Integer.parseInt(specificField2.getText())); } catch (Exception ignored) {}
                     art.setMaterial(specificField3.getText());
                 } else if (item instanceof ElectronicsDTO) {
                     ElectronicsDTO elec = (ElectronicsDTO) item;
-                    try { elec.setWarrantyMonths(Integer.parseInt(specificField1.getText())); } catch(Exception ignored){}
+                    try { elec.setWarrantyMonths(Integer.parseInt(specificField1.getText())); } catch (Exception ignored) {}
                 } else if (item instanceof VehicleDTO) {
                     VehicleDTO v = (VehicleDTO) item;
                     v.setBrand(specificField1.getText());
-                    try { v.setMileage(Integer.parseInt(specificField2.getText())); } catch(Exception ignored){}
+                    try { v.setMileage(Integer.parseInt(specificField2.getText())); } catch (Exception ignored) {}
                     v.setCondition(specificField3.getText());
                 }
-                
+
                 callUpdateAPI(item);
             }
             return null;
         });
-        
+
         editDialog.showAndWait();
     }
 
     private void callUpdateAPI(ItemDTO item) {
-        // Lưu ý: Cần tạo sẵn phương thức updateItem(item, callback) trong AuctionFacade
         AuctionFacade.getInstance().updateItem(item, new ApiCallback<JsonObject>() {
             @Override
             public void onSuccess(JsonObject result) {
                 Platform.runLater(() -> {
                     showAlert("Thành công", "Đã cập nhật sản phẩm thành công!");
-                    loadSellerInventory(); // Load lại lưới đồ để hiển thị thông tin mới nhất
+                    loadSellerInventory();
                 });
             }
 
@@ -1819,16 +2080,32 @@ public class SellerController extends BaseController implements Initializable {
             public void onSuccess(UserDTO user) {
                 Platform.runLater(() -> {
                     if (user != null) {
-                        // Đổ dữ liệu vào các nhãn trên màn hình bên phải
                         lblAccountBalance.setText(String.format("%,.0f VNĐ", user.getBalance()));
                         lblRating.setText(String.format("%.1f / 5.0", user.getTotalRating()));
                         lblSaleCount.setText(user.getSaleCount() + " sản phẩm");
                     }
                 });
             }
+
             @Override
             public void onError(String msg) { /* Handle error */ }
         });
+    }
+
+    private String normalizeDateTime(String dateTimeText) {
+        if (dateTimeText == null || dateTimeText.trim().isEmpty()) return null;
+        String s = dateTimeText.trim();
+        // Chấp nhận: yyyy-MM-dd HH:mm hoặc yyyy-MM-dd HH:mm:ss
+        if (s.length() == 16) s += ":00";
+        return s;
+    }
+
+    private double parseDoubleOrDefault(String text, double fallback) {
+        try {
+            return Double.parseDouble(text.trim());
+        } catch (Exception e) {
+            return fallback;
+        }
     }
 } 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\Admin.java ===  
@@ -1852,7 +2129,7 @@ public class Bidder extends User {
 
     @Override
     public String getDashboardFXML() {
-        return "/view/ProductView.fxml";
+        return "/view/Product.fxml";
     }
 } 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\Seller.java ===  
@@ -2260,6 +2537,11 @@ public class UserDTO implements Serializable {
 
     public double getTotalRating() { return totalRating; }
     public void setTotalRating(double totalRating) { this.totalRating = totalRating; }
+    
+    // Alias cho tiện lợi
+    public String getRating() { 
+        return String.format("%.1f ★", totalRating);
+    }
 
     public int getSaleCount() { return saleCount; }
     public void setSaleCount(int saleCount) { this.saleCount = saleCount; }
@@ -2403,6 +2685,7 @@ import com.auction.client.network.ApiService;
 import com.auction.client.model.dto.ItemDTO;
 import com.auction.client.model.dto.UserDTO;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import javafx.application.Platform;
 
 import java.lang.reflect.Type;
@@ -2413,119 +2696,81 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class AuctionFacade {
-  private static AuctionFacade instance;
-  private final ApiService apiService;
-  // 1. CHỈ KHAI BÁO BIẾN Ở ĐÂY (Tuyệt đối không có dấu "=")
-    private final com.google.gson.Gson gson; 
+    private static AuctionFacade instance;
+    private final ApiService apiService;
+    private final com.google.gson.Gson gson;
 
-    // 2. KHỞI TẠO VÀ CẤU HÌNH BỘ NÃO GSON BÊN TRONG CONSTRUCTOR
     private AuctionFacade() {
         this.apiService = ApiService.getInstance();
-        
+
         this.gson = new com.google.gson.GsonBuilder()
-            .registerTypeAdapter(com.auction.client.model.dto.ItemDTO.class, new com.google.gson.JsonDeserializer<com.auction.client.model.dto.ItemDTO>() {
-                @Override
-                public com.auction.client.model.dto.ItemDTO deserialize(com.google.gson.JsonElement json, java.lang.reflect.Type typeOfT, com.google.gson.JsonDeserializationContext context) {
-                    com.google.gson.JsonObject obj = json.getAsJsonObject();
-                    String category = obj.has("category") && !obj.get("category").isJsonNull() ? obj.get("category").getAsString().toUpperCase() : "";
-                    
-                    // Dùng một Gson cơ bản để ép kiểu
-                    com.google.gson.Gson basicGson = new com.google.gson.Gson(); 
-                    
-                    if ("ELECTRONICS".equals(category)) {
-                        return basicGson.fromJson(json, com.auction.client.model.dto.ElectronicsDTO.class);
-                    } else if ("VEHICLE".equals(category)) {
-                        return basicGson.fromJson(json, com.auction.client.model.dto.VehicleDTO.class);
-                    } else if ("ART".equals(category) || "ARTWORK".equals(category)) {
-                        return basicGson.fromJson(json, com.auction.client.model.dto.ArtDTO.class);
+            .registerTypeAdapter(com.auction.client.model.dto.ItemDTO.class,
+                new com.google.gson.JsonDeserializer<com.auction.client.model.dto.ItemDTO>() {
+                    @Override
+                    public com.auction.client.model.dto.ItemDTO deserialize(
+                            com.google.gson.JsonElement json,
+                            java.lang.reflect.Type typeOfT,
+                            com.google.gson.JsonDeserializationContext context) {
+
+                        com.google.gson.JsonObject obj = json.getAsJsonObject();
+                        String category = obj.has("category") && !obj.get("category").isJsonNull()
+                                ? obj.get("category").getAsString().toUpperCase()
+                                : "";
+
+                        com.google.gson.Gson basicGson = new com.google.gson.Gson();
+
+                        if ("ELECTRONICS".equals(category)) {
+                            return basicGson.fromJson(json, com.auction.client.model.dto.ElectronicsDTO.class);
+                        } else if ("VEHICLE".equals(category)) {
+                            return basicGson.fromJson(json, com.auction.client.model.dto.VehicleDTO.class);
+                        } else if ("ART".equals(category) || "ARTWORK".equals(category)) {
+                            return basicGson.fromJson(json, com.auction.client.model.dto.ArtDTO.class);
+                        }
+
+                        return basicGson.fromJson(json, com.auction.client.model.dto.ItemDTO.class);
                     }
-                    
-                    return basicGson.fromJson(json, com.auction.client.model.dto.ItemDTO.class);
-                }
-            }).create();
-    }
-  public static AuctionFacade getInstance() {
-    if (instance == null) {
-      instance = new AuctionFacade();
-    }
-    return instance;
-  }
-
-  // =========================================================================
-  // CÁC HÀM NGHIỆP VỤ (CHỈ MẤT 3-4 DÒNG CHO MỖI CHỨC NĂNG)
-  // =========================================================================
-
-  // 1. ĐĂNG NHẬP (Đã sửa lại key thành email cho khớp với Server)
-  public void login(String username, String password, ApiCallback<JsonObject> callback) {
-    Map<String, String> credentials = new HashMap<>();
-    
-    // Đổi key "username" thành "email"
-    credentials.put("email", username); 
-    credentials.put("password", password);
-
-    executeRequest(apiService.sendPostRequest("/login", gson.toJson(credentials)), JsonObject.class, callback);
-  }
-
-  // 2. ĐĂNG KÝ
-  public void register(String username, String password, String role, ApiCallback<JsonObject> callback) {
-    Map<String, String> data = new HashMap<>();
-    
-    // Tách "nguyenvana@gmail.com" thành username: "nguyenvana" và email: "nguyenvana@gmail.com"
-    String displayUsername = username.contains("@") ? username.split("@")[0] : username;
-
-    data.put("username", displayUsername);
-    data.put("password", password);
-    data.put("email", username); // BỔ SUNG TRƯỜNG BỊ THIẾU Ở ĐÂY
-    data.put("role", role);
-
-    executeRequest(apiService.sendPostRequest("/register", gson.toJson(data)), JsonObject.class, callback);
-  }
-
-  // 3. LẤY DANH SÁCH SẢN PHẨM (TRANG CHỦ)
-  // Thêm hàm này vào trong class AuctionFacade
-    public void getAllItems(ApiCallback<List<ItemDTO>> callback) {
-        // Gọi lên endpoint /api/items với phương thức GET
-        executeRequest(
-            apiService.sendGetRequest("/items"), 
-            new com.google.gson.reflect.TypeToken<List<ItemDTO>>(){}.getType(), 
-            callback
-        );
+                })
+            .create();
     }
 
-    // Đảm bảo ông cũng có hàm getMyItems cho Seller quản lý đồ của riêng họ
-    public void getMyItems(ApiCallback<List<ItemDTO>> callback) {
-        executeRequest(
-            apiService.sendGetRequest("/my/items"), 
-            new com.google.gson.reflect.TypeToken<List<ItemDTO>>(){}.getType(), 
-            callback
-        );
+    public static AuctionFacade getInstance() {
+        if (instance == null) {
+            instance = new AuctionFacade();
+        }
+        return instance;
     }
 
-  // 4. ĐĂNG SẢN PHẨM MỚI (DÀNH CHO SELLER)
-  public void addItem(ItemDTO newItem, ApiCallback<JsonObject> callback) {
-    // Gson tự động biến đối tượng ItemDTO (ArtDTO, VehicleDTO...) thành chuỗi JSON
-    String jsonBody = gson.toJson(newItem);
+    // =========================================================================
+    // 1. AUTH & PROFILE
+    // =========================================================================
 
-    executeRequest(apiService.sendPostRequest("/items", jsonBody), JsonObject.class, callback);
-  }
-  // 5. ĐẶT GIÁ BID
-  public void placeBid(int auctionId, double amount, ApiCallback<JsonObject> callback) {
-    JsonObject json = new JsonObject();
-    json.addProperty("auction_id", auctionId);
-    json.addProperty("amount", amount);
-    executeRequest(apiService.sendPostRequest("/bids", gson.toJson(json)), JsonObject.class, callback);
-  }
-    // ==========================================
-    // 1. NHÓM AUTH & PROFILE (Xác thực & Cá nhân)
-    // ==========================================
+    public void login(String username, String password, ApiCallback<JsonObject> callback) {
+        Map<String, String> credentials = new HashMap<>();
+        credentials.put("email", username);
+        credentials.put("password", password);
+        executeRequest(apiService.sendPostRequest("/login", gson.toJson(credentials)), JsonObject.class, callback);
+    }
+
+    public void register(String username, String password, String role, ApiCallback<JsonObject> callback) {
+        Map<String, String> data = new HashMap<>();
+        String displayUsername = username.contains("@") ? username.split("@")[0] : username;
+        data.put("username", displayUsername);
+        data.put("password", password);
+        data.put("email", username);
+        data.put("role", role);
+        executeRequest(apiService.sendPostRequest("/register", gson.toJson(data)), JsonObject.class, callback);
+    }
 
     public void logout(ApiCallback<JsonObject> callback) {
         executeRequest(apiService.sendPostRequest("/logout", "{}"), JsonObject.class, callback);
     }
 
     public void getUserProfile(ApiCallback<UserDTO> callback) {
-        // ID truyền 0 hoặc bỏ trống nếu Server tự lấy từ Session
         executeRequest(apiService.sendGetRequest("/my/profile"), UserDTO.class, callback);
+    }
+
+    public void getUserById(int userId, ApiCallback<UserDTO> callback) {
+        executeRequest(apiService.sendGetRequest("/users/" + userId), UserDTO.class, callback);
     }
 
     public void depositMoney(double amount, ApiCallback<JsonObject> callback) {
@@ -2534,36 +2779,83 @@ public class AuctionFacade {
         executeRequest(apiService.sendPostRequest("/my/deposit", gson.toJson(json)), JsonObject.class, callback);
     }
 
-    // ==========================================
-    // 2. NHÓM TÌM KIẾM & XEM SẢN PHẨM (Bidder)
-    // ==========================================
+    // =========================================================================
+    // 2. TÌM KIẾM & XEM SẢN PHẨM (Bidder)
+    // =========================================================================
 
-    public void searchItems(String keyword, ApiCallback<List<ItemDTO>> callback) {
-        executeRequest(apiService.sendGetRequest("/search/items?q=" + keyword), 
-            new com.google.gson.reflect.TypeToken<List<ItemDTO>>(){}.getType(), callback);
+    public void getAllItems(ApiCallback<List<ItemDTO>> callback) {
+        executeRequest(
+            apiService.sendGetRequest("/items"),
+            new TypeToken<List<ItemDTO>>() {}.getType(),
+            callback
+        );
     }
 
+    public void getMyItems(ApiCallback<List<ItemDTO>> callback) {
+        executeRequest(
+            apiService.sendGetRequest("/my/items"),
+            new TypeToken<List<ItemDTO>>() {}.getType(),
+            callback
+        );
+    }
+
+    public void searchItems(String keyword, ApiCallback<List<ItemDTO>> callback) {
+        // Encode keyword để tránh lỗi ký tự đặc biệt trong URL
+        String encodedKeyword;
+        try {
+            encodedKeyword = java.net.URLEncoder.encode(keyword, "UTF-8");
+        } catch (Exception e) {
+            encodedKeyword = keyword;
+        }
+        executeRequest(
+            apiService.sendGetRequest("/search/items?q=" + encodedKeyword),
+            new TypeToken<List<ItemDTO>>() {}.getType(),
+            callback
+        );
+    }
+
+    /**
+     * FIX LỖI 2: URL cũ "/categories/CATEGORY" bị server từ chối vì CategoryAPI
+     * chỉ xử lý path có 3 phần "/categories/{name}/items".
+     * Sửa thành "/categories/{category}/items" để khớp với server.
+     */
     public void getItemsByCategory(String category, ApiCallback<List<ItemDTO>> callback) {
-        executeRequest(apiService.sendGetRequest("/categories/" + category), 
-            new com.google.gson.reflect.TypeToken<List<ItemDTO>>(){}.getType(), callback);
+        executeRequest(
+            apiService.sendGetRequest("/categories/" + category + "/items"),
+            new TypeToken<List<ItemDTO>>() {}.getType(),
+            callback
+        );
     }
 
     public void getItemDetail(int itemId, ApiCallback<ItemDTO> callback) {
         executeRequest(apiService.sendGetRequest("/items/" + itemId), ItemDTO.class, callback);
     }
 
-    // ==========================================
-    // 3. NHÓM LỊCH SỬ GIAO DỊCH (Bidder)
-    // ==========================================
+    // =========================================================================
+    // 3. ĐẤU GIÁ & THANH TOÁN (Bidder)
+    // =========================================================================
+
+    public void placeBid(int auctionId, double amount, ApiCallback<JsonObject> callback) {
+        JsonObject json = new JsonObject();
+        json.addProperty("auction_id", auctionId);
+        json.addProperty("amount", amount);
+        executeRequest(apiService.sendPostRequest("/bids", gson.toJson(json)), JsonObject.class, callback);
+    }
 
     public void getMyWonItems(ApiCallback<List<ItemDTO>> callback) {
-        executeRequest(apiService.sendGetRequest("/my/won-items"), 
-            new com.google.gson.reflect.TypeToken<List<ItemDTO>>(){}.getType(), callback);
+        executeRequest(
+            apiService.sendGetRequest("/my/won-items"),
+            new TypeToken<List<ItemDTO>>() {}.getType(),
+            callback
+        );
     }
 
     public void getMyActiveBids(ApiCallback<List<JsonObject>> callback) {
-        executeRequest(apiService.sendGetRequest("/my/active-bids"), 
-            new com.google.gson.reflect.TypeToken<List<JsonObject>>(){}.getType(), callback);
+        executeRequest(
+            apiService.sendGetRequest("/my/active-bids"),
+            new TypeToken<List<JsonObject>>() {}.getType(),
+            callback
+        );
     }
 
     public void processPayment(int auctionId, ApiCallback<JsonObject> callback) {
@@ -2572,28 +2864,15 @@ public class AuctionFacade {
         executeRequest(apiService.sendPostRequest("/payments", gson.toJson(json)), JsonObject.class, callback);
     }
 
-    // ==========================================
-    // 4. NHÓM ADMIN (Quản trị hệ thống)
-    // ==========================================
+    // =========================================================================
+    // 4. SELLER
+    // =========================================================================
 
-    // Lấy toàn bộ danh sách người dùng cho Admin
-    public void getAllUsers(ApiCallback<List<UserDTO>> callback) {
-        Type type = new TypeToken<List<UserDTO>>(){}.getType();
-        // Giả định đường dẫn API của Server là /admin/users (Ông có thể chỉnh lại nếu Server viết khác)
-        executeRequest(apiService.sendGetRequest("/admin/users"), type, callback);
+    public void addItem(ItemDTO newItem, ApiCallback<JsonObject> callback) {
+        String jsonBody = gson.toJson(newItem);
+        executeRequest(apiService.sendPostRequest("/items", jsonBody), JsonObject.class, callback);
     }
 
-    public void updateUserStatus(int userId, String action, ApiCallback<JsonObject> callback) {
-        // action có thể là "ban", "unban", "delete"
-        JsonObject json = new JsonObject();
-        json.addProperty("action", action);
-        executeRequest(apiService.sendPostRequest("/admin/users/" + userId, gson.toJson(json)), JsonObject.class, callback);
-    }
-
-    public void adminDeleteItem(int itemId, ApiCallback<JsonObject> callback) {
-        executeRequest(apiService.sendDeleteRequest("/admin/items/" + itemId), JsonObject.class, callback);
-    }
-    // --- HÀM BỔ SUNG: CẬP NHẬT SẢN PHẨM ---
     public void updateItem(ItemDTO item, ApiCallback<JsonObject> callback) {
         if (item == null || item.getId() <= 0) {
             callback.onError("Dữ liệu sản phẩm không hợp lệ!");
@@ -2602,66 +2881,100 @@ public class AuctionFacade {
         String jsonBody = gson.toJson(item);
         executeRequest(apiService.sendPutRequest("/items/" + item.getId(), jsonBody), JsonObject.class, callback);
     }
-    
 
-  // ==========================================
-  // 5. NHÓM GIỎ HÀNG (Watchlist)
-  // ==========================================
+    // =========================================================================
+    // 5. ADMIN
+    // =========================================================================
 
-  // 1. Thêm sản phẩm vào giỏ hàng
-  public void addToWatchlist(int itemId, ApiCallback<JsonObject> callback) {
-    JsonObject json = new JsonObject();
-    json.addProperty("itemId", itemId);
-    // Gửi POST request kèm theo body là {"itemId": 123}
-    executeRequest(apiService.sendPostRequest("/my/watchlist", gson.toJson(json)), JsonObject.class, callback);
-  }
+    public void getAllUsers(ApiCallback<List<UserDTO>> callback) {
+        Type type = new TypeToken<List<UserDTO>>() {}.getType();
+        executeRequest(apiService.sendGetRequest("/admin/users"), type, callback);
+    }
 
-  // 2. Lấy danh sách giỏ hàng
-  public void getWatchlist(ApiCallback<List<ItemDTO>> callback) {
-    // Gửi GET request và hứng mảng List<ItemDTO> từ trường "data" của Server
-    executeRequest(apiService.sendGetRequest("/my/watchlist"),
-      new com.google.gson.reflect.TypeToken<List<ItemDTO>>(){}.getType(), callback);
-  }
-  
+    public void updateUserStatus(int userId, String action, ApiCallback<JsonObject> callback) {
+        JsonObject json = new JsonObject();
+        json.addProperty("action", action);
+        executeRequest(apiService.sendPostRequest("/admin/users/" + userId, gson.toJson(json)), JsonObject.class, callback);
+    }
 
-  // =========================================================================
-  // HÀM "LÕI" XỬ LÝ CHUNG (CORE PROCESSOR) - ĐẠI YÊU CẦU
-  // =========================================================================
-  private <T> void executeRequest(CompletableFuture<HttpResponse<String>> requestFuture, Type responseType, ApiCallback<T> callback) {
-    requestFuture.thenAccept(response -> {
-      Platform.runLater(() -> {
-        try {
-            JsonObject rootObj = gson.fromJson(response.body(), JsonObject.class);
-            
-            // Xử lý chuẩn bọc dữ liệu của Server: { "status": "...", "message": "...", "data": ... }
-            if (rootObj != null && rootObj.has("status")) {
-                String status = rootObj.get("status").getAsString();
-                if ("error".equals(status)) {
-                    String msg = rootObj.has("message") ? rootObj.get("message").getAsString() : "Lỗi server";
-                    callback.onError(msg);
-                    return;
-                }
-                if ("success".equals(status)) {
-                    if (rootObj.has("data") && !rootObj.get("data").isJsonNull()) {
-                        // Ép kiểu phần lõi "data"
-                        T result = gson.fromJson(rootObj.get("data"), responseType);
-                        callback.onSuccess(result);
-                    } else {
-                        callback.onSuccess(null);
+    public void adminDeleteItem(int itemId, ApiCallback<JsonObject> callback) {
+        executeRequest(apiService.sendDeleteRequest("/admin/items/" + itemId), JsonObject.class, callback);
+    }
+
+    // =========================================================================
+    // 6. GIỎ HÀNG (Watchlist)
+    // =========================================================================
+
+    public void addToWatchlist(int itemId, ApiCallback<JsonObject> callback) {
+        JsonObject json = new JsonObject();
+        json.addProperty("itemId", itemId);
+        executeRequest(apiService.sendPostRequest("/my/watchlist", gson.toJson(json)), JsonObject.class, callback);
+    }
+
+    public void getWatchlist(ApiCallback<List<ItemDTO>> callback) {
+        executeRequest(
+            apiService.sendGetRequest("/my/watchlist"),
+            new TypeToken<List<ItemDTO>>() {}.getType(),
+            callback
+        );
+    }
+
+    // =========================================================================
+    // HÀM LÕI XỬ LÝ CHUNG
+    // =========================================================================
+    private <T> void executeRequest(CompletableFuture<HttpResponse<String>> requestFuture,
+                                    Type responseType,
+                                    ApiCallback<T> callback) {
+        requestFuture.thenAccept(response -> {
+            Platform.runLater(() -> {
+                try {
+                    String body = response.body();
+                    if (body == null || body.isBlank()) {
+                        callback.onError("Server trả về phản hồi trống.");
+                        return;
                     }
-                    return;
+
+                    JsonObject rootObj = gson.fromJson(body, JsonObject.class);
+
+                    if (rootObj != null && rootObj.has("status")) {
+                        String status = rootObj.get("status").getAsString();
+                        if ("error".equals(status)) {
+                            String msg = rootObj.has("message")
+                                    ? rootObj.get("message").getAsString()
+                                    : "Lỗi server";
+                            callback.onError(msg);
+                            return;
+                        }
+                        if ("success".equals(status)) {
+                            if (rootObj.has("data") && !rootObj.get("data").isJsonNull()) {
+                                T result = gson.fromJson(rootObj.get("data"), responseType);
+                                callback.onSuccess(result);
+                            } else {
+                                // success nhưng không có data (vd: logout, deposit) → trả null
+                                callback.onSuccess(null);
+                            }
+                            return;
+                        }
+                    }
+
+                    // Nếu server trả về JSON nhưng không có trường "status"
+                    // → thử parse thẳng phần body như là data (dùng cho API cũ không wrap)
+                    try {
+                        T result = gson.fromJson(body, responseType);
+                        callback.onSuccess(result);
+                    } catch (Exception parseEx) {
+                        callback.onError("Định dạng phản hồi từ Server không chuẩn xác.");
+                    }
+
+                } catch (Exception ex) {
+                    callback.onError("Lỗi hệ thống hoặc parse JSON: " + ex.getMessage());
                 }
-            }
-            callback.onError("Định dạng phản hồi từ Server không chuẩn xác.");
-        } catch (Exception ex) {
-            callback.onError("Lỗi hệ thống hoặc parse JSON: " + ex.getMessage());
-        }
-      });
-    }).exceptionally(e -> {
-      Platform.runLater(() -> callback.onError("Lỗi mất kết nối máy chủ!"));
-      return null;
-    });
-  }
+            });
+        }).exceptionally(e -> {
+            Platform.runLater(() -> callback.onError("Lỗi mất kết nối máy chủ!"));
+            return null;
+        });
+    }
 } 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\util\ItemCard.java ===  
 package com.auction.client.util;
@@ -2673,7 +2986,6 @@ import com.auction.client.service.AuctionFacade;
 
 import com.google.gson.JsonObject;
 import javafx.application.Platform;
-import com.auction.client.model.dto.ItemDTO;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -2682,53 +2994,54 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-// TÍNH KẾ THỪA: Thừa hưởng mọi thứ của VBox
+
 public class ItemCard extends VBox {
 
+    // Địa chỉ gốc của server — phải khớp với ApiService.BASE_URL
+    private static final String SERVER_BASE_URL = "http://localhost:8080/api";
+
     public ItemCard(ItemDTO item, double width, double height, boolean isBuyer) {
-        // Cấu hình khung bên ngoài (Thay cho setStyle rườm rà)
+        // Cấu hình khung bên ngoài
         this.setSpacing(10);
         this.setAlignment(Pos.CENTER);
         this.setPrefWidth(200);
-        // Thêm hiệu ứng đổ bóng cho Card đẹp hơn
         this.setStyle("-fx-border-color: #ffffff; -fx-padding: 10; -fx-background-color: white; -fx-border-radius: 5; " +
                       "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);");
-
-        // 1. Xử lý ảnh (Giữ nguyên logic load ảnh siêu chuẩn của ông)
+    // 1. Xử lý ảnh chuyên nghiệp
         ImageView imageView = new ImageView();
         if (item.getImagePath() != null && !item.getImagePath().isEmpty()) {
             try {
                 String path = item.getImagePath();
-                // Nếu là link web hoặc chuẩn uri rồi thì giữ nguyên, nếu là đường dẫn Windows thì format lại
-                if (!path.startsWith("http") && !path.startsWith("file:")) {
-                    // Đổi \ thành / và thêm file:/// để JavaFX đọc mượt trên Windows
-                    path = "file:///" + path.replace("\\", "/"); 
+                String imageUri;
+
+                if (path.startsWith("http")) {
+                    imageUri = path; // Nếu là link web
+                } else {
+                    // Tự động chuyển đường dẫn ổ cứng (C:\...) thành URI (file:///...)
+                    java.io.File file = new java.io.File(path);
+                    imageUri = file.toURI().toString();
                 }
-                
-                Image img = new Image(path, true); // true = load ngầm không đơ app
-                
-                // Bắt lỗi nếu ảnh bị hỏng hoặc xóa mất trên máy
-                img.errorProperty().addListener((obs, oldVal, newVal) -> {
-                    if (newVal) System.err.println("Không tải được ảnh từ đường dẫn: " + item.getImagePath());
-                });
-                
+
+                Image img = new Image(imageUri, true); 
                 imageView.setImage(img);
             } catch (Exception e) {
-                System.err.println("Lỗi format đường dẫn ảnh: " + e.getMessage());
+                System.err.println("Lỗi load ảnh: " + e.getMessage());
             }
         }
-        imageView.setFitWidth(width);
-        imageView.setFitHeight(height);
-        imageView.setPreserveRatio(true);
+    // Đảm bảo kích thước hiển thị
+    imageView.setFitWidth(width);
+    imageView.setFitHeight(height);
+    imageView.setPreserveRatio(true);
 
-        // 2. Thông tin tên sản phẩm
+        // 2. Tên sản phẩm
         Label nameLabel = new Label(item.getName());
         nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
+        nameLabel.setWrapText(true);
 
-        // 3. THUỘC TÍNH RIÊNG (Nhận diện theo class DTO)
+        // 3. Thuộc tính riêng theo loại DTO
         Label specificAttrLabel = new Label();
         specificAttrLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #7f8c8d;");
-        
+
         if (item instanceof ElectronicsDTO) {
             specificAttrLabel.setText("🔧 Bảo hành: " + ((ElectronicsDTO) item).getWarrantyMonths() + " tháng");
         } else if (item instanceof VehicleDTO) {
@@ -2737,105 +3050,75 @@ public class ItemCard extends VBox {
             specificAttrLabel.setText("🎨 Họa sĩ: " + ((ArtDTO) item).getArtist());
         }
 
-        // 4. Giá (Ưu tiên hiển thị giá đấu cao nhất, nếu chưa ai đấu thì hiện giá khởi điểm)
+        // 4. Giá hiển thị
         double displayPrice = item.getCurrentMaxPrice() > 0 ? item.getCurrentMaxPrice() : item.getStartingPrice();
         Label priceLabel = new Label(String.format("%,.0f", displayPrice) + " VNĐ");
         priceLabel.setStyle("-fx-text-fill: #e67e22; -fx-font-weight: bold;");
 
-        // 5. TRẠNG THÁI ĐẤU GIÁ (Có màu sắc để Seller dễ nhìn)
+        // 5. Trạng thái đấu giá
         Label statusLabel = new Label(item.getStatus() != null ? item.getStatus() : "OPEN");
         statusLabel.setPadding(new Insets(2, 8, 2, 8));
         updateStatusStyle(statusLabel, item.getStatus());
 
-        // Đóng gói các thành phần vào chính nó (this)
+        // Đưa các thành phần vào card
         this.getChildren().addAll(imageView, nameLabel, specificAttrLabel, priceLabel, statusLabel);
 
-        // Hiệu ứng di chuột (Hover) làm sáng Card
+        // 6. CHỈ TẠO NÚT NẾU LÀ NGƯỜI MUA (BUYER)
+        if (isBuyer) {
+            Button btnAddToCart = new Button("🛒 Thêm vào giỏ");
+            btnAddToCart.setStyle("-fx-background-color: #ff8c00; -fx-text-fill: white; -fx-cursor: hand;");
+
+            btnAddToCart.setOnAction(e -> {
+                e.consume(); // Chặn click lan ra ngoài thẻ
+                AuctionFacade.getInstance().addToWatchlist(item.getId(), new ApiCallback<JsonObject>() {
+                    @Override
+                    public void onSuccess(JsonObject result) {
+                        Platform.runLater(() -> System.out.println("Đã thêm " + item.getName() + " vào giỏ!"));
+                    }
+
+                    @Override
+                    public void onError(String err) {
+                        Platform.runLater(() -> System.out.println("Lỗi thêm vào giỏ: " + err));
+                    }
+                });
+            });
+
+            HBox bottom = new HBox(btnAddToCart);
+            bottom.setAlignment(Pos.CENTER_RIGHT);
+            this.getChildren().add(bottom);
+        }
+
+        // Hiệu ứng di chuột (Hover)
         this.setOnMouseEntered(e -> this.setStyle(this.getStyle() + "-fx-border-color: #3498db;"));
-        this.setOnMouseExited(e -> this.setStyle(this.getStyle().replace("-fx-border-color: #3498db;", "-fx-border-color: #ffffff;")));
+        this.setOnMouseExited(e ->  this.setStyle(this.getStyle().replace("-fx-border-color: #3498db;", "-fx-border-color: #ffffff;")));
     }
 
-    // Hàm set màu sắc theo trạng thái
+
+    private String buildImageUrl(String rawPath) {
+        if (rawPath.startsWith("http://") || rawPath.startsWith("https://")) {
+            return rawPath; // Đã là URL rồi, dùng thẳng
+        }
+
+        // Lấy tên file từ đường dẫn (bỏ thư mục cha)
+        String filename = rawPath;
+        int lastSlash = Math.max(rawPath.lastIndexOf('/'), rawPath.lastIndexOf('\\'));
+        if (lastSlash >= 0) {
+            filename = rawPath.substring(lastSlash + 1);
+        }
+
+        // Trả về URL qua HTTP server
+        return SERVER_BASE_URL + "/images/" + filename;
+    }
+
     private void updateStatusStyle(Label label, String status) {
         String baseStyle = "-fx-background-radius: 10; -fx-text-fill: white; -fx-font-size: 10px; -fx-font-weight: bold;";
         if ("RUNNING".equalsIgnoreCase(status)) {
-            label.setStyle(baseStyle + "-fx-background-color: #2ecc71;"); // Xanh lá
+            label.setStyle(baseStyle + "-fx-background-color: #2ecc71;");
         } else if ("FINISHED".equalsIgnoreCase(status) || "PAID".equalsIgnoreCase(status) || "CANCELED".equalsIgnoreCase(status)) {
-            label.setStyle(baseStyle + "-fx-background-color: #e74c3c;"); // Đỏ
+            label.setStyle(baseStyle + "-fx-background-color: #e74c3c;");
         } else {
-            label.setStyle(baseStyle + "-fx-background-color: #3498db;"); // Xanh dương (OPEN)
+            label.setStyle(baseStyle + "-fx-background-color: #3498db;");
         }
-      // CHỈ TẠO NÚT NẾU LÀ NGƯỜI MUA (BUYER)
-      if (isBuyer) {
-        Button btnAddToCart = new Button("🛒 Thêm vào giỏ");
-        btnAddToCart.setStyle("-fx-background-color: #ff8c00; -fx-text-fill: white; -fx-cursor: hand;");
-
-        btnAddToCart.setOnAction(e -> {
-          e.consume(); // Chặn click lan ra ngoài thẻ
-          // Gọi thư ký Facade để báo cho Back-end
-          AuctionFacade.getInstance().addToWatchlist(item.getId(), new ApiCallback<JsonObject>() {
-
-            @Override
-            public void onSuccess(JsonObject result) {
-              Platform.runLater(() -> {
-                System.out.println("Đã thêm thành công!");
-                // Gợi ý: Chỗ này có thể dùng showAlert() để báo cho người dùng biết
-              });
-            }
-
-            @Override
-            public void onError(String err) {
-              Platform.runLater(() -> {
-                System.out.println("Lỗi: " + err);
-                // Gợi ý: showAlert("Lỗi", err);
-              });
-            }
-
-          });
-        });
-        // Cho vào HBox căn phải rồi ép vào cuối ItemCard
-        HBox bottom = new HBox(btnAddToCart);
-        bottom.setAlignment(Pos.CENTER_RIGHT);
-        this.getChildren().add(bottom);
-      }
-
-      // CHỈ TẠO NÚT NẾU LÀ NGƯỜI MUA (BUYER)
-      if (isBuyer) {
-        Button btnAddToCart = new Button("🛒 Thêm vào giỏ");
-        btnAddToCart.setStyle("-fx-background-color: #ff8c00; -fx-text-fill: white; -fx-cursor: hand;");
-
-        btnAddToCart.setOnAction(e -> {
-          e.consume(); // Chặn click lan ra ngoài thẻ
-          // Gọi thư ký Facade để báo cho Back-end
-          AuctionFacade.getInstance().addToWatchlist(item.getId(), new ApiCallback<JsonObject>() {
-
-            @Override
-            public void onSuccess(JsonObject result) {
-              Platform.runLater(() -> {
-                System.out.println("Đã thêm thành công!");
-                // Gợi ý: Chỗ này có thể dùng showAlert() để báo cho người dùng biết
-              });
-            }
-
-            @Override
-            public void onError(String err) {
-              Platform.runLater(() -> {
-                System.out.println("Lỗi: " + err);
-                // Gợi ý: showAlert("Lỗi", err);
-              });
-            }
-
-          });
-        });
-        // Cho vào HBox căn phải rồi ép vào cuối ItemCard
-        HBox bottom = new HBox(btnAddToCart);
-        bottom.setAlignment(Pos.CENTER_RIGHT);
-        this.getChildren().add(bottom);
-      }
-
-//        // Có thể thêm hiệu ứng di chuột tại đây để dùng chung cho cả App
-//        this.setOnMouseEntered(e -> this.setStyle(this.getStyle() + "-fx-border-color: #2196F3;"));
-//        this.setOnMouseExited(e -> this.setStyle(this.getStyle().replace("-fx-border-color: #2196F3;", "-fx-border-color: #ddd;")));
     }
 } 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\AdminView.fxml ===  
@@ -2906,35 +3189,62 @@ public class ItemCard extends VBox {
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.ScrollPane?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="1000.0" style="-fx-background-color: #f4f4f4;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.BiddingRoomController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1200.0" style="-fx-background-color: #f4f4f4;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.BiddingRoomController">
 
-    <left>
-        <VBox prefWidth="280.0" spacing="15.0" style="-fx-background-color: white; -fx-border-color: #ddd; -fx-border-width: 0 1 0 0;" BorderPane.alignment="CENTER">
+    <top>
+        <HBox spacing="20.0" style="-fx-background-color: #2c3e50; -fx-padding: 15;" BorderPane.alignment="CENTER">
             <children>
-                <Label text="Thông tin sản phẩm">
-                    <font>
-                        <Font name="System Bold" size="18.0" />
-                    </font>
-                </Label>
-                <ImageView fx:id="imgProduct" fitHeight="200.0" fitWidth="240.0" pickOnBounds="true" preserveRatio="true" style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);" />
-                <Separator prefWidth="200.0" />
-                <VBox spacing="8.0">
-                    <children>
-                        <Label fx:id="lblDescription" text="Mô tả: Đang tải..." wrapText="true" />
-                        <Label fx:id="lblSeller" text="Người bán: Admin" />
-                        <Label fx:id="lblStartPrice" text="Giá khởi điểm: 0 VNĐ" />
-                        <Label fx:id="lblStepPrice" text="Bước giá: 50.000 VNĐ" style="-fx-text-fill: blue;" />
-                        <Label fx:id="lblStartTime" text="Bắt đầu: --/--/----" />
-                        <Label fx:id="lblEndTime" text="Kết thúc: --/--/----" />
-                    </children>
-                </VBox>
+                <Label text="PHÒNG ĐẤU GIÁ" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                <Separator orientation="VERTICAL" />
+                <Label fx:id="lblCurrentUser" text="Người dùng: ..." style="-fx-text-fill: white; -fx-font-size: 12;"/>
+                <Label fx:id="lblUserBalance" text="Số dư: 0 VNĐ" style="-fx-text-fill: #2ecc71; -fx-font-weight: bold; -fx-font-size: 12;"/>
             </children>
             <padding>
-                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                <Insets left="20" right="20" top="10" bottom="10" />
             </padding>
-        </VBox>
+        </HBox>
+    </top>
+
+    <left>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+            <VBox prefWidth="300.0" spacing="15.0" style="-fx-background-color: white; -fx-padding: 15; -fx-border-color: #ddd; -fx-border-width: 0 1 0 0;">
+                <children>
+                    <Label text="Thông tin sản phẩm" style="-fx-font-weight: bold; -fx-font-size: 16;"/>
+                    
+                    <ImageView fx:id="imgProduct" fitHeight="200.0" fitWidth="280.0" pickOnBounds="true" preserveRatio="true" style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);" />
+                    
+                    <Separator />
+                    
+                    <VBox spacing="8.0">
+                        <children>
+                            <Label fx:id="lblDescription" text="Mô tả: Đang tải..." wrapText="true" />
+                            <Label fx:id="lblCategory" text="Loại: ..." style="-fx-text-fill: #2980b9; -fx-font-weight: bold;" />
+                            <Separator />
+                            <Label text="THÔNG TIN NGƯỜI BÁN" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
+                            <Label fx:id="lblSeller" text="Người bán: Admin" />
+                            <Label fx:id="lblSellerRating" text="Đánh giá: ..." />
+                            <Label fx:id="lblSellerSaleCount" text="Đã bán: ..." />
+                            <Separator />
+                            <Label text="THÔNG TIN GIÁ CẢ" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
+                            <Label fx:id="lblStartPrice" text="Giá khởi điểm: 0 VNĐ" />
+                            <Label fx:id="lblStepPrice" text="Bước giá: 50.000 VNĐ" style="-fx-text-fill: #e74c3c; -fx-font-weight: bold;" />
+                            <Separator />
+                            <Label text="THỜI GIAN ĐẤU GIÁ" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
+                            <Label fx:id="lblStartTime" text="Bắt đầu: --/--/---- --:--" />
+                            <Label fx:id="lblEndTime" text="Kết thúc: --/--/---- --:--" />
+                            <Separator />
+                            <VBox fx:id="categoryDetailsContainer" spacing="8.0" />
+                        </children>
+                    </VBox>
+                </children>
+                <padding>
+                    <Insets bottom="20.0" left="15.0" right="15.0" top="15.0" />
+                </padding>
+            </VBox>
+        </ScrollPane>
     </left>
 
     <center>
@@ -2986,17 +3296,10 @@ public class ItemCard extends VBox {
     </center>
 
     <right>
-        <VBox prefWidth="350.0" spacing="20.0" BorderPane.alignment="CENTER">
-            <padding>
-                <Insets bottom="20.0" left="15.0" right="15.0" top="20.0" />
-            </padding>
+        <VBox prefWidth="380.0" spacing="15.0" style="-fx-padding: 15;" BorderPane.alignment="CENTER">
             <children>
-                <Label text="Lịch sử trả giá">
-                    <font>
-                        <Font name="System Bold" size="16.0" />
-                    </font>
-                </Label>
-                <LineChart fx:id="chartHistory" prefHeight="250.0" style="-fx-background-color: white; -fx-background-radius: 10;">
+                <Label text="Lịch sử trả giá" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                <LineChart fx:id="chartHistory" prefHeight="200.0" style="-fx-background-color: white; -fx-background-radius: 10;">
                     <xAxis>
                         <CategoryAxis side="BOTTOM" label="Thời gian" />
                     </xAxis>
@@ -3005,27 +3308,27 @@ public class ItemCard extends VBox {
                     </yAxis>
                 </LineChart>
 
-                <Separator prefWidth="200.0" />
+                <Separator />
 
-                <VBox spacing="15.0" style="-fx-background-color: #ebf5fb; -fx-padding: 20; -fx-background-radius: 10;">
+                <VBox spacing="12.0" style="-fx-background-color: #ebf5fb; -fx-padding: 15; -fx-background-radius: 10; -fx-border-color: #3498db; -fx-border-width: 1;">
                     <children>
-                        <Label text="Nhập giá của bạn:" style="-fx-font-weight: bold;" />
-                        <HBox spacing="10.0">
-                            <children>
-                                <TextField fx:id="txtBidAmount" prefHeight="40.0" prefWidth="200.0" promptText="VNĐ..." style="-fx-background-radius: 5;" />
-                                <Button fx:id="btnBid" mnemonicParsing="false" onAction="#handleBidAction" prefHeight="40.0" prefWidth="80.0" style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;" text="BID" />
-                            </children>
-                        </HBox>
-                        <Label text="* Lưu ý: Giá không thấp hơn giá hiện tại + bước giá." textFill="#7f8c8d">
-                            <font>
-                                <Font size="11.0" />
-                            </font>
-                        </Label>
+                        <Label text="ĐẶT GIÁ MỚI" style="-fx-font-weight: bold; -fx-font-size: 13;" />
+                        <TextField fx:id="txtBidAmount" prefHeight="40.0" promptText="Nhập giá (VNĐ)..." style="-fx-background-radius: 5; -fx-padding: 10; -fx-font-size: 12;" />
+                        <Button fx:id="btnBid" onAction="#handleBidAction" prefHeight="45.0" maxWidth="Infinity" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand; -fx-font-size: 13;" text="ĐẶT GIÁ" />
+                        <Label fx:id="lblBidNote" text="* Giá phải ≥ Giá hiện tại + Bước giá" textFill="#7f8c8d" style="-fx-font-size: 11; -fx-font-style: italic;" wrapText="true"/>
                     </children>
                 </VBox>
             </children>
         </VBox>
     </right>
+
+    <bottom>
+        <HBox spacing="10.0" style="-fx-padding: 15; -fx-background-color: #ecf0f1; -fx-alignment: center-right;">
+            <children>
+                <Button text="← Quay lại trang chủ" onAction="#handleBackToHome" style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-padding: 10 20; -fx-cursor: hand; -fx-font-weight: bold;"/>
+            </children>
+        </HBox>
+    </bottom>
 </BorderPane>
  
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\BidHistoryView.fxml ===  
@@ -3439,22 +3742,6 @@ public class ItemCard extends VBox {
     </right>
 
 </BorderPane> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\.idea\misc.xml ===  
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_25" default="true" project-jdk-name="25" project-jdk-type="JavaSDK">
-    <output url="file://$PROJECT_DIR$/out" />
-  </component>
-</project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\.idea\modules.xml ===  
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ProjectModuleManager">
-    <modules>
-      <module fileurl="file://$PROJECT_DIR$/main.iml" filepath="$PROJECT_DIR$/main.iml" />
-    </modules>
-  </component>
-</project> 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\AdminView.fxml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 
@@ -3523,35 +3810,62 @@ public class ItemCard extends VBox {
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.ScrollPane?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="1000.0" style="-fx-background-color: #f4f4f4;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.BiddingRoomController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1200.0" style="-fx-background-color: #f4f4f4;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.BiddingRoomController">
 
-    <left>
-        <VBox prefWidth="280.0" spacing="15.0" style="-fx-background-color: white; -fx-border-color: #ddd; -fx-border-width: 0 1 0 0;" BorderPane.alignment="CENTER">
+    <top>
+        <HBox spacing="20.0" style="-fx-background-color: #2c3e50; -fx-padding: 15;" BorderPane.alignment="CENTER">
             <children>
-                <Label text="Thông tin sản phẩm">
-                    <font>
-                        <Font name="System Bold" size="18.0" />
-                    </font>
-                </Label>
-                <ImageView fx:id="imgProduct" fitHeight="200.0" fitWidth="240.0" pickOnBounds="true" preserveRatio="true" style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);" />
-                <Separator prefWidth="200.0" />
-                <VBox spacing="8.0">
-                    <children>
-                        <Label fx:id="lblDescription" text="Mô tả: Đang tải..." wrapText="true" />
-                        <Label fx:id="lblSeller" text="Người bán: Admin" />
-                        <Label fx:id="lblStartPrice" text="Giá khởi điểm: 0 VNĐ" />
-                        <Label fx:id="lblStepPrice" text="Bước giá: 50.000 VNĐ" style="-fx-text-fill: blue;" />
-                        <Label fx:id="lblStartTime" text="Bắt đầu: --/--/----" />
-                        <Label fx:id="lblEndTime" text="Kết thúc: --/--/----" />
-                    </children>
-                </VBox>
+                <Label text="PHÒNG ĐẤU GIÁ" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                <Separator orientation="VERTICAL" />
+                <Label fx:id="lblCurrentUser" text="Người dùng: ..." style="-fx-text-fill: white; -fx-font-size: 12;"/>
+                <Label fx:id="lblUserBalance" text="Số dư: 0 VNĐ" style="-fx-text-fill: #2ecc71; -fx-font-weight: bold; -fx-font-size: 12;"/>
             </children>
             <padding>
-                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                <Insets left="20" right="20" top="10" bottom="10" />
             </padding>
-        </VBox>
+        </HBox>
+    </top>
+
+    <left>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+            <VBox prefWidth="300.0" spacing="15.0" style="-fx-background-color: white; -fx-padding: 15; -fx-border-color: #ddd; -fx-border-width: 0 1 0 0;">
+                <children>
+                    <Label text="Thông tin sản phẩm" style="-fx-font-weight: bold; -fx-font-size: 16;"/>
+                    
+                    <ImageView fx:id="imgProduct" fitHeight="200.0" fitWidth="280.0" pickOnBounds="true" preserveRatio="true" style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);" />
+                    
+                    <Separator />
+                    
+                    <VBox spacing="8.0">
+                        <children>
+                            <Label fx:id="lblDescription" text="Mô tả: Đang tải..." wrapText="true" />
+                            <Label fx:id="lblCategory" text="Loại: ..." style="-fx-text-fill: #2980b9; -fx-font-weight: bold;" />
+                            <Separator />
+                            <Label text="THÔNG TIN NGƯỜI BÁN" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
+                            <Label fx:id="lblSeller" text="Người bán: Admin" />
+                            <Label fx:id="lblSellerRating" text="Đánh giá: ..." />
+                            <Label fx:id="lblSellerSaleCount" text="Đã bán: ..." />
+                            <Separator />
+                            <Label text="THÔNG TIN GIÁ CẢ" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
+                            <Label fx:id="lblStartPrice" text="Giá khởi điểm: 0 VNĐ" />
+                            <Label fx:id="lblStepPrice" text="Bước giá: 50.000 VNĐ" style="-fx-text-fill: #e74c3c; -fx-font-weight: bold;" />
+                            <Separator />
+                            <Label text="THỜI GIAN ĐẤU GIÁ" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
+                            <Label fx:id="lblStartTime" text="Bắt đầu: --/--/---- --:--" />
+                            <Label fx:id="lblEndTime" text="Kết thúc: --/--/---- --:--" />
+                            <Separator />
+                            <VBox fx:id="categoryDetailsContainer" spacing="8.0" />
+                        </children>
+                    </VBox>
+                </children>
+                <padding>
+                    <Insets bottom="20.0" left="15.0" right="15.0" top="15.0" />
+                </padding>
+            </VBox>
+        </ScrollPane>
     </left>
 
     <center>
@@ -3603,17 +3917,10 @@ public class ItemCard extends VBox {
     </center>
 
     <right>
-        <VBox prefWidth="350.0" spacing="20.0" BorderPane.alignment="CENTER">
-            <padding>
-                <Insets bottom="20.0" left="15.0" right="15.0" top="20.0" />
-            </padding>
+        <VBox prefWidth="380.0" spacing="15.0" style="-fx-padding: 15;" BorderPane.alignment="CENTER">
             <children>
-                <Label text="Lịch sử trả giá">
-                    <font>
-                        <Font name="System Bold" size="16.0" />
-                    </font>
-                </Label>
-                <LineChart fx:id="chartHistory" prefHeight="250.0" style="-fx-background-color: white; -fx-background-radius: 10;">
+                <Label text="Lịch sử trả giá" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                <LineChart fx:id="chartHistory" prefHeight="200.0" style="-fx-background-color: white; -fx-background-radius: 10;">
                     <xAxis>
                         <CategoryAxis side="BOTTOM" label="Thời gian" />
                     </xAxis>
@@ -3622,27 +3929,27 @@ public class ItemCard extends VBox {
                     </yAxis>
                 </LineChart>
 
-                <Separator prefWidth="200.0" />
+                <Separator />
 
-                <VBox spacing="15.0" style="-fx-background-color: #ebf5fb; -fx-padding: 20; -fx-background-radius: 10;">
+                <VBox spacing="12.0" style="-fx-background-color: #ebf5fb; -fx-padding: 15; -fx-background-radius: 10; -fx-border-color: #3498db; -fx-border-width: 1;">
                     <children>
-                        <Label text="Nhập giá của bạn:" style="-fx-font-weight: bold;" />
-                        <HBox spacing="10.0">
-                            <children>
-                                <TextField fx:id="txtBidAmount" prefHeight="40.0" prefWidth="200.0" promptText="VNĐ..." style="-fx-background-radius: 5;" />
-                                <Button fx:id="btnBid" mnemonicParsing="false" onAction="#handleBidAction" prefHeight="40.0" prefWidth="80.0" style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;" text="BID" />
-                            </children>
-                        </HBox>
-                        <Label text="* Lưu ý: Giá không thấp hơn giá hiện tại + bước giá." textFill="#7f8c8d">
-                            <font>
-                                <Font size="11.0" />
-                            </font>
-                        </Label>
+                        <Label text="ĐẶT GIÁ MỚI" style="-fx-font-weight: bold; -fx-font-size: 13;" />
+                        <TextField fx:id="txtBidAmount" prefHeight="40.0" promptText="Nhập giá (VNĐ)..." style="-fx-background-radius: 5; -fx-padding: 10; -fx-font-size: 12;" />
+                        <Button fx:id="btnBid" onAction="#handleBidAction" prefHeight="45.0" maxWidth="Infinity" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand; -fx-font-size: 13;" text="ĐẶT GIÁ" />
+                        <Label fx:id="lblBidNote" text="* Giá phải ≥ Giá hiện tại + Bước giá" textFill="#7f8c8d" style="-fx-font-size: 11; -fx-font-style: italic;" wrapText="true"/>
                     </children>
                 </VBox>
             </children>
         </VBox>
     </right>
+
+    <bottom>
+        <HBox spacing="10.0" style="-fx-padding: 15; -fx-background-color: #ecf0f1; -fx-alignment: center-right;">
+            <children>
+                <Button text="← Quay lại trang chủ" onAction="#handleBackToHome" style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-padding: 10 20; -fx-cursor: hand; -fx-font-weight: bold;"/>
+            </children>
+        </HBox>
+    </bottom>
 </BorderPane>
  
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\BidHistoryView.fxml ===  
@@ -4233,6 +4540,8 @@ CREATE TABLE auctions(
     status ENUM('OPEN', 'RUNNING', 'FINISHED', 'PAID', 'CANCELED') DEFAULT 'OPEN',
     has_extended TINYINT(1) DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    start_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    price_step DOUBLE DEFAULT 1000;
     CONSTRAINT fk_auctions_item FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE,
     CONSTRAINT fk_auctions_seller FOREIGN KEY (seller_id) REFERENCES sellers(user_id) ON DELETE CASCADE,
     CONSTRAINT fk_auctions_highest_bidder FOREIGN KEY (highest_bidder_id) REFERENCES bidders(user_id)
@@ -4246,7 +4555,7 @@ CREATE TABLE IF NOT EXISTS auto_bids (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY unique_auto_bid (auction_id, user_id)
 );
--- 12. Watchlist (Giỏ hàng / Danh sách theo dõi - Tính năng sán tạo)
+-- 12. Watchlist (Giỏ hàng / Danh sách theo dõi - Tính năng sáng tạo)
 CREATE TABLE watchlist (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -4425,6 +4734,7 @@ package com.auction.controller;
 
 import com.auction.server.factory.ItemFactory;
 import com.auction.server.models.ItemDTO;
+import com.auction.server.dao.ItemDAO;
 import com.auction.service.ItemService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -4443,25 +4753,81 @@ public class ItemController {
         this.itemService = ItemService.getInstance();
     }
 
+    /**
+     * FIX: handleListItems — Đảm bảo trả về List thẳng trong "data" (không phải Map lồng).
+     * Client mong đợi "data" là một mảng JSON [...], không phải object {"items":[...],...}.
+     */
     public String handleListItems(int page, int limit) {
-        Map<String, Object> data = itemService.getAllItems(page, limit);
-        List<?> items = (List<?>) data.get("items"); // Lấy đúng mảng items
-        return createResponse("success", "Lấy danh sách sản phẩm thành công.", gson.toJsonTree(items));
+        try {
+            List<ItemDTO> items = ItemService.getInstance().getItemList(page, limit);
+
+            JsonObject response = new JsonObject();
+            response.addProperty("status", "success");
+            response.add("data", gson.toJsonTree(items));
+            return gson.toJson(response);
+
+        } catch (Exception e) {
+            System.err.println("Lỗi handleListItems: " + e.getMessage());
+            JsonObject error = new JsonObject();
+            error.addProperty("status", "error");
+            error.addProperty("message", "Lỗi tải danh sách sản phẩm: " + e.getMessage());
+            return gson.toJson(error);
+        }
     }
+ 
+    /**
+     * FIX: handleSearchItems trước đây trả về dữ liệu không đúng format
+     * hoặc gọi ItemService.searchItems() vốn trả về HashMap rỗng.
+     * 
+     * Giờ gọi đúng ItemService.searchItems(keyword) → trả về List<ItemDTO>.
+     */
     public String handleSearchItems(String keyword, int page, int limit) {
-        Map<String, Object> data = itemService.searchItems(keyword, page, limit);
-        List<?> items = (List<?>) data.get("items");
-        return createResponse("success", "...", gson.toJsonTree(items));
+        try {
+            // Gọi phương thức search đã được sửa trong ItemService
+            List<ItemDTO> items = ItemService.getInstance().searchItems(keyword);
+ 
+            // Bọc vào format chuẩn {"status":"success","data":[...]}
+            JsonObject response = new JsonObject();
+            response.addProperty("status", "success");
+            response.add("data", gson.toJsonTree(items));
+            return gson.toJson(response);
+ 
+        } catch (Exception e) {
+            System.err.println("Lỗi handleSearchItems: " + e.getMessage());
+            JsonObject error = new JsonObject();
+            error.addProperty("status", "error");
+            error.addProperty("message", "Lỗi tìm kiếm sản phẩm: " + e.getMessage());
+            return gson.toJson(error);
+        }
     }
+ 
     public String handleGetCategories() {
         List<String> categories = itemService.getAllCategories();
         return createResponse("success", "Lấy danh sách danh mục thành công.", gson.toJsonTree(categories));
     }
 
+    /**
+     * FIX: handleGetItemsByCategory trước đây gọi ItemService.getItemsByCategory()
+     * vốn trả về HashMap rỗng.
+     *
+     * Giờ gọi đúng và trả về List<ItemDTO>.
+     */
     public String handleGetItemsByCategory(String category, int page, int limit) {
-        Map<String, Object> data = itemService.getItemsByCategory(category, page, limit);
-        List<?> items = (List<?>) data.get("items");
-        return createResponse("success", "...", gson.toJsonTree(items));
+        try {
+            List<ItemDTO> items = ItemService.getInstance().getItemsByCategory(category);
+ 
+            JsonObject response = new JsonObject();
+            response.addProperty("status", "success");
+            response.add("data", gson.toJsonTree(items));
+            return gson.toJson(response);
+ 
+        } catch (Exception e) {
+            System.err.println("Lỗi handleGetItemsByCategory: " + e.getMessage());
+            JsonObject error = new JsonObject();
+            error.addProperty("status", "error");
+            error.addProperty("message", "Lỗi lọc danh mục: " + e.getMessage());
+            return gson.toJson(error);
+        }
     }
 
     public String handleGetItemsBySeller(int sellerId) {
@@ -4560,6 +4926,7 @@ public class ItemController {
         }
         return gson.toJson(response);
     }
+    
 } 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\PaymentController.java ===  
 package com.auction.controller;
@@ -5168,39 +5535,53 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 public class AuctionDAO {
-    public int createAuction(int itemId,int sellerId,LocalDateTime endtime){
-        String sql = "INSERT INTO auctions (item_id, seller_id, end_time,status,has_extended,created_at) VALUES (?, ?, ?, ?, ?, ?)";
-        try(Connection conn=DatabaseConnection.getInstance().getConnection();
-            PreparedStatement pst=conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)){
+    public int createAuction(int itemId, int sellerId, double priceStep,
+                            LocalDateTime startTime, LocalDateTime endTime) {
+        String sql =
+                "INSERT INTO auctions " +
+                "(item_id, seller_id, current_max_price, price_step, start_time, end_time, status, has_extended, created_at) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+            PreparedStatement pst = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+
             pst.setInt(1, itemId);
             pst.setInt(2, sellerId);
-            pst.setTimestamp(3,Timestamp.valueOf(endtime));
-            pst.setString(4, AuctionStatus.OPEN.name());
-            pst.setBoolean(5, false);
+            pst.setDouble(3, 0.0);
+            pst.setDouble(4, priceStep > 0 ? priceStep : 1000.0);
+            pst.setTimestamp(5, Timestamp.valueOf(startTime != null ? startTime : LocalDateTime.now()));
+            pst.setTimestamp(6, Timestamp.valueOf(endTime != null ? endTime : LocalDateTime.now().plusDays(7)));
+            pst.setString(7, AuctionStatus.OPEN.name());
+            pst.setBoolean(8, false);
+            pst.setTimestamp(9, Timestamp.valueOf(LocalDateTime.now()));
 
-            int affectedRows=pst.executeUpdate();
-            if(affectedRows>0){
-                try(ResultSet generatedKeys=pst.getGeneratedKeys()){
-                    if(generatedKeys.next()){
+            int affectedRows = pst.executeUpdate();
+            if (affectedRows > 0) {
+                try (ResultSet generatedKeys = pst.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
                         return generatedKeys.getInt(1);
                     }
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi tạo phiên đấu giá :"+e.getMessage());
+            System.err.println("Lỗi tạo phiên đấu giá: " + e.getMessage());
         }
         return -1;
-    }
+}
 
-    public boolean updateAuctionStatus(int auctionId,AuctionStatus newStatus){
-        String sql="UPDATE auctions SET status=? WHERE id=?";
-        try(Connection conn=DatabaseConnection.getInstance().getConnection()){
-            PreparedStatement pst=conn.prepareStatement(sql);
+    public boolean updateAuctionStatus(int auctionId, AuctionStatus newStatus) {
+        if (newStatus == null) return false;
+
+        String sql = "UPDATE auctions SET status = ? WHERE id = ?";
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+            PreparedStatement pst = conn.prepareStatement(sql)) {
+
             pst.setString(1, newStatus.name());
             pst.setInt(2, auctionId);
-            return pst.executeUpdate()>0;
-        }catch(SQLException e){
-            System.err.println("Lỗi cập nhật trạng thái đấu giá :"+e.getMessage());
+            return pst.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Lỗi cập nhật trạng thái đấu giá: " + e.getMessage());
         }
         return false;
     }
@@ -5221,36 +5602,42 @@ public class AuctionDAO {
     }
 
     public AuctionDataDTO getAuctionDataById(int auctionId) {
-        String sql = "SELECT item_id, seller_id, end_time, status, has_extended, current_max_price, highest_bidder_id FROM auctions WHERE id = ?";
-        
+        String sql =
+                "SELECT item_id, seller_id, start_time, end_time, status, has_extended, " +
+                "current_max_price, highest_bidder_id, price_step " +
+                "FROM auctions WHERE id = ?";
+
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pst = conn.prepareStatement(sql)) {
-            
+            PreparedStatement pst = conn.prepareStatement(sql)) {
+
             pst.setInt(1, auctionId);
-            
+
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
-                    // Đọc dữ liệu từ DB
                     int itemId = rs.getInt("item_id");
                     int sellerId = rs.getInt("seller_id");
-                    // Chuyển ngược từ SQL Timestamp về Java LocalDateTime
-                    LocalDateTime endTime = rs.getTimestamp("end_time").toLocalDateTime(); 
+                    LocalDateTime startTime = rs.getTimestamp("start_time") != null
+                            ? rs.getTimestamp("start_time").toLocalDateTime() : null;
+                    LocalDateTime endTime = rs.getTimestamp("end_time") != null
+                            ? rs.getTimestamp("end_time").toLocalDateTime() : null;
+
                     AuctionStatus status = AuctionStatus.valueOf(rs.getString("status"));
                     boolean hasExtended = rs.getBoolean("has_extended");
-                    double currentMaxPrice = rs.getDouble("current_max_price");
-                    int highestBidderId = rs.getInt("highest_bidder_id");
-                    
-                    // Giả sử bạn có một class AuctionDataDTO để truyền dữ liệu cho nhanh
+
                     AuctionDataDTO dto = new AuctionDataDTO(auctionId, itemId, sellerId, endTime, status, hasExtended);
-                    dto.setCurrentMaxPrice(currentMaxPrice);
-                    dto.setHighestBidderId(highestBidderId);
+                    dto.setCurrentMaxPrice(rs.getDouble("current_max_price"));
+                    dto.setHighestBidderId(rs.getInt("highest_bidder_id"));
+                    // nếu DTO có field này thì set thêm
+                    // dto.setPriceStep(rs.getDouble("price_step"));
+                    // dto.setStartTime(startTime);
+
                     return dto;
                 }
             }
         } catch (SQLException e) {
             System.err.println("Lỗi tìm kiếm phiên đấu giá: " + e.getMessage());
         }
-        return null; // Không tìm thấy
+        return null;
     }
 
 }
@@ -5715,6 +6102,7 @@ package com.auction.server.dao;
 
 import com.auction.server.models.ItemDTO;
 import com.auction.server.models.ArtDTO;
+import com.auction.server.models.AuctionStatus;
 import com.auction.server.models.ElectronicsDTO;
 import com.auction.server.models.VehicleDTO;
 
@@ -5746,28 +6134,38 @@ public class ItemDAO {
 
     public List<ItemDTO> updatePendingItemsToRunning() {
         List<ItemDTO> updatedItems = new ArrayList<>();
-        String findSql = "SELECT * FROM items WHERE status = 'PENDING' AND start_time <= NOW()";
-        String updateSql = "UPDATE items SET status = 'RUNNING' WHERE id = ?";
-        
+
+        String findSql =
+                "SELECT a.id AS auction_id, a.item_id " +
+                "FROM auctions a " +
+                "WHERE a.status = 'OPEN' AND a.start_time <= NOW()";
+
+        String updateSql = "UPDATE auctions SET status = 'RUNNING' WHERE id = ?";
+
         try (Connection conn = DatabaseConnection.getInstance().getConnection()) {
             conn.setAutoCommit(false);
+
             try (PreparedStatement findStmt = conn.prepareStatement(findSql);
-                 ResultSet rs = findStmt.executeQuery()) {
+                ResultSet rs = findStmt.executeQuery()) {
+
                 while (rs.next()) {
-                    IItemSubDAO subDAO = categoryToDAORegistry.get(rs.getString("category").toUpperCase());
-                    if (subDAO != null) {
-                        ItemDTO item = subDAO.fetchSubItem(conn, rs);
-                        if (item != null) {
-                             try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
-                                updateStmt.setInt(1, item.getId());
-                                if (updateStmt.executeUpdate() > 0) {
-                                    updatedItems.add(item);
-                                }
+                    int auctionId = rs.getInt("auction_id");
+                    int itemId = rs.getInt("item_id");
+
+                    try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                        updateStmt.setInt(1, auctionId);
+                        if (updateStmt.executeUpdate() > 0) {
+                            ItemDTO item = getItemById(itemId);
+                            if (item != null) {
+                                item.setAuctionId(auctionId);
+                                item.setStatus("RUNNING");
+                                updatedItems.add(item);
                             }
                         }
                     }
                 }
             }
+
             conn.commit();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -5777,28 +6175,38 @@ public class ItemDAO {
 
     public List<ItemDTO> updateRunningItemsToEnded() {
         List<ItemDTO> updatedItems = new ArrayList<>();
-        String findSql = "SELECT i.*, a.highest_bidder_id, a.current_max_price FROM items i JOIN auctions a ON i.id = a.item_id WHERE a.status = 'RUNNING' AND a.end_time <= NOW()";
-        String updateSql = "UPDATE auctions SET status = 'ENDED' WHERE id = ?";
-        
+
+        String findSql =
+                "SELECT a.id AS auction_id, a.item_id " +
+                "FROM auctions a " +
+                "WHERE a.status = 'RUNNING' AND a.end_time <= NOW()";
+
+        String updateSql = "UPDATE auctions SET status = 'FINISHED' WHERE id = ?";
+
         try (Connection conn = DatabaseConnection.getInstance().getConnection()) {
             conn.setAutoCommit(false);
+
             try (PreparedStatement findStmt = conn.prepareStatement(findSql);
-                 ResultSet rs = findStmt.executeQuery()) {
+                ResultSet rs = findStmt.executeQuery()) {
+
                 while (rs.next()) {
-                    IItemSubDAO subDAO = categoryToDAORegistry.get(rs.getString("category").toUpperCase());
-                    if (subDAO != null) {
-                        ItemDTO item = subDAO.fetchSubItem(conn, rs);
-                        if (item != null) {
-                             try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
-                                updateStmt.setInt(1, item.getId()); // Assuming auctionId is same as itemId for simplicity
-                                if (updateStmt.executeUpdate() > 0) {
-                                    updatedItems.add(item);
-                                }
+                    int auctionId = rs.getInt("auction_id");
+                    int itemId = rs.getInt("item_id");
+
+                    try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                        updateStmt.setInt(1, auctionId);
+                        if (updateStmt.executeUpdate() > 0) {
+                            ItemDTO item = getItemById(itemId);
+                            if (item != null) {
+                                item.setAuctionId(auctionId);
+                                item.setStatus("FINISHED");
+                                updatedItems.add(item);
                             }
                         }
                     }
                 }
             }
+
             conn.commit();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -5865,20 +6273,33 @@ public class ItemDAO {
             
             // 3. TẠO PHIÊN ĐẤU GIÁ TRONG BẢNG AUCTIONS
             // Bổ sung seller_id và end_time vào câu lệnh SQL
-            String sqlAuction = "INSERT INTO auctions (item_id, seller_id, current_max_price, end_time, status) VALUES (?, ?, ?, ?, 'OPEN')";
+            String sqlAuction =
+                    "INSERT INTO auctions " +
+                    "(item_id, seller_id, current_max_price, price_step, start_time, end_time, status, has_extended, created_at) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
             try (PreparedStatement pstmtAuction = conn.prepareStatement(sqlAuction)) {
                 pstmtAuction.setInt(1, item.getId());
-                pstmtAuction.setInt(2, item.getSellerId()); // Trỏ đúng người bán
+                pstmtAuction.setInt(2, item.getSellerId());
                 pstmtAuction.setDouble(3, item.getStartingPrice());
-                
-                // An toàn: Đổi chuỗi ngày tháng sang Timestamp cho DB. 
-                // Nếu User quên nhập, mặc định cho phép đấu giá kéo dài 7 ngày.
-                if (item.getEndTime() != null && !item.getEndTime().isEmpty()) {
-                    pstmtAuction.setTimestamp(4, java.sql.Timestamp.valueOf(item.getEndTime()));
+                pstmtAuction.setDouble(4, item.getPriceStep() > 0 ? item.getPriceStep() : 1000);
+
+                if (item.getStartTime() != null && !item.getStartTime().isEmpty()) {
+                    pstmtAuction.setTimestamp(5, java.sql.Timestamp.valueOf(item.getStartTime()));
                 } else {
-                    pstmtAuction.setTimestamp(4, new java.sql.Timestamp(System.currentTimeMillis() + 7L * 24 * 3600 * 1000));
+                    pstmtAuction.setTimestamp(5, new java.sql.Timestamp(System.currentTimeMillis()));
                 }
-                
+
+                if (item.getEndTime() != null && !item.getEndTime().isEmpty()) {
+                    pstmtAuction.setTimestamp(6, java.sql.Timestamp.valueOf(item.getEndTime()));
+                } else {
+                    pstmtAuction.setTimestamp(6, new java.sql.Timestamp(System.currentTimeMillis() + 7L * 24 * 3600 * 1000));
+                }
+
+                pstmtAuction.setString(7, AuctionStatus.OPEN.name());
+                pstmtAuction.setBoolean(8, false);
+                pstmtAuction.setTimestamp(9, new java.sql.Timestamp(System.currentTimeMillis()));
+
                 pstmtAuction.executeUpdate();
             }
             conn.commit();
@@ -5893,79 +6314,126 @@ public class ItemDAO {
         }
     }
 
-public boolean updateItem(ItemDTO item) {
+    public boolean updateItem(ItemDTO item) {
         Connection conn = null;
         try {
             conn = DatabaseConnection.getInstance().getConnection();
             conn.setAutoCommit(false);
 
-            // 1. Cập nhật bảng items
-            String sqlItem = "UPDATE items SET name = ?, description = ?, starting_price = ?, category = ? WHERE id = ?";
-            PreparedStatement pstmtItem = conn.prepareStatement(sqlItem);
-            pstmtItem.setString(1, item.getName());
-            pstmtItem.setString(2, item.getDescription());
-            pstmtItem.setDouble(3, item.getStartingPrice());
-            pstmtItem.setString(4, item.getCategory());
-            pstmtItem.setInt(5, item.getId());
-            pstmtItem.executeUpdate();
+            // 1. items
+            String sqlItem = "UPDATE items SET name = ?, description = ?, starting_price = ?, category = ?, image_path = ? WHERE id = ?";
+            try (PreparedStatement pstmtItem = conn.prepareStatement(sqlItem)) {
+                pstmtItem.setString(1, item.getName());
+                pstmtItem.setString(2, item.getDescription());
+                pstmtItem.setDouble(3, item.getStartingPrice());
+                pstmtItem.setString(4, item.getCategory());
+                pstmtItem.setString(5, item.getImagePath());
+                pstmtItem.setInt(6, item.getId());
+                pstmtItem.executeUpdate();
+            }
 
-            // 2. Cập nhật bảng con tùy theo loại
+            // 2. bảng con
             if (item instanceof ArtDTO) {
                 ArtDTO art = (ArtDTO) item;
                 String sqlArt = "UPDATE artworks SET artist = ?, creation_year = ?, material = ? WHERE item_id = ?";
-                PreparedStatement pstmtArt = conn.prepareStatement(sqlArt);
-                pstmtArt.setString(1, art.getArtist());
-                pstmtArt.setInt(2, art.getCreationYear());
-                pstmtArt.setString(3, art.getMaterial());
-                pstmtArt.setInt(4, art.getId());
-                pstmtArt.executeUpdate();
+                try (PreparedStatement pstmtArt = conn.prepareStatement(sqlArt)) {
+                    pstmtArt.setString(1, art.getArtist());
+                    pstmtArt.setInt(2, art.getCreationYear());
+                    pstmtArt.setString(3, art.getMaterial());
+                    pstmtArt.setInt(4, art.getId());
+                    pstmtArt.executeUpdate();
+                }
             } else if (item instanceof ElectronicsDTO) {
                 ElectronicsDTO elec = (ElectronicsDTO) item;
                 String sqlElec = "UPDATE electronics SET warranty_months = ? WHERE item_id = ?";
-                PreparedStatement pstmtElec = conn.prepareStatement(sqlElec);
-                pstmtElec.setInt(1, elec.getWarrantyMonths());
-                pstmtElec.setInt(2, elec.getId());
-                pstmtElec.executeUpdate();
+                try (PreparedStatement pstmtElec = conn.prepareStatement(sqlElec)) {
+                    pstmtElec.setInt(1, elec.getWarrantyMonths());
+                    pstmtElec.setInt(2, elec.getId());
+                    pstmtElec.executeUpdate();
+                }
             } else if (item instanceof VehicleDTO) {
                 VehicleDTO v = (VehicleDTO) item;
                 String sqlVeh = "UPDATE vehicles SET brand = ?, mileage = ?, condition_state = ? WHERE item_id = ?";
-                PreparedStatement pstmtVeh = conn.prepareStatement(sqlVeh);
-                pstmtVeh.setString(1, v.getBrand());
-                pstmtVeh.setInt(2, v.getMileage());
-                pstmtVeh.setString(3, v.getCondition()); // Hoặc v.getConditionState() tùy model của bạn
-                pstmtVeh.setInt(4, v.getId());
-                pstmtVeh.executeUpdate();
+                try (PreparedStatement pstmtVeh = conn.prepareStatement(sqlVeh)) {
+                    pstmtVeh.setString(1, v.getBrand());
+                    pstmtVeh.setInt(2, v.getMileage());
+                    pstmtVeh.setString(3, v.getCondition());
+                    pstmtVeh.setInt(4, v.getId());
+                    pstmtVeh.executeUpdate();
+                }
             }
 
-            // 3. Cập nhật trạng thái bảng auctions
-            String sqlAuction = "UPDATE auctions SET status = ? WHERE item_id = ?";
+            // 3. auctions: chỉ update các trường seller có thể sửa
+            String sqlAuction =
+                    "UPDATE auctions SET price_step = ?, start_time = ?, end_time = ? WHERE item_id = ?";
+
             try (PreparedStatement pstmtAuction = conn.prepareStatement(sqlAuction)) {
-                pstmtAuction.setString(1, item.getStatus() != null ? item.getStatus() : "OPEN");
-                pstmtAuction.setInt(2, item.getId());
+                pstmtAuction.setDouble(1, item.getPriceStep() > 0 ? item.getPriceStep() : 1000);
+
+                if (item.getStartTime() != null && !item.getStartTime().trim().isEmpty()) {
+                    pstmtAuction.setTimestamp(2, java.sql.Timestamp.valueOf(item.getStartTime().trim()));
+                } else {
+                    pstmtAuction.setNull(2, java.sql.Types.TIMESTAMP);
+                }
+
+                if (item.getEndTime() != null && !item.getEndTime().trim().isEmpty()) {
+                    pstmtAuction.setTimestamp(3, java.sql.Timestamp.valueOf(item.getEndTime().trim()));
+                } else {
+                    pstmtAuction.setNull(3, java.sql.Types.TIMESTAMP);
+                }
+
+                pstmtAuction.setInt(4, item.getId());
                 pstmtAuction.executeUpdate();
             }
 
             conn.commit();
             return true;
         } catch (Exception e) {
-            if (conn != null) try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+            if (conn != null) {
+                try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+            }
             e.printStackTrace();
             return false;
         }
     }
 
     public ItemDTO getItemById(int id) {
-        String sql = "SELECT * FROM items WHERE id = ?";
+        String sql =
+                "SELECT i.id AS item_id, i.seller_id, i.name, i.description, i.starting_price, " +
+                "i.category, i.image_path, i.created_at, " +
+                "a.id AS auction_id, a.current_max_price, a.highest_bidder_id, a.price_step, " +
+                "a.start_time, a.end_time, a.status " +
+                "FROM items i " +
+                "LEFT JOIN auctions a ON a.item_id = i.id " +
+                "WHERE i.id = ?";
+
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     String category = rs.getString("category");
                     IItemSubDAO subDAO = categoryToDAORegistry.get(category.toUpperCase());
                     if (subDAO != null) {
-                        return subDAO.fetchSubItem(conn, rs);
+                        ItemDTO item = subDAO.fetchSubItem(conn, rs);
+                        if (item != null) {
+                            int auctionId = rs.getInt("auction_id");
+                            if (!rs.wasNull()) {
+                                item.setAuctionId(auctionId);
+                                item.setCurrentMaxPrice(rs.getDouble("current_max_price"));
+                                item.setHighestBidderId(rs.getInt("highest_bidder_id"));
+                                item.setPriceStep(rs.getDouble("price_step"));
+                                item.setStatus(rs.getString("status"));
+
+                                java.sql.Timestamp st = rs.getTimestamp("start_time");
+                                java.sql.Timestamp et = rs.getTimestamp("end_time");
+                                item.setStartTime(st != null ? st.toString() : null);
+                                item.setEndTime(et != null ? et.toString() : null);
+                            }
+                        }
+                        return item;
                     }
                 }
             }
@@ -5977,16 +6445,22 @@ public boolean updateItem(ItemDTO item) {
 
     public List<ItemDTO> getAllItems(int page, int limit) {
         List<ItemDTO> list = new ArrayList<>();
-        // JOIN với bảng auctions để lấy status và giá hiện tại
-        String sql = "SELECT i.*, auc.id as auction_id, auc.status as auction_status, auc.current_max_price, auc.highest_bidder_id " +
-                     "FROM items i " +
-                     "LEFT JOIN auctions auc ON i.id = auc.item_id " +
-                     "ORDER BY i.created_at DESC LIMIT ? OFFSET ?";
+
+        String sql =
+                "SELECT i.id AS item_id, i.seller_id, i.name, i.description, i.starting_price, " +
+                "i.category, i.image_path, i.created_at, " +
+                "a.id AS auction_id, a.current_max_price, a.highest_bidder_id, a.price_step, " +
+                "a.start_time, a.end_time, a.status " +
+                "FROM items i " +
+                "LEFT JOIN auctions a ON i.id = a.item_id " +
+                "ORDER BY i.created_at DESC LIMIT ? OFFSET ?";
+
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
             pstmt.setInt(1, limit);
             pstmt.setInt(2, (page - 1) * limit);
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     String category = rs.getString("category");
@@ -5994,11 +6468,19 @@ public boolean updateItem(ItemDTO item) {
                     if (subDAO != null) {
                         ItemDTO fullItem = subDAO.fetchSubItem(conn, rs);
                         if (fullItem != null) {
-                            // Gán thêm thông tin đấu giá vào ItemDTO
-                            fullItem.setAuctionId(rs.getInt("auction_id"));
-                            fullItem.setStatus(rs.getString("auction_status"));
-                            fullItem.setCurrentMaxPrice(rs.getDouble("current_max_price"));
-                            fullItem.setHighestBidderId(rs.getInt("highest_bidder_id"));
+                            int auctionId = rs.getInt("auction_id");
+                            if (!rs.wasNull()) {
+                                fullItem.setAuctionId(auctionId);
+                                fullItem.setCurrentMaxPrice(rs.getDouble("current_max_price"));
+                                fullItem.setHighestBidderId(rs.getInt("highest_bidder_id"));
+                                fullItem.setPriceStep(rs.getDouble("price_step"));
+                                fullItem.setStatus(rs.getString("status"));
+
+                                java.sql.Timestamp st = rs.getTimestamp("start_time");
+                                java.sql.Timestamp et = rs.getTimestamp("end_time");
+                                fullItem.setStartTime(st != null ? st.toString() : null);
+                                fullItem.setEndTime(et != null ? et.toString() : null);
+                            }
                             list.add(fullItem);
                         }
                     }
@@ -6040,22 +6522,28 @@ public boolean updateItem(ItemDTO item) {
 
     public List<ItemDTO> getItemsByCategory(String category, int page, int limit) {
         List<ItemDTO> list = new ArrayList<>();
-        String sql = "SELECT * FROM items WHERE category = ? ORDER BY created_at DESC LIMIT ? OFFSET ?";
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, category);
+        String sql =
+                "SELECT i.id AS item_id, i.seller_id, i.name, i.description, i.starting_price, " +
+                "i.category, i.image_path, i.created_at, " +
+                "a.id AS auction_id, a.current_max_price, a.highest_bidder_id, a.price_step, " +
+                "a.start_time, a.end_time, a.status " +
+                "FROM items i " +
+                "LEFT JOIN auctions a ON a.item_id = i.id " +
+                "WHERE UPPER(i.category) = ? " +
+                "ORDER BY i.created_at DESC LIMIT ? OFFSET ?";
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, category.toUpperCase());
             pstmt.setInt(2, limit);
             pstmt.setInt(3, (page - 1) * limit);
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    IItemSubDAO subDAO = categoryToDAORegistry.get(category.toUpperCase());
-                    if (subDAO != null) {
-                        ItemDTO fullItem = subDAO.fetchSubItem(conn, rs);
-                        if (fullItem != null) {
-                            list.add(fullItem);
-                        }
-                    }
+                    ItemDTO item = mapRowToItemDTO(rs);
+                    if (item != null) list.add(item);
                 }
             }
         } catch (SQLException e) {
@@ -6197,6 +6685,126 @@ public List<ItemDTO> getItemsBySellerId(int sellerId) {
             e.printStackTrace();
             return false;
         }
+    }
+
+        /**
+     * FIX: Tìm kiếm sản phẩm theo từ khóa trong tên hoặc mô tả.
+     * Hàm này được gọi từ ItemService.searchItems() và ItemController.handleSearchItems().
+     *
+     * SQL JOIN với bảng auctions để lấy thêm thông tin phiên đấu giá.
+     */
+    public List<ItemDTO> searchItemsByKeyword(String keyword) {
+        List<ItemDTO> result = new ArrayList<>();
+
+        String sql =
+                "SELECT i.id AS item_id, i.seller_id, i.name, i.description, " +
+                "i.starting_price, i.category, i.image_path, i.created_at, " +
+                "a.id AS auction_id, a.current_max_price, a.highest_bidder_id, a.price_step, " +
+                "a.start_time, a.end_time, a.status " +
+                "FROM items i " +
+                "LEFT JOIN auctions a ON a.item_id = i.id " +
+                "WHERE LOWER(i.name) LIKE ? OR LOWER(i.description) LIKE ? " +
+                "ORDER BY i.id DESC";
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            String likeKeyword = "%" + keyword.toLowerCase() + "%";
+            pstmt.setString(1, likeKeyword);
+            pstmt.setString(2, likeKeyword);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    ItemDTO item = mapRowToItemDTO(rs);
+                    if (item != null) result.add(item);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi searchItemsByKeyword: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public List<ItemDTO> getItemsByCategory(String category) {
+        List<ItemDTO> result = new ArrayList<>();
+
+        String sql =
+                "SELECT i.id AS item_id, i.seller_id, i.name, i.description, " +
+                "i.starting_price, i.category, i.image_path, i.created_at, " +
+                "a.id AS auction_id, a.current_max_price, a.highest_bidder_id, a.price_step, " +
+                "a.start_time, a.end_time, a.status " +
+                "FROM items i " +
+                "LEFT JOIN auctions a ON a.item_id = i.id " +
+                "WHERE UPPER(i.category) = ? " +
+                "ORDER BY i.id DESC";
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, category.toUpperCase());
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    ItemDTO item = mapRowToItemDTO(rs);
+                    if (item != null) result.add(item);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi getItemsByCategory: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return result;
+    }
+ 
+    /**
+     * Helper: Chuyển một dòng ResultSet thành ItemDTO.
+     * Tái sử dụng cho searchItemsByKeyword và getItemsByCategory.
+     *
+     * LƯU Ý: Nếu trong ItemDAO của bạn đã có phương thức tương tự (ví dụ mapRow, mapItem...),
+     * hãy dùng lại thay vì tạo phương thức này để tránh trùng lặp.
+     */
+    private ItemDTO mapRowToItemDTO(ResultSet rs) {
+        try {
+            ItemDTO item = new ItemDTO();
+            item.setId(rs.getInt("item_id"));
+            item.setSellerId(rs.getInt("seller_id"));
+            item.setName(rs.getString("name"));
+            item.setDescription(rs.getString("description"));
+            item.setStartingPrice(rs.getDouble("starting_price"));
+            item.setCategory(rs.getString("category"));
+
+            String rawPath = rs.getString("image_path");
+            item.setImagePath(extractFilename(rawPath));
+
+            item.setCreatedAt(rs.getString("created_at"));
+
+            int auctionId = rs.getInt("auction_id");
+            if (!rs.wasNull()) {
+                item.setAuctionId(auctionId);
+                item.setCurrentMaxPrice(rs.getDouble("current_max_price"));
+                item.setHighestBidderId(rs.getInt("highest_bidder_id"));
+                item.setPriceStep(rs.getDouble("price_step"));
+                item.setStatus(rs.getString("status"));
+
+                java.sql.Timestamp st = rs.getTimestamp("start_time");
+                java.sql.Timestamp et = rs.getTimestamp("end_time");
+                item.setStartTime(st != null ? st.toString() : null);
+                item.setEndTime(et != null ? et.toString() : null);
+            }
+
+            return item;
+        } catch (SQLException e) {
+            System.err.println("Lỗi mapRowToItemDTO: " + e.getMessage());
+            return null;
+        }
+    }
+ 
+    // Lấy tên file từ đường dẫn tuyệt đối.
+    private String extractFilename(String fullPath) {
+        if (fullPath == null || fullPath.isEmpty()) return null;
+        int lastSlash = Math.max(fullPath.lastIndexOf('/'), fullPath.lastIndexOf('\\'));
+        return lastSlash >= 0 ? fullPath.substring(lastSlash + 1) : fullPath;
     }
 } 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\IUserSubDAO.java ===  
@@ -6573,42 +7181,49 @@ public class UserDAO {
         }
     }
 
+
     public UserDTO getUserById(int userId) {
-        // Dùng LEFT JOIN để móc dữ liệu từ bảng sellers và bidders dựa vào user_id
-        String sql = "SELECT u.id, u.username, u.email, u.role, " +
-                     "s.total_rating, s.sale_count, s.account_balance AS seller_balance, " +
-                     "b.account_balance AS bidder_balance " +
+        // Dùng COALESCE để lấy full_name nếu có, nếu không thì dùng username thay thế
+        // Nếu DB của bạn KHÔNG có cột full_name → dùng câu SQL bên dưới (không có COALESCE)
+        String sql = "SELECT u.id, u.username, u.email, u.role, u.isActive, " +
+                     // === OPTION A: Nếu DB có cột full_name ===
+                     // "COALESCE(u.full_name, u.username) AS full_name, " +
+                     // === OPTION B: Nếu DB KHÔNG có cột full_name (dùng cái này) ===
+                     "u.username AS full_name, " +
+                     // Lấy balance từ bảng phụ tương ứng (bidders hoặc sellers)
+                     "COALESCE(b.account_balance, s.account_balance, 0) AS balance, " +
+                     "COALESCE(s.total_rating, 0) AS total_rating, " +
+                     "COALESCE(s.sale_count, 0) AS sale_count " +
                      "FROM users u " +
-                     "LEFT JOIN sellers s ON u.id = s.user_id " +
                      "LEFT JOIN bidders b ON u.id = b.user_id " +
+                     "LEFT JOIN sellers s ON u.id = s.user_id " +
                      "WHERE u.id = ?";
-                     
+ 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-             
+ 
             pstmt.setInt(1, userId);
+ 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    UserDTO user = new UserDTO();
-                    user.setId(rs.getInt("id"));
-                    user.setUsername(rs.getString("username"));
-                    user.setEmail(rs.getString("email"));
-                    String role = rs.getString("role");
-                    user.setRole(role);
-                    
-                    // Phân loại Role để lấy đúng dữ liệu từ bảng con tương ứng
-                    if ("SELLER".equalsIgnoreCase(role)) {
-                        user.setBalance(rs.getDouble("seller_balance"));
-                        user.setTotalRating(rs.getDouble("total_rating"));
-                        user.setSaleCount(rs.getInt("sale_count"));
-                    } else if ("BIDDER".equalsIgnoreCase(role)) {
-                        user.setBalance(rs.getDouble("bidder_balance"));
-                    }
-                    
-                    return user;
+                    UserDTO dto = new UserDTO();
+                    dto.setId(rs.getInt("id"));
+                    dto.setUsername(rs.getString("username"));
+                    dto.setEmail(rs.getString("email"));
+                    dto.setRole(rs.getString("role"));
+                    dto.setActive(rs.getBoolean("isActive"));
+ 
+                    // full_name: lấy từ DB (hoặc username nếu không có cột)
+                    dto.setFullName(rs.getString("full_name"));
+ 
+                    dto.setBalance(rs.getDouble("balance"));
+                    dto.setTotalRating(rs.getDouble("total_rating"));
+                    dto.setSaleCount(rs.getInt("sale_count"));
+                    return dto;
                 }
             }
         } catch (SQLException e) {
+            System.err.println("Lỗi getUserById: " + e.getMessage());
             e.printStackTrace();
         }
         return null;
@@ -6914,10 +7529,20 @@ public class AuthFilter implements Filter {
         HttpServletResponse resp = (HttpServletResponse) response;
         String path = req.getRequestURI();
 
-        if (path.equals("/api/login") || path.equals("/api/register") || 
+        if (path.equals("/api/login") ||
+            path.equals("/api/register") ||
+
+            // public GET items
             (path.equals("/api/items") && req.getMethod().equals("GET")) ||
-            path.startsWith("/api/items/") || path.startsWith("/api/search/") ||
-            path.startsWith("/api/categories/")) {
+            path.startsWith("/api/items/") ||
+
+            // public search/category
+            path.startsWith("/api/search/") ||
+            path.startsWith("/api/categories/") ||
+
+            // PUBLIC IMAGE API
+            path.startsWith("/api/images/"))
+        {
             chain.doFilter(request, response);
             return;
         }
@@ -7380,6 +8005,11 @@ public class AuctionDataDTO {
     @Expose 
     @SerializedName("highest_bidder_id")
     private int highestBidderId;
+    @Expose @SerializedName("price_step")
+    private double priceStep;
+
+    @Expose @SerializedName("start_time")
+    private String startTime;
 
     // ==========================================
     // Constructor (Phải khớp với lời gọi trong AuctionDAO)
@@ -7465,6 +8095,23 @@ public class AuctionDataDTO {
     public void setCurrentMaxPrice(double currentMaxPrice) {
         this.currentMaxPrice = currentMaxPrice;
     }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    public double getPriceStep() {
+        return priceStep;
+    }
+
+    public void setPriceStep(double priceStep) {
+        this.priceStep = priceStep;
+    }
+
 } 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionManager.java ===  
 package com.auction.server.models;
@@ -8151,6 +8798,10 @@ public class ItemDTO {
     private String createdAt;
     private String base64Image; 
 
+    @Expose @SerializedName("price_step")
+    private double priceStep;
+
+
     public String getBase64Image() { return base64Image; }
     public void setBase64Image(String base64Image) { this.base64Image = base64Image; }
 
@@ -8244,6 +8895,9 @@ public class ItemDTO {
     // Thêm Getter/Setter cho nó
     public String getImagePath() { return imagePath; }
     public void setImagePath(String imagePath) { this.imagePath = imagePath; }
+    public double getPriceStep() { return priceStep; }
+    public void setPriceStep(double priceStep) { this.priceStep = priceStep; }
+
 } 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Payment.java ===  
 package com.auction.server.models;
@@ -9329,6 +9983,131 @@ public class GetMyWonItemsAPI extends HttpServlet {
         resp.getWriter().write(jsonResponse);
     }
 } 
+// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\ImageAPI.java ===  
+package com.auction.server.servlets;
+
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.nio.file.Files;
+
+/**
+ * ImageAPI — Servlet phục vụ ảnh sản phẩm qua HTTP.
+ *
+ * URL: GET /api/images/{filename}
+ * Ví dụ: GET /api/images/1748000000000_myphone.jpg
+ *
+ * Cần thêm mapping này vào web.xml:
+ *
+ *   <servlet>
+ *       <servlet-name>ImageAPI</servlet-name>
+ *       <servlet-class>com.auction.server.servlets.ImageAPI</servlet-class>
+ *   </servlet>
+ *   <servlet-mapping>
+ *       <servlet-name>ImageAPI</servlet-name>
+ *       <url-pattern>/api/images/*</url-pattern>
+ *   </servlet-mapping>
+ *
+ * Servlet này giải quyết vấn đề: Server lưu ảnh ở đường dẫn tuyệt đối trên máy server
+ * (vd: C:\...\loads\abc.jpg), nhưng client không thể load file đó trực tiếp.
+ * Thay vào đó, client sẽ request qua URL HTTP này.
+ */
+public class ImageAPI extends HttpServlet {
+
+    // Thư mục lưu ảnh — phải khớp với thư mục trong ItemDAO.addItem()
+    // ItemDAO lưu vào "uploads/" (relative path từ thư mục chạy server)
+    private static final String UPLOAD_DIR = "uploads";
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+
+        // Lấy tên file từ URL: /api/images/{filename}
+        String pathInfo = req.getPathInfo(); // ví dụ: "/1748000000000_myphone.jpg"
+        if (pathInfo == null || pathInfo.equals("/") || pathInfo.length() <= 1) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("{\"error\":\"Thiếu tên file ảnh.\"}");
+            return;
+        }
+
+        // Xóa dấu "/" đầu tiên để lấy filename
+        String filename = pathInfo.substring(1);
+
+        // Ngăn Path Traversal Attack (bảo mật): không cho phép "../" trong tên file
+        if (filename.contains("..") || filename.contains("/") || filename.contains("\\")) {
+            resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            resp.getWriter().write("{\"error\":\"Tên file không hợp lệ.\"}");
+            return;
+        }
+
+        // Tìm file ảnh trong thư mục uploads
+        // Thử đường dẫn tương đối trước (khi server chạy từ thư mục gốc project)
+        File imageFile = findImageFile(filename, req);
+
+        if (imageFile == null || !imageFile.exists() || !imageFile.isFile()) {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            resp.setContentType("application/json");
+            resp.getWriter().write("{\"error\":\"Không tìm thấy ảnh: " + filename + "\"}");
+            return;
+        }
+
+        // Xác định MIME type từ extension
+        String mimeType = getMimeType(filename);
+        resp.setContentType(mimeType);
+        resp.setContentLengthLong(imageFile.length());
+
+        // Cache ảnh trong 1 giờ để tăng hiệu suất
+        resp.setHeader("Cache-Control", "public, max-age=3600");
+
+        // Gửi file ảnh về client
+        try (InputStream in = new FileInputStream(imageFile);
+             OutputStream out = resp.getOutputStream()) {
+
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            while ((bytesRead = in.read(buffer)) != -1) {
+                out.write(buffer, 0, bytesRead);
+            }
+        }
+    }
+
+    /**
+     * Tìm file ảnh — hỗ trợ nhiều vị trí khác nhau tùy cấu hình server.
+     */
+    private File findImageFile(String filename, HttpServletRequest req) {
+        // 1. Tìm trong thư mục "uploads/" tương đối từ thư mục server đang chạy
+        File relative = new File(UPLOAD_DIR, filename);
+        if (relative.exists()) return relative;
+
+        // 2. Tìm trong thư mục "uploads/" của web application (Tomcat)
+        String realPath = req.getServletContext().getRealPath("/" + UPLOAD_DIR + "/" + filename);
+        if (realPath != null) {
+            File webappFile = new File(realPath);
+            if (webappFile.exists()) return webappFile;
+        }
+
+        // 3. Thử đường dẫn từ System property (nếu server set)
+        String uploadPath = System.getProperty("auction.upload.dir");
+        if (uploadPath != null) {
+            File configFile = new File(uploadPath, filename);
+            if (configFile.exists()) return configFile;
+        }
+
+        return null; // Không tìm thấy
+    }
+
+    /**
+     * Xác định MIME type dựa theo phần mở rộng của file.
+     */
+    private String getMimeType(String filename) {
+        String lower = filename.toLowerCase();
+        if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
+        if (lower.endsWith(".png"))  return "image/png";
+        if (lower.endsWith(".gif"))  return "image/gif";
+        if (lower.endsWith(".webp")) return "image/webp";
+        return "application/octet-stream"; // Fallback
+    }
+} 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\ItemsAPI.java ===  
 package com.auction.server.servlets;
 
@@ -9621,6 +10400,71 @@ public class SearchItemsAPI extends HttpServlet {
         resp.getWriter().write(jsonResponse);
     }
 } 
+// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\UserDetailAPI.java ===  
+package com.auction.server.servlets;
+
+import com.auction.controller.UserController;
+import com.auction.server.dao.UserDAO;
+import com.auction.server.models.UserDTO;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+@WebServlet("/api/users/*")
+public class UserDetailAPI extends HttpServlet {
+    private final UserDAO userDAO = new UserDAO();
+    private final Gson gson = new Gson();
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.setContentType("application/json");
+        PrintWriter out = resp.getWriter();
+
+        String pathInfo = req.getPathInfo();
+        if (pathInfo == null || pathInfo.equals("/")) {
+            sendResponse(resp, false, "Thiếu ID người dùng", null);
+            return;
+        }
+
+        try {
+            // Extract userId từ URL: /api/users/{userId}
+            String userIdStr = pathInfo.substring(1); // Remove leading /
+            int userId = Integer.parseInt(userIdStr);
+
+            UserDTO user = userDAO.getUserById(userId);
+
+            if (user != null) {
+                sendResponse(resp, true, "Lấy thông tin người dùng thành công", user);
+            } else {
+                sendResponse(resp, false, "Không tìm thấy người dùng", null);
+            }
+        } catch (NumberFormatException e) {
+            sendResponse(resp, false, "ID người dùng không hợp lệ", null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendResponse(resp, false, "Lỗi hệ thống: " + e.getMessage(), null);
+        }
+    }
+
+    private void sendResponse(HttpServletResponse resp, boolean success, String message, Object data) throws IOException {
+        resp.setContentType("application/json");
+        JsonObject response = new JsonObject();
+        response.addProperty("success", success);
+        response.addProperty("message", message);
+        if (success && data != null) {
+            response.add("data", gson.toJsonTree(data));
+        }
+        resp.getWriter().print(response.toString());
+    }
+}
+ 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\UserProfileAPI.java ===  
 package com.auction.server.servlets;
 
@@ -10112,13 +10956,23 @@ public class BidService {
 } 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\service\ItemService.java ===  
 package com.auction.service;
+
 import com.auction.server.dao.ItemDAO;
 import com.auction.server.models.AuctionManager;
 import com.auction.server.models.ItemDTO;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * FIX: ItemService.searchItems() và getItemsByCategory() trước đây trả về
+ * HashMap rỗng {}, khiến client nhận phản hồi không có "status" → báo lỗi.
+ *
+ * Giờ chúng gọi đúng DAO và trả về dữ liệu thực.
+ * (ItemDAO cần có các phương thức searchItems() và getItemsByCategory() — xem bên dưới)
+ */
 public class ItemService {
     private static final ItemService instance = new ItemService();
     private final ItemDAO itemDAO;
@@ -10131,40 +10985,60 @@ public class ItemService {
         return instance;
     }
 
+    // ==========================================
+    // Lấy tất cả sản phẩm (có phân trang)
+    // ==========================================
     public Map<String, Object> getAllItems(int page, int limit) {
         List<ItemDTO> items = itemDAO.getAllItems(page, limit);
         int totalItems = itemDAO.getTotalItemCount();
-        
+
         Map<String, Object> response = new HashMap<>();
-        response.put("items", items);
+        response.put("items", items != null ? items : new ArrayList<>());
         response.put("totalItems", totalItems);
         response.put("totalPages", (int) Math.ceil((double) totalItems / limit));
         response.put("currentPage", page);
         return response;
     }
 
-    public Map<String, Object> searchItems(String keyword, int page, int limit) {
-        // ...
-        return new HashMap<>();
+    // ==========================================
+    // Tìm kiếm sản phẩm theo từ khóa
+    // FIX: Trước đây trả về HashMap rỗng
+    // ==========================================
+    public List<ItemDTO> searchItems(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            // Nếu không có từ khóa, trả về toàn bộ sản phẩm trang đầu
+            return itemDAO.getAllItems(1, 50);
+        }
+        return itemDAO.searchItemsByKeyword(keyword.trim());
     }
 
+    // ==========================================
+    // Lọc sản phẩm theo danh mục
+    // FIX: Trước đây trả về HashMap rỗng
+    // ==========================================
+    public List<ItemDTO> getItemsByCategory(String category) {
+        if (category == null || category.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+        return itemDAO.getItemsByCategory(category.trim().toUpperCase());
+    }
+
+    // Lấy tất cả danh mục
     public List<String> getAllCategories() {
         return itemDAO.getAllCategories();
     }
 
-    public Map<String, Object> getItemsByCategory(String category, int page, int limit) {
-        // ...
-        return new HashMap<>();
-    }
-
+    // Lấy sản phẩm của Seller
     public List<ItemDTO> getItemsBySeller(int sellerId) {
         return itemDAO.getItemsBySellerId(sellerId);
     }
 
+    // Lấy sản phẩm đã thắng đấu giá
     public List<ItemDTO> getWonItems(int userId) {
         return itemDAO.getWonItemsByUserId(userId);
     }
 
+    // Thêm sản phẩm mới
     public String addNewItem(ItemDTO item) {
         if (item == null) return "Thất bại: Dữ liệu sản phẩm không hợp lệ!";
         if (item.getName() == null || item.getName().trim().isEmpty()) return "Thất bại: Tên sản phẩm không được để trống!";
@@ -10179,9 +11053,10 @@ public class ItemService {
         return "Thất bại: Lỗi hệ thống.";
     }
 
+    // Cập nhật sản phẩm
     public String updateItem(ItemDTO item) {
         if (item == null) return "Thất bại: Dữ liệu sản phẩm không hợp lệ!";
-        
+
         boolean isSuccess = itemDAO.updateItem(item);
         if (isSuccess) {
             AuctionManager.getInstance().broadcastUpdate("ITEM_UPDATED", item);
@@ -10190,15 +11065,23 @@ public class ItemService {
         return "Thất bại: Lỗi hệ thống hoặc bạn không có quyền.";
     }
 
+    // Xóa sản phẩm
     public String deleteItem(int itemId) {
         if (itemId <= 0) return "Thất bại: ID sản phẩm không hợp lệ.";
         boolean isSuccess = itemDAO.deleteItem(itemId);
         return isSuccess ? "Thành công: Đã xóa sản phẩm." : "Thất bại: Không tìm thấy sản phẩm.";
     }
 
+    // Lấy chi tiết sản phẩm
     public ItemDTO getItemDetails(int itemId) {
         if (itemId <= 0) return null;
         return itemDAO.getItemById(itemId);
+    }
+
+    // Trong ItemService.java — thêm overload này
+    public List<ItemDTO> getItemList(int page, int limit) {
+        List<ItemDTO> items = itemDAO.getAllItems(page, limit);
+        return items != null ? items : new java.util.ArrayList<>();
     }
 } 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\service\PaymentService.java ===  

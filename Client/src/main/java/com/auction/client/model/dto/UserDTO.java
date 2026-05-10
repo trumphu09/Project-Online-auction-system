@@ -51,6 +51,11 @@ public class UserDTO implements Serializable {
 
     public double getTotalRating() { return totalRating; }
     public void setTotalRating(double totalRating) { this.totalRating = totalRating; }
+    
+    // Alias cho tiện lợi
+    public String getRating() { 
+        return String.format("%.1f ★", totalRating);
+    }
 
     public int getSaleCount() { return saleCount; }
     public void setSaleCount(int saleCount) { this.saleCount = saleCount; }

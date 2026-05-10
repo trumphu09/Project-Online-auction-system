@@ -17,11 +17,8 @@ import java.util.concurrent.CompletableFuture;
 public class AuctionFacade {
     private static AuctionFacade instance;
     private final ApiService apiService;
-
-    // Chỉ khai báo biến ở đây
     private final com.google.gson.Gson gson;
 
-    // Khởi tạo và cấu hình Gson trong constructor
     private AuctionFacade() {
         this.apiService = ApiService.getInstance();
 
@@ -91,6 +88,10 @@ public class AuctionFacade {
         executeRequest(apiService.sendGetRequest("/my/profile"), UserDTO.class, callback);
     }
 
+    public void getUserById(int userId, ApiCallback<UserDTO> callback) {
+        executeRequest(apiService.sendGetRequest("/users/" + userId), UserDTO.class, callback);
+    }
+
     public void depositMoney(double amount, ApiCallback<JsonObject> callback) {
         JsonObject json = new JsonObject();
         json.addProperty("amount", amount);
@@ -118,16 +119,28 @@ public class AuctionFacade {
     }
 
     public void searchItems(String keyword, ApiCallback<List<ItemDTO>> callback) {
+        // Encode keyword để tránh lỗi ký tự đặc biệt trong URL
+        String encodedKeyword;
+        try {
+            encodedKeyword = java.net.URLEncoder.encode(keyword, "UTF-8");
+        } catch (Exception e) {
+            encodedKeyword = keyword;
+        }
         executeRequest(
-            apiService.sendGetRequest("/search/items?q=" + keyword),
+            apiService.sendGetRequest("/search/items?q=" + encodedKeyword),
             new TypeToken<List<ItemDTO>>() {}.getType(),
             callback
         );
     }
 
+    /**
+     * FIX LỖI 2: URL cũ "/categories/CATEGORY" bị server từ chối vì CategoryAPI
+     * chỉ xử lý path có 3 phần "/categories/{name}/items".
+     * Sửa thành "/categories/{category}/items" để khớp với server.
+     */
     public void getItemsByCategory(String category, ApiCallback<List<ItemDTO>> callback) {
         executeRequest(
-            apiService.sendGetRequest("/categories/" + category),
+            apiService.sendGetRequest("/categories/" + category + "/items"),
             new TypeToken<List<ItemDTO>>() {}.getType(),
             callback
         );
@@ -193,7 +206,6 @@ public class AuctionFacade {
     // =========================================================================
 
     public void getAllUsers(ApiCallback<List<UserDTO>> callback) {
-        // FIX: dùng TypeToken đã import thay vì bare reference gây lỗi compile
         Type type = new TypeToken<List<UserDTO>>() {}.getType();
         executeRequest(apiService.sendGetRequest("/admin/users"), type, callback);
     }
@@ -235,7 +247,13 @@ public class AuctionFacade {
         requestFuture.thenAccept(response -> {
             Platform.runLater(() -> {
                 try {
-                    JsonObject rootObj = gson.fromJson(response.body(), JsonObject.class);
+                    String body = response.body();
+                    if (body == null || body.isBlank()) {
+                        callback.onError("Server trả về phản hồi trống.");
+                        return;
+                    }
+
+                    JsonObject rootObj = gson.fromJson(body, JsonObject.class);
 
                     if (rootObj != null && rootObj.has("status")) {
                         String status = rootObj.get("status").getAsString();
@@ -251,12 +269,22 @@ public class AuctionFacade {
                                 T result = gson.fromJson(rootObj.get("data"), responseType);
                                 callback.onSuccess(result);
                             } else {
+                                // success nhưng không có data (vd: logout, deposit) → trả null
                                 callback.onSuccess(null);
                             }
                             return;
                         }
                     }
-                    callback.onError("Định dạng phản hồi từ Server không chuẩn xác.");
+
+                    // Nếu server trả về JSON nhưng không có trường "status"
+                    // → thử parse thẳng phần body như là data (dùng cho API cũ không wrap)
+                    try {
+                        T result = gson.fromJson(body, responseType);
+                        callback.onSuccess(result);
+                    } catch (Exception parseEx) {
+                        callback.onError("Định dạng phản hồi từ Server không chuẩn xác.");
+                    }
+
                 } catch (Exception ex) {
                     callback.onError("Lỗi hệ thống hoặc parse JSON: " + ex.getMessage());
                 }

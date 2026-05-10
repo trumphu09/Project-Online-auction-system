@@ -10,39 +10,53 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 public class AuctionDAO {
-    public int createAuction(int itemId,int sellerId,LocalDateTime endtime){
-        String sql = "INSERT INTO auctions (item_id, seller_id, end_time,status,has_extended,created_at) VALUES (?, ?, ?, ?, ?, ?)";
-        try(Connection conn=DatabaseConnection.getInstance().getConnection();
-            PreparedStatement pst=conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)){
+    public int createAuction(int itemId, int sellerId, double priceStep,
+                            LocalDateTime startTime, LocalDateTime endTime) {
+        String sql =
+                "INSERT INTO auctions " +
+                "(item_id, seller_id, current_max_price, price_step, start_time, end_time, status, has_extended, created_at) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+            PreparedStatement pst = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+
             pst.setInt(1, itemId);
             pst.setInt(2, sellerId);
-            pst.setTimestamp(3,Timestamp.valueOf(endtime));
-            pst.setString(4, AuctionStatus.OPEN.name());
-            pst.setBoolean(5, false);
+            pst.setDouble(3, 0.0);
+            pst.setDouble(4, priceStep > 0 ? priceStep : 1000.0);
+            pst.setTimestamp(5, Timestamp.valueOf(startTime != null ? startTime : LocalDateTime.now()));
+            pst.setTimestamp(6, Timestamp.valueOf(endTime != null ? endTime : LocalDateTime.now().plusDays(7)));
+            pst.setString(7, AuctionStatus.OPEN.name());
+            pst.setBoolean(8, false);
+            pst.setTimestamp(9, Timestamp.valueOf(LocalDateTime.now()));
 
-            int affectedRows=pst.executeUpdate();
-            if(affectedRows>0){
-                try(ResultSet generatedKeys=pst.getGeneratedKeys()){
-                    if(generatedKeys.next()){
+            int affectedRows = pst.executeUpdate();
+            if (affectedRows > 0) {
+                try (ResultSet generatedKeys = pst.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
                         return generatedKeys.getInt(1);
                     }
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi tạo phiên đấu giá :"+e.getMessage());
+            System.err.println("Lỗi tạo phiên đấu giá: " + e.getMessage());
         }
         return -1;
     }
 
-    public boolean updateAuctionStatus(int auctionId,AuctionStatus newStatus){
-        String sql="UPDATE auctions SET status=? WHERE id=?";
-        try(Connection conn=DatabaseConnection.getInstance().getConnection()){
-            PreparedStatement pst=conn.prepareStatement(sql);
+    public boolean updateAuctionStatus(int auctionId, AuctionStatus newStatus) {
+        if (newStatus == null) return false;
+
+        String sql = "UPDATE auctions SET status = ? WHERE id = ?";
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+            PreparedStatement pst = conn.prepareStatement(sql)) {
+
             pst.setString(1, newStatus.name());
             pst.setInt(2, auctionId);
-            return pst.executeUpdate()>0;
-        }catch(SQLException e){
-            System.err.println("Lỗi cập nhật trạng thái đấu giá :"+e.getMessage());
+            return pst.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Lỗi cập nhật trạng thái đấu giá: " + e.getMessage());
         }
         return false;
     }
@@ -63,36 +77,42 @@ public class AuctionDAO {
     }
 
     public AuctionDataDTO getAuctionDataById(int auctionId) {
-        String sql = "SELECT item_id, seller_id, end_time, status, has_extended, current_max_price, highest_bidder_id FROM auctions WHERE id = ?";
-        
+        String sql =
+                "SELECT item_id, seller_id, start_time, end_time, status, has_extended, " +
+                "current_max_price, highest_bidder_id, price_step " +
+                "FROM auctions WHERE id = ?";
+
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pst = conn.prepareStatement(sql)) {
-            
+            PreparedStatement pst = conn.prepareStatement(sql)) {
+
             pst.setInt(1, auctionId);
-            
+
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
-                    // Đọc dữ liệu từ DB
                     int itemId = rs.getInt("item_id");
                     int sellerId = rs.getInt("seller_id");
-                    // Chuyển ngược từ SQL Timestamp về Java LocalDateTime
-                    LocalDateTime endTime = rs.getTimestamp("end_time").toLocalDateTime(); 
+
+                    java.sql.Timestamp startTs = rs.getTimestamp("start_time");
+                    java.sql.Timestamp endTs = rs.getTimestamp("end_time");
+
+                    LocalDateTime startTime = startTs != null ? startTs.toLocalDateTime() : null;
+                    LocalDateTime endTime = endTs != null ? endTs.toLocalDateTime() : null;
+
                     AuctionStatus status = AuctionStatus.valueOf(rs.getString("status"));
                     boolean hasExtended = rs.getBoolean("has_extended");
-                    double currentMaxPrice = rs.getDouble("current_max_price");
-                    int highestBidderId = rs.getInt("highest_bidder_id");
-                    
-                    // Giả sử bạn có một class AuctionDataDTO để truyền dữ liệu cho nhanh
+
                     AuctionDataDTO dto = new AuctionDataDTO(auctionId, itemId, sellerId, endTime, status, hasExtended);
-                    dto.setCurrentMaxPrice(currentMaxPrice);
-                    dto.setHighestBidderId(highestBidderId);
+                    dto.setCurrentMaxPrice(rs.getDouble("current_max_price"));
+                    dto.setHighestBidderId(rs.getInt("highest_bidder_id"));
+                    dto.setPriceStep(rs.getDouble("price_step"));
+                    dto.setStartTime(startTime != null ? startTime.toString() : null);
+
                     return dto;
                 }
             }
         } catch (SQLException e) {
             System.err.println("Lỗi tìm kiếm phiên đấu giá: " + e.getMessage());
         }
-        return null; // Không tìm thấy
+        return null;
     }
-
 }

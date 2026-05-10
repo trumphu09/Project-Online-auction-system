@@ -5,6 +5,6 @@ public class Bidder extends User {
 
     @Override
     public String getDashboardFXML() {
-        return "/view/ProductView.fxml";
+        return "/view/Product.fxml";
     }
 }

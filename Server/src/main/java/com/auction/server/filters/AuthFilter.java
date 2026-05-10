@@ -22,10 +22,20 @@ public class AuthFilter implements Filter {
         HttpServletResponse resp = (HttpServletResponse) response;
         String path = req.getRequestURI();
 
-        if (path.equals("/api/login") || path.equals("/api/register") || 
+        if (path.equals("/api/login") ||
+            path.equals("/api/register") ||
+
+            // public GET items
             (path.equals("/api/items") && req.getMethod().equals("GET")) ||
-            path.startsWith("/api/items/") || path.startsWith("/api/search/") ||
-            path.startsWith("/api/categories/")) {
+            path.startsWith("/api/items/") ||
+
+            // public search/category
+            path.startsWith("/api/search/") ||
+            path.startsWith("/api/categories/") ||
+
+            // PUBLIC IMAGE API
+            path.startsWith("/api/images/"))
+        {
             chain.doFilter(request, response);
             return;
         }

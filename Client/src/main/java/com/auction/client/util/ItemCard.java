@@ -7,7 +7,6 @@ import com.auction.client.service.AuctionFacade;
 
 import com.google.gson.JsonObject;
 import javafx.application.Platform;
-import com.auction.client.model.dto.ItemDTO;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -16,8 +15,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-// TÍNH KẾ THỪA: Thừa hưởng mọi thứ của VBox
+
 public class ItemCard extends VBox {
+
+    // Địa chỉ gốc của server — phải khớp với ApiService.BASE_URL
+    private static final String SERVER_BASE_URL = "http://localhost:8080/api";
 
     public ItemCard(ItemDTO item, double width, double height, boolean isBuyer) {
         // Cấu hình khung bên ngoài
@@ -26,31 +28,36 @@ public class ItemCard extends VBox {
         this.setPrefWidth(200);
         this.setStyle("-fx-border-color: #ffffff; -fx-padding: 10; -fx-background-color: white; -fx-border-radius: 5; " +
                       "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);");
-
-        // 1. Xử lý ảnh
+    // 1. Xử lý ảnh chuyên nghiệp
         ImageView imageView = new ImageView();
         if (item.getImagePath() != null && !item.getImagePath().isEmpty()) {
             try {
                 String path = item.getImagePath();
-                if (!path.startsWith("http") && !path.startsWith("file:")) {
-                    path = "file:///" + path.replace("\\", "/");
+                String imageUri;
+
+                if (path.startsWith("http")) {
+                    imageUri = path; // Nếu là link web
+                } else {
+                    // Tự động chuyển đường dẫn ổ cứng (C:\...) thành URI (file:///...)
+                    java.io.File file = new java.io.File(path);
+                    imageUri = file.toURI().toString();
                 }
-                Image img = new Image(path, true);
-                img.errorProperty().addListener((obs, oldVal, newVal) -> {
-                    if (newVal) System.err.println("Không tải được ảnh từ đường dẫn: " + item.getImagePath());
-                });
+
+                Image img = new Image(imageUri, true); 
                 imageView.setImage(img);
             } catch (Exception e) {
-                System.err.println("Lỗi format đường dẫn ảnh: " + e.getMessage());
+                System.err.println("Lỗi load ảnh: " + e.getMessage());
             }
         }
-        imageView.setFitWidth(width);
-        imageView.setFitHeight(height);
-        imageView.setPreserveRatio(true);
+    // Đảm bảo kích thước hiển thị
+    imageView.setFitWidth(width);
+    imageView.setFitHeight(height);
+    imageView.setPreserveRatio(true);
 
         // 2. Tên sản phẩm
         Label nameLabel = new Label(item.getName());
         nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
+        nameLabel.setWrapText(true);
 
         // 3. Thuộc tính riêng theo loại DTO
         Label specificAttrLabel = new Label();
@@ -87,12 +94,12 @@ public class ItemCard extends VBox {
                 AuctionFacade.getInstance().addToWatchlist(item.getId(), new ApiCallback<JsonObject>() {
                     @Override
                     public void onSuccess(JsonObject result) {
-                        Platform.runLater(() -> System.out.println("Đã thêm thành công!"));
+                        Platform.runLater(() -> System.out.println("Đã thêm " + item.getName() + " vào giỏ!"));
                     }
 
                     @Override
                     public void onError(String err) {
-                        Platform.runLater(() -> System.out.println("Lỗi: " + err));
+                        Platform.runLater(() -> System.out.println("Lỗi thêm vào giỏ: " + err));
                     }
                 });
             });
@@ -104,18 +111,34 @@ public class ItemCard extends VBox {
 
         // Hiệu ứng di chuột (Hover)
         this.setOnMouseEntered(e -> this.setStyle(this.getStyle() + "-fx-border-color: #3498db;"));
-        this.setOnMouseExited(e -> this.setStyle(this.getStyle().replace("-fx-border-color: #3498db;", "-fx-border-color: #ffffff;")));
+        this.setOnMouseExited(e ->  this.setStyle(this.getStyle().replace("-fx-border-color: #3498db;", "-fx-border-color: #ffffff;")));
     }
 
-    // Hàm set màu sắc theo trạng thái — CHỈ xử lý màu, không làm gì khác
+
+    private String buildImageUrl(String rawPath) {
+        if (rawPath.startsWith("http://") || rawPath.startsWith("https://")) {
+            return rawPath; // Đã là URL rồi, dùng thẳng
+        }
+
+        // Lấy tên file từ đường dẫn (bỏ thư mục cha)
+        String filename = rawPath;
+        int lastSlash = Math.max(rawPath.lastIndexOf('/'), rawPath.lastIndexOf('\\'));
+        if (lastSlash >= 0) {
+            filename = rawPath.substring(lastSlash + 1);
+        }
+
+        // Trả về URL qua HTTP server
+        return SERVER_BASE_URL + "/images/" + filename;
+    }
+
     private void updateStatusStyle(Label label, String status) {
         String baseStyle = "-fx-background-radius: 10; -fx-text-fill: white; -fx-font-size: 10px; -fx-font-weight: bold;";
         if ("RUNNING".equalsIgnoreCase(status)) {
-            label.setStyle(baseStyle + "-fx-background-color: #2ecc71;"); // Xanh lá
+            label.setStyle(baseStyle + "-fx-background-color: #2ecc71;");
         } else if ("FINISHED".equalsIgnoreCase(status) || "PAID".equalsIgnoreCase(status) || "CANCELED".equalsIgnoreCase(status)) {
-            label.setStyle(baseStyle + "-fx-background-color: #e74c3c;"); // Đỏ
+            label.setStyle(baseStyle + "-fx-background-color: #e74c3c;");
         } else {
-            label.setStyle(baseStyle + "-fx-background-color: #3498db;"); // Xanh dương (OPEN)
+            label.setStyle(baseStyle + "-fx-background-color: #3498db;");
         }
     }
 }

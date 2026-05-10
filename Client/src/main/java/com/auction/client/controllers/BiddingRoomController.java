@@ -1,6 +1,10 @@
 package com.auction.client.controllers;
 
 import com.auction.client.model.dto.ItemDTO;
+import com.auction.client.model.dto.UserDTO;
+import com.auction.client.service.ApiCallback;
+import com.auction.client.service.AuctionFacade;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
@@ -14,6 +18,7 @@ public class BiddingRoomController extends BaseController {
     @FXML private ImageView imgProduct;
     @FXML private Label lblDescription, lblSeller, lblStartPrice, lblStepPrice, lblStartTime, lblEndTime;
     @FXML private Label lblTimer, lblCurrentPrice, lblHighestBidder;
+    @FXML private Label lblCurrentUser, lblUserBalance, lblCategory;
     @FXML private LineChart<String, Number> chartHistory;
     @FXML private TextField txtBidAmount;
     @FXML private Button btnBid;
@@ -27,7 +32,34 @@ public class BiddingRoomController extends BaseController {
         series.setName("Lịch sử giá");
         chartHistory.getData().add(series);
 
-        lblTimer.setStyle("-fx-font-size: 40px; -fx-text-fill: red; -fx-font-weight: bold;");
+        if (lblTimer != null) {
+            lblTimer.setStyle("-fx-font-size: 40px; -fx-text-fill: red; -fx-font-weight: bold;");
+        }
+        
+        // Load thông tin user khi vào phòng đấu giá
+        loadCurrentUserInfo();
+    }
+    
+    // Load thông tin người dùng hiện tại
+    private void loadCurrentUserInfo() {
+        AuctionFacade.getInstance().getUserProfile(new ApiCallback<UserDTO>() {
+            @Override
+            public void onSuccess(UserDTO user) {
+                Platform.runLater(() -> {
+                    if (user != null && lblCurrentUser != null && lblUserBalance != null) {
+                        String displayName = (user.getFullName() != null && !user.getFullName().isEmpty())
+                                ? user.getFullName()
+                                : user.getUsername();
+                        lblCurrentUser.setText("Người dùng: " + displayName);
+                        lblUserBalance.setText("Số dư: " + String.format("%,.0f VNĐ", user.getBalance()));
+                    }
+                });
+            }
+            @Override
+            public void onError(String errorMessage) {
+                System.err.println("Lỗi tải thông tin user: " + errorMessage);
+            }
+        });
     }
 
     // 2. SỬA HÀM setData: Nhận đầu vào là ItemDTO xịn từ ProductViewController
@@ -35,19 +67,27 @@ public class BiddingRoomController extends BaseController {
         this.currentItem = item; // Lưu lại để dùng cho nút BID
 
         // Đổ dữ liệu từ "thùng hàng" DTO ra các Label
-        lblDescription.setText(item.getDescription());
-        lblStartPrice.setText(String.format("%,.0f VNĐ", item.getStartingPrice()));
-        lblStepPrice.setText(String.format("%,.0f VNĐ", item.getPriceStep()));
-        lblStartTime.setText("Bắt đầu: " + item.getStartTime());
-        lblEndTime.setText("Kết thúc: " + item.getEndTime());
+        if (lblDescription != null) lblDescription.setText(item.getDescription());
+        if (lblStartPrice != null) lblStartPrice.setText(String.format("%,.0f VNĐ", item.getStartingPrice()));
+        if (lblStepPrice != null) lblStepPrice.setText(String.format("%,.0f VNĐ", item.getPriceStep()));
+        if (lblStartTime != null) lblStartTime.setText("Bắt đầu: " + item.getStartTime());
+        if (lblEndTime != null) lblEndTime.setText("Kết thúc: " + item.getEndTime());
+        if (lblCategory != null) lblCategory.setText("Loại: " + (item.getCategory() != null ? item.getCategory() : "N/A"));
 
         // Giá hiện tại lúc mới mở phòng chính là giá khởi điểm
-        lblCurrentPrice.setText(String.format("%,.0f VNĐ", item.getStartingPrice()));
-        lblHighestBidder.setText("Chưa có người ra giá");
+        if (lblCurrentPrice != null) lblCurrentPrice.setText(String.format("%,.0f VNĐ", item.getStartingPrice()));
+        if (lblHighestBidder != null) lblHighestBidder.setText("Chưa có người ra giá");
 
         // Cập nhật ảnh nếu có
         if (item.getImagePath() != null && !item.getImagePath().isEmpty()) {
-            imgProduct.setImage(new Image("file:" + item.getImagePath()));
+            try {
+                Image img = new Image("file:" + item.getImagePath(), true);
+                if (imgProduct != null) {
+                    imgProduct.setImage(img);
+                }
+            } catch (Exception e) {
+                System.err.println("Lỗi load ảnh: " + e.getMessage());
+            }
         }
     }
 

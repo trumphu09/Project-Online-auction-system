@@ -41,6 +41,10 @@ public class ItemDTO {
     private String createdAt;
     private String base64Image; 
 
+    @Expose @SerializedName("price_step")
+    private double priceStep;
+
+
     public String getBase64Image() { return base64Image; }
     public void setBase64Image(String base64Image) { this.base64Image = base64Image; }
 
@@ -134,4 +138,7 @@ public class ItemDTO {
     // Thêm Getter/Setter cho nó
     public String getImagePath() { return imagePath; }
     public void setImagePath(String imagePath) { this.imagePath = imagePath; }
+    public double getPriceStep() { return priceStep; }
+    public void setPriceStep(double priceStep) { this.priceStep = priceStep; }
+
 }

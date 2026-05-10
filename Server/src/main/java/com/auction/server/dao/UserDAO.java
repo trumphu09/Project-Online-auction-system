@@ -141,42 +141,49 @@ public class UserDAO {
         }
     }
 
+
     public UserDTO getUserById(int userId) {
-        // Dùng LEFT JOIN để móc dữ liệu từ bảng sellers và bidders dựa vào user_id
-        String sql = "SELECT u.id, u.username, u.email, u.role, " +
-                     "s.total_rating, s.sale_count, s.account_balance AS seller_balance, " +
-                     "b.account_balance AS bidder_balance " +
+        // Dùng COALESCE để lấy full_name nếu có, nếu không thì dùng username thay thế
+        // Nếu DB của bạn KHÔNG có cột full_name → dùng câu SQL bên dưới (không có COALESCE)
+        String sql = "SELECT u.id, u.username, u.email, u.role, u.isActive, " +
+                     // === OPTION A: Nếu DB có cột full_name ===
+                     // "COALESCE(u.full_name, u.username) AS full_name, " +
+                     // === OPTION B: Nếu DB KHÔNG có cột full_name (dùng cái này) ===
+                     "u.username AS full_name, " +
+                     // Lấy balance từ bảng phụ tương ứng (bidders hoặc sellers)
+                     "COALESCE(b.account_balance, s.account_balance, 0) AS balance, " +
+                     "COALESCE(s.total_rating, 0) AS total_rating, " +
+                     "COALESCE(s.sale_count, 0) AS sale_count " +
                      "FROM users u " +
-                     "LEFT JOIN sellers s ON u.id = s.user_id " +
                      "LEFT JOIN bidders b ON u.id = b.user_id " +
+                     "LEFT JOIN sellers s ON u.id = s.user_id " +
                      "WHERE u.id = ?";
-                     
+ 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-             
+ 
             pstmt.setInt(1, userId);
+ 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    UserDTO user = new UserDTO();
-                    user.setId(rs.getInt("id"));
-                    user.setUsername(rs.getString("username"));
-                    user.setEmail(rs.getString("email"));
-                    String role = rs.getString("role");
-                    user.setRole(role);
-                    
-                    // Phân loại Role để lấy đúng dữ liệu từ bảng con tương ứng
-                    if ("SELLER".equalsIgnoreCase(role)) {
-                        user.setBalance(rs.getDouble("seller_balance"));
-                        user.setTotalRating(rs.getDouble("total_rating"));
-                        user.setSaleCount(rs.getInt("sale_count"));
-                    } else if ("BIDDER".equalsIgnoreCase(role)) {
-                        user.setBalance(rs.getDouble("bidder_balance"));
-                    }
-                    
-                    return user;
+                    UserDTO dto = new UserDTO();
+                    dto.setId(rs.getInt("id"));
+                    dto.setUsername(rs.getString("username"));
+                    dto.setEmail(rs.getString("email"));
+                    dto.setRole(rs.getString("role"));
+                    dto.setActive(rs.getBoolean("isActive"));
+ 
+                    // full_name: lấy từ DB (hoặc username nếu không có cột)
+                    dto.setFullName(rs.getString("full_name"));
+ 
+                    dto.setBalance(rs.getDouble("balance"));
+                    dto.setTotalRating(rs.getDouble("total_rating"));
+                    dto.setSaleCount(rs.getInt("sale_count"));
+                    return dto;
                 }
             }
         } catch (SQLException e) {
+            System.err.println("Lỗi getUserById: " + e.getMessage());
             e.printStackTrace();
         }
         return null;

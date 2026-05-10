@@ -40,6 +40,11 @@ public class AuctionDataDTO {
     @Expose 
     @SerializedName("highest_bidder_id")
     private int highestBidderId;
+    @Expose @SerializedName("price_step")
+    private double priceStep;
+
+    @Expose @SerializedName("start_time")
+    private String startTime;
 
     // ==========================================
     // Constructor (Phải khớp với lời gọi trong AuctionDAO)
@@ -125,4 +130,21 @@ public class AuctionDataDTO {
     public void setCurrentMaxPrice(double currentMaxPrice) {
         this.currentMaxPrice = currentMaxPrice;
     }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    public double getPriceStep() {
+        return priceStep;
+    }
+
+    public void setPriceStep(double priceStep) {
+        this.priceStep = priceStep;
+    }
+
 }
