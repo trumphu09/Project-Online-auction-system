@@ -1,0 +1,478 @@
+Folder PATH listing
+Volume serial number is 364F-F146
+C:.
+|   .gitignore
+|   allcode.txt
+|   API_USAGE_GUIDE.md
+|   README.md
+|   run.bat
+|   structure.txt
+|   
++---.github
+|   \---java-upgrade
+|       |   .gitignore
+|       |   
+|       \---hooks
+|           \---scripts
+|                   recordToolUse.ps1
+|                   recordToolUse.sh
+|                   
++---.idea
+|       .gitignore
+|       compiler.xml
+|       copilot.data.migration.ask2agent.xml
+|       encodings.xml
+|       jarRepositories.xml
+|       misc.xml
+|       modules.xml
+|       Project-Online-auction-system.iml
+|       vcs.xml
+|       workspace.xml
+|       
++---.vscode
+|       settings.json
+|       
++---Client
+|   |   pom.xml
+|   |   
+|   +---.idea
+|   |       .gitignore
+|   |       compiler.xml
+|   |       encodings.xml
+|   |       jarRepositories.xml
+|   |       misc.xml
+|   |       vcs.xml
+|   |       
+|   +---src
+|   |   \---main
+|   |       +---java
+|   |       |   +---.idea
+|   |       |   |       .gitignore
+|   |       |   |       misc.xml
+|   |       |   |       modules.xml
+|   |       |   |       
+|   |       |   \---com
+|   |       |       \---auction
+|   |       |           \---client
+|   |       |               |   Main.java
+|   |       |               |   MainApp.java
+|   |       |               |   
+|   |       |               +---controllers
+|   |       |               |       .gitkeep
+|   |       |               |       AdminController.java
+|   |       |               |       BaseController.java
+|   |       |               |       BiddingRoomController.java
+|   |       |               |       BidHistoryController.java
+|   |       |               |       LoginController.java
+|   |       |               |       ProductViewController.java
+|   |       |               |       RegisterController.java
+|   |       |               |       SellerController.java
+|   |       |               |       
+|   |       |               +---model
+|   |       |               |   |   Admin.java
+|   |       |               |   |   Bidder.java
+|   |       |               |   |   Seller.java
+|   |       |               |   |   User.java
+|   |       |               |   |   
+|   |       |               |   \---dto
+|   |       |               |           ArtDTO.java
+|   |       |               |           AuctionDTO.java
+|   |       |               |           BidDTO.java
+|   |       |               |           ElectronicsDTO.java
+|   |       |               |           ItemDTO.java
+|   |       |               |           UserDTO.java
+|   |       |               |           VehicleDTO.java
+|   |       |               |           
+|   |       |               +---network
+|   |       |               |       ApiService.java
+|   |       |               |       
+|   |       |               +---service
+|   |       |               |       ApiCallback.java
+|   |       |               |       AuctionFacade.java
+|   |       |               |       
+|   |       |               \---util
+|   |       |                       ItemCard.java
+|   |       |                       
+|   |       \---resources
+|   |           \---view
+|   |                   AdminView.fxml
+|   |                   BiddingRoomView.fxml
+|   |                   BidHistoryView.fxml
+|   |                   Product.fxml
+|   |                   Register.fxml
+|   |                   SellerView.fxml
+|   |                   View.fxml
+|   |                   
+|   \---target
+|       +---classes
+|       |   +---com
+|       |   |   \---auction
+|       |   |       \---client
+|       |   |           |   Main.class
+|       |   |           |   MainApp.class
+|       |   |           |   
+|       |   |           +---controllers
+|       |   |           |       AdminController$1.class
+|       |   |           |       AdminController$2.class
+|       |   |           |       AdminController$3.class
+|       |   |           |       AdminController$4.class
+|       |   |           |       AdminController$5.class
+|       |   |           |       AdminController$6.class
+|       |   |           |       AdminController$7.class
+|       |   |           |       AdminController.class
+|       |   |           |       BaseController.class
+|       |   |           |       BiddingRoomController$1.class
+|       |   |           |       BiddingRoomController$2.class
+|       |   |           |       BiddingRoomController.class
+|       |   |           |       BidHistoryController$1.class
+|       |   |           |       BidHistoryController.class
+|       |   |           |       LoginController$1.class
+|       |   |           |       LoginController.class
+|       |   |           |       ProductViewController$1.class
+|       |   |           |       ProductViewController$2.class
+|       |   |           |       ProductViewController$3.class
+|       |   |           |       ProductViewController$4.class
+|       |   |           |       ProductViewController$5.class
+|       |   |           |       ProductViewController$6.class
+|       |   |           |       ProductViewController$7.class
+|       |   |           |       ProductViewController.class
+|       |   |           |       RegisterController$1.class
+|       |   |           |       RegisterController.class
+|       |   |           |       SellerController$1.class
+|       |   |           |       SellerController$2.class
+|       |   |           |       SellerController$3.class
+|       |   |           |       SellerController$4.class
+|       |   |           |       SellerController$5.class
+|       |   |           |       SellerController$DateTimeEditor.class
+|       |   |           |       SellerController.class
+|       |   |           |       
+|       |   |           +---model
+|       |   |           |   |   Admin.class
+|       |   |           |   |   Bidder.class
+|       |   |           |   |   Seller.class
+|       |   |           |   |   User.class
+|       |   |           |   |   
+|       |   |           |   \---dto
+|       |   |           |           ArtDTO.class
+|       |   |           |           AuctionDTO.class
+|       |   |           |           BidDTO.class
+|       |   |           |           ElectronicsDTO.class
+|       |   |           |           ItemDTO.class
+|       |   |           |           UserDTO.class
+|       |   |           |           VehicleDTO.class
+|       |   |           |           
+|       |   |           +---network
+|       |   |           |       ApiService.class
+|       |   |           |       
+|       |   |           +---service
+|       |   |           |       ApiCallback.class
+|       |   |           |       AuctionFacade$1.class
+|       |   |           |       AuctionFacade$2.class
+|       |   |           |       AuctionFacade$3.class
+|       |   |           |       AuctionFacade$4.class
+|       |   |           |       AuctionFacade$5.class
+|       |   |           |       AuctionFacade$6.class
+|       |   |           |       AuctionFacade$7.class
+|       |   |           |       AuctionFacade$8.class
+|       |   |           |       AuctionFacade$9.class
+|       |   |           |       AuctionFacade.class
+|       |   |           |       
+|       |   |           \---util
+|       |   |                   ItemCard.class
+|       |   |                   
+|       |   \---view
+|       |           AdminView.fxml
+|       |           BiddingRoomView.fxml
+|       |           BidHistoryView.fxml
+|       |           Product.fxml
+|       |           Register.fxml
+|       |           SellerView.fxml
+|       |           View.fxml
+|       |           
+|       +---generated-sources
+|       |   \---annotations
+|       \---maven-status
+|           \---maven-compiler-plugin
+|               \---compile
+|                   \---default-compile
+|                           createdFiles.lst
+|                           inputFiles.lst
+|                           
++---Server
+|   |   database.sql
+|   |   pom.xml
+|   |   run-tests.bat
+|   |   setup-maven-manual.bat
+|   |   setup-maven.ps1
+|   |   TEST_SETUP_GUIDE.md
+|   |   
+|   +---.vscode
+|   |       settings.json
+|   |       
+|   +---src
+|   |   +---main
+|   |   |   \---java
+|   |   |       \---com
+|   |   |           \---auction
+|   |   |               +---controller
+|   |   |               |       AuctionController.java
+|   |   |               |       BidController.java
+|   |   |               |       BidderController.java
+|   |   |               |       ItemController.java
+|   |   |               |       PaymentController.java
+|   |   |               |       UserController.java
+|   |   |               |       WatchlistController.java
+|   |   |               |       
+|   |   |               +---server
+|   |   |               |   |   AuctionServer.java
+|   |   |               |   |   servlets.zip
+|   |   |               |   |   
+|   |   |               |   +---dao
+|   |   |               |   |       AdminDAO.java
+|   |   |               |   |       ArtDAO.java
+|   |   |               |   |       AuctionDAO.java
+|   |   |               |   |       BidderDAO.java
+|   |   |               |   |       BidderSubDAO.java
+|   |   |               |   |       BidsDAO.java
+|   |   |               |   |       DatabaseConnection.java
+|   |   |               |   |       ElectronicsDAO.java
+|   |   |               |   |       IItemSubDAO.java
+|   |   |               |   |       ItemDAO.java
+|   |   |               |   |       IUserSubDAO.java
+|   |   |               |   |       PaymentDAO.java
+|   |   |               |   |       SellerDAO.java
+|   |   |               |   |       SellerSubDAO.java
+|   |   |               |   |       UserDAO.java
+|   |   |               |   |       VehicleDAO.java
+|   |   |               |   |       WatchlistDAO.java
+|   |   |               |   |       
+|   |   |               |   +---factory
+|   |   |               |   |       ItemFactory.java
+|   |   |               |   |       UserFactory.java
+|   |   |               |   |       
+|   |   |               |   +---filters
+|   |   |               |   |       AuthFilter.java
+|   |   |               |   |       
+|   |   |               |   +---models
+|   |   |               |   |       .gitkeep
+|   |   |               |   |       Admin.java
+|   |   |               |   |       AdminDTO.java
+|   |   |               |   |       Art.java
+|   |   |               |   |       ArtDTO.java
+|   |   |               |   |       Auction.java
+|   |   |               |   |       AuctionDataDTO.java
+|   |   |               |   |       AuctionManager.java
+|   |   |               |   |       AuctionStatus.java
+|   |   |               |   |       AuctionTimer.java
+|   |   |               |   |       AuctionUpdate.java
+|   |   |               |   |       AuctionUpdateListener.java
+|   |   |               |   |       AutoBid.java
+|   |   |               |   |       Bidder.java
+|   |   |               |   |       BidderDTO.java
+|   |   |               |   |       BidTransaction.java
+|   |   |               |   |       BidTransactionDTO.java
+|   |   |               |   |       Electronics.java
+|   |   |               |   |       ElectronicsDTO.java
+|   |   |               |   |       Entity.java
+|   |   |               |   |       Item.java
+|   |   |               |   |       ItemDTO.java
+|   |   |               |   |       Payment.java
+|   |   |               |   |       PaymentDTO.java
+|   |   |               |   |       PaymentStatus.java
+|   |   |               |   |       Seller.java
+|   |   |               |   |       SellerDTO.java
+|   |   |               |   |       User.java
+|   |   |               |   |       UserDTO.java
+|   |   |               |   |       UserRole.java
+|   |   |               |   |       Vehicle.java
+|   |   |               |   |       VehicleDTO.java
+|   |   |               |   |       
+|   |   |               |   +---scheduler
+|   |   |               |   |       AuctionStatusScheduler.java
+|   |   |               |   |       
+|   |   |               |   +---servlets
+|   |   |               |   |       AdminItemAPI.java
+|   |   |               |   |       AdminUserAPI.java
+|   |   |               |   |       CategoryAPI.java
+|   |   |               |   |       DepositAPI.java
+|   |   |               |   |       GetBidHistoryAPI.java
+|   |   |               |   |       GetItemDetailAPI.java
+|   |   |               |   |       GetItemsAPI.java
+|   |   |               |   |       GetMyActiveBidsAPI.java
+|   |   |               |   |       GetMyItemsForSaleAPI.java
+|   |   |               |   |       GetMyWonItemsAPI.java
+|   |   |               |   |       ImageAPI.java
+|   |   |               |   |       ItemsAPI.java
+|   |   |               |   |       LoginAPI.java
+|   |   |               |   |       LogoutAPI.java
+|   |   |               |   |       PaymentAPI.java
+|   |   |               |   |       PlaceBidAPI.java
+|   |   |               |   |       RegisterAPI.java
+|   |   |               |   |       SearchItemsAPI.java
+|   |   |               |   |       UserDetailAPI.java
+|   |   |               |   |       UserProfileAPI.java
+|   |   |               |   |       WatchlistAPI.java
+|   |   |               |   |       
+|   |   |               |   +---tests
+|   |   |               |   +---utils
+|   |   |               |   |       LocalDateTimeAdapter.java
+|   |   |               |   |       
+|   |   |               |   \---websocket
+|   |   |               |           AuctionWebSocketServer.java
+|   |   |               |           
+|   |   |               \---service
+|   |   |                       AuctionService.java
+|   |   |                       BidderService.java
+|   |   |                       BidService.java
+|   |   |                       ItemService.java
+|   |   |                       PaymentService.java
+|   |   |                       UserService.java
+|   |   |                       
+|   |   \---test
+|   |       \---java
+|   |           \---com
+|   |               \---auction
+|   |                   \---server
+|   \---target
+|       +---classes
+|       |   \---com
+|       |       \---auction
+|       |           +---controller
+|       |           |       AuctionController.class
+|       |           |       BidController.class
+|       |           |       BidderController.class
+|       |           |       ItemController.class
+|       |           |       PaymentController.class
+|       |           |       UserController.class
+|       |           |       WatchlistController.class
+|       |           |       
+|       |           +---server
+|       |           |   |   AuctionServer.class
+|       |           |   |   
+|       |           |   +---dao
+|       |           |   |       AdminDAO.class
+|       |           |   |       ArtDAO.class
+|       |           |   |       AuctionDAO.class
+|       |           |   |       BidderDAO.class
+|       |           |   |       BidderSubDAO.class
+|       |           |   |       BidsDAO$1.class
+|       |           |   |       BidsDAO.class
+|       |           |   |       DatabaseConnection.class
+|       |           |   |       ElectronicsDAO.class
+|       |           |   |       IItemSubDAO.class
+|       |           |   |       ItemDAO.class
+|       |           |   |       IUserSubDAO.class
+|       |           |   |       PaymentDAO.class
+|       |           |   |       SellerDAO.class
+|       |           |   |       SellerSubDAO.class
+|       |           |   |       UserDAO.class
+|       |           |   |       VehicleDAO.class
+|       |           |   |       WatchlistDAO.class
+|       |           |   |       
+|       |           |   +---factory
+|       |           |   |       ItemFactory.class
+|       |           |   |       UserFactory$1.class
+|       |           |   |       UserFactory.class
+|       |           |   |       
+|       |           |   +---filters
+|       |           |   |       AuthFilter.class
+|       |           |   |       
+|       |           |   +---models
+|       |           |   |       Admin.class
+|       |           |   |       AdminDTO.class
+|       |           |   |       Art.class
+|       |           |   |       ArtDTO.class
+|       |           |   |       Auction.class
+|       |           |   |       AuctionDataDTO.class
+|       |           |   |       AuctionManager.class
+|       |           |   |       AuctionStatus.class
+|       |           |   |       AuctionTimer.class
+|       |           |   |       AuctionUpdate.class
+|       |           |   |       AuctionUpdateListener.class
+|       |           |   |       AutoBid.class
+|       |           |   |       Bidder.class
+|       |           |   |       BidderDTO.class
+|       |           |   |       BidTransaction.class
+|       |           |   |       BidTransactionDTO.class
+|       |           |   |       Electronics.class
+|       |           |   |       ElectronicsDTO.class
+|       |           |   |       Entity.class
+|       |           |   |       Item.class
+|       |           |   |       ItemDTO.class
+|       |           |   |       Payment.class
+|       |           |   |       PaymentDTO.class
+|       |           |   |       PaymentStatus.class
+|       |           |   |       Seller.class
+|       |           |   |       SellerDTO.class
+|       |           |   |       User.class
+|       |           |   |       UserDTO.class
+|       |           |   |       UserRole.class
+|       |           |   |       Vehicle.class
+|       |           |   |       VehicleDTO.class
+|       |           |   |       
+|       |           |   +---scheduler
+|       |           |   |       AuctionStatusScheduler.class
+|       |           |   |       
+|       |           |   +---servlets
+|       |           |   |       AdminItemAPI.class
+|       |           |   |       AdminUserAPI.class
+|       |           |   |       CategoryAPI.class
+|       |           |   |       DepositAPI.class
+|       |           |   |       GetBidHistoryAPI.class
+|       |           |   |       GetItemDetailAPI.class
+|       |           |   |       GetItemsAPI.class
+|       |           |   |       GetMyActiveBidsAPI.class
+|       |           |   |       GetMyItemsForSaleAPI.class
+|       |           |   |       GetMyWonItemsAPI.class
+|       |           |   |       ImageAPI.class
+|       |           |   |       ItemsAPI.class
+|       |           |   |       LoginAPI.class
+|       |           |   |       LogoutAPI.class
+|       |           |   |       PaymentAPI.class
+|       |           |   |       PlaceBidAPI.class
+|       |           |   |       RegisterAPI.class
+|       |           |   |       SearchItemsAPI.class
+|       |           |   |       UserDetailAPI.class
+|       |           |   |       UserProfileAPI.class
+|       |           |   |       WatchlistAPI.class
+|       |           |   |       
+|       |           |   +---utils
+|       |           |   |       LocalDateTimeAdapter.class
+|       |           |   |       
+|       |           |   \---websocket
+|       |           |           AuctionWebSocketServer.class
+|       |           |           
+|       |           \---service
+|       |                   AuctionService.class
+|       |                   BidderService.class
+|       |                   BidService.class
+|       |                   ItemService.class
+|       |                   PaymentService.class
+|       |                   UserService.class
+|       |                   
+|       +---generated-sources
+|       |   \---annotations
+|       +---maven-status
+|       |   \---maven-compiler-plugin
+|       |       \---compile
+|       |           \---default-compile
+|       |                   createdFiles.lst
+|       |                   inputFiles.lst
+|       |                   
+|       \---test-classes
++---tomcat.8080
+|   \---work
+|       \---Tomcat
+|           \---localhost
+|               \---ROOT
+\---uploads
+        1778259594914_anh-nen-one-piec-3.jpeg
+        1778301700782_z7554602384563_c260cfd05a62446537fb3efe5807ece2.jpg
+        1778301844334_z7554602384563_c260cfd05a62446537fb3efe5807ece2.jpg
+        1778301959973_z7554602384563_c260cfd05a62446537fb3efe5807ece2.jpg
+        1778301964401_z7554602384563_c260cfd05a62446537fb3efe5807ece2.jpg
+        1778303351372_z7554602384563_c260cfd05a62446537fb3efe5807ece2.jpg
+        1778419971645_Xehay-XECO-091120-14.jpg
+        1778485344146_anh nen 2.jpg
+        videoframe_6940.png
+        

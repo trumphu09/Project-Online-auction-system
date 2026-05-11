@@ -35,21 +35,21 @@ public class ProductViewController extends BaseController implements Initializab
     // --- CÁC ID CỦA SẢN PHẨM & TÌM KIẾM ---
     @FXML private TilePane productGridContainer;
     @FXML private TextField txtSearch;
-
+ 
     // --- CÁC ID CỦA VÍ (WALLET) ---
     @FXML private Label lblFullName;
     @FXML private Label lblBalance;
     @FXML private TextField txtDepositAmount;
-
+ 
     // --- CÁC ID CỦA LỊCH SỬ ĐẤU GIÁ ---
     @FXML private ListView<String> listActiveBids;
     @FXML private ListView<String> listWonItems;
-
+ 
     // --- CÁC ID CỦA GIỎ HÀNG ---
     @FXML private VBox cartSidebar;
     @FXML private VBox cartItemsContainer;
     private boolean isCartOpen = false;
-    
+ 
     // Lưu trữ tất cả items cho tìm kiếm cục bộ
     private List<ItemDTO> allItems = new java.util.ArrayList<>();
 
@@ -75,30 +75,36 @@ public class ProductViewController extends BaseController implements Initializab
     // PHẦN 1: TẢI & HIỂN THỊ SẢN PHẨM
     // ==========================================
     private void loadAllItems() {
+        System.out.println("=== START loadAllItems ===");
         AuctionFacade.getInstance().getAllItems(new ApiCallback<List<ItemDTO>>() {
             @Override
             public void onSuccess(List<ItemDTO> items) {
+                System.out.println("=== loadAllItems onSuccess ===");
                 Platform.runLater(() -> {
                     allItems.clear();
                     if (items != null && !items.isEmpty()) {
                         allItems.addAll(items);
-                        System.out.println("Đã tải " + items.size() + " sản phẩm");
+                        System.out.println("✓ Đã tải " + items.size() + " sản phẩm");
+                        for (int i = 0; i < Math.min(2, items.size()); i++) {
+                            ItemDTO item = items.get(i);
+                            System.out.println("  Item " + i + ": id=" + item.getId() + ", name=" + item.getName());
+                        }
                     } else {
-                        System.out.println("Danh sách sản phẩm rỗng");
+                        System.out.println("✗ Danh sách sản phẩm rỗng hoặc null");
                     }
                     updateProductGrid(allItems);
                 });
             }
             @Override
             public void onError(String errorMessage) {
+                System.err.println("=== loadAllItems onError ===");
+                System.err.println("✗ Lỗi tải dữ liệu sản phẩm: " + errorMessage);
                 Platform.runLater(() -> {
-                    System.err.println("Lỗi tải dữ liệu sản phẩm: " + errorMessage);
                     showAlert("Lỗi tải dữ liệu", errorMessage);
                 });
             }
         });
     }
-
     private void updateProductGrid(List<ItemDTO> items) {
         productGridContainer.getChildren().clear();
         if (items != null && !items.isEmpty()) {
@@ -124,13 +130,10 @@ public class ProductViewController extends BaseController implements Initializab
             public void onSuccess(UserDTO user) {
                 Platform.runLater(() -> {
                     if (user != null) {
-                        // === FIX LỖI 1: fullName thường null → fallback về username ===
-                        // Server lưu trường "username", không phải "full_name" nên fullName luôn null.
-                        // Ưu tiên fullName nếu có, còn không thì dùng username.
                         String displayName = (user.getFullName() != null && !user.getFullName().isEmpty())
                                 ? user.getFullName()
                                 : user.getUsername();
-
+ 
                         if (lblFullName != null) {
                             lblFullName.setText("Chào, " + (displayName != null ? displayName : "Người dùng"));
                         }
@@ -153,7 +156,6 @@ public class ProductViewController extends BaseController implements Initializab
             }
         });
     }
-
     @FXML
     private void handleDepositAction() {
         try {
@@ -162,7 +164,7 @@ public class ProductViewController extends BaseController implements Initializab
                 showAlert("Lỗi", "Số tiền nạp phải lớn hơn 0!");
                 return;
             }
-
+ 
             AuctionFacade.getInstance().depositMoney(amount, new ApiCallback<JsonObject>() {
                 @Override
                 public void onSuccess(JsonObject result) {
@@ -193,22 +195,28 @@ public class ProductViewController extends BaseController implements Initializab
             updateProductGrid(allItems);
             return;
         }
-
+ 
         // Tìm kiếm cục bộ từ danh sách allItems
         List<ItemDTO> filtered = new java.util.ArrayList<>();
         for (ItemDTO item : allItems) {
-            if (item.getName().toLowerCase().contains(keyword) || 
-                item.getDescription().toLowerCase().contains(keyword)) {
+            // [BUG 3 FIX] Kiểm tra null trước khi gọi toLowerCase().
+            // Nhiều item trong DB có description = null → NullPointerException trước khi fix.
+            boolean nameMatch = item.getName() != null
+                    && item.getName().toLowerCase().contains(keyword);
+            boolean descMatch = item.getDescription() != null
+                    && item.getDescription().toLowerCase().contains(keyword);
+ 
+            if (nameMatch || descMatch) {
                 filtered.add(item);
             }
         }
         updateProductGrid(filtered);
     }
-
+ 
     @FXML private void handleFilterElectronics() { filterByCategory("ELECTRONICS"); }
     @FXML private void handleFilterVehicles()    { filterByCategory("VEHICLE"); }
     @FXML private void handleFilterArts()        { filterByCategory("ART"); }
-
+ 
     private void filterByCategory(String category) {
         // Lọc cục bộ từ danh sách allItems
         List<ItemDTO> filtered = new java.util.ArrayList<>();
@@ -264,22 +272,57 @@ public class ProductViewController extends BaseController implements Initializab
     public void openBiddingRoom(Event event) {
         try {
             Node sourceNode = (Node) event.getSource();
-            ItemDTO selectedItem = (ItemDTO) sourceNode.getUserData();
+            Object userData = sourceNode.getUserData();
+
+            if (userData == null) {
+                showAlert("Lỗi", "Không thể lấy thông tin sản phẩm!");
+                return;
+            }
+
+            if (!(userData instanceof ItemDTO)) {
+                showAlert("Lỗi", "Dữ liệu sản phẩm không hợp lệ!");
+                return;
+            }
+
+            ItemDTO selectedItem = (ItemDTO) userData;
+            if (selectedItem.getAuctionId() <= 0) {
+                showAlert("Lỗi", "Sản phẩm này chưa có phiên đấu giá hợp lệ!");
+                return;
+            }
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BiddingRoomView.fxml"));
-            Parent root = loader.load();
+            if (loader.getLocation() == null) {
+                showAlert("Lỗi hệ thống", "Không tìm thấy file BiddingRoomView.fxml");
+                return;
+            }
 
+            Parent root = loader.load();
             BiddingRoomController controller = loader.getController();
+
+            if (controller == null) {
+                showAlert("Lỗi", "Không thể khởi tạo BiddingRoomController.");
+                return;
+            }
+
             controller.setData(selectedItem);
 
             Stage stage = (Stage) sourceNode.getScene().getWindow();
-            stage.setScene(new Scene(root, 900, 600));
+            stage.setScene(new Scene(root, 1200, 700));
             stage.setTitle("Phòng đấu giá: " + selectedItem.getName());
             stage.show();
 
         } catch (IOException e) {
-            showAlert("Lỗi hệ thống", "Không thể nạp giao diện phòng đấu giá!");
             e.printStackTrace();
+            Throwable root = e;
+            while (root.getCause() != null) {
+                root = root.getCause();
+            }
+            showAlert("Lỗi hệ thống",
+                    "Không thể nạp giao diện phòng đấu giá:\n"
+                            + root.getClass().getSimpleName() + ": " + root.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Lỗi hệ thống", "Lỗi không xác định: " + e.getMessage());
         }
     }
 
@@ -342,4 +385,6 @@ public class ProductViewController extends BaseController implements Initializab
             }
         });
     }
+
+    
 }

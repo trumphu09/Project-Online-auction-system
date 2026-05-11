@@ -104,7 +104,7 @@ public class AuctionFacade {
 
     public void getAllItems(ApiCallback<List<ItemDTO>> callback) {
         executeRequest(
-            apiService.sendGetRequest("/items"),
+            apiService.sendGetRequest("/items?page=1&limit=1000"),
             new TypeToken<List<ItemDTO>>() {}.getType(),
             callback
         );
@@ -248,27 +248,40 @@ public class AuctionFacade {
             Platform.runLater(() -> {
                 try {
                     String body = response.body();
+                    System.out.println("=== DEBUG RESPONSE ===");
+                    System.out.println("Response Status: " + response.statusCode());
+                    System.out.println("Response Body (first 500 chars): " + (body != null ? body.substring(0, Math.min(500, body.length())) : "null"));
+                    
                     if (body == null || body.isBlank()) {
+                        System.err.println("ERROR: Server returned empty response");
                         callback.onError("Server trả về phản hồi trống.");
                         return;
                     }
 
                     JsonObject rootObj = gson.fromJson(body, JsonObject.class);
-
+                    System.out.println("Parsed JSON - has status: " + (rootObj != null && rootObj.has("status")));
+                    
                     if (rootObj != null && rootObj.has("status")) {
                         String status = rootObj.get("status").getAsString();
+                        System.out.println("Status: " + status);
+                        
                         if ("error".equals(status)) {
                             String msg = rootObj.has("message")
                                     ? rootObj.get("message").getAsString()
                                     : "Lỗi server";
+                            System.err.println("ERROR from server: " + msg);
                             callback.onError(msg);
                             return;
                         }
                         if ("success".equals(status)) {
                             if (rootObj.has("data") && !rootObj.get("data").isJsonNull()) {
+                                System.out.println("Data field type: " + rootObj.get("data").getClass().getSimpleName());
+                                System.out.println("Data field (first 200 chars): " + rootObj.get("data").toString().substring(0, Math.min(200, rootObj.get("data").toString().length())));
                                 T result = gson.fromJson(rootObj.get("data"), responseType);
+                                System.out.println("Successfully parsed data. Result type: " + (result != null ? result.getClass().getSimpleName() : "null"));
                                 callback.onSuccess(result);
                             } else {
+                                System.out.println("SUCCESS but no data field - returning null");
                                 // success nhưng không có data (vd: logout, deposit) → trả null
                                 callback.onSuccess(null);
                             }
@@ -278,18 +291,24 @@ public class AuctionFacade {
 
                     // Nếu server trả về JSON nhưng không có trường "status"
                     // → thử parse thẳng phần body như là data (dùng cho API cũ không wrap)
+                    System.out.println("No status field - trying to parse directly as response type");
                     try {
                         T result = gson.fromJson(body, responseType);
                         callback.onSuccess(result);
                     } catch (Exception parseEx) {
+                        System.err.println("Failed to parse as " + responseType + ": " + parseEx.getMessage());
                         callback.onError("Định dạng phản hồi từ Server không chuẩn xác.");
                     }
 
                 } catch (Exception ex) {
+                    System.err.println("Exception in executeRequest: " + ex.getMessage());
+                    ex.printStackTrace();
                     callback.onError("Lỗi hệ thống hoặc parse JSON: " + ex.getMessage());
                 }
             });
         }).exceptionally(e -> {
+            System.err.println("Network error: " + e.getMessage());
+            e.printStackTrace();
             Platform.runLater(() -> callback.onError("Lỗi mất kết nối máy chủ!"));
             return null;
         });

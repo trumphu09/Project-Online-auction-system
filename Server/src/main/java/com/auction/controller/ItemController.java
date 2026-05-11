@@ -8,6 +8,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,11 +29,17 @@ public class ItemController {
      */
     public String handleListItems(int page, int limit) {
         try {
-            List<ItemDTO> items = ItemService.getInstance().getItemList(page, limit);
+            Map<String, Object> serviceResult = itemService.getAllItems(page, limit);
 
-            JsonObject response = new JsonObject();
-            response.addProperty("status", "success");
-            response.add("data", gson.toJsonTree(items));
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "success");
+            response.put("data", serviceResult.get("items"));   // chỉ mảng items
+            response.put("pagination", Map.of(
+                    "totalItems", serviceResult.get("totalItems"),
+                    "totalPages", serviceResult.get("totalPages"),
+                    "currentPage", serviceResult.get("currentPage")
+            ));
+
             return gson.toJson(response);
 
         } catch (Exception e) {

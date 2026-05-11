@@ -141,4 +141,36 @@ public class ItemCard extends VBox {
             label.setStyle(baseStyle + "-fx-background-color: #3498db;");
         }
     }
+
+    // Client: com.auction.client.util.ItemCard
+    private void setupImage(ItemDTO item, double width, double height) {
+        ImageView iv = new ImageView();
+        String rawPath = item.getImagePath();
+        
+        if (rawPath != null && !rawPath.isEmpty()) {
+            // Dò tìm ảnh: 
+            // 1. Thử đường dẫn trực tiếp (nếu là path tuyệt đối)
+            // 2. Thử lùi 1 cấp (nếu chạy từ thư mục Client/)
+            // 3. Thử đường dẫn gốc
+            java.io.File f1 = new java.io.File(rawPath);
+            java.io.File f2 = new java.io.File("../uploads/" + new java.io.File(rawPath).getName());
+            java.io.File f3 = new java.io.File("uploads/" + new java.io.File(rawPath).getName());
+
+            String finalUri = null;
+            if (f1.exists()) finalUri = f1.toURI().toString();
+            else if (f2.exists()) finalUri = f2.toURI().toString();
+            else if (f3.exists()) finalUri = f3.toURI().toString();
+
+            if (finalUri != null) {
+                iv.setImage(new Image(finalUri, true));
+            } else {
+                System.err.println("Không tìm thấy ảnh: " + rawPath);
+            }
+        }
+        
+        iv.setFitWidth(width);
+        iv.setFitHeight(height);
+        iv.setPreserveRatio(true);
+        this.getChildren().add(0, iv); // Đẩy ảnh lên đầu thẻ
+    }
 }

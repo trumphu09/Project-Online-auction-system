@@ -23,8 +23,13 @@ public class ItemDAO {
 
     public ItemDAO() {
         registerDAO(ArtDTO.class, "ART", new ArtDAO());
+        registerDAO(ArtDTO.class, "ARTWORK", new ArtDAO());
+
         registerDAO(ElectronicsDTO.class, "ELECTRONICS", new ElectronicsDAO());
+        registerDAO(ElectronicsDTO.class, "ELECTRONIC", new ElectronicsDAO());
+
         registerDAO(VehicleDTO.class, "VEHICLE", new VehicleDAO());
+        registerDAO(VehicleDTO.class, "VEHICLES", new VehicleDAO());
     }
 
     private void registerDAO(Class<? extends ItemDTO> clazz, String category, IItemSubDAO dao) {
@@ -297,100 +302,150 @@ public class ItemDAO {
         }
     }
 
-    public ItemDTO getItemById(int id) {
+    public ItemDTO getItemById(int itemId) {
+
         String sql =
-                "SELECT i.id AS item_id, i.seller_id, i.name, i.description, i.starting_price, " +
-                "i.category, i.image_path, i.created_at, " +
-                "a.id AS auction_id, a.current_max_price, a.highest_bidder_id, a.price_step, " +
-                "a.start_time, a.end_time, a.status " +
+                "SELECT " +
+
+                        // =========================
+                        // ITEMS
+                        // =========================
+                        "i.id AS item_id, " +
+                        "i.id AS id, " +
+                        "i.seller_id, " +
+                        "i.name, " +
+                        "i.description, " +
+                        "i.starting_price, " +
+                        "i.category, " +
+                        "i.image_path, " +
+                        "i.created_at, " +
+
+                        // =========================
+                        // AUCTIONS
+                        // =========================
+                        "a.id AS auction_id, " +
+                        "a.current_max_price, " +
+                        "a.highest_bidder_id, " +
+                        "a.price_step, " +
+                        "a.start_time, " +
+                        "a.end_time, " +
+                        "a.status AS auction_status, " +
+
+                        // =========================
+                        // ELECTRONICS
+                        // =========================
+                        "e.warranty_months, " +
+
+                        // =========================
+                        // VEHICLES
+                        // =========================
+                        "v.brand, " +
+                        "v.mileage, " +
+                        "v.condition_state, " +
+
+                        // =========================
+                        // ARTWORKS
+                        // =========================
+                        "aw.artist, " +
+                        "aw.creation_year, " +
+                        "aw.material " +
+
                 "FROM items i " +
-                "LEFT JOIN auctions a ON a.item_id = i.id " +
+
+                "LEFT JOIN auctions a ON i.id = a.item_id " +
+                "LEFT JOIN electronics e ON i.id = e.item_id " +
+                "LEFT JOIN vehicles v ON i.id = v.item_id " +
+                "LEFT JOIN artworks aw ON i.id = aw.item_id " +
+
                 "WHERE i.id = ?";
 
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (
+                Connection conn = DatabaseConnection.getInstance().getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)
+        ) {
 
-            pstmt.setInt(1, id);
+            pstmt.setInt(1, itemId);
 
             try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    String category = rs.getString("category");
-                    IItemSubDAO subDAO = categoryToDAORegistry.get(category.toUpperCase());
-                    if (subDAO != null) {
-                        ItemDTO item = subDAO.fetchSubItem(conn, rs);
-                        if (item != null) {
-                            int auctionId = rs.getInt("auction_id");
-                            if (!rs.wasNull()) {
-                                item.setAuctionId(auctionId);
-                                item.setCurrentMaxPrice(rs.getDouble("current_max_price"));
-                                item.setHighestBidderId(rs.getInt("highest_bidder_id"));
-                                item.setPriceStep(rs.getDouble("price_step"));
-                                item.setStatus(rs.getString("status"));
 
-                                java.sql.Timestamp st = rs.getTimestamp("start_time");
-                                java.sql.Timestamp et = rs.getTimestamp("end_time");
-                                item.setStartTime(st != null ? st.toString() : null);
-                                item.setEndTime(et != null ? et.toString() : null);
-                            }
-                        }
-                        return item;
-                    }
+                if (rs.next()) {
+
+                    return mapRowToItemDTO(rs);
                 }
             }
-        } catch (SQLException e) {
+
+        } catch (Exception e) {
+            System.err.println("Lỗi getItemById:");
             e.printStackTrace();
         }
+
         return null;
     }
 
+
     public List<ItemDTO> getAllItems(int page, int limit) {
-        List<ItemDTO> list = new ArrayList<>();
+        List<ItemDTO> items = new ArrayList<>();
 
-        String sql =
-                "SELECT i.id AS item_id, i.seller_id, i.name, i.description, i.starting_price, " +
-                "i.category, i.image_path, i.created_at, " +
-                "a.id AS auction_id, a.current_max_price, a.highest_bidder_id, a.price_step, " +
-                "a.start_time, a.end_time, a.status " +
-                "FROM items i " +
-                "LEFT JOIN auctions a ON i.id = a.item_id " +
-                "ORDER BY i.created_at DESC LIMIT ? OFFSET ?";
+        String sql = """
+            SELECT
+                i.id AS item_id,
+                i.seller_id,
+                i.name,
+                i.description,
+                i.starting_price,
+                i.category,
+                i.image_path,
+                i.created_at,
 
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                a.id AS auction_id,
+                a.current_max_price,
+                a.highest_bidder_id,
+                a.price_step,
+                a.start_time,
+                a.end_time,
+                a.status AS auction_status,
 
-            pstmt.setInt(1, limit);
-            pstmt.setInt(2, (page - 1) * limit);
+                aw.artist,
+                aw.creation_year,
+                aw.material,
 
-            try (ResultSet rs = pstmt.executeQuery()) {
+                v.brand,
+                v.mileage,
+                v.condition_state,
+
+                e.warranty_months
+            FROM items i
+            LEFT JOIN auctions a ON i.id = a.item_id
+            LEFT JOIN artworks aw ON i.id = aw.item_id
+            LEFT JOIN vehicles v ON i.id = v.item_id
+            LEFT JOIN electronics e ON i.id = e.item_id
+            ORDER BY i.created_at DESC
+            LIMIT ? OFFSET ?
+        """;
+
+        try (
+            Connection conn = DatabaseConnection.getInstance().getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+            stmt.setInt(1, limit);
+            stmt.setInt(2, (page - 1) * limit);
+
+            try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    String category = rs.getString("category");
-                    IItemSubDAO subDAO = categoryToDAORegistry.get(category.toUpperCase());
-                    if (subDAO != null) {
-                        ItemDTO fullItem = subDAO.fetchSubItem(conn, rs);
-                        if (fullItem != null) {
-                            int auctionId = rs.getInt("auction_id");
-                            if (!rs.wasNull()) {
-                                fullItem.setAuctionId(auctionId);
-                                fullItem.setCurrentMaxPrice(rs.getDouble("current_max_price"));
-                                fullItem.setHighestBidderId(rs.getInt("highest_bidder_id"));
-                                fullItem.setPriceStep(rs.getDouble("price_step"));
-                                fullItem.setStatus(rs.getString("status"));
-
-                                java.sql.Timestamp st = rs.getTimestamp("start_time");
-                                java.sql.Timestamp et = rs.getTimestamp("end_time");
-                                fullItem.setStartTime(st != null ? st.toString() : null);
-                                fullItem.setEndTime(et != null ? et.toString() : null);
-                            }
-                            list.add(fullItem);
-                        }
+                    ItemDTO item = mapRowToItemDTO(rs);
+                    if (item != null) {
+                        items.add(item);
                     }
                 }
             }
         } catch (SQLException e) {
+            System.err.println("ERROR getAllItems(): " + e.getMessage());
             e.printStackTrace();
         }
-        return list;
+
+        return items;
     }
+
     public int getTotalItemCount() {
         String sql = "SELECT COUNT(*) FROM items";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
@@ -614,38 +669,163 @@ public class ItemDAO {
      * SQL JOIN với bảng auctions để lấy thêm thông tin phiên đấu giá.
      */
     public List<ItemDTO> searchItemsByKeyword(String keyword) {
+
         List<ItemDTO> result = new ArrayList<>();
 
-        String sql =
-                "SELECT i.id AS item_id, i.seller_id, i.name, i.description, " +
-                "i.starting_price, i.category, i.image_path, i.created_at, " +
-                "a.id AS auction_id, a.current_max_price, a.highest_bidder_id, a.price_step, " +
-                "a.start_time, a.end_time, a.status " +
-                "FROM items i " +
-                "LEFT JOIN auctions a ON a.item_id = i.id " +
-                "WHERE LOWER(i.name) LIKE ? OR LOWER(i.description) LIKE ? " +
-                "ORDER BY i.id DESC";
+        // =========================
+        // VALIDATE INPUT
+        // =========================
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return result;
+        }
 
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        // =========================
+        // NORMALIZE KEYWORD
+        // =========================
+        String normalizedKeyword =
+                "%" + keyword.trim().toLowerCase() + "%";
 
-            String likeKeyword = "%" + keyword.toLowerCase() + "%";
-            pstmt.setString(1, likeKeyword);
-            pstmt.setString(2, likeKeyword);
+        // =========================
+        // SQL SEARCH
+        // =========================
+        String sql = """
+            SELECT
 
+                -- =========================
+                -- ITEMS
+                -- =========================
+                i.id AS item_id,
+                i.seller_id,
+                i.name,
+                i.description,
+                i.starting_price,
+                i.category,
+                i.image_path,
+                i.created_at,
+
+                -- =========================
+                -- AUCTIONS
+                -- =========================
+                a.id AS auction_id,
+                a.current_max_price,
+                a.highest_bidder_id,
+                a.price_step,
+                a.start_time,
+                a.end_time,
+                a.status AS auction_status,
+
+                -- =========================
+                -- ARTWORKS
+                -- =========================
+                aw.artist,
+                aw.creation_year,
+                aw.material,
+
+                -- =========================
+                -- VEHICLES
+                -- =========================
+                v.brand,
+                v.mileage,
+                v.condition_state,
+
+                -- =========================
+                -- ELECTRONICS
+                -- =========================
+                e.warranty_months
+
+            FROM items i
+
+            LEFT JOIN auctions a
+                ON i.id = a.item_id
+
+            LEFT JOIN artworks aw
+                ON i.id = aw.item_id
+
+            LEFT JOIN vehicles v
+                ON i.id = v.item_id
+
+            LEFT JOIN electronics e
+                ON i.id = e.item_id
+
+            WHERE
+
+                -- =========================
+                -- BASE ITEM
+                -- =========================
+                LOWER(COALESCE(i.name, '')) LIKE ?
+                OR LOWER(COALESCE(i.description, '')) LIKE ?
+                OR LOWER(COALESCE(i.category, '')) LIKE ?
+
+                -- =========================
+                -- ARTWORK
+                -- =========================
+                OR LOWER(COALESCE(aw.artist, '')) LIKE ?
+                OR LOWER(COALESCE(aw.material, '')) LIKE ?
+
+                -- =========================
+                -- VEHICLE
+                -- =========================
+                OR LOWER(COALESCE(v.brand, '')) LIKE ?
+                OR LOWER(COALESCE(v.condition_state, '')) LIKE ?
+
+                -- =========================
+                -- NUMBER SEARCH
+                -- =========================
+                OR CAST(COALESCE(v.mileage, 0) AS CHAR) LIKE ?
+                OR CAST(COALESCE(e.warranty_months, 0) AS CHAR) LIKE ?
+                OR CAST(COALESCE(a.current_max_price, 0) AS CHAR) LIKE ?
+                OR CAST(COALESCE(i.starting_price, 0) AS CHAR) LIKE ?
+
+            ORDER BY i.created_at DESC
+        """;
+
+        // =========================
+        // EXECUTE QUERY
+        // =========================
+        try (
+                Connection conn =
+                        DatabaseConnection
+                                .getInstance()
+                                .getConnection();
+
+                PreparedStatement pstmt =
+                        conn.prepareStatement(sql)
+        ) {
+
+            // =========================
+            // BIND PARAMETERS
+            // =========================
+            for (int i = 1; i <= 11; i++) {
+                pstmt.setString(i, normalizedKeyword);
+            }
+
+            // =========================
+            // QUERY
+            // =========================
             try (ResultSet rs = pstmt.executeQuery()) {
+
                 while (rs.next()) {
+
                     ItemDTO item = mapRowToItemDTO(rs);
-                    if (item != null) result.add(item);
+
+                    if (item != null) {
+                        result.add(item);
+                    }
                 }
             }
+
         } catch (SQLException e) {
-            System.err.println("Lỗi searchItemsByKeyword: " + e.getMessage());
+
+            System.err.println(
+                    "ERROR searchItemsByKeyword(): "
+                            + e.getMessage()
+            );
+
             e.printStackTrace();
         }
+
         return result;
     }
-
     public List<ItemDTO> getItemsByCategory(String category) {
         List<ItemDTO> result = new ArrayList<>();
 
@@ -684,20 +864,46 @@ public class ItemDAO {
      * LƯU Ý: Nếu trong ItemDAO của bạn đã có phương thức tương tự (ví dụ mapRow, mapItem...),
      * hãy dùng lại thay vì tạo phương thức này để tránh trùng lặp.
      */
+    // ItemDAO.java
     private ItemDTO mapRowToItemDTO(ResultSet rs) {
         try {
-            ItemDTO item = new ItemDTO();
+            String category = rs.getString("category");
+            ItemDTO item;
+
+            if ("ART".equalsIgnoreCase(category) || "ARTWORK".equalsIgnoreCase(category)) {
+                ArtDTO art = new ArtDTO();
+                art.setArtist(rs.getString("artist"));
+                art.setCreationYear(rs.getInt("creation_year"));
+                art.setMaterial(rs.getString("material"));
+                item = art;
+            } else if ("VEHICLE".equalsIgnoreCase(category) || "VEHICLES".equalsIgnoreCase(category)) {
+                VehicleDTO vehicle = new VehicleDTO();
+                vehicle.setBrand(rs.getString("brand"));
+                vehicle.setMileage(rs.getInt("mileage"));
+                vehicle.setCondition(rs.getString("condition_state"));
+                item = vehicle;
+            } else if ("ELECTRONICS".equalsIgnoreCase(category) || "ELECTRONIC".equalsIgnoreCase(category)) {
+                ElectronicsDTO electronics = new ElectronicsDTO();
+                electronics.setWarrantyMonths(rs.getInt("warranty_months"));
+                item = electronics;
+            } else {
+                item = new ItemDTO();
+            }
+
             item.setId(rs.getInt("item_id"));
             item.setSellerId(rs.getInt("seller_id"));
             item.setName(rs.getString("name"));
             item.setDescription(rs.getString("description"));
             item.setStartingPrice(rs.getDouble("starting_price"));
-            item.setCategory(rs.getString("category"));
+            item.setCategory(category);
 
             String rawPath = rs.getString("image_path");
             item.setImagePath(extractFilename(rawPath));
 
-            item.setCreatedAt(rs.getString("created_at"));
+            java.sql.Timestamp createdAt = rs.getTimestamp("created_at");
+            if (createdAt != null) {
+                item.setCreatedAt(createdAt.toString());
+            }
 
             int auctionId = rs.getInt("auction_id");
             if (!rs.wasNull()) {
@@ -705,7 +911,12 @@ public class ItemDAO {
                 item.setCurrentMaxPrice(rs.getDouble("current_max_price"));
                 item.setHighestBidderId(rs.getInt("highest_bidder_id"));
                 item.setPriceStep(rs.getDouble("price_step"));
-                item.setStatus(rs.getString("status"));
+
+                String status = rs.getString("auction_status");
+                if (status == null) {
+                    status = rs.getString("status");
+                }
+                item.setStatus(status);
 
                 java.sql.Timestamp st = rs.getTimestamp("start_time");
                 java.sql.Timestamp et = rs.getTimestamp("end_time");
@@ -716,9 +927,11 @@ public class ItemDAO {
             return item;
         } catch (SQLException e) {
             System.err.println("Lỗi mapRowToItemDTO: " + e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }
+
  
     // Lấy tên file từ đường dẫn tuyệt đối.
     private String extractFilename(String fullPath) {
