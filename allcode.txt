@@ -1,300 +1,450 @@
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\.idea\compiler.xml ===  
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="CompilerConfiguration">
-    <annotationProcessing>
-      <profile name="Maven default annotation processors profile" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <module name="server" />
-        <module name="testjavafx" />
-      </profile>
-    </annotationProcessing>
-  </component>
-</project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\.idea\copilot.data.migration.ask2agent.xml ===  
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="Ask2AgentMigrationStateService">
-    <option name="migrationStatus" value="COMPLETED" />
-  </component>
-</project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\.idea\encodings.xml ===  
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="Encoding">
-    <file url="file://$PROJECT_DIR$/Client/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/Client/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/Server/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/Server/src/main/resources" charset="UTF-8" />
-  </component>
-</project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\.idea\jarRepositories.xml ===  
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="RemoteRepositoriesConfiguration">
-    <remote-repository>
-      <option name="id" value="central" />
-      <option name="name" value="Central Repository" />
-      <option name="url" value="https://repo.maven.apache.org/maven2" />
-    </remote-repository>
-    <remote-repository>
-      <option name="id" value="central" />
-      <option name="name" value="Maven Central repository" />
-      <option name="url" value="https://repo1.maven.org/maven2" />
-    </remote-repository>
-    <remote-repository>
-      <option name="id" value="jboss.community" />
-      <option name="name" value="JBoss Community repository" />
-      <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
-    </remote-repository>
-  </component>
-</project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\.idea\misc.xml ===  
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ExternalStorageConfigurationManager" enabled="true" />
-  <component name="MavenProjectsManager">
-    <option name="originalFiles">
-      <list>
-        <option value="$PROJECT_DIR$/Client/pom.xml" />
-        <option value="$PROJECT_DIR$/Server/pom.xml" />
-      </list>
-    </option>
-  </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_25" project-jdk-name="25 (2)" project-jdk-type="JavaSDK">
-    <output url="file://$PROJECT_DIR$/out" />
-  </component>
-</project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\.idea\modules.xml ===  
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ProjectModuleManager">
-    <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/Project-Online-auction-system.iml" filepath="$PROJECT_DIR$/.idea/Project-Online-auction-system.iml" />
-    </modules>
-  </component>
-</project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\.idea\vcs.xml ===  
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="VcsDirectoryMappings">
-    <mapping directory="" vcs="Git" />
-  </component>
-</project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\.idea\workspace.xml ===  
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="AutoImportSettings">
-    <option name="autoReloadType" value="SELECTIVE" />
-  </component>
-  <component name="ChangeListManager">
-    <list default="true" id="9571ff96-5405-4d16-8a48-c798be255f7c" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Server/src/main/java/com/auction/server/models/AuctionManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/Server/src/main/java/com/auction/server/models/AuctionManager.java" afterDir="false" />
-    </list>
-    <option name="SHOW_DIALOG" value="false" />
-    <option name="HIGHLIGHT_CONFLICTS" value="true" />
-    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
-    <option name="LAST_RESOLUTION" value="IGNORE" />
-  </component>
-  <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-  </component>
-  <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;ductoan0002007-ai&quot;
-  }
-}</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/trumphu09/Project-Online-auction-system.git&quot;,
-    &quot;accountId&quot;: &quot;e2386736-2b3f-485c-b7c7-da9ebc34992c&quot;
-  }
-}</component>
-  <component name="McpProjectServerCommands">
-    <commands />
-    <urls />
-  </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 0
-}</component>
-  <component name="ProjectId" id="3BQNUlGX5pHV2uOR47kpzT05WZS" />
-  <component name="ProjectViewState">
-    <option name="hideEmptyMiddlePackages" value="true" />
-    <option name="showLibraryContents" value="true" />
-  </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/My computer/OneDrive/Documents/Project-Online-auction-system&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
-  }
-}</component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.31033.145" />
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.31033.145" />
-      </set>
-    </attachedChunks>
-  </component>
-  <component name="TaskManager">
-    <task active="true" id="Default" summary="Default task">
-      <changelist id="9571ff96-5405-4d16-8a48-c798be255f7c" name="Changes" comment="" />
-      <created>1774417352483</created>
-      <option name="number" value="Default" />
-      <option name="presentableId" value="Default" />
-      <updated>1774417352483</updated>
-      <workItem from="1774417353870" duration="369000" />
-      <workItem from="1774430674645" duration="14000" />
-      <workItem from="1774507217966" duration="132000" />
-    </task>
-    <servers />
-  </component>
-  <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="3" />
-  </component>
-</project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\pom.xml ===  
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
-    <groupId>org.example</groupId>
-    <artifactId>testjavafx</artifactId>
-    <version>1.0-SNAPSHOT</version>
-
-    <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-            <version>21</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-fxml</artifactId>
-            <version>21</version>
-        </dependency>
-        <dependency>
-            <groupId>org.java-websocket</groupId>
-            <artifactId>Java-WebSocket</artifactId>
-            <version>1.5.4</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.10.1</version>
-        </dependency>
-    </dependencies>
-</project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\.idea\compiler.xml ===  
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="CompilerConfiguration">
-    <annotationProcessing>
-      <profile name="Maven default annotation processors profile" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <module name="testjavafx" />
-      </profile>
-    </annotationProcessing>
-  </component>
-</project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\.idea\encodings.xml ===  
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="Encoding">
-    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
-  </component>
-</project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\.idea\jarRepositories.xml ===  
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="RemoteRepositoriesConfiguration">
-    <remote-repository>
-      <option name="id" value="central" />
-      <option name="name" value="Central Repository" />
-      <option name="url" value="https://repo.maven.apache.org/maven2" />
-    </remote-repository>
-    <remote-repository>
-      <option name="id" value="central" />
-      <option name="name" value="Maven Central repository" />
-      <option name="url" value="https://repo1.maven.org/maven2" />
-    </remote-repository>
-    <remote-repository>
-      <option name="id" value="jboss.community" />
-      <option name="name" value="JBoss Community repository" />
-      <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
-    </remote-repository>
-  </component>
-</project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\.idea\misc.xml ===  
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ExternalStorageConfigurationManager" enabled="true" />
-  <component name="MavenProjectsManager">
-    <option name="originalFiles">
-      <list>
-        <option value="$PROJECT_DIR$/pom.xml" />
-      </list>
-    </option>
-  </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_21" default="true" project-jdk-name="21" project-jdk-type="JavaSDK">
-    <output url="file://$PROJECT_DIR$/out" />
-  </component>
-</project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\.idea\vcs.xml ===  
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="VcsDirectoryMappings">
-    <mapping directory="$PROJECT_DIR$/.." vcs="Git" />
-  </component>
-</project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\.idea\misc.xml ===  
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_25" default="true" project-jdk-name="25" project-jdk-type="JavaSDK">
-    <output url="file://$PROJECT_DIR$/out" />
-  </component>
-</project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\.idea\modules.xml ===  
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ProjectModuleManager">
-    <modules>
-      <module fileurl="file://$PROJECT_DIR$/main.iml" filepath="$PROJECT_DIR$/main.iml" />
-    </modules>
-  </component>
-</project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\Main.java ===  
+Folder PATH listing
+Volume serial number is 58EF-6D51
+C:.
+|   .gitignore
+|   allcode.txt
+|   API_USAGE_GUIDE.md
+|   README.md
+|   run.bat
+|   structure.txt
+|   
++---.idea
+|       .gitignore
+|       compiler.xml
+|       copilot.data.migration.ask2agent.xml
+|       encodings.xml
+|       jarRepositories.xml
+|       misc.xml
+|       modules.xml
+|       Project-Online-auction-system.iml
+|       vcs.xml
+|       workspace.xml
+|       
++---.vscode
+|       settings.json
+|       
++---Client
+|   |   pom.xml
+|   |   
+|   +---.idea
+|   |       .gitignore
+|   |       compiler.xml
+|   |       encodings.xml
+|   |       jarRepositories.xml
+|   |       misc.xml
+|   |       vcs.xml
+|   |       
+|   +---src
+|   |   \---main
+|   |       +---java
+|   |       |   +---.idea
+|   |       |   |       .gitignore
+|   |       |   |       misc.xml
+|   |       |   |       modules.xml
+|   |       |   |       
+|   |       |   \---com
+|   |       |       \---auction
+|   |       |           \---client
+|   |       |               |   Main.java
+|   |       |               |   MainApp.java
+|   |       |               |   
+|   |       |               +---controllers
+|   |       |               |       .gitkeep
+|   |       |               |       AdminController.java
+|   |       |               |       BaseController.java
+|   |       |               |       BiddingRoomController.java
+|   |       |               |       BidHistoryController.java
+|   |       |               |       LoginController.java
+|   |       |               |       ProductViewController.java
+|   |       |               |       RegisterController.java
+|   |       |               |       SellerController.java
+|   |       |               |       
+|   |       |               +---model
+|   |       |               |   |   Admin.java
+|   |       |               |   |   Bidder.java
+|   |       |               |   |   Seller.java
+|   |       |               |   |   User.java
+|   |       |               |   |   
+|   |       |               |   \---dto
+|   |       |               |           ArtDTO.java
+|   |       |               |           AuctionDTO.java
+|   |       |               |           BidDTO.java
+|   |       |               |           ElectronicsDTO.java
+|   |       |               |           ItemDTO.java
+|   |       |               |           UserDTO.java
+|   |       |               |           VehicleDTO.java
+|   |       |               |           
+|   |       |               +---network
+|   |       |               |       ApiService.java
+|   |       |               |       
+|   |       |               +---service
+|   |       |               |       ApiCallback.java
+|   |       |               |       AuctionFacade.java
+|   |       |               |       
+|   |       |               \---util
+|   |       |                       ItemCard.java
+|   |       |                       
+|   |       \---resources
+|   |           \---view
+|   |                   AdminView.fxml
+|   |                   BiddingRoomView.fxml
+|   |                   BidHistoryView.fxml
+|   |                   Product.fxml
+|   |                   Register.fxml
+|   |                   SellerView.fxml
+|   |                   View.fxml
+|   |                   
+|   \---target
+|       +---classes
+|       |   +---com
+|       |   |   \---auction
+|       |   |       \---client
+|       |   |           |   Main.class
+|       |   |           |   MainApp.class
+|       |   |           |   
+|       |   |           +---controllers
+|       |   |           |       AdminController$1.class
+|       |   |           |       AdminController$2.class
+|       |   |           |       AdminController$3.class
+|       |   |           |       AdminController$4.class
+|       |   |           |       AdminController.class
+|       |   |           |       BaseController.class
+|       |   |           |       BiddingRoomController$1.class
+|       |   |           |       BiddingRoomController.class
+|       |   |           |       BidHistoryController$1.class
+|       |   |           |       BidHistoryController.class
+|       |   |           |       LoginController$1.class
+|       |   |           |       LoginController.class
+|       |   |           |       ProductViewController$1.class
+|       |   |           |       ProductViewController$2.class
+|       |   |           |       ProductViewController$3.class
+|       |   |           |       ProductViewController$4.class
+|       |   |           |       ProductViewController$5.class
+|       |   |           |       ProductViewController$6.class
+|       |   |           |       ProductViewController$7.class
+|       |   |           |       ProductViewController$8.class
+|       |   |           |       ProductViewController$9.class
+|       |   |           |       ProductViewController.class
+|       |   |           |       RegisterController$1.class
+|       |   |           |       RegisterController.class
+|       |   |           |       SellerController$1.class
+|       |   |           |       SellerController$2.class
+|       |   |           |       SellerController$3.class
+|       |   |           |       SellerController.class
+|       |   |           |       
+|       |   |           +---model
+|       |   |           |   |   Admin.class
+|       |   |           |   |   Bidder.class
+|       |   |           |   |   Seller.class
+|       |   |           |   |   User.class
+|       |   |           |   |   
+|       |   |           |   \---dto
+|       |   |           |           ArtDTO.class
+|       |   |           |           AuctionDTO.class
+|       |   |           |           BidDTO.class
+|       |   |           |           ElectronicsDTO.class
+|       |   |           |           ItemDTO.class
+|       |   |           |           UserDTO.class
+|       |   |           |           VehicleDTO.class
+|       |   |           |           
+|       |   |           +---network
+|       |   |           |       ApiService.class
+|       |   |           |       
+|       |   |           +---service
+|       |   |           |       ApiCallback.class
+|       |   |           |       AuctionFacade$1.class
+|       |   |           |       AuctionFacade$2.class
+|       |   |           |       AuctionFacade$3.class
+|       |   |           |       AuctionFacade$4.class
+|       |   |           |       AuctionFacade$5.class
+|       |   |           |       AuctionFacade$6.class
+|       |   |           |       AuctionFacade$7.class
+|       |   |           |       AuctionFacade$8.class
+|       |   |           |       AuctionFacade$9.class
+|       |   |           |       AuctionFacade.class
+|       |   |           |       
+|       |   |           \---util
+|       |   |                   ItemCard$1.class
+|       |   |                   ItemCard.class
+|       |   |                   
+|       |   \---view
+|       |           AdminView.fxml
+|       |           BiddingRoomView.fxml
+|       |           BidHistoryView.fxml
+|       |           Product.fxml
+|       |           Register.fxml
+|       |           SellerView.fxml
+|       |           View.fxml
+|       |           
+|       \---generated-sources
+|           \---annotations
++---Server
+|   |   database.sql
+|   |   pom.xml
+|   |   run-tests.bat
+|   |   setup-maven-manual.bat
+|   |   setup-maven.ps1
+|   |   TEST_SETUP_GUIDE.md
+|   |   
+|   +---.vscode
+|   |       settings.json
+|   |       
+|   +---src
+|   |   \---main
+|   |       \---java
+|   |           \---com
+|   |               \---auction
+|   |                   +---controller
+|   |                   |       AuctionController.java
+|   |                   |       BidController.java
+|   |                   |       BidderController.java
+|   |                   |       ItemController.java
+|   |                   |       PaymentController.java
+|   |                   |       UserController.java
+|   |                   |       WatchlistController.java
+|   |                   |       
+|   |                   +---server
+|   |                   |   |   AuctionServer.java
+|   |                   |   |   servlets.zip
+|   |                   |   |   
+|   |                   |   +---dao
+|   |                   |   |       AdminDAO.java
+|   |                   |   |       ArtDAO.java
+|   |                   |   |       AuctionDAO.java
+|   |                   |   |       BidderDAO.java
+|   |                   |   |       BidderSubDAO.java
+|   |                   |   |       BidsDAO.java
+|   |                   |   |       DatabaseConnection.java
+|   |                   |   |       ElectronicsDAO.java
+|   |                   |   |       IItemSubDAO.java
+|   |                   |   |       ItemDAO.java
+|   |                   |   |       IUserSubDAO.java
+|   |                   |   |       PaymentDAO.java
+|   |                   |   |       SellerDAO.java
+|   |                   |   |       SellerSubDAO.java
+|   |                   |   |       UserDAO.java
+|   |                   |   |       VehicleDAO.java
+|   |                   |   |       WatchlistDAO.java
+|   |                   |   |       
+|   |                   |   +---factory
+|   |                   |   |       ItemFactory.java
+|   |                   |   |       UserFactory.java
+|   |                   |   |       
+|   |                   |   +---filters
+|   |                   |   |       AuthFilter.java
+|   |                   |   |       
+|   |                   |   +---models
+|   |                   |   |       .gitkeep
+|   |                   |   |       Admin.java
+|   |                   |   |       AdminDTO.java
+|   |                   |   |       Art.java
+|   |                   |   |       ArtDTO.java
+|   |                   |   |       Auction.java
+|   |                   |   |       AuctionDataDTO.java
+|   |                   |   |       AuctionManager.java
+|   |                   |   |       AuctionStatus.java
+|   |                   |   |       AuctionTimer.java
+|   |                   |   |       AuctionUpdate.java
+|   |                   |   |       AuctionUpdateListener.java
+|   |                   |   |       AutoBid.java
+|   |                   |   |       Bidder.java
+|   |                   |   |       BidderDTO.java
+|   |                   |   |       BidTransaction.java
+|   |                   |   |       BidTransactionDTO.java
+|   |                   |   |       Electronics.java
+|   |                   |   |       ElectronicsDTO.java
+|   |                   |   |       Entity.java
+|   |                   |   |       Item.java
+|   |                   |   |       ItemDTO.java
+|   |                   |   |       Payment.java
+|   |                   |   |       PaymentDTO.java
+|   |                   |   |       PaymentStatus.java
+|   |                   |   |       Seller.java
+|   |                   |   |       SellerDTO.java
+|   |                   |   |       User.java
+|   |                   |   |       UserDTO.java
+|   |                   |   |       UserRole.java
+|   |                   |   |       Vehicle.java
+|   |                   |   |       VehicleDTO.java
+|   |                   |   |       
+|   |                   |   +---scheduler
+|   |                   |   |       AuctionStatusScheduler.java
+|   |                   |   |       
+|   |                   |   +---servlets
+|   |                   |   |       AdminItemAPI.java
+|   |                   |   |       AdminUserAPI.java
+|   |                   |   |       CategoryAPI.java
+|   |                   |   |       DepositAPI.java
+|   |                   |   |       GetBidHistoryAPI.java
+|   |                   |   |       GetItemDetailAPI.java
+|   |                   |   |       GetItemsAPI.java
+|   |                   |   |       GetMyActiveBidsAPI.java
+|   |                   |   |       GetMyItemsForSaleAPI.java
+|   |                   |   |       GetMyWonItemsAPI.java
+|   |                   |   |       ImageAPI.java
+|   |                   |   |       ItemsAPI.java
+|   |                   |   |       LoginAPI.java
+|   |                   |   |       LogoutAPI.java
+|   |                   |   |       PaymentAPI.java
+|   |                   |   |       PlaceBidAPI.java
+|   |                   |   |       RegisterAPI.java
+|   |                   |   |       SearchItemsAPI.java
+|   |                   |   |       UserDetailAPI.java
+|   |                   |   |       UserProfileAPI.java
+|   |                   |   |       WatchlistAPI.java
+|   |                   |   |       
+|   |                   |   +---utils
+|   |                   |   |       LocalDateTimeAdapter.java
+|   |                   |   |       
+|   |                   |   \---websocket
+|   |                   |           AuctionWebSocketServer.java
+|   |                   |           
+|   |                   \---service
+|   |                           AuctionService.java
+|   |                           BidderService.java
+|   |                           BidService.java
+|   |                           ItemService.java
+|   |                           PaymentService.java
+|   |                           UserService.java
+|   |                           
+|   \---target
+|       +---classes
+|       |   \---com
+|       |       \---auction
+|       |           +---controller
+|       |           |       AuctionController.class
+|       |           |       BidController.class
+|       |           |       BidderController.class
+|       |           |       ItemController.class
+|       |           |       PaymentController.class
+|       |           |       UserController.class
+|       |           |       WatchlistController.class
+|       |           |       
+|       |           +---server
+|       |           |   |   AuctionServer.class
+|       |           |   |   
+|       |           |   +---dao
+|       |           |   |       AdminDAO.class
+|       |           |   |       ArtDAO.class
+|       |           |   |       AuctionDAO.class
+|       |           |   |       BidderDAO.class
+|       |           |   |       BidderSubDAO.class
+|       |           |   |       BidsDAO$1.class
+|       |           |   |       BidsDAO.class
+|       |           |   |       DatabaseConnection.class
+|       |           |   |       ElectronicsDAO.class
+|       |           |   |       IItemSubDAO.class
+|       |           |   |       ItemDAO.class
+|       |           |   |       IUserSubDAO.class
+|       |           |   |       PaymentDAO.class
+|       |           |   |       SellerDAO.class
+|       |           |   |       SellerSubDAO.class
+|       |           |   |       UserDAO.class
+|       |           |   |       VehicleDAO.class
+|       |           |   |       WatchlistDAO.class
+|       |           |   |       
+|       |           |   +---factory
+|       |           |   |       ItemFactory.class
+|       |           |   |       UserFactory$1.class
+|       |           |   |       UserFactory.class
+|       |           |   |       
+|       |           |   +---filters
+|       |           |   |       AuthFilter.class
+|       |           |   |       
+|       |           |   +---models
+|       |           |   |       Admin.class
+|       |           |   |       AdminDTO.class
+|       |           |   |       Art.class
+|       |           |   |       ArtDTO.class
+|       |           |   |       Auction.class
+|       |           |   |       AuctionDataDTO.class
+|       |           |   |       AuctionManager.class
+|       |           |   |       AuctionStatus.class
+|       |           |   |       AuctionTimer.class
+|       |           |   |       AuctionUpdate.class
+|       |           |   |       AuctionUpdateListener.class
+|       |           |   |       AutoBid.class
+|       |           |   |       Bidder.class
+|       |           |   |       BidderDTO.class
+|       |           |   |       BidTransaction.class
+|       |           |   |       BidTransactionDTO.class
+|       |           |   |       Electronics.class
+|       |           |   |       ElectronicsDTO.class
+|       |           |   |       Entity.class
+|       |           |   |       Item.class
+|       |           |   |       ItemDTO.class
+|       |           |   |       Payment.class
+|       |           |   |       PaymentDTO.class
+|       |           |   |       PaymentStatus.class
+|       |           |   |       Seller.class
+|       |           |   |       SellerDTO.class
+|       |           |   |       User.class
+|       |           |   |       UserDTO.class
+|       |           |   |       UserRole.class
+|       |           |   |       Vehicle.class
+|       |           |   |       VehicleDTO.class
+|       |           |   |       
+|       |           |   +---scheduler
+|       |           |   |       AuctionStatusScheduler.class
+|       |           |   |       
+|       |           |   +---servlets
+|       |           |   |       AdminItemAPI.class
+|       |           |   |       AdminUserAPI.class
+|       |           |   |       CategoryAPI.class
+|       |           |   |       DepositAPI.class
+|       |           |   |       GetBidHistoryAPI.class
+|       |           |   |       GetItemDetailAPI.class
+|       |           |   |       GetItemsAPI.class
+|       |           |   |       GetMyActiveBidsAPI.class
+|       |           |   |       GetMyItemsForSaleAPI.class
+|       |           |   |       GetMyWonItemsAPI.class
+|       |           |   |       ItemsAPI.class
+|       |           |   |       LoginAPI.class
+|       |           |   |       LogoutAPI.class
+|       |           |   |       PaymentAPI.class
+|       |           |   |       PlaceBidAPI.class
+|       |           |   |       RegisterAPI.class
+|       |           |   |       SearchItemsAPI.class
+|       |           |   |       UserProfileAPI.class
+|       |           |   |       WatchlistAPI.class
+|       |           |   |       
+|       |           |   +---utils
+|       |           |   |       LocalDateTimeAdapter.class
+|       |           |   |       
+|       |           |   \---websocket
+|       |           |           AuctionWebSocketServer.class
+|       |           |           
+|       |           \---service
+|       |                   AuctionService.class
+|       |                   BidderService.class
+|       |                   BidService.class
+|       |                   ItemService.class
+|       |                   PaymentService.class
+|       |                   UserService.class
+|       |                   
+|       \---generated-sources
+|           \---annotations
++---tomcat.8080
+|   \---work
+|       \---Tomcat
+|           \---localhost
+|               +---ROOT
+|               \---uploads
+\---uploads
+        1778259594914_anh-nen-one-piec-3.jpeg
+        1778301700782_z7554602384563_c260cfd05a62446537fb3efe5807ece2.jpg
+        1778301844334_z7554602384563_c260cfd05a62446537fb3efe5807ece2.jpg
+        1778301959973_z7554602384563_c260cfd05a62446537fb3efe5807ece2.jpg
+        1778301964401_z7554602384563_c260cfd05a62446537fb3efe5807ece2.jpg
+        1778303351372_z7554602384563_c260cfd05a62446537fb3efe5807ece2.jpg
+        1778419971645_Xehay-XECO-091120-14.jpg
+        1778485344146_anh nen 2.jpg
+        videoframe_6940.png
+        
+  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\Main.java  
+================================================  
 package com.auction.client;
 
 public class Main {
@@ -302,8 +452,10 @@ public class Main {
         // Gọi hàm main của MainApp để kích hoạt giao diện JavaFX
         MainApp.main(args);
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\MainApp.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\MainApp.java  
+================================================  
 package com.auction.client;
 
 import javafx.application.Application;
@@ -356,8 +508,10 @@ public class MainApp extends Application {
 //    public static void main(String[] args) {
 //        launch(args);
 //    }
-//} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\AdminController.java ===  
+//}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\AdminController.java  
+================================================  
 package com.auction.client.controllers;
 
 import com.auction.client.model.dto.ItemDTO;
@@ -629,8 +783,10 @@ public class AdminController extends BaseController {
             }
         });
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\BaseController.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\BaseController.java  
+================================================  
 package com.auction.client.controllers;
 
 import javafx.event.Event;
@@ -667,8 +823,10 @@ public abstract class BaseController {
         alert.showAndWait();
     }
 }
- 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\BiddingRoomController.java ===  
+  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\BiddingRoomController.java  
+================================================  
 package com.auction.client.controllers;
 
 import com.auction.client.model.dto.ItemDTO;
@@ -684,14 +842,15 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 
-// 1. TÍNH KẾ THỪA: Kế thừa để dùng chung showAlert và các tiện ích khác
 public class BiddingRoomController extends BaseController {
 
     @FXML private ImageView imgProduct;
@@ -701,25 +860,35 @@ public class BiddingRoomController extends BaseController {
     @FXML private LineChart<String, Number> chartHistory;
     @FXML private TextField txtBidAmount;
     @FXML private Button btnBid;
+    @FXML private Label lblSellerRating, lblSellerSaleCount, lblBidNote;
 
-    private ItemDTO currentItem; // Biến lưu trữ đối tượng đang đấu giá (Encapsulation)
+    private static final String SERVER_BASE_URL = "http://localhost:8080/api";
+
+    private ItemDTO currentItem;
+    private double displayedCurrentPrice = 0;
 
     @FXML
     public void initialize() {
-        // Khởi tạo biểu đồ trống
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName("Lịch sử giá");
-        chartHistory.getData().add(series);
+        try {
+            if (chartHistory != null) {
+                XYChart.Series<String, Number> series = new XYChart.Series<>();
+                series.setName("Lịch sử giá");
+                chartHistory.getData().add(series);
+            } else {
+                System.err.println("ERROR: chartHistory is null - check fx:id in BiddingRoomView.fxml");
+            }
 
-        if (lblTimer != null) {
-            lblTimer.setStyle("-fx-font-size: 40px; -fx-text-fill: red; -fx-font-weight: bold;");
+            if (lblTimer != null) {
+                lblTimer.setStyle("-fx-font-size: 40px; -fx-text-fill: red; -fx-font-weight: bold;");
+            }
+
+            loadCurrentUserInfo();
+        } catch (Exception e) {
+            System.err.println("ERROR in initialize(): " + e.getMessage());
+            e.printStackTrace();
         }
-
-        // Load thông tin user khi vào phòng đấu giá
-        loadCurrentUserInfo();
     }
 
-    // Load thông tin người dùng hiện tại
     private void loadCurrentUserInfo() {
         AuctionFacade.getInstance().getUserProfile(new ApiCallback<UserDTO>() {
             @Override
@@ -730,10 +899,11 @@ public class BiddingRoomController extends BaseController {
                                 ? user.getFullName()
                                 : user.getUsername();
                         lblCurrentUser.setText("Người dùng: " + displayName);
-                        lblUserBalance.setText("Số dư: " + String.format("%,.0f VNĐ", user.getBalance()));
+                        lblUserBalance.setText("Số dư: " + formatVnd(user.getBalance()));
                     }
                 });
             }
+
             @Override
             public void onError(String errorMessage) {
                 System.err.println("Lỗi tải thông tin user: " + errorMessage);
@@ -741,98 +911,38 @@ public class BiddingRoomController extends BaseController {
         });
     }
 
-    // 2. SỬA HÀM setData: Nhận đầu vào là ItemDTO xịn từ ProductViewController
-    private static final String SERVER_BASE_URL = "http://localhost:8080/api";
-
     public void setData(ItemDTO item) {
         System.out.println("DEBUG BiddingRoomController.setData(): item = " + item);
 
         if (item == null) {
-            System.err.println("ERROR: item is null!");
+            showAlert("Lỗi", "Không có dữ liệu sản phẩm để hiển thị!");
             return;
         }
 
         this.currentItem = item;
-        System.out.println("DEBUG: currentItem set to " + item.getName());
 
-        if (lblDescription != null) {
-            lblDescription.setText(item.getDescription());
-        } else {
-            System.err.println("ERROR: lblDescription is null");
-        }
+        setText(lblDescription, safeText(item.getDescription(), "Không có mô tả"));
+        setText(lblStartPrice, formatVnd(item.getStartingPrice()));
+        setText(lblStepPrice, formatVnd(item.getPriceStep()));
+        setText(lblStartTime, "Bắt đầu: " + safeText(item.getStartTime(), "N/A"));
+        setText(lblEndTime, "Kết thúc: " + safeText(item.getEndTime(), "N/A"));
+        setText(lblCategory, "Loại: " + safeText(item.getCategory(), "N/A"));
+        setText(lblSeller, "Người bán: " + item.getSellerId());
 
-        if (lblStartPrice != null) {
-            lblStartPrice.setText(String.format("%,.0f VNĐ", item.getStartingPrice()));
-        } else {
-            System.err.println("ERROR: lblStartPrice is null");
-        }
+        displayedCurrentPrice = item.getCurrentMaxPrice() > 0
+                ? item.getCurrentMaxPrice()
+                : item.getStartingPrice();
 
-        if (lblStepPrice != null) {
-            lblStepPrice.setText(String.format("%,.0f VNĐ", item.getPriceStep()));
-        } else {
-            System.err.println("ERROR: lblStepPrice is null");
-        }
+        setText(lblCurrentPrice, formatVnd(displayedCurrentPrice));
+        setText(lblHighestBidder, "Chưa có người ra giá");
 
-        if (lblStartTime != null) {
-            lblStartTime.setText("Bắt đầu: " + item.getStartTime());
-        } else {
-            System.err.println("ERROR: lblStartTime is null");
-        }
-
-        if (lblEndTime != null) {
-            lblEndTime.setText("Kết thúc: " + item.getEndTime());
-        } else {
-            System.err.println("ERROR: lblEndTime is null");
-        }
-
-        if (lblCategory != null) {
-            lblCategory.setText("Loại: " + (item.getCategory() != null ? item.getCategory() : "N/A"));
-        } else {
-            System.err.println("ERROR: lblCategory is null");
-        }
-
-        if (lblSeller != null) {
-            lblSeller.setText("Người bán: " + item.getSellerId());
-        } else {
-            System.err.println("ERROR: lblSeller is null");
-        }
-
-        if (lblCurrentPrice != null) {
-            lblCurrentPrice.setText(String.format("%,.0f VNĐ", item.getStartingPrice()));
-        } else {
-            System.err.println("ERROR: lblCurrentPrice is null");
-        }
-
-        if (lblHighestBidder != null) {
-            lblHighestBidder.setText("Chưa có người ra giá");
-        } else {
-            System.err.println("ERROR: lblHighestBidder is null");
-        }
-
-        String rawPath = item.getImagePath();
-        System.out.println("DEBUG: rawPath = " + rawPath);
-
-        if (rawPath != null && !rawPath.isEmpty() && imgProduct != null) {
+        String imageUrl = resolveImageUrl(item.getImagePath());
+        if (imageUrl != null && imgProduct != null) {
             try {
-                String imageUrl;
-                if (rawPath.startsWith("http")) {
-                    imageUrl = rawPath;
-                } else {
-                    // [BUG 1 nhất quán] Dùng HTTP URL thay vì đường dẫn file cục bộ
-                    String filename = rawPath;
-                    int lastSlash = Math.max(rawPath.lastIndexOf('/'), rawPath.lastIndexOf('\\'));
-                    if (lastSlash >= 0) filename = rawPath.substring(lastSlash + 1);
-                    imageUrl = SERVER_BASE_URL + "/images/" + filename;
-                }
-                System.out.println("DEBUG: imageUrl = " + imageUrl);
                 imgProduct.setImage(new Image(imageUrl, true));
-                System.out.println("DEBUG: Image loaded");
             } catch (Exception e) {
                 System.err.println("Lỗi load ảnh: " + e.getMessage());
-                e.printStackTrace();
             }
-        } else {
-            System.out.println("DEBUG: Image path is null/empty or imgProduct is null");
         }
 
         System.out.println("DEBUG: setData() completed successfully");
@@ -840,7 +950,17 @@ public class BiddingRoomController extends BaseController {
 
     @FXML
     private void handleBidAction() {
-        String amountStr = txtBidAmount.getText().trim();
+        if (currentItem == null) {
+            showAlert("Lỗi", "Chưa có sản phẩm đấu giá để đặt giá!");
+            return;
+        }
+
+        if (txtBidAmount == null) {
+            showAlert("Lỗi", "Ô nhập giá chưa được khởi tạo!");
+            return;
+        }
+
+        String amountStr = txtBidAmount.getText() != null ? txtBidAmount.getText().trim() : "";
         if (amountStr.isEmpty()) {
             showAlert("Thông báo", "Vui lòng nhập số tiền muốn đấu giá!");
             return;
@@ -848,23 +968,30 @@ public class BiddingRoomController extends BaseController {
 
         try {
             double bidAmount = Double.parseDouble(amountStr);
-            if (bidAmount <= currentItem.getStartingPrice()) {
-                showAlert("Lỗi", "Giá đấu phải cao hơn giá hiện tại!");
+
+            double minRequired = displayedCurrentPrice + Math.max(0, currentItem.getPriceStep());
+            if (bidAmount < minRequired) {
+                showAlert("Lỗi",
+                        "Giá đấu phải ít nhất bằng giá hiện tại + bước giá.\n"
+                                + "Mức tối thiểu: " + formatVnd(minRequired));
                 return;
             }
 
-            // [BUG 4 FIX] Dùng getAuctionId() thay vì getId().
-            // Server yêu cầu auction_id trong body của /bids,
-            // nhưng getId() trả về item_id — hai giá trị khác nhau.
             int auctionId = currentItem.getAuctionId();
+            if (auctionId <= 0) {
+                showAlert("Lỗi", "Sản phẩm này chưa có auctionId hợp lệ!");
+                return;
+            }
 
             AuctionFacade.getInstance().placeBid(auctionId, bidAmount, new ApiCallback<com.google.gson.JsonObject>() {
                 @Override
                 public void onSuccess(com.google.gson.JsonObject result) {
                     Platform.runLater(() -> {
-                        showAlert("Thành công", "Lệnh đặt giá " + String.format("%,.0f VNĐ", bidAmount) + " đã được ghi nhận!");
+                        showAlert("Thành công",
+                                "Lệnh đặt giá " + formatVnd(bidAmount) + " đã được ghi nhận!");
                         txtBidAmount.clear();
-                        lblCurrentPrice.setText(String.format("%,.0f VNĐ", bidAmount));
+                        displayedCurrentPrice = bidAmount;
+                        setText(lblCurrentPrice, formatVnd(bidAmount));
                     });
                 }
 
@@ -876,12 +1003,12 @@ public class BiddingRoomController extends BaseController {
 
         } catch (NumberFormatException e) {
             showAlert("Lỗi", "Số tiền phải là con số hợp lệ!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Lỗi hệ thống", "Không thể đặt giá: " + e.getMessage());
         }
     }
 
-    // [BUG 2 FIX] Thêm phương thức handleBackToHome() bị thiếu.
-    // BiddingRoomView.fxml có nút onAction="#handleBackToHome" nhưng controller
-    // không có hàm này → FXMLLoader ném LoadException, toàn bộ màn hình không mở được.
     @FXML
     private void handleBackToHome(ActionEvent event) {
         try {
@@ -895,8 +1022,41 @@ public class BiddingRoomController extends BaseController {
             showAlert("Lỗi hệ thống", "Không thể quay lại trang chủ: " + e.getMessage());
         }
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\BidHistoryController.java ===  
+
+    private void setText(Label label, String value) {
+        if (label != null) {
+            label.setText(value);
+        }
+    }
+
+    private String safeText(String value, String fallback) {
+        return (value == null || value.isBlank()) ? fallback : value;
+    }
+
+    private String formatVnd(double value) {
+        return String.format("%,.0f VNĐ", value);
+    }
+
+    private String resolveImageUrl(String rawPath) {
+        if (rawPath == null || rawPath.isBlank()) {
+            return null;
+        }
+
+        if (rawPath.startsWith("http")) {
+            return rawPath;
+        }
+
+        String filename = rawPath;
+        int lastSlash = Math.max(rawPath.lastIndexOf('/'), rawPath.lastIndexOf('\\'));
+        if (lastSlash >= 0) {
+            filename = rawPath.substring(lastSlash + 1);
+        }
+        return SERVER_BASE_URL + "/images/" + filename;
+    }
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\BidHistoryController.java  
+================================================  
 package com.auction.client.controllers;
 
 import javafx.application.Platform;
@@ -1083,8 +1243,10 @@ public class BidHistoryController extends BaseController {
             e.printStackTrace();
         }
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\LoginController.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\LoginController.java  
+================================================  
 package com.auction.client.controllers;
 
 import com.auction.client.model.Admin;
@@ -1165,8 +1327,10 @@ public class LoginController extends BaseController implements Initializable { /
       }
     });
   }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\ProductViewController.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\ProductViewController.java  
+================================================  
 package com.auction.client.controllers;
 
 import com.auction.client.model.dto.ItemDTO;
@@ -1442,46 +1606,54 @@ public class ProductViewController extends BaseController implements Initializab
         try {
             Node sourceNode = (Node) event.getSource();
             Object userData = sourceNode.getUserData();
-            System.out.println("DEBUG: userData = " + userData);
-            System.out.println("DEBUG: userData type = " + (userData != null ? userData.getClass().getSimpleName() : "NULL"));
-            
+
             if (userData == null) {
                 showAlert("Lỗi", "Không thể lấy thông tin sản phẩm!");
                 return;
             }
-            
+
+            if (!(userData instanceof ItemDTO)) {
+                showAlert("Lỗi", "Dữ liệu sản phẩm không hợp lệ!");
+                return;
+            }
+
             ItemDTO selectedItem = (ItemDTO) userData;
-            System.out.println("DEBUG: selectedItem name = " + selectedItem.getName());
-            System.out.println("DEBUG: selectedItem id = " + selectedItem.getId());
+            if (selectedItem.getAuctionId() <= 0) {
+                showAlert("Lỗi", "Sản phẩm này chưa có phiên đấu giá hợp lệ!");
+                return;
+            }
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BiddingRoomView.fxml"));
-            System.out.println("DEBUG: FXML resource loaded");
-            
-            Parent root = loader.load();
-            System.out.println("DEBUG: FXML parsed");
+            if (loader.getLocation() == null) {
+                showAlert("Lỗi hệ thống", "Không tìm thấy file BiddingRoomView.fxml");
+                return;
+            }
 
+            Parent root = loader.load();
             BiddingRoomController controller = loader.getController();
-            System.out.println("DEBUG: Controller obtained");
-            
+
+            if (controller == null) {
+                showAlert("Lỗi", "Không thể khởi tạo BiddingRoomController.");
+                return;
+            }
+
             controller.setData(selectedItem);
-            System.out.println("DEBUG: setData() completed");
 
             Stage stage = (Stage) sourceNode.getScene().getWindow();
-            stage.setScene(new Scene(root, 900, 600));
+            stage.setScene(new Scene(root, 1200, 700));
             stage.setTitle("Phòng đấu giá: " + selectedItem.getName());
             stage.show();
-            System.out.println("DEBUG: Scene switched successfully");
 
         } catch (IOException e) {
-            System.err.println("DEBUG: IOException caught");
             e.printStackTrace();
-            showAlert("Lỗi hệ thống", "Không thể nạp giao diện phòng đấu giá: " + e.getMessage());
-        } catch (NullPointerException e) {
-            System.err.println("DEBUG: NullPointerException caught");
-            e.printStackTrace();
-            showAlert("Lỗi hệ thống", "Lỗi null pointer: " + e.getMessage());
+            Throwable root = e;
+            while (root.getCause() != null) {
+                root = root.getCause();
+            }
+            showAlert("Lỗi hệ thống",
+                    "Không thể nạp giao diện phòng đấu giá:\n"
+                            + root.getClass().getSimpleName() + ": " + root.getMessage());
         } catch (Exception e) {
-            System.err.println("DEBUG: Generic Exception caught");
             e.printStackTrace();
             showAlert("Lỗi hệ thống", "Lỗi không xác định: " + e.getMessage());
         }
@@ -1546,8 +1718,12 @@ public class ProductViewController extends BaseController implements Initializab
             }
         });
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\RegisterController.java ===  
+
+    
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\RegisterController.java  
+================================================  
 package com.auction.client.controllers;
 
 import com.auction.client.service.ApiCallback;
@@ -1606,8 +1782,10 @@ public class RegisterController extends BaseController {
     // Chỉ giữ lại một hàm duy nhất này thôi Đại nhé
     switchScene(event, "/view/View.fxml", "Đăng nhập hệ thống", 800, 500);
   }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\SellerController.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\SellerController.java  
+================================================  
 package com.auction.client.controllers;
 
 import com.auction.client.model.dto.ElectronicsDTO;
@@ -2288,8 +2466,10 @@ public class SellerController extends BaseController implements Initializable {
             return dt.format(DB_FORMAT);
         }
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\Admin.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\Admin.java  
+================================================  
 package com.auction.client.model;
 
 public class Admin extends User {
@@ -2301,8 +2481,10 @@ public class Admin extends User {
     }
 }
 
- 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\Bidder.java ===  
+  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\Bidder.java  
+================================================  
 package com.auction.client.model;
 
 public class Bidder extends User {
@@ -2312,8 +2494,10 @@ public class Bidder extends User {
     public String getDashboardFXML() {
         return "/view/Product.fxml";
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\Seller.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\Seller.java  
+================================================  
 package com.auction.client.model;
 
 public class Seller extends User {
@@ -2324,8 +2508,10 @@ public class Seller extends User {
         return "/view/SellerView.fxml";
     }
 }
- 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\User.java ===  
+  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\User.java  
+================================================  
 package com.auction.client.model;
 
 import java.io.Serializable;
@@ -2356,8 +2542,10 @@ public abstract class User implements Serializable {
 
     // Phương thức trừu tượng: Mỗi loại User sẽ có một bảng điều khiển riêng
     public abstract String getDashboardFXML();
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\ArtDTO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\ArtDTO.java  
+================================================  
 package com.auction.client.model.dto;
 
 import com.google.gson.annotations.Expose;
@@ -2392,8 +2580,10 @@ public class ArtDTO extends ItemDTO {
     public void setCreationYear(int creationYear) { this.creationYear = creationYear; }
     public String getMaterial() { return material; }
     public void setMaterial(String material) { this.material = material; }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\AuctionDTO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\AuctionDTO.java  
+================================================  
 package com.auction.client.model.dto;
 
 import com.google.gson.annotations.Expose;
@@ -2479,8 +2669,10 @@ public class AuctionDTO implements Serializable {
 
     public int getHighestBidderId() { return highestBidderId; }
     public void setHighestBidderId(int highestBidderId) { this.highestBidderId = highestBidderId; }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\BidDTO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\BidDTO.java  
+================================================  
 package com.auction.client.model.dto;
 
 import com.google.gson.annotations.Expose;
@@ -2542,8 +2734,10 @@ public class BidDTO implements Serializable {
     public String getTimestamp() { return timestamp; }
     public void setTimestamp(String timestamp) { this.timestamp = timestamp; }
 }
- 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\ElectronicsDTO.java ===  
+  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\ElectronicsDTO.java  
+================================================  
 package com.auction.client.model.dto;
 
 import com.google.gson.annotations.Expose;
@@ -2564,8 +2758,10 @@ public class ElectronicsDTO extends ItemDTO {
 
     public int getWarrantyMonths() { return warrantyMonths; }
     public void setWarrantyMonths(int warrantyMonths) { this.warrantyMonths = warrantyMonths; }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\ItemDTO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\ItemDTO.java  
+================================================  
 package com.auction.client.model.dto;
 
 import com.google.gson.annotations.Expose;
@@ -2663,8 +2859,10 @@ public class ItemDTO implements Serializable {
     public void setHighestBidderId(int highestBidderId) { this.highestBidderId = highestBidderId; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\UserDTO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\UserDTO.java  
+================================================  
 package com.auction.client.model.dto;
 
 import com.google.gson.annotations.SerializedName;
@@ -2726,8 +2924,10 @@ public class UserDTO implements Serializable {
 
     public int getSaleCount() { return saleCount; }
     public void setSaleCount(int saleCount) { this.saleCount = saleCount; }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\VehicleDTO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\VehicleDTO.java  
+================================================  
 package com.auction.client.model.dto;
 
 import com.google.gson.annotations.Expose;
@@ -2762,8 +2962,10 @@ public class VehicleDTO extends ItemDTO {
     public void setMileage(int mileage) { this.mileage = mileage; }
     public String getCondition() { return condition; }
     public void setCondition(String condition) { this.condition = condition; }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\network\ApiService.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\network\ApiService.java  
+================================================  
 package com.auction.client.network;
 
 import java.net.CookieManager;
@@ -2846,8 +3048,10 @@ public class ApiService {
       .build();
     return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
   }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\service\ApiCallback.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\service\ApiCallback.java  
+================================================  
 package com.auction.client.service;
 
 /**
@@ -2858,8 +3062,10 @@ public interface ApiCallback<T> {
   void onSuccess(T result);
   void onError(String errorMessage);
 }
- 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\service\AuctionFacade.java ===  
+  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\service\AuctionFacade.java  
+================================================  
 package com.auction.client.service;
 
 import com.auction.client.network.ApiService;
@@ -3175,8 +3381,10 @@ public class AuctionFacade {
             return null;
         });
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\util\ItemCard.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\java\com\auction\client\util\ItemCard.java  
+================================================  
 package com.auction.client.util;
 
 import com.auction.client.model.dto.*;
@@ -3352,8 +3560,10 @@ public class ItemCard extends VBox {
         iv.setPreserveRatio(true);
         this.getChildren().add(0, iv); // Đẩy ảnh lên đầu thẻ
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\AdminView.fxml ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\resources\view\AdminView.fxml  
+================================================  
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.*?>
@@ -3405,8 +3615,10 @@ public class ItemCard extends VBox {
             </children>
         </VBox>
     </center>
-</BorderPane> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\BiddingRoomView.fxml ===  
+</BorderPane>  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\resources\view\BiddingRoomView.fxml  
+================================================  
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
@@ -3421,7 +3633,7 @@ public class ItemCard extends VBox {
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.ScrollPane?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.text.Font?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1200.0" style="-fx-background-color: #f4f4f4;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.BiddingRoomController">
@@ -3562,472 +3774,10 @@ public class ItemCard extends VBox {
         </HBox>
     </bottom>
 </BorderPane>
- 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\BidHistoryView.fxml ===  
-<?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.scene.chart.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-
-<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.BidHistoryController">
-   <children>
-      <HBox alignment="CENTER_LEFT" spacing="10.0">
-         <children>
-            <Label text="Auction ID:" />
-            <TextField fx:id="txtAuctionId" promptText="Enter auction ID" />
-            <Button fx:id="btnLoadHistory" onAction="#loadBidHistory" text="Load History" />
-            <Button fx:id="btnSetupAutoBid" onAction="#setupAutoBid" text="Setup Auto-Bid" />
-         </children>
-      </HBox>
-
-      <HBox alignment="CENTER_LEFT" spacing="10.0">
-         <children>
-            <Label text="Max Bid:" />
-            <TextField fx:id="txtMaxBid" promptText="Enter max bid amount" />
-            <Label text="Increment:" />
-            <TextField fx:id="txtIncrement" promptText="Enter increment amount" />
-         </children>
-      </HBox>
-
-      <LineChart fx:id="bidHistoryChart" title="Bid History Over Time" VBox.vgrow="ALWAYS">
-         <xAxis>
-            <CategoryAxis fx:id="timeAxis" label="Time" />
-         </xAxis>
-         <yAxis>
-            <NumberAxis fx:id="priceAxis" label="Bid Amount ($)" />
-         </yAxis>
-      </LineChart>
-
-      <HBox spacing="10.0">
-         <children>
-            <Label fx:id="lblCurrentPrice" text="Current Price: $0.00" />
-            <Label fx:id="lblTotalBids" text="Total Bids: 0" />
-            <Label fx:id="lblTimeRemaining" text="Time Remaining: --:--" />
-         </children>
-      </HBox>
-
-      <HBox spacing="10.0">
-         <children>
-            <TextField fx:id="txtBidAmount" promptText="Enter your bid" />
-            <Button fx:id="btnPlaceBid" onAction="#placeBid" text="Place Bid" />
-            <Button fx:id="btnBack" onAction="#goBack" text="Back" />
-         </children>
-      </HBox>
-   </children>
-</VBox> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\Product.fxml ===  
-<?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
-
-<StackPane fx:id="rootPane" prefHeight="700.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.ProductViewController">
-
-    <BorderPane>
-        <top>
-            <HBox spacing="15" alignment="CENTER_LEFT" style="-fx-background-color: #2c3e50; -fx-padding: 15;">
-                <Label text="CHỢ ĐẤU GIÁ" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: white;"/>
-                <Region HBox.hgrow="ALWAYS" />
-                <TextField fx:id="txtSearch" promptText="Tìm tên sản phẩm..." prefWidth="300" style="-fx-background-radius: 15;"/>
-                <Button text="Tìm kiếm" onAction="#handleSearchAction" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 15; -fx-cursor: hand;"/>
-
-                <Region HBox.hgrow="ALWAYS" />
-
-                <Button text="🛒 Giỏ hàng" onAction="#handleToggleCart" style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"/>
-
-                <Button text="Đăng xuất" onAction="#handleLogout" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;"/>
-            </HBox>
-        </top>
-
-        <left>
-            <VBox spacing="20" prefWidth="250" style="-fx-background-color: #ecf0f1; -fx-padding: 20; -fx-border-color: #bdc3c7; -fx-border-width: 0 1 0 0;">
-
-                <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);">
-                    <Label fx:id="lblFullName" text="Đang tải..." style="-fx-font-weight: bold; -fx-font-size: 14;"/>
-                    <HBox spacing="5">
-                        <Label text="Số dư:" />
-                        <Label fx:id="lblBalance" text="0 VNĐ" style="-fx-text-fill: #27ae60; -fx-font-weight: bold;"/>
-                    </HBox>
-                    <Separator />
-                    <Label text="Nạp thêm tiền:" style="-fx-font-size: 11; -fx-text-fill: #7f8c8d;"/>
-                    <HBox spacing="5">
-                        <TextField fx:id="txtDepositAmount" promptText="Nhập số tiền" prefWidth="120" />
-                        <Button text="Nạp" onAction="#handleDepositAction" style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-cursor: hand;"/>
-                    </HBox>
-                </VBox>
-
-                <VBox spacing="10">
-                    <Label text="DANH MỤC SẢN PHẨM" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
-                    <Button text="💻 Đồ Điện Tử" onAction="#handleFilterElectronics" maxWidth="Infinity" style="-fx-alignment: center-left; -fx-cursor: hand;"/>
-                    <Button text="🚗 Xe Cộ" onAction="#handleFilterVehicles" maxWidth="Infinity" style="-fx-alignment: center-left; -fx-cursor: hand;"/>
-                    <Button text="🎨 Nghệ Thuật" onAction="#handleFilterArts" maxWidth="Infinity" style="-fx-alignment: center-left; -fx-cursor: hand;"/>
-                    <Button text="🔄 Tất cả" onAction="#handleSearchAction" maxWidth="Infinity" style="-fx-alignment: center-left; -fx-cursor: hand;"/>
-                </VBox>
-            </VBox>
-        </left>
-
-        <center>
-            <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
-                <content>
-                    <TilePane fx:id="productGridContainer" hgap="20.0" vgap="20.0" alignment="TOP_LEFT" style="-fx-padding: 30; -fx-background-color: white;" />
-                </content>
-            </ScrollPane>
-        </center>
-
-        <right>
-            <VBox spacing="15" prefWidth="250" style="-fx-background-color: #f9f9f9; -fx-padding: 20; -fx-border-color: #bdc3c7; -fx-border-width: 0 0 0 1;">
-                <Label text="LỊCH SỬ ĐẤU GIÁ" style="-fx-font-weight: bold; -fx-font-size: 14; -fx-text-fill: #2c3e50;"/>
-
-                <Label text="Đang tham gia:" style="-fx-font-size: 12;"/>
-                <ListView fx:id="listActiveBids" prefHeight="200" style="-fx-background-radius: 5;"/>
-
-                <Label text="Đã chiến thắng:" style="-fx-font-size: 12; -fx-text-fill: #d35400;"/>
-                <ListView fx:id="listWonItems" prefHeight="200" style="-fx-background-radius: 5;"/>
-            </VBox>
-        </right>
-    </BorderPane>
-
-    <VBox fx:id="cartSidebar" maxWidth="350.0" prefWidth="350.0" translateX="350.0"
-          StackPane.alignment="CENTER_RIGHT"
-          style="-fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 15, 0, -3, 0);">
-
-        <HBox alignment="CENTER_LEFT" style="-fx-padding: 15; -fx-background-color: #f8f9fa; -fx-border-color: #ddd; -fx-border-width: 0 0 1 0;">
-            <Label text="🛒 DANH SÁCH THEO DÕI" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
-            <Region HBox.hgrow="ALWAYS" />
-            <Button text="✕" onAction="#handleToggleCart" style="-fx-background-color: transparent; -fx-text-fill: #e74c3c; -fx-font-weight: bold; -fx-cursor: hand;" />
-        </HBox>
-
-        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: white;">
-            <content>
-                <VBox fx:id="cartItemsContainer" spacing="10.0" style="-fx-padding: 15;" />
-            </content>
-        </ScrollPane>
-    </VBox>
-
-</StackPane> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\Register.fxml ===  
-<?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.text.*?>
-<?import javafx.geometry.*?>
-
-<StackPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.RegisterController"
-           prefHeight="500.0" prefWidth="800.0"
-           style="-fx-background-color: linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%);">
-
-    <children>
-        <VBox alignment="CENTER" maxHeight="400.0" maxWidth="350.0" spacing="10.0"
-              style="-fx-background-color: white;
-                     -fx-background-radius: 15px;">
-
-            <padding>
-                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-            </padding>
-
-            <children>
-                <Label text="CREATE ACCOUNT" textFill="#2d6cdf" style="-fx-font-size: 18px; -fx-font-weight: bold;">
-                    <VBox.margin>
-                        <Insets bottom="10.0" />
-                    </VBox.margin>
-                </Label>
-
-                <TextField fx:id="regUsername" promptText="Username"
-                           style="-fx-background-color: white;
-                                  -fx-border-color: #ddd;
-                                  -fx-border-radius: 8px;
-                                  -fx-prompt-text-fill: #aaa;
-                                  -fx-padding: 6px;"/>
-
-                <PasswordField fx:id="regPassword" promptText="Password"
-                               style="-fx-background-color: white;
-                                      -fx-border-color: #ddd;
-                                      -fx-border-radius: 8px;
-                                      -fx-prompt-text-fill: #aaa;
-                                      -fx-padding: 6px;"/>
-
-                <HBox alignment="CENTER" spacing="10.0">
-                    <children>
-                        <Button onAction="#handleSignUpSeller" text="Seller Sign Up"
-                                style="-fx-background-color: #2d6cdf;
-                       -fx-text-fill: white;
-                       -fx-font-weight: bold;
-                       -fx-background-radius: 20px;
-                       -fx-padding: 6px 15px;
-                       -fx-cursor: hand;"/>
-
-                        <Button onAction="#handleSignUpBidder" text="Bidder Sign Up"
-                                style="-fx-background-color: #2d6cdf;
-                       -fx-text-fill: white;
-                       -fx-font-weight: bold;
-                       -fx-background-radius: 20px;
-                       -fx-padding: 6px 15px;
-                       -fx-cursor: hand;"/>
-                    </children>
-                </HBox>
-                <Button onAction="#handleBackToLogin" text="Return"
-                        style="-fx-background-color: white;
-                               -fx-text-fill: black;
-                               -fx-font-weight: bold;
-                               -fx-background-radius: 20px;
-                               -fx-padding: 6px 30px;
-                               -fx-cursor: hand;"/>
-
-            </children>
-        </VBox>
-    </children>
-</StackPane> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\SellerView.fxml ===  
-<?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.layout.TilePane?>
-<?import javafx.scene.control.ListView?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.control.DatePicker?>
-<?import javafx.scene.control.ComboBox?>
-
-<BorderPane prefHeight="600.0" prefWidth="1100.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.SellerController">
-
-    <left>
-        <VBox spacing="15" prefWidth="300.0" style="-fx-background-color: #f8f9fa; -fx-padding: 20; -fx-border-color: #dee2e6; -fx-border-width: 0 1 0 0;">
-            <children>
-                
-                <Button text="← Đăng xuất" onAction="#handleLogout" style="-fx-background-color: #ff4d4d; -fx-text-fill: white; -fx-cursor: hand;"/>
-
-                <Label text="ĐĂNG SẢN PHẨM MỚI" style="-fx-font-weight: bold; -fx-font-size: 14; -fx-text-fill: #2c3e50;" />
-
-                <GridPane vgap="10" hgap="10">
-                    <columnConstraints>
-                        <ColumnConstraints minWidth="80" prefWidth="80" />
-                        <ColumnConstraints hgrow="ALWAYS" />
-                    </columnConstraints>
-
-                    <children>
-                        <Label text="Tên SP:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
-                        <TextField fx:id="txtItemName" promptText="Nhập tên..." GridPane.rowIndex="0" GridPane.columnIndex="1" />
-
-                        <Label text="Giá đầu:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
-                        <TextField fx:id="txtStartingPrice" promptText="VNĐ" GridPane.rowIndex="1" GridPane.columnIndex="1" />
-
-                        <Label text="Bước giá:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
-                        <TextField fx:id="txtPriceStep" promptText="Số tiền tối thiểu" GridPane.rowIndex="2" GridPane.columnIndex="1" />
-
-                        <Label text="Loại SP:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
-                        <ComboBox fx:id="cbCategory" promptText="Chọn phân loại" GridPane.rowIndex="3" GridPane.columnIndex="1" maxWidth="Infinity" />
-
-                        <VBox fx:id="dynamicFieldsContainer" spacing="10" GridPane.rowIndex="4" GridPane.columnIndex="0" GridPane.columnSpan="2" style="-fx-padding: 5 0 5 0;" />
-
-                        <Label text="Mô tả:" GridPane.rowIndex="5" GridPane.columnIndex="0" />
-                        <TextArea fx:id="txtDescription" prefHeight="80" wrapText="true" GridPane.rowIndex="5" GridPane.columnIndex="1" />
-
-                        <Label text="Hình ảnh:" GridPane.rowIndex="6" GridPane.columnIndex="0" />
-                        <HBox spacing="10" GridPane.rowIndex="6" GridPane.columnIndex="1">
-                            <children>
-                                <Button text="Chọn ảnh" onAction="#handleSelectImage" />
-                                <Label fx:id="lblFileName" text="Chưa chọn file" style="-fx-text-fill: #7f8c8d; -fx-font-style: italic;" />
-                            </children>
-                        </HBox>
-
-                        <Label text="Bắt đầu:" GridPane.rowIndex="7" GridPane.columnIndex="0" />
-                        <HBox spacing="10" GridPane.rowIndex="7" GridPane.columnIndex="1">
-                            <DatePicker fx:id="dateStart" prefWidth="150" promptText="Chọn ngày" />
-                            <TextField fx:id="txtTimeStart" prefWidth="80" promptText="HH:mm" text="08:00" />
-                        </HBox>
-
-                        <Label text="Kết thúc:" GridPane.rowIndex="8" GridPane.columnIndex="0" />
-                        <HBox spacing="10" GridPane.rowIndex="8" GridPane.columnIndex="1">
-                            <DatePicker fx:id="dateEnd" prefWidth="150" promptText="Chọn ngày" />
-                            <TextField fx:id="txtTimeEnd" prefWidth="80" promptText="HH:mm" text="20:00" />
-                        </HBox>
-                    </children>
-                </GridPane>
-
-                <Button fx:id="btnPostItem" onAction="#handlePostItem" maxWidth="Infinity"
-                        text="ĐĂNG BÁN NGAY"
-                        style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10; -fx-cursor: hand;" />
-
-                <Separator />
-
-            </children>
-        </VBox>
-    </left>
-
-    <center>
-        <VBox spacing="10" style="-fx-padding: 10;">
-            <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 0 10 0 10;">
-                <TextField fx:id="txtSearch" promptText="🔍 Tìm tên sản phẩm..." prefWidth="300" style="-fx-background-radius: 15; -fx-padding: 5 10;"/>
-                <Button text="Tìm kiếm" onAction="#handleSearch" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 15; -fx-cursor: hand;"/>
-                <Button text="Làm mới" onAction="#loadSellerInventory" style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-background-radius: 15; -fx-cursor: hand;"/>
-            </HBox>
-            
-            <Separator />
-            
-            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
-                <content>
-                    <TilePane fx:id="inventoryGrid" hgap="15" vgap="15" style="-fx-padding: 10;" />
-                </content>
-            </ScrollPane>
-        </VBox>
-    </center>
-
-    <right>
-        <VBox spacing="10" style="-fx-padding: 20; -fx-background-color: #f9f9f9;" prefWidth="240">
-            <Label text="THỐNG KÊ NGƯỜI BÁN" style="-fx-font-weight: bold; -fx-font-size: 13;" />
-            <HBox spacing="5">
-                <Label text="⭐ Đánh giá:" />
-                <Label fx:id="lblRating" text="0.0" style="-fx-text-fill: #f1c40f; -fx-font-weight: bold;" />
-            </HBox>
-            <HBox spacing="5">
-                <Label text="📦 Đã bán:" />
-                <Label fx:id="lblSaleCount" text="0" style="-fx-font-weight: bold;" />
-            </HBox>
-            <HBox spacing="5">
-                <Label text="💰 Số dư ví:" />
-                <Label fx:id="lblAccountBalance" text="0 VNĐ" style="-fx-text-fill: #27ae60; -fx-font-weight: bold;" />
-            </HBox>
-            
-            <Separator style="-fx-padding: 10 0 10 0;" />
-            
-            <Label text="LỊCH SỬ GIAO DỊCH" style="-fx-font-weight: bold;" />
-            <ListView fx:id="historyList" prefHeight="300" />
-        </VBox>
-    </right>
-
-</BorderPane> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\View.fxml ===  
-<?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.geometry.Insets?>
-
-<BorderPane prefWidth="800.0" prefHeight="500.0"  xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.LoginController">
-
-    <center>
-        <StackPane fx:id="leftPane" style="-fx-border-color: #ccc;">
-        </StackPane>
-    </center>
-
-    <right>
-        <VBox alignment="CENTER" prefWidth="320.0" spacing="15.0" style="-fx-background-color: white; -fx-border-color: #eee;">
-            <padding>
-                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-            </padding>
-            <children>
-                <Label text="LOGIN" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333;" />
-
-                <VBox spacing="5.0">
-                    <children>
-                        <Label text="Username:" />
-                        <TextField fx:id="txtUsername" promptText="Enter username" />
-                    </children>
-                </VBox>
-
-                <VBox spacing="5.0">
-                    <children>
-                        <Label text="Password:" />
-                        <PasswordField fx:id="txtPassword" promptText="Enter password" />
-                    </children>
-                </VBox>
-
-                <HBox spacing="20.0" alignment="CENTER">
-                    <children>
-                        <RadioButton fx:id="rbBidder" text="BIDDER" selected="true">
-                            <toggleGroup>
-                                <ToggleGroup fx:id="roleGroup" />
-                            </toggleGroup>
-                        </RadioButton>
-                        <RadioButton fx:id="rbSeller" text="SELLER" toggleGroup="$roleGroup" />
-                        <RadioButton fx:id="rbAdmin" text="ADMIN" toggleGroup="$roleGroup" />
-                    </children>
-                    <padding>
-                        <Insets top="10.0" bottom="10.0" />
-                    </padding>
-                </HBox>
-
-                <HBox spacing="10.0" alignment="CENTER">
-                    <children>
-                        <Button fx:id="btnLogin" onAction="#handleLogin" text="Login" prefWidth="100.0"
-                                style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-cursor: hand;" />
-                        <Button fx:id="btnRegister" onAction="#handleRegister" text="Register" prefWidth="100.0"
-                                style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-cursor: hand;"/>
-                    </children>
-                    <padding>
-                        <Insets top="10.0" />
-                    </padding>
-                </HBox>
-            </children>
-        </VBox>
-    </right>
-
-</BorderPane> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\AdminView.fxml ===  
-<?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.geometry.Insets?>
-
-<BorderPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.AdminController">
-
-    <left>
-        <VBox spacing="15.0" style="-fx-background-color: #2c3e50; -fx-pref-width: 200;">
-            <padding>
-                <Insets top="20" right="10" bottom="20" left="10"/>
-            </padding>
-            <children>
-                <Label text="ADMIN" style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" alignment="CENTER"/>
-                <Separator opacity="0.3"/>
-                <Button fx:id="btnManageUsers" onAction="#showUserManagement" text="Quản lý Người dùng" maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-cursor: hand;"/>
-                <Button fx:id="btnManageItems" onAction="#showItemManagement" text="Quản lý Sản phẩm" maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-cursor: hand;"/>
-              
-                <Region VBox.vgrow="ALWAYS" />
-                <Button onAction="#handleLogout" text="Đăng xuất" maxWidth="Infinity" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;"/>
-            </children>
-        </VBox>
-    </left>
-
-    <center>
-        <VBox spacing="10.0">
-            <padding>
-                <Insets top="20" right="20" bottom="20" left="20"/>
-            </padding>
-            <children>
-                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                    <children>
-                        <Label fx:id="lblTitle" text="Danh sách người dùng" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
-                        <Region HBox.hgrow="ALWAYS" />
-                        <TextField fx:id="txtSearch" promptText="Tìm kiếm..." prefWidth="200.0"/>
-                    </children>
-                </HBox>
-
-                <TableView fx:id="tableData" VBox.vgrow="ALWAYS">
-                </TableView>
-
-                <HBox spacing="15.0" alignment="CENTER_RIGHT">
-                    <children>
-                        <Button fx:id="btnLock" onAction="#handleLockUnlock" text="Khóa Tài Khoản" style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-cursor: hand;"/>
-                        <Button fx:id="btnDelete" onAction="#handleDelete" text="Xóa Sản Phẩm" style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-cursor: hand;"/>
-                    </children>
-                </HBox>
-            </children>
-        </VBox>
-    </center>
-</BorderPane> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\BiddingRoomView.fxml ===  
+  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\resources\view\BidHistoryView.fxml  
+================================================  
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
@@ -4041,67 +3791,114 @@ public class ItemCard extends VBox {
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.ScrollPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1200.0" style="-fx-background-color: #f4f4f4;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.BiddingRoomController">
+<BorderPane
+    prefHeight="700.0"
+    prefWidth="1200.0"
+    maxHeight="-Infinity"
+    maxWidth="-Infinity"
+    minHeight="-Infinity"
+    minWidth="-Infinity"
+    style="-fx-background-color: #f4f4f4;"
+    xmlns="http://javafx.com/javafx/17"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="com.auction.client.controllers.BiddingRoomController">
 
     <top>
-        <HBox spacing="20.0" style="-fx-background-color: #2c3e50; -fx-padding: 15;" BorderPane.alignment="CENTER">
-            <children>
-                <Label text="PHÒNG ĐẤU GIÁ" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: white;"/>
-                <Separator orientation="VERTICAL" />
-                <Label fx:id="lblCurrentUser" text="Người dùng: ..." style="-fx-text-fill: white; -fx-font-size: 12;"/>
-                <Label fx:id="lblUserBalance" text="Số dư: 0 VNĐ" style="-fx-text-fill: #2ecc71; -fx-font-weight: bold; -fx-font-size: 12;"/>
-            </children>
+        <HBox spacing="20.0"
+              style="-fx-background-color: #2c3e50; -fx-padding: 15;"
+              BorderPane.alignment="CENTER">
             <padding>
                 <Insets left="20" right="20" top="10" bottom="10" />
             </padding>
+            <children>
+                <Label text="PHÒNG ĐẤU GIÁ"
+                       style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                <Separator orientation="VERTICAL" />
+                <Label fx:id="lblCurrentUser"
+                       text="Người dùng: ..."
+                       style="-fx-text-fill: white; -fx-font-size: 12;"/>
+                <Label fx:id="lblUserBalance"
+                       text="Số dư: 0 VNĐ"
+                       style="-fx-text-fill: #2ecc71; -fx-font-weight: bold; -fx-font-size: 12;"/>
+            </children>
         </HBox>
     </top>
 
     <left>
         <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
-            <VBox prefWidth="300.0" spacing="15.0" style="-fx-background-color: white; -fx-padding: 15; -fx-border-color: #ddd; -fx-border-width: 0 1 0 0;">
-                <children>
-                    <Label text="Thông tin sản phẩm" style="-fx-font-weight: bold; -fx-font-size: 16;"/>
-                    
-                    <ImageView fx:id="imgProduct" fitHeight="200.0" fitWidth="280.0" pickOnBounds="true" preserveRatio="true" style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);" />
-                    
-                    <Separator />
-                    
-                    <VBox spacing="8.0">
-                        <children>
-                            <Label fx:id="lblDescription" text="Mô tả: Đang tải..." wrapText="true" />
-                            <Label fx:id="lblCategory" text="Loại: ..." style="-fx-text-fill: #2980b9; -fx-font-weight: bold;" />
-                            <Separator />
-                            <Label text="THÔNG TIN NGƯỜI BÁN" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
-                            <Label fx:id="lblSeller" text="Người bán: Admin" />
-                            <Label fx:id="lblSellerRating" text="Đánh giá: ..." />
-                            <Label fx:id="lblSellerSaleCount" text="Đã bán: ..." />
-                            <Separator />
-                            <Label text="THÔNG TIN GIÁ CẢ" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
-                            <Label fx:id="lblStartPrice" text="Giá khởi điểm: 0 VNĐ" />
-                            <Label fx:id="lblStepPrice" text="Bước giá: 50.000 VNĐ" style="-fx-text-fill: #e74c3c; -fx-font-weight: bold;" />
-                            <Separator />
-                            <Label text="THỜI GIAN ĐẤU GIÁ" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
-                            <Label fx:id="lblStartTime" text="Bắt đầu: --/--/---- --:--" />
-                            <Label fx:id="lblEndTime" text="Kết thúc: --/--/---- --:--" />
-                            <Separator />
-                            <VBox fx:id="categoryDetailsContainer" spacing="8.0" />
-                        </children>
-                    </VBox>
-                </children>
-                <padding>
-                    <Insets bottom="20.0" left="15.0" right="15.0" top="15.0" />
-                </padding>
-            </VBox>
+            <content>
+                <VBox prefWidth="300.0"
+                      spacing="15.0"
+                      style="-fx-background-color: white; -fx-padding: 15; -fx-border-color: #ddd; -fx-border-width: 0 1 0 0;">
+                    <padding>
+                        <Insets bottom="20.0" left="15.0" right="15.0" top="15.0" />
+                    </padding>
+                    <children>
+                        <Label text="Thông tin sản phẩm"
+                               style="-fx-font-weight: bold; -fx-font-size: 16;"/>
+
+                        <ImageView fx:id="imgProduct"
+                                   fitHeight="200.0"
+                                   fitWidth="280.0"
+                                   preserveRatio="true"
+                                   pickOnBounds="true"
+                                   style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);" />
+
+                        <Separator />
+
+                        <VBox spacing="8.0">
+                            <children>
+                                <Label fx:id="lblDescription" text="Mô tả: Đang tải..." wrapText="true" />
+                                <Label fx:id="lblCategory"
+                                       text="Loại: ..."
+                                       style="-fx-text-fill: #2980b9; -fx-font-weight: bold;" />
+
+                                <Separator />
+
+                                <Label text="THÔNG TIN NGƯỜI BÁN"
+                                       style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
+                                <Label fx:id="lblSeller" text="Người bán: ..." />
+                                <Label fx:id="lblSellerRating" text="Đánh giá: ..." />
+                                <Label fx:id="lblSellerSaleCount" text="Đã bán: ..." />
+
+                                <Separator />
+
+                                <Label text="THÔNG TIN GIÁ CẢ"
+                                       style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
+                                <Label fx:id="lblStartPrice" text="Giá khởi điểm: 0 VNĐ" />
+                                <Label fx:id="lblStepPrice"
+                                       text="Bước giá: 0 VNĐ"
+                                       style="-fx-text-fill: #e74c3c; -fx-font-weight: bold;" />
+
+                                <Separator />
+
+                                <Label text="THỜI GIAN ĐẤU GIÁ"
+                                       style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
+                                <Label fx:id="lblStartTime" text="Bắt đầu: --/--/---- --:--" />
+                                <Label fx:id="lblEndTime" text="Kết thúc: --/--/---- --:--" />
+
+                                <Separator />
+
+                                <VBox fx:id="categoryDetailsContainer" spacing="8.0" />
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+            </content>
         </ScrollPane>
     </left>
 
     <center>
-        <VBox alignment="CENTER" spacing="30.0" BorderPane.alignment="CENTER">
+        <VBox alignment="CENTER"
+              spacing="30.0"
+              BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
             <children>
                 <VBox alignment="CENTER" spacing="5.0">
                     <children>
@@ -4118,7 +3915,9 @@ public class ItemCard extends VBox {
                     </children>
                 </VBox>
 
-                <VBox alignment="CENTER" spacing="10.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+                <VBox alignment="CENTER"
+                      spacing="10.0"
+                      style="-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
                     <padding>
                         <Insets bottom="20.0" left="40.0" right="40.0" top="20.0" />
                     </padding>
@@ -4128,7 +3927,9 @@ public class ItemCard extends VBox {
                                 <Font size="16.0" />
                             </font>
                         </Label>
-                        <Label fx:id="lblCurrentPrice" text="1.500.000 VNĐ" textFill="#2ecc71">
+                        <Label fx:id="lblCurrentPrice"
+                               text="0 VNĐ"
+                               textFill="#2ecc71">
                             <font>
                                 <Font name="System Bold" size="36.0" />
                             </font>
@@ -4136,23 +3937,29 @@ public class ItemCard extends VBox {
                         <HBox alignment="CENTER" spacing="10.0">
                             <children>
                                 <Label text="Người giữ giá:" />
-                                <Label fx:id="lblHighestBidder" text="Chưa có" style="-fx-font-weight: bold;" />
+                                <Label fx:id="lblHighestBidder"
+                                       text="Chưa có"
+                                       style="-fx-font-weight: bold;" />
                             </children>
                         </HBox>
                     </children>
                 </VBox>
             </children>
-            <padding>
-                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-            </padding>
         </VBox>
     </center>
 
     <right>
-        <VBox prefWidth="380.0" spacing="15.0" style="-fx-padding: 15;" BorderPane.alignment="CENTER">
+        <VBox prefWidth="380.0"
+              spacing="15.0"
+              style="-fx-padding: 15;"
+              BorderPane.alignment="CENTER">
             <children>
-                <Label text="Lịch sử trả giá" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
-                <LineChart fx:id="chartHistory" prefHeight="200.0" style="-fx-background-color: white; -fx-background-radius: 10;">
+                <Label text="Lịch sử trả giá"
+                       style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+
+                <LineChart fx:id="chartHistory"
+                           prefHeight="200.0"
+                           style="-fx-background-color: white; -fx-background-radius: 10;">
                     <xAxis>
                         <CategoryAxis side="BOTTOM" label="Thời gian" />
                     </xAxis>
@@ -4163,12 +3970,26 @@ public class ItemCard extends VBox {
 
                 <Separator />
 
-                <VBox spacing="12.0" style="-fx-background-color: #ebf5fb; -fx-padding: 15; -fx-background-radius: 10; -fx-border-color: #3498db; -fx-border-width: 1;">
+                <VBox spacing="12.0"
+                      style="-fx-background-color: #ebf5fb; -fx-padding: 15; -fx-background-radius: 10; -fx-border-color: #3498db; -fx-border-width: 1;">
                     <children>
-                        <Label text="ĐẶT GIÁ MỚI" style="-fx-font-weight: bold; -fx-font-size: 13;" />
-                        <TextField fx:id="txtBidAmount" prefHeight="40.0" promptText="Nhập giá (VNĐ)..." style="-fx-background-radius: 5; -fx-padding: 10; -fx-font-size: 12;" />
-                        <Button fx:id="btnBid" onAction="#handleBidAction" prefHeight="45.0" maxWidth="Infinity" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand; -fx-font-size: 13;" text="ĐẶT GIÁ" />
-                        <Label fx:id="lblBidNote" text="* Giá phải ≥ Giá hiện tại + Bước giá" textFill="#7f8c8d" style="-fx-font-size: 11; -fx-font-style: italic;" wrapText="true"/>
+                        <Label text="ĐẶT GIÁ MỚI"
+                               style="-fx-font-weight: bold; -fx-font-size: 13;" />
+                        <TextField fx:id="txtBidAmount"
+                                   prefHeight="40.0"
+                                   promptText="Nhập giá (VNĐ)..."
+                                   style="-fx-background-radius: 5; -fx-padding: 10; -fx-font-size: 12;" />
+                        <Button fx:id="btnBid"
+                                text="ĐẶT GIÁ"
+                                onAction="#handleBidAction"
+                                prefHeight="45.0"
+                                maxWidth="Infinity"
+                                style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand; -fx-font-size: 13;" />
+                        <Label fx:id="lblBidNote"
+                               text="* Giá phải ≥ Giá hiện tại + Bước giá"
+                               textFill="#7f8c8d"
+                               wrapText="true"
+                               style="-fx-font-size: 11; -fx-font-style: italic;"/>
                     </children>
                 </VBox>
             </children>
@@ -4176,69 +3997,19 @@ public class ItemCard extends VBox {
     </right>
 
     <bottom>
-        <HBox spacing="10.0" style="-fx-padding: 15; -fx-background-color: #ecf0f1; -fx-alignment: center-right;">
+        <HBox spacing="10.0"
+              style="-fx-padding: 15; -fx-background-color: #ecf0f1; -fx-alignment: center-right;">
             <children>
-                <Button text="← Quay lại trang chủ" onAction="#handleBackToHome" style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-padding: 10 20; -fx-cursor: hand; -fx-font-weight: bold;"/>
+                <Button text="← Quay lại trang chủ"
+                        onAction="#handleBackToHome"
+                        style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-padding: 10 20; -fx-cursor: hand; -fx-font-weight: bold;"/>
             </children>
         </HBox>
     </bottom>
-</BorderPane>
- 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\BidHistoryView.fxml ===  
-<?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.scene.chart.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-
-<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.BidHistoryController">
-   <children>
-      <HBox alignment="CENTER_LEFT" spacing="10.0">
-         <children>
-            <Label text="Auction ID:" />
-            <TextField fx:id="txtAuctionId" promptText="Enter auction ID" />
-            <Button fx:id="btnLoadHistory" onAction="#loadBidHistory" text="Load History" />
-            <Button fx:id="btnSetupAutoBid" onAction="#setupAutoBid" text="Setup Auto-Bid" />
-         </children>
-      </HBox>
-
-      <HBox alignment="CENTER_LEFT" spacing="10.0">
-         <children>
-            <Label text="Max Bid:" />
-            <TextField fx:id="txtMaxBid" promptText="Enter max bid amount" />
-            <Label text="Increment:" />
-            <TextField fx:id="txtIncrement" promptText="Enter increment amount" />
-         </children>
-      </HBox>
-
-      <LineChart fx:id="bidHistoryChart" title="Bid History Over Time" VBox.vgrow="ALWAYS">
-         <xAxis>
-            <CategoryAxis fx:id="timeAxis" label="Time" />
-         </xAxis>
-         <yAxis>
-            <NumberAxis fx:id="priceAxis" label="Bid Amount ($)" />
-         </yAxis>
-      </LineChart>
-
-      <HBox spacing="10.0">
-         <children>
-            <Label fx:id="lblCurrentPrice" text="Current Price: $0.00" />
-            <Label fx:id="lblTotalBids" text="Total Bids: 0" />
-            <Label fx:id="lblTimeRemaining" text="Time Remaining: --:--" />
-         </children>
-      </HBox>
-
-      <HBox spacing="10.0">
-         <children>
-            <TextField fx:id="txtBidAmount" promptText="Enter your bid" />
-            <Button fx:id="btnPlaceBid" onAction="#placeBid" text="Place Bid" />
-            <Button fx:id="btnBack" onAction="#goBack" text="Back" />
-         </children>
-      </HBox>
-   </children>
-</VBox> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\Product.fxml ===  
+</BorderPane>  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\resources\view\Product.fxml  
+================================================  
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -4327,8 +4098,10 @@ public class ItemCard extends VBox {
         </ScrollPane>
     </VBox>
 
-</StackPane> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\Register.fxml ===  
+</StackPane>  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\resources\view\Register.fxml  
+================================================  
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.*?>
@@ -4400,8 +4173,10 @@ public class ItemCard extends VBox {
             </children>
         </VBox>
     </children>
-</StackPane> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\SellerView.fxml ===  
+</StackPane>  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\resources\view\SellerView.fxml  
+================================================  
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
@@ -4526,8 +4301,10 @@ public class ItemCard extends VBox {
         </VBox>
     </right>
 
-</BorderPane> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\View.fxml ===  
+</BorderPane>  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Client\src\main\resources\view\View.fxml  
+================================================  
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.*?>
@@ -4594,215 +4371,10 @@ public class ItemCard extends VBox {
         </VBox>
     </right>
 
-</BorderPane> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\pom.xml ===  
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
-    <groupId>com.auction</groupId>
-    <artifactId>server</artifactId>
-    <version>1.0-SNAPSHOT</version>
-
-    <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.tomcat.embed</groupId>
-            <artifactId>tomcat-embed-core</artifactId>
-            <version>9.0.83</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>4.0.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.10.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-            <version>8.0.33</version>
-        </dependency>
-        <dependency>
-            <groupId>org.java-websocket</groupId>
-            <artifactId>Java-WebSocket</artifactId>
-            <version>1.5.4</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-            <version>5.1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mindrot</groupId>
-            <artifactId>jbcrypt</artifactId>
-            <version>0.4</version>
-        </dependency>
-    </dependencies>
-</project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\database.sql ===  
-USE defaultdb;
-
--- 1. Users (chung)
-CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    role ENUM('BIDDER', 'SELLER', 'ADMIN') NOT NULL,
-    isActive BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- 2. Bidders (riêng cho bidder)
-CREATE TABLE bidders (
-    user_id INT PRIMARY KEY,
-    account_balance DOUBLE DEFAULT 0,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
--- 3. Sellers (riêng cho seller)
-CREATE TABLE sellers (
-    user_id INT PRIMARY KEY,
-    total_rating DOUBLE DEFAULT 0,
-    sale_count INT DEFAULT 0,
-    account_balance DOUBLE DEFAULT 0,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
--- 4. Items (sản phẩm)
--- 1. BẢNG CHA: Lưu thông tin cơ bản của mọi mặt hàng
-CREATE TABLE items (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    seller_id INT NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    description TEXT,
-    starting_price DOUBLE NOT NULL,
-    category VARCHAR(50) NOT NULL, -- Sẽ lưu giá trị 'ART', 'ELECTRONICS', hoặc 'VEHICLE'
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    image_path VARCHAR(255),    
-    
-    
-    CONSTRAINT fk_items_seller FOREIGN KEY (seller_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
--- ==========================================
--- CÁC BẢNG CON (Dùng item_id làm Khóa chính kiêm Khóa ngoại)
--- ==========================================
-
--- 2. BẢNG CON 1: Nghệ thuật
-CREATE TABLE artworks (
-    item_id INT PRIMARY KEY,       -- Vừa là ID của bảng này, vừa trỏ về bảng items
-    artist VARCHAR(100),
-    creation_year INT,
-    material VARCHAR(100),
-    
-    CONSTRAINT fk_art_item FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE
-);
-
--- 3. BẢNG CON 2: Đồ điện tử
-CREATE TABLE electronics (
-    item_id INT PRIMARY KEY,
-    warranty_months INT,
-    
-    CONSTRAINT fk_elec_item FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE
-);
-
--- 4. BẢNG CON 3: Xe cộ
-CREATE TABLE vehicles (
-    item_id INT PRIMARY KEY,
-    brand VARCHAR(100),
-    mileage INT,
-    condition_state VARCHAR(50),   -- Đổi tên thành condition_state để tránh trùng từ khóa SQL
-    
-    CONSTRAINT fk_vehicle_item FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE
-);
-
--- 8. Bids (lịch sử đấu giá)
-CREATE TABLE bids (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    auction_id INT NOT NULL,
-    bidder_id INT NOT NULL,
-    bid_amount DOUBLE NOT NULL,
-    bid_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (auction_id) REFERENCES auctions(id),
-    FOREIGN KEY (bidder_id) REFERENCES bidders(user_id)
-);
-
--- 9. Payments (thanh toán)
-CREATE TABLE payments (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    auction_id INT NOT NULL,            -- ĐÃ SỬA: Chuyển thành auction_id
-    from_bidder_id INT NOT NULL,
-    to_seller_id INT NOT NULL,
-    amount DOUBLE NOT NULL,
-    status ENUM('PENDING', 'COMPLETED', 'FAILED') DEFAULT 'PENDING',
-    payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
-    -- ĐÃ SỬA: Trỏ khóa ngoại về đúng bảng auctions và users, kèm Xóa dây chuyền
-    CONSTRAINT fk_payment_auction FOREIGN KEY (auction_id) REFERENCES auctions(id) ON DELETE CASCADE,
-    CONSTRAINT fk_payment_bidder FOREIGN KEY (from_bidder_id) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT fk_payment_seller FOREIGN KEY (to_seller_id) REFERENCES users(id) ON DELETE CASCADE
-);
---10.Auctions 
-CREATE TABLE auctions(
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    item_id INT NOT NULL,
-    seller_id INT NOT NULL,
-    current_max_price DOUBLE DEFAULT 0,
-    highest_bidder_id INT DEFAULT NULL,
-    end_time DATETIME NOT NULL,
-    status ENUM('OPEN', 'RUNNING', 'FINISHED', 'PAID', 'CANCELED') DEFAULT 'OPEN',
-    has_extended TINYINT(1) DEFAULT 0,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    start_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    price_step DOUBLE DEFAULT 1000;
-    CONSTRAINT fk_auctions_item FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE,
-    CONSTRAINT fk_auctions_seller FOREIGN KEY (seller_id) REFERENCES sellers(user_id) ON DELETE CASCADE,
-    CONSTRAINT fk_auctions_highest_bidder FOREIGN KEY (highest_bidder_id) REFERENCES bidders(user_id)
-);
---11. Auto_bids: Bảng này giúp đảm bảo 1 người chỉ có 1 mức giá max cho 1 phiên đấu giá, muốn cài giá mới thì "UPDATE" lại
-CREATE TABLE IF NOT EXISTS auto_bids (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    auction_id INT NOT NULL,
-    user_id INT NOT NULL,
-    max_amount DECIMAL(15,2) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY unique_auto_bid (auction_id, user_id)
-);
--- 12. Watchlist (Giỏ hàng / Danh sách theo dõi - Tính năng sáng tạo)
-CREATE TABLE watchlist (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    item_id INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    -- Ràng buộc khóa ngoại để đảm bảo tính toàn vẹn dữ liệu
-    CONSTRAINT fk_watchlist_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT fk_watchlist_item FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE,
-
-    -- Đảm bảo 1 user không thể thêm 1 item vào giỏ 2 lần
-    UNIQUE KEY unique_user_item (user_id, item_id)
-);
- 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\AuctionController.java ===  
+</BorderPane>  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\controller\AuctionController.java  
+================================================  
 package com.auction.controller;
 
 import com.auction.service.AuctionService;
@@ -4856,8 +4428,10 @@ public class AuctionController {
         }
         return gson.toJson(response);
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\BidController.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\controller\BidController.java  
+================================================  
 package com.auction.controller;
 
 import com.auction.service.BidService;
@@ -4907,8 +4481,10 @@ public class BidController {
         }
         return gson.toJson(response);
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\BidderController.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\controller\BidderController.java  
+================================================  
 package com.auction.controller;
 
 import com.auction.service.BidderService;
@@ -4960,8 +4536,10 @@ public class BidderController {
         }
     }
 }
- 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\ItemController.java ===  
+  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\controller\ItemController.java  
+================================================  
 package com.auction.controller;
 
 import com.auction.server.factory.ItemFactory;
@@ -5167,8 +4745,10 @@ public class ItemController {
         return gson.toJson(response);
     }
     
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\PaymentController.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\controller\PaymentController.java  
+================================================  
 package com.auction.controller;
 import com.auction.server.models.Payment;
 import com.auction.service.PaymentService;
@@ -5276,8 +4856,10 @@ public class PaymentController {
         }
     }
 }
- 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\UserController.java ===  
+  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\controller\UserController.java  
+================================================  
 package com.auction.controller;
 
 import com.auction.service.UserService;
@@ -5460,8 +5042,10 @@ public class UserController {
             return createErrorResponse("Dữ liệu JSON không hợp lệ.");
         }
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\WatchlistController.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\controller\WatchlistController.java  
+================================================  
 package com.auction.controller;
 
 import com.auction.server.dao.WatchlistDAO;
@@ -5508,8 +5092,10 @@ public class WatchlistController {
     response.put("data", items); // Ném nguyên cái List vào đây để gửi về Client
     return response;
   }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\AuctionServer.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\AuctionServer.java  
+================================================  
 package com.auction.server;
 
 import com.auction.server.dao.DatabaseConnection;
@@ -5620,8 +5206,10 @@ public class AuctionServer {
         }
         System.exit(0);
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\AdminDAO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\AdminDAO.java  
+================================================  
 package com.auction.server.dao;
 
 import com.auction.server.models.BidderDTO;
@@ -5714,8 +5302,10 @@ public class AdminDAO {
             return false;
         }
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\ArtDAO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\ArtDAO.java  
+================================================  
 package com.auction.server.dao;
 
 import com.auction.server.models.ArtDTO;
@@ -5761,8 +5351,10 @@ public class ArtDAO implements IItemSubDAO {
         }
         return null;
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\AuctionDAO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\AuctionDAO.java  
+================================================  
 package com.auction.server.dao;
 import com.auction.server.models.AuctionDataDTO;
 import com.auction.server.models.AuctionStatus;
@@ -5881,8 +5473,10 @@ public class AuctionDAO {
         return null;
     }
 }
- 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\BidderDAO.java ===  
+  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\BidderDAO.java  
+================================================  
 package com.auction.server.dao;
 
 import java.sql.Connection;
@@ -5959,8 +5553,10 @@ public class BidderDAO {
             return false;
         }
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\BidderSubDAO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\BidderSubDAO.java  
+================================================  
 package com.auction.server.dao;
 
 import com.auction.server.models.User;
@@ -6000,8 +5596,10 @@ public class BidderSubDAO implements IUserSubDAO {
         }
         return null;
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\BidsDAO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\BidsDAO.java  
+================================================  
 package com.auction.server.dao;
 
 import java.sql.*;
@@ -6234,8 +5832,10 @@ public class BidsDAO {
         }
         return item;
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\DatabaseConnection.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\DatabaseConnection.java  
+================================================  
 package com.auction.server.dao;
 
 import com.zaxxer.hikari.HikariConfig;
@@ -6280,8 +5880,10 @@ public class DatabaseConnection {
             System.out.println("✓ [DATABASE] Đã đóng hồ chứa kết nối.");
         }
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\ElectronicsDAO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\ElectronicsDAO.java  
+================================================  
 package com.auction.server.dao;
 
 import com.auction.server.models.ElectronicsDTO;
@@ -6324,8 +5926,10 @@ public class ElectronicsDAO implements IItemSubDAO {
         }
         return null;
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\IItemSubDAO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\IItemSubDAO.java  
+================================================  
 package com.auction.server.dao;
 
 import com.auction.server.models.ItemDTO;
@@ -6336,8 +5940,10 @@ import java.sql.SQLException;
 public interface IItemSubDAO {
     void insertSubItem(Connection conn, ItemDTO item) throws SQLException;
     ItemDTO fetchSubItem(Connection conn, ResultSet rs) throws SQLException;
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\ItemDAO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\ItemDAO.java  
+================================================  
 package com.auction.server.dao;
 
 import com.auction.server.models.ItemDTO;
@@ -6722,36 +6328,68 @@ public class ItemDAO {
         return null;
     }
 
+
     public List<ItemDTO> getAllItems(int page, int limit) {
-        List<ItemDTO> list = new ArrayList<>();
-        // FIX: Alias "id" -> "item_id" để khớp với mapRowToItemDTO() expectation
-        String sql = "SELECT i.id AS item_id, i.seller_id, i.name, i.description, i.starting_price, " +
-                     "       i.category, i.image_path, i.created_at, " +
-                     "       a.id AS auction_id, a.current_max_price, a.highest_bidder_id, a.price_step, " +
-                     "       a.start_time, a.end_time, a.status " +
-                     "FROM items i " +
-                     "LEFT JOIN auctions a ON i.id = a.item_id " +
-                     "ORDER BY i.created_at DESC LIMIT ? OFFSET ?";
-        
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setInt(1, limit);
-            pstmt.setInt(2, (page - 1) * limit);
-            
-            try (ResultSet rs = pstmt.executeQuery()) {
+        List<ItemDTO> items = new ArrayList<>();
+
+        String sql = """
+            SELECT
+                i.id AS item_id,
+                i.seller_id,
+                i.name,
+                i.description,
+                i.starting_price,
+                i.category,
+                i.image_path,
+                i.created_at,
+
+                a.id AS auction_id,
+                a.current_max_price,
+                a.highest_bidder_id,
+                a.price_step,
+                a.start_time,
+                a.end_time,
+                a.status AS auction_status,
+
+                aw.artist,
+                aw.creation_year,
+                aw.material,
+
+                v.brand,
+                v.mileage,
+                v.condition_state,
+
+                e.warranty_months
+            FROM items i
+            LEFT JOIN auctions a ON i.id = a.item_id
+            LEFT JOIN artworks aw ON i.id = aw.item_id
+            LEFT JOIN vehicles v ON i.id = v.item_id
+            LEFT JOIN electronics e ON i.id = e.item_id
+            ORDER BY i.created_at DESC
+            LIMIT ? OFFSET ?
+        """;
+
+        try (
+            Connection conn = DatabaseConnection.getInstance().getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+            stmt.setInt(1, limit);
+            stmt.setInt(2, (page - 1) * limit);
+
+            try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     ItemDTO item = mapRowToItemDTO(rs);
                     if (item != null) {
-                        list.add(item);
+                        items.add(item);
                     }
                 }
             }
-        } catch (SQLException e) { 
-            System.err.println("Error in getAllItems: " + e.getMessage());
-            e.printStackTrace(); 
+        } catch (SQLException e) {
+            System.err.println("ERROR getAllItems(): " + e.getMessage());
+            e.printStackTrace();
         }
-        return list;
+
+        return items;
     }
 
     public int getTotalItemCount() {
@@ -6977,38 +6615,163 @@ public class ItemDAO {
      * SQL JOIN với bảng auctions để lấy thêm thông tin phiên đấu giá.
      */
     public List<ItemDTO> searchItemsByKeyword(String keyword) {
+
         List<ItemDTO> result = new ArrayList<>();
 
-        String sql =
-                "SELECT i.id AS item_id, i.seller_id, i.name, i.description, " +
-                "i.starting_price, i.category, i.image_path, i.created_at, " +
-                "a.id AS auction_id, a.current_max_price, a.highest_bidder_id, a.price_step, " +
-                "a.start_time, a.end_time, a.status " +
-                "FROM items i " +
-                "LEFT JOIN auctions a ON a.item_id = i.id " +
-                "WHERE LOWER(i.name) LIKE ? OR LOWER(i.description) LIKE ? " +
-                "ORDER BY i.id DESC";
+        // =========================
+        // VALIDATE INPUT
+        // =========================
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return result;
+        }
 
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        // =========================
+        // NORMALIZE KEYWORD
+        // =========================
+        String normalizedKeyword =
+                "%" + keyword.trim().toLowerCase() + "%";
 
-            String likeKeyword = "%" + keyword.toLowerCase() + "%";
-            pstmt.setString(1, likeKeyword);
-            pstmt.setString(2, likeKeyword);
+        // =========================
+        // SQL SEARCH
+        // =========================
+        String sql = """
+            SELECT
 
+                -- =========================
+                -- ITEMS
+                -- =========================
+                i.id AS item_id,
+                i.seller_id,
+                i.name,
+                i.description,
+                i.starting_price,
+                i.category,
+                i.image_path,
+                i.created_at,
+
+                -- =========================
+                -- AUCTIONS
+                -- =========================
+                a.id AS auction_id,
+                a.current_max_price,
+                a.highest_bidder_id,
+                a.price_step,
+                a.start_time,
+                a.end_time,
+                a.status AS auction_status,
+
+                -- =========================
+                -- ARTWORKS
+                -- =========================
+                aw.artist,
+                aw.creation_year,
+                aw.material,
+
+                -- =========================
+                -- VEHICLES
+                -- =========================
+                v.brand,
+                v.mileage,
+                v.condition_state,
+
+                -- =========================
+                -- ELECTRONICS
+                -- =========================
+                e.warranty_months
+
+            FROM items i
+
+            LEFT JOIN auctions a
+                ON i.id = a.item_id
+
+            LEFT JOIN artworks aw
+                ON i.id = aw.item_id
+
+            LEFT JOIN vehicles v
+                ON i.id = v.item_id
+
+            LEFT JOIN electronics e
+                ON i.id = e.item_id
+
+            WHERE
+
+                -- =========================
+                -- BASE ITEM
+                -- =========================
+                LOWER(COALESCE(i.name, '')) LIKE ?
+                OR LOWER(COALESCE(i.description, '')) LIKE ?
+                OR LOWER(COALESCE(i.category, '')) LIKE ?
+
+                -- =========================
+                -- ARTWORK
+                -- =========================
+                OR LOWER(COALESCE(aw.artist, '')) LIKE ?
+                OR LOWER(COALESCE(aw.material, '')) LIKE ?
+
+                -- =========================
+                -- VEHICLE
+                -- =========================
+                OR LOWER(COALESCE(v.brand, '')) LIKE ?
+                OR LOWER(COALESCE(v.condition_state, '')) LIKE ?
+
+                -- =========================
+                -- NUMBER SEARCH
+                -- =========================
+                OR CAST(COALESCE(v.mileage, 0) AS CHAR) LIKE ?
+                OR CAST(COALESCE(e.warranty_months, 0) AS CHAR) LIKE ?
+                OR CAST(COALESCE(a.current_max_price, 0) AS CHAR) LIKE ?
+                OR CAST(COALESCE(i.starting_price, 0) AS CHAR) LIKE ?
+
+            ORDER BY i.created_at DESC
+        """;
+
+        // =========================
+        // EXECUTE QUERY
+        // =========================
+        try (
+                Connection conn =
+                        DatabaseConnection
+                                .getInstance()
+                                .getConnection();
+
+                PreparedStatement pstmt =
+                        conn.prepareStatement(sql)
+        ) {
+
+            // =========================
+            // BIND PARAMETERS
+            // =========================
+            for (int i = 1; i <= 11; i++) {
+                pstmt.setString(i, normalizedKeyword);
+            }
+
+            // =========================
+            // QUERY
+            // =========================
             try (ResultSet rs = pstmt.executeQuery()) {
+
                 while (rs.next()) {
+
                     ItemDTO item = mapRowToItemDTO(rs);
-                    if (item != null) result.add(item);
+
+                    if (item != null) {
+                        result.add(item);
+                    }
                 }
             }
+
         } catch (SQLException e) {
-            System.err.println("Lỗi searchItemsByKeyword: " + e.getMessage());
+
+            System.err.println(
+                    "ERROR searchItemsByKeyword(): "
+                            + e.getMessage()
+            );
+
             e.printStackTrace();
         }
+
         return result;
     }
-
     public List<ItemDTO> getItemsByCategory(String category) {
         List<ItemDTO> result = new ArrayList<>();
 
@@ -7047,20 +6810,46 @@ public class ItemDAO {
      * LƯU Ý: Nếu trong ItemDAO của bạn đã có phương thức tương tự (ví dụ mapRow, mapItem...),
      * hãy dùng lại thay vì tạo phương thức này để tránh trùng lặp.
      */
+    // ItemDAO.java
     private ItemDTO mapRowToItemDTO(ResultSet rs) {
         try {
-            ItemDTO item = new ItemDTO();
+            String category = rs.getString("category");
+            ItemDTO item;
+
+            if ("ART".equalsIgnoreCase(category) || "ARTWORK".equalsIgnoreCase(category)) {
+                ArtDTO art = new ArtDTO();
+                art.setArtist(rs.getString("artist"));
+                art.setCreationYear(rs.getInt("creation_year"));
+                art.setMaterial(rs.getString("material"));
+                item = art;
+            } else if ("VEHICLE".equalsIgnoreCase(category) || "VEHICLES".equalsIgnoreCase(category)) {
+                VehicleDTO vehicle = new VehicleDTO();
+                vehicle.setBrand(rs.getString("brand"));
+                vehicle.setMileage(rs.getInt("mileage"));
+                vehicle.setCondition(rs.getString("condition_state"));
+                item = vehicle;
+            } else if ("ELECTRONICS".equalsIgnoreCase(category) || "ELECTRONIC".equalsIgnoreCase(category)) {
+                ElectronicsDTO electronics = new ElectronicsDTO();
+                electronics.setWarrantyMonths(rs.getInt("warranty_months"));
+                item = electronics;
+            } else {
+                item = new ItemDTO();
+            }
+
             item.setId(rs.getInt("item_id"));
             item.setSellerId(rs.getInt("seller_id"));
             item.setName(rs.getString("name"));
             item.setDescription(rs.getString("description"));
             item.setStartingPrice(rs.getDouble("starting_price"));
-            item.setCategory(rs.getString("category"));
+            item.setCategory(category);
 
             String rawPath = rs.getString("image_path");
             item.setImagePath(extractFilename(rawPath));
 
-            item.setCreatedAt(rs.getString("created_at"));
+            java.sql.Timestamp createdAt = rs.getTimestamp("created_at");
+            if (createdAt != null) {
+                item.setCreatedAt(createdAt.toString());
+            }
 
             int auctionId = rs.getInt("auction_id");
             if (!rs.wasNull()) {
@@ -7068,7 +6857,12 @@ public class ItemDAO {
                 item.setCurrentMaxPrice(rs.getDouble("current_max_price"));
                 item.setHighestBidderId(rs.getInt("highest_bidder_id"));
                 item.setPriceStep(rs.getDouble("price_step"));
-                item.setStatus(rs.getString("status"));
+
+                String status = rs.getString("auction_status");
+                if (status == null) {
+                    status = rs.getString("status");
+                }
+                item.setStatus(status);
 
                 java.sql.Timestamp st = rs.getTimestamp("start_time");
                 java.sql.Timestamp et = rs.getTimestamp("end_time");
@@ -7079,9 +6873,11 @@ public class ItemDAO {
             return item;
         } catch (SQLException e) {
             System.err.println("Lỗi mapRowToItemDTO: " + e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }
+
  
     // Lấy tên file từ đường dẫn tuyệt đối.
     private String extractFilename(String fullPath) {
@@ -7089,8 +6885,10 @@ public class ItemDAO {
         int lastSlash = Math.max(fullPath.lastIndexOf('/'), fullPath.lastIndexOf('\\'));
         return lastSlash >= 0 ? fullPath.substring(lastSlash + 1) : fullPath;
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\IUserSubDAO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\IUserSubDAO.java  
+================================================  
 package com.auction.server.dao;
 
 import com.auction.server.models.User;
@@ -7103,8 +6901,10 @@ public interface IUserSubDAO {
     
     // Xử lý lấy và map dữ liệu từ bảng con thành đối tượng User cụ thể (Bidder, Seller)
     User getSubUser(Connection conn, int userId, String username, String password, String email) throws SQLException;
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\PaymentDAO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\PaymentDAO.java  
+================================================  
 package com.auction.server.dao;
 
 import com.auction.server.models.Payment;
@@ -7216,8 +7016,10 @@ public class PaymentDAO {
         }
         return history;
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\SellerDAO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\SellerDAO.java  
+================================================  
 package com.auction.server.dao;
 
 import java.sql.Connection;
@@ -7274,8 +7076,10 @@ public class SellerDAO {
             return false;
         }
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\SellerSubDAO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\SellerSubDAO.java  
+================================================  
 package com.auction.server.dao;
 
 import com.auction.server.models.User;
@@ -7319,8 +7123,10 @@ public class SellerSubDAO implements IUserSubDAO {
         }
         return null;
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\UserDAO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\UserDAO.java  
+================================================  
 package com.auction.server.dao;
 
 import com.auction.server.models.UserDTO;
@@ -7562,8 +7368,10 @@ public class UserDAO {
         }
         return false;
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\VehicleDAO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\VehicleDAO.java  
+================================================  
 package com.auction.server.dao;
 
 import com.auction.server.models.VehicleDTO;
@@ -7610,8 +7418,10 @@ public class VehicleDAO implements IItemSubDAO {
         }
         return null;
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\WatchlistDAO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\WatchlistDAO.java  
+================================================  
 package com.auction.server.dao;
 
 import com.auction.server.models.ItemDTO;
@@ -7701,8 +7511,10 @@ public class WatchlistDAO {
       return false;
     }
   }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\factory\ItemFactory.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\factory\ItemFactory.java  
+================================================  
 package com.auction.server.factory;
 
 import com.auction.server.models.*;
@@ -7729,8 +7541,10 @@ public class ItemFactory {
         }
         return registry.get(category.toUpperCase());
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\factory\UserFactory.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\factory\UserFactory.java  
+================================================  
 package com.auction.server.factory;
 
 import com.auction.server.models.Admin;
@@ -7786,8 +7600,10 @@ public class UserFactory {
                 throw new IllegalArgumentException("Không hỗ trợ User Role: " + role);
         }
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\filters\AuthFilter.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\filters\AuthFilter.java  
+================================================  
 package com.auction.server.filters;
 
 import com.auction.server.models.UserRole;
@@ -7870,8 +7686,10 @@ public class AuthFilter implements Filter {
 
     @Override
     public void destroy() {}
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Admin.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Admin.java  
+================================================  
 package com.auction.server.models;
 
 public class Admin extends User {
@@ -7900,8 +7718,10 @@ public class Admin extends User {
         System.out.println("--- Bảng Điều Khiển Quản Trị Viên ---");
         System.out.println("Xin chào sếp: " + getUsername() + " (Quyền: " + adminRole + ")");
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AdminDTO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AdminDTO.java  
+================================================  
 package com.auction.server.models;
 //DataTransferObject for Admin, used to send admin info to clients without exposing sensitive data like password
 public class AdminDTO {
@@ -7922,8 +7742,10 @@ public class AdminDTO {
     public String getUsername() { return username; }
     public String getEmail() { return email; }
     public String getAdminRole() { return adminRole; }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Art.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Art.java  
+================================================  
 package com.auction.server.models;
 
 import java.time.LocalDateTime;
@@ -7987,8 +7809,10 @@ public class Art extends Item {
         System.out.println("Năm: " + creation_year + " | Chất liệu: " + material);
         System.out.println("Giá khởi điểm: $" + getStartingPrice());
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\ArtDTO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\ArtDTO.java  
+================================================  
 package com.auction.server.models;
 
 import com.google.gson.annotations.Expose;
@@ -8052,8 +7876,10 @@ public class ArtDTO extends ItemDTO {
         this.material = material;
     }
 }
- 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Auction.java ===  
+  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Auction.java  
+================================================  
 package com.auction.server.models;
 
 import java.time.LocalDateTime;
@@ -8244,8 +8070,10 @@ public class Auction extends Entity {
             System.out.println(">> Lỗi: Người mua không đủ tiền!");
         }
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionDataDTO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionDataDTO.java  
+================================================  
 package com.auction.server.models;
 
 import com.google.gson.annotations.Expose;
@@ -8395,8 +8223,10 @@ public class AuctionDataDTO {
         this.priceStep = priceStep;
     }
 
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionManager.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionManager.java  
+================================================  
 package com.auction.server.models;
 
 import java.util.List;
@@ -8458,8 +8288,10 @@ public class AuctionManager {
     public void notifyAuctionUpdate(Auction auction) {
         broadcastUpdate("AUCTION_UPDATED", auction);
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionStatus.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionStatus.java  
+================================================  
 package com.auction.server.models;
 // AuctionStatus.java
 public enum AuctionStatus {
@@ -8468,8 +8300,10 @@ public enum AuctionStatus {
     FINISHED,   // Đã hết giờ chốt người thắng
     PAID,       // Đã thanh toán
     CANCELED    // Bị hủy bỏ
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionTimer.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionTimer.java  
+================================================  
 package com.auction.server.models;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -8584,8 +8418,10 @@ public class AuctionTimer {
 
     }
 
-}  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionUpdate.java ===  
+}   
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionUpdate.java  
+================================================  
 package com.auction.server.models;
 
 import java.time.LocalDateTime;
@@ -8623,14 +8459,18 @@ public class AuctionUpdate {
     public String getType() { return type; }
     public Object getData() { return data; }
     public LocalDateTime getTimestamp() { return timestamp; }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionUpdateListener.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionUpdateListener.java  
+================================================  
 package com.auction.server.models;
 
 public interface AuctionUpdateListener {
     void onAuctionUpdate(AuctionUpdate update);
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AutoBid.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AutoBid.java  
+================================================  
 package com.auction.server.models;
 
 import java.time.LocalDateTime;
@@ -8668,8 +8508,10 @@ public class AutoBid extends Entity {
     public double getNextAutoBidAmount(double currentHighestBid) {
         return Math.min(currentHighestBid + incrementAmount, maxBidAmount);
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Bidder.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Bidder.java  
+================================================  
 package com.auction.server.models;
 
 public class Bidder extends User {
@@ -8730,8 +8572,10 @@ public class Bidder extends User {
     public void setAccountBalance(double accountBalance) {
         this.accountBalance = accountBalance;
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\BidderDTO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\BidderDTO.java  
+================================================  
 package com.auction.server.models;
 
 import com.google.gson.annotations.Expose;
@@ -8766,8 +8610,10 @@ public class BidderDTO {
     public String getUsername() { return username; }
     public String getEmail() { return email; }
     public double getAccountBalance() { return accountBalance; }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\BidTransaction.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\BidTransaction.java  
+================================================  
 package com.auction.server.models;
 import java.time.LocalDateTime;
 
@@ -8797,8 +8643,10 @@ public class BidTransaction extends Entity {
         return timestamp;
     }
 
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\BidTransactionDTO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\BidTransactionDTO.java  
+================================================  
 package com.auction.server.models;
 import java.time.LocalDateTime;
 
@@ -8825,8 +8673,10 @@ public class BidTransactionDTO {
     public String getBidderUsername() { return bidderUsername; }
     public double getBidAmount() { return bidAmount; }
     public LocalDateTime getTimestamp() { return timestamp; }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Electronics.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Electronics.java  
+================================================  
 package com.auction.server.models;
 
 import java.time.LocalDateTime;
@@ -8868,8 +8718,10 @@ public class Electronics extends Item {
     }
 
     // KHÔNG CÓ SETTER vì thuộc tính là final (Thiết kế như này là rất chặt chẽ, tốt!)
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\ElectronicsDTO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\ElectronicsDTO.java  
+================================================  
 package com.auction.server.models;
 
 import com.google.gson.annotations.Expose;
@@ -8902,8 +8754,10 @@ public class ElectronicsDTO extends ItemDTO {
         this.warrantyMonths = warrantyMonths;
     }
 }
- 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Entity.java ===  
+  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Entity.java  
+================================================  
 package com.auction.server.models;
 
 public abstract class Entity {
@@ -8925,8 +8779,10 @@ public abstract class Entity {
     }
 
 }
-  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Item.java ===  
+   
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Item.java  
+================================================  
 package com.auction.server.models;
 import java.time.LocalDateTime;
 public abstract class Item extends Entity {
@@ -9036,8 +8892,10 @@ public abstract class Item extends Entity {
     public String getDescription() {
         return description;
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\ItemDTO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\ItemDTO.java  
+================================================  
 package com.auction.server.models;
 
 import com.google.gson.annotations.Expose;
@@ -9181,8 +9039,10 @@ public class ItemDTO {
     public double getPriceStep() { return priceStep; }
     public void setPriceStep(double priceStep) { this.priceStep = priceStep; }
 
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Payment.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Payment.java  
+================================================  
 package com.auction.server.models;
 
 import java.time.LocalDateTime;
@@ -9215,8 +9075,10 @@ public class Payment {
     public PaymentStatus getStatus() { return status; }
     public LocalDateTime getPaymentDate() { return paymentDate; }
 }
- 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\PaymentDTO.java ===  
+  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\PaymentDTO.java  
+================================================  
 package com.auction.server.models;
 
 import com.google.gson.annotations.Expose;
@@ -9310,16 +9172,20 @@ public class PaymentDTO {
     public void setPaymentTime(LocalDateTime paymentTime) {
         this.paymentTime = paymentTime;
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\PaymentStatus.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\PaymentStatus.java  
+================================================  
 package com.auction.server.models;
 
 public enum PaymentStatus {
     PENDING,    // Chờ xử lý
     COMPLETED,  // Đã hoàn thành
     FAILED      // Thất bại
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Seller.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Seller.java  
+================================================  
 package com.auction.server.models;
 import java.util.ArrayList;
 import java.util.List;
@@ -9381,8 +9247,10 @@ public class Seller extends User {
     public void setAccountBalance(double account_balance) { this.accountBalance = account_balance; }
 
     
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\SellerDTO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\SellerDTO.java  
+================================================  
 package com.auction.server.models;
 
 //DataTransferObject for Seller, used to send seller info to clients without exposing sensitive data like password
@@ -9411,8 +9279,10 @@ public class SellerDTO {
     public double getAccountBalance() { return accountBalance; }
     public double getTotalRating() { return totalRating; }
     public int getSaleCount() { return saleCount; }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\User.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\User.java  
+================================================  
 package com.auction.server.models;
 
 public abstract class User extends Entity {
@@ -9458,8 +9328,10 @@ public abstract class User extends Entity {
     }
 
     public abstract void showDashboard();
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\UserDTO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\UserDTO.java  
+================================================  
 package com.auction.server.models;
 
 import com.google.gson.annotations.SerializedName;
@@ -9514,8 +9386,10 @@ public class UserDTO implements Serializable {
 
     public int getSaleCount() { return saleCount; }
     public void setSaleCount(int saleCount) { this.saleCount = saleCount; }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\UserRole.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\UserRole.java  
+================================================  
 package com.auction.server.models;
 
 public enum UserRole {
@@ -9539,8 +9413,10 @@ public enum UserRole {
         }
         return INACTIVE; // Trả về giá trị mặc định an toàn
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Vehicle.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Vehicle.java  
+================================================  
 package com.auction.server.models;
 
 import java.time.LocalDateTime;
@@ -9607,8 +9483,10 @@ public class Vehicle extends Item {
     public void setCondition(String condition) {
         this.condition = condition;
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\VehicleDTO.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\VehicleDTO.java  
+================================================  
 package com.auction.server.models;
 
 import com.google.gson.annotations.Expose;
@@ -9666,8 +9544,10 @@ public class VehicleDTO extends ItemDTO {
     public void setCondition(String condition) {
         this.condition = condition;
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\scheduler\AuctionStatusScheduler.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\scheduler\AuctionStatusScheduler.java  
+================================================  
 package com.auction.server.scheduler;
 
 import com.auction.server.dao.DatabaseConnection;
@@ -9754,8 +9634,10 @@ public class AuctionStatusScheduler {
             scheduler.shutdown();
         }
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\AdminItemAPI.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\AdminItemAPI.java  
+================================================  
 package com.auction.server.servlets;
 
 import com.auction.controller.ItemController;
@@ -9798,8 +9680,10 @@ public class AdminItemAPI extends HttpServlet {
             resp.getWriter().write("{\"error\":\"ID sản phẩm không hợp lệ.\"}");
         }
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\AdminUserAPI.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\AdminUserAPI.java  
+================================================  
 package com.auction.server.servlets;
 
 import com.auction.controller.UserController;
@@ -9891,8 +9775,10 @@ public class AdminUserAPI extends HttpServlet {
             resp.getWriter().write("{\"status\":\"error\",\"message\":\"ID người dùng không hợp lệ.\"}");
         }
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\CategoryAPI.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\CategoryAPI.java  
+================================================  
 package com.auction.server.servlets;
 
 import com.auction.controller.ItemController;
@@ -9935,8 +9821,10 @@ public class CategoryAPI extends HttpServlet {
         resp.setStatus(HttpServletResponse.SC_OK);
         resp.getWriter().write(jsonResponse);
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\DepositAPI.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\DepositAPI.java  
+================================================  
 package com.auction.server.servlets;
 
 import com.auction.controller.BidderController;
@@ -9971,8 +9859,10 @@ public class DepositAPI extends HttpServlet {
         
         resp.getWriter().write(jsonResponse);
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetBidHistoryAPI.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetBidHistoryAPI.java  
+================================================  
 package com.auction.server.servlets;
 
 import com.auction.server.dao.BidsDAO;
@@ -10044,8 +9934,10 @@ public class GetBidHistoryAPI extends HttpServlet {
             resp.getWriter().write(gson.toJson(responseMap));
         }
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetItemDetailAPI.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetItemDetailAPI.java  
+================================================  
 package com.auction.server.servlets;
 
 import com.auction.controller.BidController;
@@ -10147,8 +10039,10 @@ public class GetItemDetailAPI extends HttpServlet {
             resp.getWriter().write("{\"error\":\"ID sản phẩm không hợp lệ.\"}");
         }
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetItemsAPI.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetItemsAPI.java  
+================================================  
 package com.auction.server.servlets;
 
 import com.auction.controller.ItemController;
@@ -10183,8 +10077,10 @@ public class GetItemsAPI extends HttpServlet {
         resp.setStatus(HttpServletResponse.SC_OK);
         resp.getWriter().write(jsonResponse);
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetMyActiveBidsAPI.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetMyActiveBidsAPI.java  
+================================================  
 package com.auction.server.servlets;
 
 import com.auction.controller.BidController;
@@ -10211,8 +10107,10 @@ public class GetMyActiveBidsAPI extends HttpServlet {
         resp.setStatus(HttpServletResponse.SC_OK);
         resp.getWriter().write(jsonResponse);
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetMyItemsForSaleAPI.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetMyItemsForSaleAPI.java  
+================================================  
 package com.auction.server.servlets;
 
 import com.auction.controller.ItemController;
@@ -10238,8 +10136,10 @@ public class GetMyItemsForSaleAPI extends HttpServlet {
         resp.setStatus(HttpServletResponse.SC_OK);
         resp.getWriter().write(jsonResponse);
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetMyWonItemsAPI.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetMyWonItemsAPI.java  
+================================================  
 package com.auction.server.servlets;
 
 import com.auction.controller.ItemController;
@@ -10265,8 +10165,10 @@ public class GetMyWonItemsAPI extends HttpServlet {
         resp.setStatus(HttpServletResponse.SC_OK);
         resp.getWriter().write(jsonResponse);
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\ImageAPI.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\ImageAPI.java  
+================================================  
 package com.auction.server.servlets;
 
 import javax.servlet.http.HttpServlet;
@@ -10390,8 +10292,10 @@ public class ImageAPI extends HttpServlet {
         if (lower.endsWith(".webp")) return "image/webp";
         return "application/octet-stream"; // Fallback
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\ItemsAPI.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\ItemsAPI.java  
+================================================  
 package com.auction.server.servlets;
 
 import com.auction.controller.ItemController;
@@ -10441,8 +10345,10 @@ public class ItemsAPI extends HttpServlet {
         }
         resp.getWriter().write(jsonResponse);
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\LoginAPI.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\LoginAPI.java  
+================================================  
 package com.auction.server.servlets;
 
 import com.auction.controller.UserController;
@@ -10498,8 +10404,10 @@ public class LoginAPI extends HttpServlet {
             resp.getWriter().write(jsonResponse);
         }
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\LogoutAPI.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\LogoutAPI.java  
+================================================  
 package com.auction.server.servlets;
 
 import com.google.gson.Gson;
@@ -10542,8 +10450,10 @@ public class LogoutAPI extends HttpServlet {
             resp.getWriter().write(gson.toJson(responseMap));
         }
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\PaymentAPI.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\PaymentAPI.java  
+================================================  
 package com.auction.server.servlets;
 
 import com.auction.controller.PaymentController;
@@ -10574,8 +10484,10 @@ public class PaymentAPI extends HttpServlet {
         
         resp.getWriter().write(jsonResponse);
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\PlaceBidAPI.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\PlaceBidAPI.java  
+================================================  
 package com.auction.server.servlets;
 
 import com.auction.controller.AuctionController;
@@ -10614,8 +10526,10 @@ public class PlaceBidAPI extends HttpServlet {
 
         resp.getWriter().write(jsonResponse);
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\RegisterAPI.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\RegisterAPI.java  
+================================================  
 package com.auction.server.servlets;
 
 import com.auction.controller.UserController;
@@ -10645,8 +10559,10 @@ public class RegisterAPI extends HttpServlet {
 
         resp.getWriter().write(jsonResponse);
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\SearchItemsAPI.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\SearchItemsAPI.java  
+================================================  
 package com.auction.server.servlets;
 
 import com.auction.controller.ItemController;
@@ -10682,8 +10598,10 @@ public class SearchItemsAPI extends HttpServlet {
         resp.setStatus(HttpServletResponse.SC_OK);
         resp.getWriter().write(jsonResponse);
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\UserDetailAPI.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\UserDetailAPI.java  
+================================================  
 package com.auction.server.servlets;
 
 import com.auction.controller.UserController;
@@ -10747,8 +10665,10 @@ public class UserDetailAPI extends HttpServlet {
         resp.getWriter().print(response.toString());
     }
 }
- 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\UserProfileAPI.java ===  
+  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\UserProfileAPI.java  
+================================================  
 package com.auction.server.servlets;
 
 import com.auction.controller.UserController;
@@ -10804,8 +10724,10 @@ public class UserProfileAPI extends HttpServlet {
         }
         resp.getWriter().write(jsonResponse);
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\WatchlistAPI.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\WatchlistAPI.java  
+================================================  
 package com.auction.server.servlets;
 
 import com.auction.controller.WatchlistController;
@@ -10863,8 +10785,10 @@ public class WatchlistAPI extends HttpServlet {
       resp.getWriter().write("{\"status\":\"error\", \"message\":\"Dữ liệu gửi lên không hợp lệ\"}");
     }
   }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\utils\LocalDateTimeAdapter.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\utils\LocalDateTimeAdapter.java  
+================================================  
 package com.auction.server.utils;
 
 import com.google.gson.TypeAdapter;
@@ -10894,8 +10818,10 @@ public class LocalDateTimeAdapter extends TypeAdapter<LocalDateTime> {
         }
         return LocalDateTime.parse(in.nextString(), FORMATTER);
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\websocket\AuctionWebSocketServer.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\server\websocket\AuctionWebSocketServer.java  
+================================================  
 package com.auction.server.websocket;
 
 import com.auction.server.models.AuctionManager;
@@ -11009,8 +10935,10 @@ public class AuctionWebSocketServer extends WebSocketServer implements AuctionUp
             }
         }
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\service\AuctionService.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\service\AuctionService.java  
+================================================  
 package com.auction.service;
 
 import com.auction.server.dao.BidsDAO;
@@ -11094,8 +11022,10 @@ public class AuctionService {
         }
     }
 }
- 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\service\BidderService.java ===  
+  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\service\BidderService.java  
+================================================  
 package com.auction.service;
 
 import com.auction.server.dao.BidderDAO;
@@ -11144,8 +11074,10 @@ public class BidderService {
         }
         return "Thanh toán thất bại: Lỗi hệ thống!";
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\service\BidService.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\service\BidService.java  
+================================================  
 package com.auction.service;
 
 import com.auction.server.dao.BidsDAO;
@@ -11236,8 +11168,10 @@ public class BidService {
             System.err.println("Lỗi khi chạy Auto-Bid: " + e.getMessage());
         }
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\service\ItemService.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\service\ItemService.java  
+================================================  
 package com.auction.service;
 
 import com.auction.server.dao.ItemDAO;
@@ -11366,8 +11300,10 @@ public class ItemService {
         List<ItemDTO> items = itemDAO.getAllItems(page, limit);
         return items != null ? items : new java.util.ArrayList<>();
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\service\PaymentService.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\service\PaymentService.java  
+================================================  
 package com.auction.service;
 
 import com.auction.server.dao.PaymentDAO;
@@ -11446,8 +11382,10 @@ public class PaymentService {
         
         return paymentDAO.getPaymentHistoryByUser(userId);
     }
-} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\service\UserService.java ===  
+}  
+================================================  
+FILE: C:\Users\Dai\Desktop\Project-Online-auction-system\Server\src\main\java\com\auction\service\UserService.java  
+================================================  
 package com.auction.service;
 
 import com.auction.server.dao.UserDAO;
@@ -11509,4 +11447,4 @@ public class UserService {
         }
         return userDAO.updateUserRole(userId, newRole);
     }
-} 
+}

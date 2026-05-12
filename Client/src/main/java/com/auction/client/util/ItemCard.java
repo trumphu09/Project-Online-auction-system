@@ -20,6 +20,7 @@ public class ItemCard extends VBox {
 
     // Địa chỉ gốc của server — phải khớp với ApiService.BASE_URL
     private static final String SERVER_BASE_URL = "http://localhost:8080/api";
+//    private final String SERVER_BASE_URL = "http://10.11.113.69:8080/api";
 
     public ItemCard(ItemDTO item, double width, double height, boolean isBuyer) {
         // Cấu hình khung bên ngoài
