@@ -233,10 +233,17 @@ public class SellerController extends BaseController implements Initializable {
             // Nếu tất cả validation đều pass, thực hiện packData và post item
             ItemDTO newItem = packData();
 
+            System.out.println("[SellerController] Uploading item:");
+            System.out.println("  - Name: " + newItem.getName());
+            System.out.println("  - Category: " + newItem.getCategory());
+            System.out.println("  - Image path: " + newItem.getImagePath());
+            System.out.println("  - Base64 image: " + (newItem.getBase64Image() != null ? newItem.getBase64Image().length() + " chars" : "null"));
+
             AuctionFacade.getInstance().addItem(newItem, new ApiCallback<JsonObject>() {
                 @Override
                 public void onSuccess(JsonObject result) {
                     Platform.runLater(() -> {
+                        System.out.println("[SellerController] ✓ Item uploaded successfully!");
                         clearFields();
                         showAlert("Thành công", "Đã ném sản phẩm lên sàn đấu giá thành công!");
                         loadSellerInventory();
@@ -245,7 +252,10 @@ public class SellerController extends BaseController implements Initializable {
 
                 @Override
                 public void onError(String errorMessage) {
-                    Platform.runLater(() -> showAlert("Lỗi đăng bán", errorMessage));
+                    Platform.runLater(() -> {
+                        System.err.println("[SellerController] ERROR uploading item: " + errorMessage);
+                        showAlert("Lỗi đăng bán", errorMessage);
+                    });
                 }
             });
 

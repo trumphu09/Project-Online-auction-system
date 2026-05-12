@@ -38,13 +38,14 @@ public class ImageAPI extends HttpServlet {
         // FIX: truyền thêm servletContext để có thêm đường dẫn fallback
         File imageFile = findImageFile(filename, req);
 
-        System.out.println("DEBUG ImageAPI filename = " + filename);
-        System.out.println("DEBUG ImageAPI absPath   = " + (imageFile != null ? imageFile.getAbsolutePath() : "null"));
-        System.out.println("DEBUG ImageAPI exists    = " + (imageFile != null && imageFile.exists()));
+        System.out.println("[ImageAPI] Request for file: " + filename);
+        System.out.println("[ImageAPI] Resolved path: " + (imageFile != null ? imageFile.getAbsolutePath() : "null"));
+        System.out.println("[ImageAPI] File exists: " + (imageFile != null && imageFile.exists()));
 
         if (imageFile == null || !imageFile.exists() || !imageFile.isFile()) {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             resp.setContentType("application/json; charset=UTF-8");
+            System.err.println("[ImageAPI] ✗ File not found: " + filename);
             resp.getWriter().write("{\"error\":\"Không tìm thấy ảnh: " + filename + "\"}");
             return;
         }
@@ -68,7 +69,7 @@ public class ImageAPI extends HttpServlet {
 
     /**
      * Tìm file ảnh theo thứ tự ưu tiên:
-     *  1. System property "auction.upload.dir"   ← ĐỒNG BỘ với ItemDAO
+     *  1. System property "auction.upload.dir"   ← ĐỒNG BỘ với ItemDAO (set từ AuctionServer.main)
      *  2. Thư mục uploads/ bên cạnh server JAR
      *  3. Servlet context real path + /uploads/  (dành cho Tomcat WAR deploy)
      *  4. Thư mục hiện tại (user.dir) + /uploads/
@@ -77,12 +78,15 @@ public class ImageAPI extends HttpServlet {
      */
     private File findImageFile(String filename, HttpServletRequest req) {
 
-        // --- 1. System property (cách mạnh nhất, được config khi start server) ---
+        // --- 1. System property (cách mạnh nhất, được config khi start server từ AuctionServer.main) ---
         String configuredDir = System.getProperty("auction.upload.dir");
         if (configuredDir != null && !configuredDir.isBlank()) {
             File f = new File(configuredDir, filename);
-            System.out.println("DEBUG ImageAPI trying [property] : " + f.getAbsolutePath());
-            if (f.exists()) return f;
+            System.out.println("[ImageAPI] Trying [system property]: " + f.getAbsolutePath());
+            if (f.exists() && f.isFile()) {
+                System.out.println("[ImageAPI] ✓ FOUND at [system property]: " + f.getAbsolutePath());
+                return f;
+            }
         }
 
         // --- 2. Bên cạnh JAR (khớp với ItemDAO fallback 1) ---
@@ -91,8 +95,11 @@ public class ImageAPI extends HttpServlet {
                     .getCodeSource().getLocation();
             File jarDir = new File(location.toURI()).getParentFile();
             File f = new File(jarDir, "uploads" + File.separator + filename);
-            System.out.println("DEBUG ImageAPI trying [next to JAR] : " + f.getAbsolutePath());
-            if (f.exists()) return f;
+            System.out.println("[ImageAPI] Trying [next to JAR]: " + f.getAbsolutePath());
+            if (f.exists() && f.isFile()) {
+                System.out.println("[ImageAPI] ✓ FOUND at [next to JAR]: " + f.getAbsolutePath());
+                return f;
+            }
         } catch (Exception ignored) {}
 
         // --- 3. Servlet context real path (Tomcat WAR deploy) ---
@@ -101,8 +108,11 @@ public class ImageAPI extends HttpServlet {
             String realPath = getServletContext().getRealPath("/uploads");
             if (realPath != null) {
                 File f = new File(realPath, filename);
-                System.out.println("DEBUG ImageAPI trying [servlet context] : " + f.getAbsolutePath());
-                if (f.exists()) return f;
+                System.out.println("[ImageAPI] Trying [servlet context]: " + f.getAbsolutePath());
+                if (f.exists() && f.isFile()) {
+                    System.out.println("[ImageAPI] ✓ FOUND at [servlet context]: " + f.getAbsolutePath());
+                    return f;
+                }
             }
         }
 
@@ -110,12 +120,25 @@ public class ImageAPI extends HttpServlet {
         String userDir = System.getProperty("user.dir");
         if (userDir != null) {
             File f = new File(userDir + File.separator + "uploads", filename);
-            System.out.println("DEBUG ImageAPI trying [user.dir] : " + f.getAbsolutePath());
-            if (f.exists()) return f;
+            System.out.println("[ImageAPI] Trying [user.dir]: " + f.getAbsolutePath());
+            if (f.exists() && f.isFile()) {
+                System.out.println("[ImageAPI] ✓ FOUND at [user.dir]: " + f.getAbsolutePath());
+                return f;
+            }
         }
 
         // Không tìm thấy ở bất kỳ đâu
-        System.err.println("DEBUG ImageAPI: file not found in any location for: " + filename);
+        System.err.println("[ImageAPI] ✗ ERROR: file not found in any location for: " + filename);
+        System.err.println("[ImageAPI] Tried locations:");
+        if (configuredDir != null) System.err.println("  - " + configuredDir + File.separator + filename);
+        try {
+            java.net.URL location = getClass().getProtectionDomain().getCodeSource().getLocation();
+            File jarDir = new File(location.toURI()).getParentFile();
+            System.err.println("  - " + jarDir.getAbsolutePath() + File.separator + "uploads" + File.separator + filename);
+        } catch (Exception ignored) {}
+        if (userDir != null) {
+            System.err.println("  - " + userDir + File.separator + "uploads" + File.separator + filename);
+        }
         return null;
     }
 

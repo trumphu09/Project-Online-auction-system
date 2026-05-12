@@ -17,21 +17,18 @@ public class ItemDTO implements Serializable {
     @Expose @SerializedName("start_time") private String startTime;
     @Expose @SerializedName("end_time") private String endTime;
     
-    // Ảnh thường lưu Local URL ở Client, có thể không cần Expose lên Server lúc tạo mới
-    @com.google.gson.annotations.SerializedName("image_path")
-    private String imagePath; 
-    private String base64Image;
+    // Image path (database field)
+    @Expose @SerializedName("image_path") private String imagePath;
+    
+    // Base64 encoded image for uploading (client → server only)
+    @Expose @SerializedName("base64_image") private String base64Image;
+    
     // 1. Thêm thuộc tính này để hứng dữ liệu từ DB
-    @com.google.gson.annotations.SerializedName("created_at")
-    private String createdAt;
-    @SerializedName("auction_id")
-    private int auctionId;
-    @SerializedName("current_max_price")
-    private double currentMaxPrice;
-    @SerializedName("highest_bidder_id")
-    private int highestBidderId;
-    @SerializedName("status")
-    private String status; // Trạng thái đấu giá
+    @Expose @SerializedName("created_at") private String createdAt;
+    @Expose @SerializedName("auction_id") private int auctionId;
+    @Expose @SerializedName("current_max_price") private double currentMaxPrice;
+    @Expose @SerializedName("highest_bidder_id") private int highestBidderId;
+    @Expose @SerializedName("status") private String status; // Trạng thái đấu giá
 
 
     // === CONSTRUCTOR RỖNG (BẮT BUỘC PHẢI CÓ) ===

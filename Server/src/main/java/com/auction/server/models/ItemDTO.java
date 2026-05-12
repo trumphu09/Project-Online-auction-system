@@ -39,6 +39,9 @@ public class ItemDTO {
     // 1. Thêm thuộc tính này để hứng dữ liệu từ DB
     @SerializedName("created_at")
     private String createdAt;
+
+    @Expose
+    @SerializedName("base64_image")
     private String base64Image; 
 
     @Expose @SerializedName("price_step")

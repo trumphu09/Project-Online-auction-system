@@ -18,7 +18,7 @@ import javafx.scene.layout.VBox;
 public class ItemCard extends VBox {
 
     // IP máy SERVER
-    private static final String SERVER_BASE_URL = "http://10.11.113.69:8080/api";
+    private static final String SERVER_BASE_URL = "http://localhost:8080/api";
 
     public ItemCard(ItemDTO item, double width, double height, boolean isBuyer) {
 
@@ -146,6 +146,8 @@ public class ItemCard extends VBox {
 
                 e.consume();
 
+                System.out.println("[ItemCard] Adding to watchlist - itemId: " + item.getId());
+
                 AuctionFacade.getInstance().addToWatchlist(
                         item.getId(),
                         new ApiCallback<JsonObject>() {
@@ -153,23 +155,37 @@ public class ItemCard extends VBox {
                             @Override
                             public void onSuccess(JsonObject result) {
 
-                                Platform.runLater(() ->
-                                        System.out.println(
-                                                "Đã thêm " +
-                                                item.getName() +
-                                                " vào giỏ!"
-                                        )
-                                );
+                                Platform.runLater(() -> {
+                                    System.out.println("[ItemCard] SUCCESS: Đã thêm " + item.getName() + " vào giỏ!");
+                                    btnAddToCart.setDisable(true);
+                                    btnAddToCart.setText("✓ Đã thêm vào giỏ");
+                                    btnAddToCart.setStyle(
+                                            "-fx-background-color: #28a745;" +
+                                            "-fx-text-fill: white;" +
+                                            "-fx-cursor: hand;"
+                                    );
+                                });
                             }
 
                             @Override
                             public void onError(String err) {
 
-                                Platform.runLater(() ->
-                                        System.out.println(
-                                                "Lỗi thêm vào giỏ: " + err
-                                        )
-                                );
+                                Platform.runLater(() -> {
+                                    System.err.println("[ItemCard] ERROR: Lỗi thêm vào giỏ: " + err);
+                                    btnAddToCart.setText("❌ Lỗi");
+                                    btnAddToCart.setStyle(
+                                            "-fx-background-color: #dc3545;" +
+                                            "-fx-text-fill: white;" +
+                                            "-fx-cursor: hand;"
+                                    );
+                                    // Hiển thị cảnh báo cho người dùng
+                                    javax.swing.JOptionPane.showMessageDialog(
+                                        null,
+                                        "Không thể thêm sản phẩm vào giỏ:\n" + err,
+                                        "Lỗi",
+                                        javax.swing.JOptionPane.ERROR_MESSAGE
+                                    );
+                                });
                             }
                         }
                 );

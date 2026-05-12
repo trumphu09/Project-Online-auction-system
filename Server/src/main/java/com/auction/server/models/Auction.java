@@ -42,7 +42,7 @@ public class Auction extends Entity {
     // --- LOGIC ĐẶT GIÁ (Người dùng đặt thủ công) ---
 
     public synchronized boolean placeBid(Bidder bidder, double amount) {
-        if (this.status != AuctionStatus.OPEN && this.status != AuctionStatus.RUNNING) {
+        if ( this.status != AuctionStatus.RUNNING) {
             System.out.println("Từ chối: Phiên đấu giá không mở.");
             return false;
         }

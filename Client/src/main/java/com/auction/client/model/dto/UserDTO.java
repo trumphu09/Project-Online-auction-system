@@ -1,28 +1,34 @@
 package com.auction.client.model.dto;
 
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 public class UserDTO implements Serializable {
+    @Expose
     private int id;
+    @Expose
     private String username;
+    @Expose
     private String email;
-    
+    @Expose
     @SerializedName("full_name")
     private String fullName;
-    
+    @Expose
     private String role; // "ADMIN", "BIDDER", "SELLER"
-    
+    @Expose
     @SerializedName("balance")
     private double balance;
 
     // --- BỔ SUNG CÁC TRƯỜNG THỐNG KÊ CỦA SELLER ---
+    @Expose
     @SerializedName("total_rating")
     private double totalRating;
-
+@Expose
     @SerializedName("sale_count")
     private int saleCount;
     // Thêm trường này:
+    @Expose
     @SerializedName("isActive")
     private boolean active;
 

@@ -22,7 +22,7 @@ public class AuctionStatusScheduler {
         try (Connection conn = DatabaseConnection.getInstance().getConnection()) {
             
             // 1. KÍCH HOẠT: Đồ nào đến giờ bắt đầu -> Đổi từ PENDING sang RUNNING
-            String startSql = "UPDATE auctions SET status = 'RUNNING' WHERE status = 'PENDING' AND start_time <= NOW()";
+            String startSql = "UPDATE auctions SET status = 'RUNNING' WHERE status = 'OPEN' AND start_time <= NOW()";
             try (PreparedStatement startStmt = conn.prepareStatement(startSql)) {
                 int started = startStmt.executeUpdate();
                 if (started > 0) System.out.println("[SCHEDULER] Đã mở " + started + " phiên đấu giá mới.");
@@ -46,7 +46,7 @@ public class AuctionStatusScheduler {
 
                     try {
                         // A. Cập nhật trạng thái thành ENDED
-                        String closeAuctionSql = "UPDATE auctions SET status = 'ENDED' WHERE id = ?";
+                        String closeAuctionSql = "UPDATE auctions SET status = 'FINISHED' WHERE id = ?";
                         try (PreparedStatement closeStmt = conn.prepareStatement(closeAuctionSql)) {
                             closeStmt.setInt(1, auctionId);
                             closeStmt.executeUpdate();

@@ -30,6 +30,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import java.util.Optional;
+import com.google.gson.JsonObject;
 
 /**
  * Controller phòng đấu giá — hỗ trợ cập nhật realtime qua WebSocket.
@@ -56,6 +60,9 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
   @FXML private TextField txtBidAmount;
   @FXML private Button btnBid;
   @FXML private Label lblSellerRating, lblSellerSaleCount, lblBidNote;
+  // Thêm 2 biến này vào danh sách khai báo FXML nodes ở đầu file:
+  @FXML private Button btnPay;
+  private UserDTO currentUser; // Lưu thông tin người dùng hiện tại
 
   // ─── Hằng số ─────────────────────────────────────────────────────────────
   private static final String SERVER_BASE_URL = "http://localhost:8080/api";
@@ -230,6 +237,7 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
   @Override
   public void onAuctionEnded(int auctionId, String status) {
     auctionEnded = true;
+    if (currentItem != null) currentItem.setStatus("FINISHED"); // Cập nhật state
     stopCountdownTimer();
 
     if (btnBid != null) {
@@ -245,10 +253,17 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
       lblTimer.setStyle("-fx-font-size: 28px; -fx-text-fill: #95a5a6; -fx-font-weight: bold;");
     }
 
+    // --- BẠN CẦN THÊM DÒNG NÀY VÀO ĐÂY ---
+    // Gọi hàm kiểm tra để tự động hiện nút "XÁC NHẬN THANH TOÁN" nếu user này là người thắng
+    Platform.runLater(() -> {
+        checkPaymentButtonVisibility();
+    });
+    // ------------------------------------
+
     boolean isCanceled = "CANCELED".equalsIgnoreCase(status);
     String msg = isCanceled
       ? "Phiên đấu giá đã bị HỦY (không có người mua)."
-      : "Phiên đấu giá đã KẾT THÚC! Người thắng sẽ được thông báo.";
+      : "Phiên đấu giá đã KẾT THÚC! Vui lòng xác nhận thanh toán nếu bạn là người chiến thắng."; // Sửa lại câu thông báo một chút cho hợp lý
     showAlert("Thông báo phiên đấu giá", msg);
   }
 
@@ -332,6 +347,13 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
 
   @FXML
   private void handleBidAction() {
+
+    // THÊM ĐOẠN NÀY LÊN ĐẦU HÀM
+    if (!"RUNNING".equalsIgnoreCase(currentItem.getStatus())) {
+        showAlert("Thông báo", "Phiên đấu giá này hiện chưa mở hoặc đã kết thúc. Bạn không thể đặt giá lúc này!");
+        return;
+    }
+
     if (auctionEnded) {
       showAlert("Thông báo", "Phiên đấu giá này đã kết thúc!");
       return;
@@ -414,6 +436,56 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
     }
   }
 
+  @FXML
+  private void handlePayment() {
+    // 1. Khởi tạo Alert xác nhận
+    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+    alert.setTitle("Xác nhận thanh toán");
+    alert.setHeaderText(null);
+    alert.setContentText("Bạn có chắc chắn muốn chuyển " + formatVnd(currentItem.getCurrentMaxPrice()) + " cho người bán?");
+
+    Optional<ButtonType> option = alert.showAndWait();
+    
+    if (option.isPresent() && option.get() == ButtonType.OK) {
+        if (btnPay != null) btnPay.setDisable(true);
+
+        // FIX 1: Dùng AuctionFacade.getInstance() thay vì paymentService
+        // FIX 2: Dùng full name com.google.gson.JsonObject để tránh lỗi thiếu import
+        AuctionFacade.getInstance().processPayment(currentItem.getAuctionId(), new ApiCallback<com.google.gson.JsonObject>() {
+            @Override
+            public void onSuccess(com.google.gson.JsonObject result) {
+                Platform.runLater(() -> {
+                    if (result != null && "success".equals(result.get("status").getAsString())) {
+                        showAlert("Thành công", "Thanh toán thành công! Giao dịch đã hoàn tất.");
+                        if (btnPay != null) {
+                            btnPay.setVisible(false);
+                            btnPay.setManaged(false);
+                        }
+                        
+                        // FIX 3: Dùng BiddingRoomController.this để IDE nhận diện rõ field và method của lớp ngoài
+                        BiddingRoomController.this.currentItem.setStatus("PAID");
+                        BiddingRoomController.this.loadCurrentUserInfo(); 
+                        
+                    } else {
+                        if (btnPay != null) btnPay.setDisable(false);
+                        String msg = (result != null && result.has("message")) ? result.get("message").getAsString() : "Lỗi xác định.";
+                        showAlert("Lỗi", msg);
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                Platform.runLater(() -> {
+                    if (btnPay != null) btnPay.setDisable(false);
+                    showAlert("Lỗi kết nối", "Không thể thanh toán: " + errorMessage);
+                });
+            }
+        });
+    }
+  }
+  
+  
   // =========================================================================
   // HÀM NỘI BỘ
   // =========================================================================
@@ -433,10 +505,13 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
       public void onSuccess(UserDTO user) {
         Platform.runLater(() -> {
           if (user == null) return;
+          currentUser = user; // Gán user hiện tại vào biến toàn cục
           String name = (user.getFullName() != null && !user.getFullName().isEmpty())
             ? user.getFullName() : user.getUsername();
           setText(lblCurrentUser, "Người dùng: " + name);
           setText(lblUserBalance, "Số dư: " + formatVnd(user.getBalance()));
+          
+          checkPaymentButtonVisibility(); // Kiểm tra xem có được hiện nút Pay không
         });
       }
       @Override
@@ -444,6 +519,22 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
         System.err.println("[BiddingRoom] Lỗi tải profile: " + err);
       }
     });
+  }
+
+  // Thêm hàm này ngay bên dưới
+  private void checkPaymentButtonVisibility() {
+    if (currentItem == null || currentUser == null || btnPay == null) return;
+
+    boolean isFinished = "FINISHED".equalsIgnoreCase(currentItem.getStatus()) || auctionEnded;
+    boolean isWinner = (currentUser.getId() == currentItem.getHighestBidderId());
+
+    if (isFinished && isWinner) {
+        btnPay.setVisible(true);
+        btnPay.setManaged(true);
+    } else {
+        btnPay.setVisible(false);
+        btnPay.setManaged(false);
+    }
   }
 
   private void loadProductImage(String rawPath) {

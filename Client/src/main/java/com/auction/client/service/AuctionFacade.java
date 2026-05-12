@@ -22,7 +22,9 @@ public class AuctionFacade {
     private AuctionFacade() {
         this.apiService = ApiService.getInstance();
 
+        // Configure GSON to respect @Expose annotation for serialization
         this.gson = new com.google.gson.GsonBuilder()
+            .excludeFieldsWithoutExposeAnnotation()  // ← KEY FIX: Only serialize fields with @Expose
             .registerTypeAdapter(com.auction.client.model.dto.ItemDTO.class,
                 new com.google.gson.JsonDeserializer<com.auction.client.model.dto.ItemDTO>() {
                     @Override
@@ -179,6 +181,7 @@ public class AuctionFacade {
 
     public void processPayment(int auctionId, ApiCallback<JsonObject> callback) {
         JsonObject json = new JsonObject();
+        json.addProperty("action", "PAYMENT"); // BỔ SUNG DÒNG NÀY ĐỂ SERVER NHẬN DIỆN
         json.addProperty("auction_id", auctionId);
         executeRequest(apiService.sendPostRequest("/payments", gson.toJson(json)), JsonObject.class, callback);
     }
@@ -189,6 +192,14 @@ public class AuctionFacade {
 
     public void addItem(ItemDTO newItem, ApiCallback<JsonObject> callback) {
         String jsonBody = gson.toJson(newItem);
+        System.out.println("[AuctionFacade.addItem] JSON to send (first 500 chars):");
+        System.out.println(jsonBody.substring(0, Math.min(500, jsonBody.length())));
+        System.out.println("[AuctionFacade.addItem] Total JSON size: " + jsonBody.length() + " chars");
+        if (jsonBody.contains("base64_image")) {
+            System.out.println("[AuctionFacade.addItem] ✓ base64_image field IS included in JSON");
+        } else {
+            System.err.println("[AuctionFacade.addItem] ✗ WARNING: base64_image field NOT in JSON!");
+        }
         executeRequest(apiService.sendPostRequest("/items", jsonBody), JsonObject.class, callback);
     }
 

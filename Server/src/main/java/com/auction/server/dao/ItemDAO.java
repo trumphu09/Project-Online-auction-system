@@ -29,11 +29,16 @@ public class ItemDAO {
      * Ưu tiên: system property > thư mục bên cạnh JAR > thư mục hiện tại.
      */
     private static String resolveUploadDir() {
-        // 1. Ưu tiên system property (set khi khởi động server)
+        // 1. Ưu tiên system property (set khi khởi động server từ AuctionServer.main)
         //    Ví dụ: java -Dauction.upload.dir=/var/auction/uploads -jar server.jar
         String configured = System.getProperty("auction.upload.dir");
         if (configured != null && !configured.isBlank()) {
-            System.out.println("[ItemDAO] Upload dir from system property: " + configured);
+            System.out.println("[ItemDAO] ✓ Upload dir from system property: " + configured);
+            // Ensure directory exists
+            java.io.File dir = new java.io.File(configured);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
             return configured;
         }
 
@@ -44,13 +49,23 @@ public class ItemDAO {
             java.io.File jarDir = new java.io.File(location.toURI()).getParentFile();
             String fallback = jarDir.getAbsolutePath()
                     + java.io.File.separator + "uploads";
-            System.out.println("[ItemDAO] Upload dir fallback (next to JAR): " + fallback);
+            System.out.println("[ItemDAO] ✓ Upload dir fallback (next to JAR): " + fallback);
+            // Ensure directory exists
+            java.io.File dir = new java.io.File(fallback);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
             return fallback;
         } catch (Exception e) {
             // 3. Nếu cả hai đều thất bại, dùng thư mục working directory hiện tại
             String cwd = System.getProperty("user.dir")
                     + java.io.File.separator + "uploads";
-            System.out.println("[ItemDAO] Upload dir last resort (user.dir): " + cwd);
+            System.out.println("[ItemDAO] ✓ Upload dir last resort (user.dir): " + cwd);
+            // Ensure directory exists
+            java.io.File dir = new java.io.File(cwd);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
             return cwd;
         }
     }
@@ -170,10 +185,21 @@ public class ItemDAO {
         // 1. LƯU FILE ẢNH VÀO UPLOAD_DIR
         if (item.getBase64Image() != null && !item.getBase64Image().isBlank()) {
             try {
+                System.out.println("[ItemDAO.addItem] Base64 image received, length: " + item.getBase64Image().length());
+                
                 // FIX: dùng UPLOAD_DIR (static field), không khai báo field trong method
                 java.io.File dir = new java.io.File(UPLOAD_DIR);
                 if (!dir.exists()) {
-                    dir.mkdirs();
+                    boolean created = dir.mkdirs();
+                    System.out.println("[ItemDAO.addItem] Upload directory created: " + created + " at " + UPLOAD_DIR);
+                } else {
+                    System.out.println("[ItemDAO.addItem] Upload directory already exists: " + UPLOAD_DIR);
+                }
+
+                // Kiểm tra write permission
+                if (!dir.canWrite()) {
+                    System.err.println("[ItemDAO.addItem] ERROR: No write permission for directory: " + UPLOAD_DIR);
+                    return false;
                 }
 
                 // Lấy tên gốc, chỉ giữ phần filename (bỏ đường dẫn thư mục)
@@ -194,12 +220,30 @@ public class ItemDAO {
                 String fileName = System.currentTimeMillis() + "_" + safeName;
                 String fullPath = UPLOAD_DIR + java.io.File.separator + fileName;
 
-                System.out.println("[ItemDAO] Saving image to: " + fullPath);
+                System.out.println("[ItemDAO.addItem] Original name: " + originalName);
+                System.out.println("[ItemDAO.addItem] Safe name: " + safeName);
+                System.out.println("[ItemDAO.addItem] File name: " + fileName);
+                System.out.println("[ItemDAO.addItem] Full path: " + fullPath);
+                System.out.println("[ItemDAO.addItem] Saving image...");
 
                 // Decode base64 và ghi file
                 byte[] imageBytes = java.util.Base64.getDecoder().decode(item.getBase64Image());
-                try (java.io.FileOutputStream fos = new java.io.FileOutputStream(fullPath)) {
+                System.out.println("[ItemDAO.addItem] Image decoded, bytes: " + imageBytes.length);
+                
+                java.io.File outputFile = new java.io.File(fullPath);
+                try (java.io.FileOutputStream fos = new java.io.FileOutputStream(outputFile)) {
                     fos.write(imageBytes);
+                    fos.flush();
+                    System.out.println("[ItemDAO.addItem] Image file written successfully");
+                }
+
+                // Verify file was created
+                if (!outputFile.exists()) {
+                    System.err.println("[ItemDAO.addItem] ERROR: File was not created at: " + fullPath);
+                    return false;
+                }
+                if (outputFile.length() != imageBytes.length) {
+                    System.err.println("[ItemDAO.addItem] WARNING: File size mismatch. Expected: " + imageBytes.length + ", Got: " + outputFile.length());
                 }
 
                 // DB chỉ lưu filename thuần (không lưu đường dẫn đầy đủ)
@@ -207,10 +251,12 @@ public class ItemDAO {
                 System.out.println("[ItemDAO] image_path saved to DB: " + fileName);
 
             } catch (Exception e) {
-                System.err.println("[ItemDAO] ERROR saving image: " + e.getMessage());
+                System.err.println("[ItemDAO.addItem] ERROR: Unexpected exception: " + e.getClass().getName() + " - " + e.getMessage());
                 e.printStackTrace();
                 return false;
             }
+        } else {
+            System.out.println("[ItemDAO.addItem] No image provided (base64Image is null or empty)");
         }
 
         // 2. INSERT VÀO DB (giữ nguyên logic gốc)

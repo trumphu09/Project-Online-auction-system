@@ -26,6 +26,17 @@ public class AuctionServer {
         System.out.println("=== AUCTION SERVER STARTING ===");
 
         try {
+            // ✅ FIX: Ensure consistent upload directory
+            // Set to project root /uploads folder (not dependent on working directory)
+            String projectRoot = System.getProperty("user.dir");
+            String uploadDir = projectRoot + File.separator + "uploads";
+            File uploadDirFile = new File(uploadDir);
+            if (!uploadDirFile.exists()) {
+                uploadDirFile.mkdirs();
+            }
+            System.setProperty("auction.upload.dir", uploadDir);
+            System.out.println("[AuctionServer] Upload directory set to: " + uploadDir);
+
             tomcat = new Tomcat();
             tomcat.setPort(8080);
             tomcat.getConnector();

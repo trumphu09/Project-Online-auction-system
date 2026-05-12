@@ -58,27 +58,29 @@ public class PaymentController {
 
     // ==========================================
     // 2. API: THỰC HIỆN THANH TOÁN CHỐT ĐƠN
-    // JSON: {"payment_id": 1}
     // ==========================================
-
     public String handleExecutePayment(String jsonRequest) {
         try {
-            JsonObject req = gson.fromJson(jsonRequest, JsonObject.class);
+            // Dùng com.google.gson.JsonObject để đồng bộ với thư viện bạn đang dùng
+            com.google.gson.JsonObject req = gson.fromJson(jsonRequest, com.google.gson.JsonObject.class);
 
-            if (!req.has("payment_id")) {
-                return createResponse("error", "Thiếu mã hóa đơn (payment_id)!", null);
+            // Kiểm tra auction_id thay vì payment_id
+            if (!req.has("auction_id")) {
+                return createResponse("error", "Thiếu mã phiên đấu giá (auction_id)!", null);
             }
 
-            int paymentId = req.get("payment_id").getAsInt();
+            int auctionId = req.get("auction_id").getAsInt();
 
-            String result = paymentService.executePayment(paymentId);
+            // Khởi tạo trực tiếp DAO để xử lý nghiệp vụ thanh toán đã viết
+            com.auction.server.dao.PaymentDAO paymentDAO = new com.auction.server.dao.PaymentDAO();
+            boolean isSuccess = paymentDAO.processPayment(auctionId);
 
-            if (result.startsWith("Thành công")) {
-                return createResponse("success", result, null);
+            if (isSuccess) {
+                return createResponse("success", "Thanh toán thành công!", null);
             } else {
-                return createResponse("error", result, null);
+                return createResponse("error", "Lỗi xử lý thanh toán (Phiên chưa kết thúc hoặc lỗi DB)!", null);
             }
-        } catch (JsonSyntaxException | NullPointerException e) {
+        } catch (com.google.gson.JsonSyntaxException | NullPointerException e) {
             return createResponse("error", "Sai định dạng JSON!", null);
         } catch (Exception e) {
             return createResponse("error", "Lỗi server: " + e.getMessage(), null);
