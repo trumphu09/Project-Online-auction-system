@@ -33,7 +33,8 @@ public class BiddingRoomController extends BaseController {
     @FXML private Button btnBid;
     @FXML private Label lblSellerRating, lblSellerSaleCount, lblBidNote;
 
-    private static final String SERVER_BASE_URL = "http://localhost:8080/api";
+    //private static final String SERVER_BASE_URL = "http://localhost:8080/api";
+    private static final String SERVER_BASE_URL = "http://10.11.113.69:8080/api";
 
     private ItemDTO currentItem;
     private double displayedCurrentPrice = 0;
@@ -108,11 +109,25 @@ public class BiddingRoomController extends BaseController {
         setText(lblHighestBidder, "Chưa có người ra giá");
 
         String imageUrl = resolveImageUrl(item.getImagePath());
-        if (imageUrl != null && imgProduct != null) {
+        System.out.println("DEBUG imagePath = " + item.getImagePath());
+        System.out.println("DEBUG imageUrl  = " + imageUrl);
+
+        if (imgProduct != null) {
             try {
-                imgProduct.setImage(new Image(imageUrl, true));
+                if (imageUrl != null && !imageUrl.isBlank()) {
+                    Image img = new Image(imageUrl, true);
+                    img.errorProperty().addListener((obs, oldVal, newVal) -> {
+                        if (newVal) {
+                            System.err.println("Lỗi load ảnh từ URL: " + imageUrl);
+                        }
+                    });
+                    imgProduct.setImage(img);
+                } else {
+                    imgProduct.setImage(null);
+                }
             } catch (Exception e) {
                 System.err.println("Lỗi load ảnh: " + e.getMessage());
+                imgProduct.setImage(null);
             }
         }
 
@@ -207,13 +222,13 @@ public class BiddingRoomController extends BaseController {
     private String formatVnd(double value) {
         return String.format("%,.0f VNĐ", value);
     }
-
+    
     private String resolveImageUrl(String rawPath) {
         if (rawPath == null || rawPath.isBlank()) {
             return null;
         }
 
-        if (rawPath.startsWith("http")) {
+        if (rawPath.startsWith("http://") || rawPath.startsWith("https://")) {
             return rawPath;
         }
 
@@ -222,6 +237,7 @@ public class BiddingRoomController extends BaseController {
         if (lastSlash >= 0) {
             filename = rawPath.substring(lastSlash + 1);
         }
+
         return SERVER_BASE_URL + "/images/" + filename;
     }
 }

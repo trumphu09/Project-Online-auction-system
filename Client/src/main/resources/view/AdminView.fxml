@@ -42,7 +42,7 @@
 
                 <HBox spacing="15.0" alignment="CENTER_RIGHT">
                     <children>
-                        <Button fx:id="btnLock" onAction="#handleLockUnlock" text="Khóa Tài Khoản" style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-cursor: hand;"/>
+                        <Button fx:id="btnLock" onAction="#handleLockUnlock" text="Khóa / Mở Tài Khoản" style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-cursor: hand;"/>
                         <Button fx:id="btnDelete" onAction="#handleDelete" text="Xóa Sản Phẩm" style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-cursor: hand;"/>
                     </children>
                 </HBox>

@@ -3,77 +3,57 @@ package com.auction.server.servlets;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.nio.file.Files;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
-/**
- * ImageAPI — Servlet phục vụ ảnh sản phẩm qua HTTP.
- *
- * URL: GET /api/images/{filename}
- * Ví dụ: GET /api/images/1748000000000_myphone.jpg
- *
- * Cần thêm mapping này vào web.xml:
- *
- *   <servlet>
- *       <servlet-name>ImageAPI</servlet-name>
- *       <servlet-class>com.auction.server.servlets.ImageAPI</servlet-class>
- *   </servlet>
- *   <servlet-mapping>
- *       <servlet-name>ImageAPI</servlet-name>
- *       <url-pattern>/api/images/*</url-pattern>
- *   </servlet-mapping>
- *
- * Servlet này giải quyết vấn đề: Server lưu ảnh ở đường dẫn tuyệt đối trên máy server
- * (vd: C:\...\loads\abc.jpg), nhưng client không thể load file đó trực tiếp.
- * Thay vào đó, client sẽ request qua URL HTTP này.
- */
 public class ImageAPI extends HttpServlet {
-
-    // Thư mục lưu ảnh — phải khớp với thư mục trong ItemDAO.addItem()
-    // ItemDAO lưu vào "uploads/" (relative path từ thư mục chạy server)
-    private static final String UPLOAD_DIR = "uploads";
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String pathInfo = req.getPathInfo();
 
-        // Lấy tên file từ URL: /api/images/{filename}
-        String pathInfo = req.getPathInfo(); // ví dụ: "/1748000000000_myphone.jpg"
-        if (pathInfo == null || pathInfo.equals("/") || pathInfo.length() <= 1) {
+        if (pathInfo == null || pathInfo.length() <= 1) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.setContentType("application/json; charset=UTF-8");
             resp.getWriter().write("{\"error\":\"Thiếu tên file ảnh.\"}");
             return;
         }
 
-        // Xóa dấu "/" đầu tiên để lấy filename
-        String filename = pathInfo.substring(1);
+        // URL-decode để xử lý các ký tự đặc biệt trong tên file (ví dụ: %20 → space)
+        String filename = URLDecoder.decode(pathInfo.substring(1), StandardCharsets.UTF_8);
 
-        // Ngăn Path Traversal Attack (bảo mật): không cho phép "../" trong tên file
+        // Bảo mật: không cho phép path traversal hoặc directory separator
         if (filename.contains("..") || filename.contains("/") || filename.contains("\\")) {
             resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            resp.setContentType("application/json; charset=UTF-8");
             resp.getWriter().write("{\"error\":\"Tên file không hợp lệ.\"}");
             return;
         }
 
-        // Tìm file ảnh trong thư mục uploads
-        // Thử đường dẫn tương đối trước (khi server chạy từ thư mục gốc project)
+        // FIX: truyền thêm servletContext để có thêm đường dẫn fallback
         File imageFile = findImageFile(filename, req);
+
+        System.out.println("DEBUG ImageAPI filename = " + filename);
+        System.out.println("DEBUG ImageAPI absPath   = " + (imageFile != null ? imageFile.getAbsolutePath() : "null"));
+        System.out.println("DEBUG ImageAPI exists    = " + (imageFile != null && imageFile.exists()));
 
         if (imageFile == null || !imageFile.exists() || !imageFile.isFile()) {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            resp.setContentType("application/json");
+            resp.setContentType("application/json; charset=UTF-8");
             resp.getWriter().write("{\"error\":\"Không tìm thấy ảnh: " + filename + "\"}");
             return;
         }
 
-        // Xác định MIME type từ extension
         String mimeType = getMimeType(filename);
         resp.setContentType(mimeType);
         resp.setContentLengthLong(imageFile.length());
-
-        // Cache ảnh trong 1 giờ để tăng hiệu suất
         resp.setHeader("Cache-Control", "public, max-age=3600");
 
-        // Gửi file ảnh về client
         try (InputStream in = new FileInputStream(imageFile);
              OutputStream out = resp.getOutputStream()) {
 
@@ -82,43 +62,69 @@ public class ImageAPI extends HttpServlet {
             while ((bytesRead = in.read(buffer)) != -1) {
                 out.write(buffer, 0, bytesRead);
             }
+            out.flush();
         }
     }
 
     /**
-     * Tìm file ảnh — hỗ trợ nhiều vị trí khác nhau tùy cấu hình server.
+     * Tìm file ảnh theo thứ tự ưu tiên:
+     *  1. System property "auction.upload.dir"   ← ĐỒNG BỘ với ItemDAO
+     *  2. Thư mục uploads/ bên cạnh server JAR
+     *  3. Servlet context real path + /uploads/  (dành cho Tomcat WAR deploy)
+     *  4. Thư mục hiện tại (user.dir) + /uploads/
+     *
+     * Thứ tự này phải khớp với thứ tự ưu tiên trong ItemDAO.resolveUploadDir().
      */
     private File findImageFile(String filename, HttpServletRequest req) {
-        // 1. Tìm trong thư mục "uploads/" tương đối từ thư mục server đang chạy
-        File relative = new File(UPLOAD_DIR, filename);
-        if (relative.exists()) return relative;
 
-        // 2. Tìm trong thư mục "uploads/" của web application (Tomcat)
-        String realPath = req.getServletContext().getRealPath("/" + UPLOAD_DIR + "/" + filename);
-        if (realPath != null) {
-            File webappFile = new File(realPath);
-            if (webappFile.exists()) return webappFile;
+        // --- 1. System property (cách mạnh nhất, được config khi start server) ---
+        String configuredDir = System.getProperty("auction.upload.dir");
+        if (configuredDir != null && !configuredDir.isBlank()) {
+            File f = new File(configuredDir, filename);
+            System.out.println("DEBUG ImageAPI trying [property] : " + f.getAbsolutePath());
+            if (f.exists()) return f;
         }
 
-        // 3. Thử đường dẫn từ System property (nếu server set)
-        String uploadPath = System.getProperty("auction.upload.dir");
-        if (uploadPath != null) {
-            File configFile = new File(uploadPath, filename);
-            if (configFile.exists()) return configFile;
+        // --- 2. Bên cạnh JAR (khớp với ItemDAO fallback 1) ---
+        try {
+            java.net.URL location = getClass().getProtectionDomain()
+                    .getCodeSource().getLocation();
+            File jarDir = new File(location.toURI()).getParentFile();
+            File f = new File(jarDir, "uploads" + File.separator + filename);
+            System.out.println("DEBUG ImageAPI trying [next to JAR] : " + f.getAbsolutePath());
+            if (f.exists()) return f;
+        } catch (Exception ignored) {}
+
+        // --- 3. Servlet context real path (Tomcat WAR deploy) ---
+        //    Khi deploy WAR, getRealPath("/uploads") trả về thư mục thật trên disk
+        if (req != null && getServletContext() != null) {
+            String realPath = getServletContext().getRealPath("/uploads");
+            if (realPath != null) {
+                File f = new File(realPath, filename);
+                System.out.println("DEBUG ImageAPI trying [servlet context] : " + f.getAbsolutePath());
+                if (f.exists()) return f;
+            }
         }
 
-        return null; // Không tìm thấy
+        // --- 4. Working directory (user.dir) + uploads/ (khớp ItemDAO fallback 2) ---
+        String userDir = System.getProperty("user.dir");
+        if (userDir != null) {
+            File f = new File(userDir + File.separator + "uploads", filename);
+            System.out.println("DEBUG ImageAPI trying [user.dir] : " + f.getAbsolutePath());
+            if (f.exists()) return f;
+        }
+
+        // Không tìm thấy ở bất kỳ đâu
+        System.err.println("DEBUG ImageAPI: file not found in any location for: " + filename);
+        return null;
     }
 
-    /**
-     * Xác định MIME type dựa theo phần mở rộng của file.
-     */
     private String getMimeType(String filename) {
         String lower = filename.toLowerCase();
         if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
         if (lower.endsWith(".png"))  return "image/png";
         if (lower.endsWith(".gif"))  return "image/gif";
         if (lower.endsWith(".webp")) return "image/webp";
-        return "application/octet-stream"; // Fallback
+        return "application/octet-stream";
     }
 }

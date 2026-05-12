@@ -78,6 +78,9 @@ public class AuctionServer {
             // ĐĂNG KÝ API GIỎ HÀNG
             Tomcat.addServlet(ctx, "WatchlistAPI", new WatchlistAPI());
             ctx.addServletMappingDecoded("/api/my/watchlist", "WatchlistAPI");
+            // ĐĂNG KÝ API HÌNH ẢNH (BUG FIX)
+            Tomcat.addServlet(ctx, "ImageAPI", new ImageAPI());
+            ctx.addServletMappingDecoded("/api/images/*", "ImageAPI");
 
             tomcat.start();
             System.out.println("✓ [HTTP API] Web Server đang chạy ở cổng 8080!");

@@ -18,6 +18,46 @@ import java.util.Map;
 
 public class ItemDAO {
 
+    // =====================================================================
+    // FIX: UPLOAD_DIR là static field cấp class, KHÔNG đặt trong method
+    // Tính một lần duy nhất khi class được load, dùng chung cho toàn bộ DAO
+    // =====================================================================
+    private static final String UPLOAD_DIR = resolveUploadDir();
+
+    /**
+     * Xác định đường dẫn tuyệt đối cho thư mục uploads.
+     * Ưu tiên: system property > thư mục bên cạnh JAR > thư mục hiện tại.
+     */
+    private static String resolveUploadDir() {
+        // 1. Ưu tiên system property (set khi khởi động server)
+        //    Ví dụ: java -Dauction.upload.dir=/var/auction/uploads -jar server.jar
+        String configured = System.getProperty("auction.upload.dir");
+        if (configured != null && !configured.isBlank()) {
+            System.out.println("[ItemDAO] Upload dir from system property: " + configured);
+            return configured;
+        }
+
+        // 2. Fallback: thư mục uploads/ bên cạnh file JAR đang chạy
+        try {
+            java.net.URL location = ItemDAO.class.getProtectionDomain()
+                    .getCodeSource().getLocation();
+            java.io.File jarDir = new java.io.File(location.toURI()).getParentFile();
+            String fallback = jarDir.getAbsolutePath()
+                    + java.io.File.separator + "uploads";
+            System.out.println("[ItemDAO] Upload dir fallback (next to JAR): " + fallback);
+            return fallback;
+        } catch (Exception e) {
+            // 3. Nếu cả hai đều thất bại, dùng thư mục working directory hiện tại
+            String cwd = System.getProperty("user.dir")
+                    + java.io.File.separator + "uploads";
+            System.out.println("[ItemDAO] Upload dir last resort (user.dir): " + cwd);
+            return cwd;
+        }
+    }
+
+    // =====================================================================
+    // DAO REGISTRY (giữ nguyên)
+    // =====================================================================
     private final Map<Class<? extends ItemDTO>, IItemSubDAO> classToDAORegistry = new HashMap<>();
     private final Map<String, IItemSubDAO> categoryToDAORegistry = new HashMap<>();
 
@@ -37,6 +77,9 @@ public class ItemDAO {
         categoryToDAORegistry.put(category.toUpperCase(), dao);
     }
 
+    // =====================================================================
+    // SCHEDULER HELPERS (giữ nguyên)
+    // =====================================================================
     public List<ItemDTO> updatePendingItemsToRunning() {
         List<ItemDTO> updatedItems = new ArrayList<>();
 
@@ -119,33 +162,58 @@ public class ItemDAO {
         return updatedItems;
     }
 
+    // =====================================================================
+    // ADD ITEM (ĐÃ FIX)
+    // =====================================================================
     public boolean addItem(ItemDTO item) {
-        // 1. XỬ LÝ LƯU FILE ẢNH VÀO HỆ THỐNG
-        if (item.getBase64Image() != null) {
+
+        // 1. LƯU FILE ẢNH VÀO UPLOAD_DIR
+        if (item.getBase64Image() != null && !item.getBase64Image().isBlank()) {
             try {
-                // Tạo thư mục uploads nếu chưa có
-                String uploadDir = "uploads/";
-                java.io.File dir = new java.io.File(uploadDir);
-                if (!dir.exists()) dir.mkdirs();
+                // FIX: dùng UPLOAD_DIR (static field), không khai báo field trong method
+                java.io.File dir = new java.io.File(UPLOAD_DIR);
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
 
-                // Đặt tên file duy nhất (dùng timestamp để không bị trùng)
-                String fileName = System.currentTimeMillis() + "_" + item.getImagePath();
-                String fullPath = uploadDir + fileName;
+                // Lấy tên gốc, chỉ giữ phần filename (bỏ đường dẫn thư mục)
+                String originalName = item.getImagePath();
+                if (originalName == null || originalName.isBlank()) {
+                    originalName = "image.jpg";
+                } else {
+                    // new File(path).getName() cắt lấy phần filename cuối cùng
+                    originalName = new java.io.File(originalName).getName();
+                }
 
-                // Giải mã Base64 và ghi ra file
+                // FIX: dùng originalName (đã cắt sạch) thay vì item.getImagePath()
+                // để tránh backslash và path separator lọt vào tên file
+                String safeName = originalName
+                        .replaceAll("[\\s]+", "_")           // thay space → _
+                        .replaceAll("[^a-zA-Z0-9._\\-]", "_"); // bỏ ký tự đặc biệt
+
+                String fileName = System.currentTimeMillis() + "_" + safeName;
+                String fullPath = UPLOAD_DIR + java.io.File.separator + fileName;
+
+                System.out.println("[ItemDAO] Saving image to: " + fullPath);
+
+                // Decode base64 và ghi file
                 byte[] imageBytes = java.util.Base64.getDecoder().decode(item.getBase64Image());
                 try (java.io.FileOutputStream fos = new java.io.FileOutputStream(fullPath)) {
                     fos.write(imageBytes);
                 }
 
-                // CẬP NHẬT ĐƯỜNG DẪN MỚI (Đường dẫn tương đối trong hệ thống)
-                item.setImagePath(new java.io.File(fullPath).getAbsolutePath()); 
+                // DB chỉ lưu filename thuần (không lưu đường dẫn đầy đủ)
+                item.setImagePath(fileName);
+                System.out.println("[ItemDAO] image_path saved to DB: " + fileName);
+
             } catch (Exception e) {
+                System.err.println("[ItemDAO] ERROR saving image: " + e.getMessage());
                 e.printStackTrace();
+                return false;
             }
         }
 
-        // 2. LƯU VÀO DATABASE (SQL giữ nguyên nhưng image_path giờ là đường dẫn của Server)
+        // 2. INSERT VÀO DB (giữ nguyên logic gốc)
         Connection conn = null;
         try {
             conn = DatabaseConnection.getInstance().getConnection();
@@ -158,7 +226,7 @@ public class ItemDAO {
                 pstmtItem.setString(3, item.getDescription());
                 pstmtItem.setDouble(4, item.getStartingPrice());
                 pstmtItem.setString(5, item.getCategory());
-                pstmtItem.setString(6, item.getImagePath());
+                pstmtItem.setString(6, item.getImagePath()); // lúc này đã là filename sạch
 
                 pstmtItem.executeUpdate();
 
@@ -166,7 +234,7 @@ public class ItemDAO {
                     if (rs.next()) {
                         item.setId(rs.getInt(1));
                     } else {
-                        throw new SQLException("Lỗi: Không lấy được ID của sản phẩm sau khi insert.");
+                        throw new SQLException("Không lấy được ID sau khi insert item.");
                     }
                 }
             }
@@ -175,9 +243,7 @@ public class ItemDAO {
             if (subDAO != null) {
                 subDAO.insertSubItem(conn, item);
             }
-            
-            // 3. TẠO PHIÊN ĐẤU GIÁ TRONG BẢNG AUCTIONS
-            // Bổ sung seller_id và end_time vào câu lệnh SQL
+
             String sqlAuction =
                     "INSERT INTO auctions " +
                     "(item_id, seller_id, current_max_price, price_step, start_time, end_time, status, has_extended, created_at) " +
@@ -204,9 +270,9 @@ public class ItemDAO {
                 pstmtAuction.setString(7, AuctionStatus.OPEN.name());
                 pstmtAuction.setBoolean(8, false);
                 pstmtAuction.setTimestamp(9, new java.sql.Timestamp(System.currentTimeMillis()));
-
                 pstmtAuction.executeUpdate();
             }
+
             conn.commit();
             return true;
 
@@ -219,6 +285,9 @@ public class ItemDAO {
         }
     }
 
+    // =====================================================================
+    // UPDATE ITEM (giữ nguyên)
+    // =====================================================================
     public boolean updateItem(ItemDTO item) {
         Connection conn = null;
         try {
@@ -302,14 +371,13 @@ public class ItemDAO {
         }
     }
 
+    // =====================================================================
+    // GET ITEM BY ID (giữ nguyên)
+    // =====================================================================
     public ItemDTO getItemById(int itemId) {
 
         String sql =
                 "SELECT " +
-
-                        // =========================
-                        // ITEMS
-                        // =========================
                         "i.id AS item_id, " +
                         "i.id AS id, " +
                         "i.seller_id, " +
@@ -319,10 +387,6 @@ public class ItemDAO {
                         "i.category, " +
                         "i.image_path, " +
                         "i.created_at, " +
-
-                        // =========================
-                        // AUCTIONS
-                        // =========================
                         "a.id AS auction_id, " +
                         "a.current_max_price, " +
                         "a.highest_bidder_id, " +
@@ -330,46 +394,28 @@ public class ItemDAO {
                         "a.start_time, " +
                         "a.end_time, " +
                         "a.status AS auction_status, " +
-
-                        // =========================
-                        // ELECTRONICS
-                        // =========================
                         "e.warranty_months, " +
-
-                        // =========================
-                        // VEHICLES
-                        // =========================
                         "v.brand, " +
                         "v.mileage, " +
                         "v.condition_state, " +
-
-                        // =========================
-                        // ARTWORKS
-                        // =========================
                         "aw.artist, " +
                         "aw.creation_year, " +
                         "aw.material " +
-
                 "FROM items i " +
-
                 "LEFT JOIN auctions a ON i.id = a.item_id " +
                 "LEFT JOIN electronics e ON i.id = e.item_id " +
                 "LEFT JOIN vehicles v ON i.id = v.item_id " +
                 "LEFT JOIN artworks aw ON i.id = aw.item_id " +
-
                 "WHERE i.id = ?";
 
         try (
                 Connection conn = DatabaseConnection.getInstance().getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)
         ) {
-
             pstmt.setInt(1, itemId);
 
             try (ResultSet rs = pstmt.executeQuery()) {
-
                 if (rs.next()) {
-
                     return mapRowToItemDTO(rs);
                 }
             }
@@ -382,7 +428,9 @@ public class ItemDAO {
         return null;
     }
 
-
+    // =====================================================================
+    // GET ALL ITEMS (giữ nguyên)
+    // =====================================================================
     public List<ItemDTO> getAllItems(int page, int limit) {
         List<ItemDTO> items = new ArrayList<>();
 
@@ -446,6 +494,9 @@ public class ItemDAO {
         return items;
     }
 
+    // =====================================================================
+    // GET TOTAL ITEM COUNT (giữ nguyên)
+    // =====================================================================
     public int getTotalItemCount() {
         String sql = "SELECT COUNT(*) FROM items";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
@@ -460,6 +511,9 @@ public class ItemDAO {
         return 0;
     }
 
+    // =====================================================================
+    // GET ALL CATEGORIES (giữ nguyên)
+    // =====================================================================
     public List<String> getAllCategories() {
         List<String> categories = new ArrayList<>();
         String sql = "SELECT DISTINCT category FROM items WHERE category IS NOT NULL AND category != '' ORDER BY category";
@@ -475,6 +529,9 @@ public class ItemDAO {
         return categories;
     }
 
+    // =====================================================================
+    // GET ITEMS BY CATEGORY (paginated) (giữ nguyên)
+    // =====================================================================
     public List<ItemDTO> getItemsByCategory(String category, int page, int limit) {
         List<ItemDTO> list = new ArrayList<>();
 
@@ -482,7 +539,7 @@ public class ItemDAO {
                 "SELECT i.id AS item_id, i.seller_id, i.name, i.description, i.starting_price, " +
                 "i.category, i.image_path, i.created_at, " +
                 "a.id AS auction_id, a.current_max_price, a.highest_bidder_id, a.price_step, " +
-                "a.start_time, a.end_time, a.status " +
+                "a.start_time, a.end_time, a.status AS auction_status " +
                 "FROM items i " +
                 "LEFT JOIN auctions a ON a.item_id = i.id " +
                 "WHERE UPPER(i.category) = ? " +
@@ -507,6 +564,9 @@ public class ItemDAO {
         return list;
     }
 
+    // =====================================================================
+    // GET CATEGORY ITEM COUNT (giữ nguyên)
+    // =====================================================================
     public int getCategoryItemCount(String category) {
         String sql = "SELECT COUNT(*) FROM items WHERE category = ?";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
@@ -523,6 +583,9 @@ public class ItemDAO {
         return 0;
     }
 
+    // =====================================================================
+    // GET ITEMS BY SELLER ID (giữ nguyên)
+    // =====================================================================
     public List<ItemDTO> getItemsBySellerId(int sellerId) {
         List<ItemDTO> list = new ArrayList<>();
 
@@ -608,9 +671,15 @@ public class ItemDAO {
 
         return list;
     }
+
+    // =====================================================================
+    // GET WON ITEMS BY USER ID (giữ nguyên)
+    // =====================================================================
     public List<ItemDTO> getWonItemsByUserId(int userId) {
         List<ItemDTO> list = new ArrayList<>();
-        String sql = "SELECT i.* FROM items i JOIN auctions a ON i.id = a.item_id WHERE a.highest_bidder_id = ? AND a.status IN ('FINISHED', 'PAID') ORDER BY a.end_time DESC";
+        String sql = "SELECT i.* FROM items i JOIN auctions a ON i.id = a.item_id " +
+                     "WHERE a.highest_bidder_id = ? AND a.status IN ('FINISHED', 'PAID') " +
+                     "ORDER BY a.end_time DESC";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, userId);
@@ -632,6 +701,9 @@ public class ItemDAO {
         return list;
     }
 
+    // =====================================================================
+    // DELETE ITEM (giữ nguyên)
+    // =====================================================================
     public boolean deleteItem(int itemId) {
         String sql = "DELETE FROM items WHERE id = ?";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
@@ -644,56 +716,41 @@ public class ItemDAO {
         }
     }
 
-    // LOGIC: Nếu thời gian hiện tại cách end_time dưới 5 phút, tự động cộng thêm 5 phút vào end_time
+    // =====================================================================
+    // EXTEND AUCTION TIME (giữ nguyên)
+    // =====================================================================
     public boolean extendAuctionTimeIfNeeded(int auctionId) {
         String sql = "UPDATE auctions SET end_time = DATE_ADD(end_time, INTERVAL 5 MINUTE) " +
                      "WHERE id = ? AND TIMESTAMPDIFF(MINUTE, NOW(), end_time) <= 5";
-        
+
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
+
             pstmt.setInt(1, auctionId);
             int rowsAffected = pstmt.executeUpdate();
-            return rowsAffected > 0; // Trả về true nếu thực sự đã được gia hạn
-            
+            return rowsAffected > 0;
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
 
-        /**
-     * FIX: Tìm kiếm sản phẩm theo từ khóa trong tên hoặc mô tả.
-     * Hàm này được gọi từ ItemService.searchItems() và ItemController.handleSearchItems().
-     *
-     * SQL JOIN với bảng auctions để lấy thêm thông tin phiên đấu giá.
-     */
+    // =====================================================================
+    // SEARCH ITEMS BY KEYWORD (giữ nguyên)
+    // =====================================================================
     public List<ItemDTO> searchItemsByKeyword(String keyword) {
 
         List<ItemDTO> result = new ArrayList<>();
 
-        // =========================
-        // VALIDATE INPUT
-        // =========================
         if (keyword == null || keyword.trim().isEmpty()) {
             return result;
         }
 
-        // =========================
-        // NORMALIZE KEYWORD
-        // =========================
-        String normalizedKeyword =
-                "%" + keyword.trim().toLowerCase() + "%";
+        String normalizedKeyword = "%" + keyword.trim().toLowerCase() + "%";
 
-        // =========================
-        // SQL SEARCH
-        // =========================
         String sql = """
             SELECT
-
-                -- =========================
-                -- ITEMS
-                -- =========================
                 i.id AS item_id,
                 i.seller_id,
                 i.name,
@@ -703,9 +760,6 @@ public class ItemDAO {
                 i.image_path,
                 i.created_at,
 
-                -- =========================
-                -- AUCTIONS
-                -- =========================
                 a.id AS auction_id,
                 a.current_max_price,
                 a.highest_bidder_id,
@@ -714,23 +768,14 @@ public class ItemDAO {
                 a.end_time,
                 a.status AS auction_status,
 
-                -- =========================
-                -- ARTWORKS
-                -- =========================
                 aw.artist,
                 aw.creation_year,
                 aw.material,
 
-                -- =========================
-                -- VEHICLES
-                -- =========================
                 v.brand,
                 v.mileage,
                 v.condition_state,
 
-                -- =========================
-                -- ELECTRONICS
-                -- =========================
                 e.warranty_months
 
             FROM items i
@@ -748,29 +793,13 @@ public class ItemDAO {
                 ON i.id = e.item_id
 
             WHERE
-
-                -- =========================
-                -- BASE ITEM
-                -- =========================
                 LOWER(COALESCE(i.name, '')) LIKE ?
                 OR LOWER(COALESCE(i.description, '')) LIKE ?
                 OR LOWER(COALESCE(i.category, '')) LIKE ?
-
-                -- =========================
-                -- ARTWORK
-                -- =========================
                 OR LOWER(COALESCE(aw.artist, '')) LIKE ?
                 OR LOWER(COALESCE(aw.material, '')) LIKE ?
-
-                -- =========================
-                -- VEHICLE
-                -- =========================
                 OR LOWER(COALESCE(v.brand, '')) LIKE ?
                 OR LOWER(COALESCE(v.condition_state, '')) LIKE ?
-
-                -- =========================
-                -- NUMBER SEARCH
-                -- =========================
                 OR CAST(COALESCE(v.mileage, 0) AS CHAR) LIKE ?
                 OR CAST(COALESCE(e.warranty_months, 0) AS CHAR) LIKE ?
                 OR CAST(COALESCE(a.current_max_price, 0) AS CHAR) LIKE ?
@@ -779,35 +808,17 @@ public class ItemDAO {
             ORDER BY i.created_at DESC
         """;
 
-        // =========================
-        // EXECUTE QUERY
-        // =========================
         try (
-                Connection conn =
-                        DatabaseConnection
-                                .getInstance()
-                                .getConnection();
-
-                PreparedStatement pstmt =
-                        conn.prepareStatement(sql)
+                Connection conn = DatabaseConnection.getInstance().getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)
         ) {
-
-            // =========================
-            // BIND PARAMETERS
-            // =========================
             for (int i = 1; i <= 11; i++) {
                 pstmt.setString(i, normalizedKeyword);
             }
 
-            // =========================
-            // QUERY
-            // =========================
             try (ResultSet rs = pstmt.executeQuery()) {
-
                 while (rs.next()) {
-
                     ItemDTO item = mapRowToItemDTO(rs);
-
                     if (item != null) {
                         result.add(item);
                     }
@@ -815,17 +826,16 @@ public class ItemDAO {
             }
 
         } catch (SQLException e) {
-
-            System.err.println(
-                    "ERROR searchItemsByKeyword(): "
-                            + e.getMessage()
-            );
-
+            System.err.println("ERROR searchItemsByKeyword(): " + e.getMessage());
             e.printStackTrace();
         }
 
         return result;
     }
+
+    // =====================================================================
+    // GET ITEMS BY CATEGORY (non-paginated overload) (giữ nguyên)
+    // =====================================================================
     public List<ItemDTO> getItemsByCategory(String category) {
         List<ItemDTO> result = new ArrayList<>();
 
@@ -833,7 +843,7 @@ public class ItemDAO {
                 "SELECT i.id AS item_id, i.seller_id, i.name, i.description, " +
                 "i.starting_price, i.category, i.image_path, i.created_at, " +
                 "a.id AS auction_id, a.current_max_price, a.highest_bidder_id, a.price_step, " +
-                "a.start_time, a.end_time, a.status " +
+                "a.start_time, a.end_time, a.status AS auction_status " +
                 "FROM items i " +
                 "LEFT JOIN auctions a ON a.item_id = i.id " +
                 "WHERE UPPER(i.category) = ? " +
@@ -856,15 +866,16 @@ public class ItemDAO {
         }
         return result;
     }
- 
+
+    // =====================================================================
+    // HELPERS
+    // =====================================================================
+
     /**
-     * Helper: Chuyển một dòng ResultSet thành ItemDTO.
-     * Tái sử dụng cho searchItemsByKeyword và getItemsByCategory.
-     *
-     * LƯU Ý: Nếu trong ItemDAO của bạn đã có phương thức tương tự (ví dụ mapRow, mapItem...),
-     * hãy dùng lại thay vì tạo phương thức này để tránh trùng lặp.
+     * Chuyển một dòng ResultSet thành ItemDTO.
+     * Dùng chung cho getAllItems, searchItemsByKeyword, getItemsByCategory...
+     * Yêu cầu ResultSet phải có alias chuẩn: item_id, auction_status, auction_id...
      */
-    // ItemDAO.java
     private ItemDTO mapRowToItemDTO(ResultSet rs) {
         try {
             String category = rs.getString("category");
@@ -897,6 +908,7 @@ public class ItemDAO {
             item.setStartingPrice(rs.getDouble("starting_price"));
             item.setCategory(category);
 
+            // FIX: dùng extractFilename đảm bảo image_path chỉ chứa tên file thuần
             String rawPath = rs.getString("image_path");
             item.setImagePath(extractFilename(rawPath));
 
@@ -912,8 +924,11 @@ public class ItemDAO {
                 item.setHighestBidderId(rs.getInt("highest_bidder_id"));
                 item.setPriceStep(rs.getDouble("price_step"));
 
-                String status = rs.getString("auction_status");
-                if (status == null) {
+                // Thử đọc "auction_status" trước, fallback sang "status"
+                String status;
+                try {
+                    status = rs.getString("auction_status");
+                } catch (SQLException ex) {
                     status = rs.getString("status");
                 }
                 item.setStatus(status);
@@ -932,8 +947,10 @@ public class ItemDAO {
         }
     }
 
- 
-    // Lấy tên file từ đường dẫn tuyệt đối.
+    /**
+     * Cắt lấy tên file từ đường dẫn tuyệt đối hoặc tương đối.
+     * Ví dụ: "C:\loads\photo.jpg" → "photo.jpg"
+     */
     private String extractFilename(String fullPath) {
         if (fullPath == null || fullPath.isEmpty()) return null;
         int lastSlash = Math.max(fullPath.lastIndexOf('/'), fullPath.lastIndexOf('\\'));
