@@ -142,8 +142,70 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
     setText(lblStartTime,   "Bắt đầu: " + safeText(item.getStartTime(), "N/A"));
     setText(lblEndTime,     "Kết thúc: " + safeText(item.getEndTime(), "N/A"));
     setText(lblCategory,    "Loại: " + safeText(item.getCategory(), "N/A"));
-    setText(lblSeller,      "Người bán: " + item.getSellerId());
+    // ── Người bán ─────────────────────────────────────────────
+    int sellerId = item.getSellerId();
 
+    AuctionFacade.getInstance().getUserById(
+            sellerId,
+            new ApiCallback<UserDTO>() {
+
+        @Override
+        public void onSuccess(UserDTO seller) {
+
+            Platform.runLater(() -> {
+
+                if (seller != null) {
+
+                    String sellerName =
+                            seller.getFullName() != null &&
+                            !seller.getFullName().isBlank()
+                                    ? seller.getFullName()
+                                    : seller.getUsername();
+
+                    setText(lblSeller, "Người bán: " + sellerName);
+
+                    // rating
+                    if (lblSellerRating != null) {
+                        lblSellerRating.setText(
+                                String.format("⭐ %.1f", seller.getTotalRating())
+                        );
+                    }
+
+                    // sale count
+                    if (lblSellerSaleCount != null) {
+                        lblSellerSaleCount.setText(
+                                "Đã bán: " + seller.getSaleCount()
+                        );
+                    }
+
+                } else {
+
+                    setText(lblSeller, "Người bán: Không xác định");
+                }
+            });
+        }
+
+        @Override
+        public void onError(String errorMessage) {
+
+            Platform.runLater(() -> {
+
+                setText(lblSeller, "Người bán: Không tải được");
+
+                if (lblSellerRating != null) {
+                    lblSellerRating.setText("");
+                }
+
+                if (lblSellerSaleCount != null) {
+                    lblSellerSaleCount.setText("");
+                }
+
+                System.out.println("Lỗi load seller: " + errorMessage);
+            });
+        }
+    });
+
+    
     // ── Giá hiện tại ─────────────────────────────────────────────────
     displayedCurrentPrice = item.getCurrentMaxPrice() > 0
       ? item.getCurrentMaxPrice()

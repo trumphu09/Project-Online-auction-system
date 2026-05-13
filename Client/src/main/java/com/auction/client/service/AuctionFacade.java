@@ -3,7 +3,10 @@ package com.auction.client.service;
 import com.auction.client.network.ApiService;
 import com.auction.client.model.dto.ItemDTO;
 import com.auction.client.model.dto.UserDTO;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.reflect.TypeToken;
 import javafx.application.Platform;
 
@@ -171,10 +174,10 @@ public class AuctionFacade {
         );
     }
 
-    public void getMyActiveBids(ApiCallback<List<JsonObject>> callback) {
+    public void getMyActiveBids(ApiCallback<List<ItemDTO>> callback) {
         executeRequest(
             apiService.sendGetRequest("/my/active-bids"),
-            new TypeToken<List<JsonObject>>() {}.getType(),
+            new TypeToken<List<ItemDTO>>() {}.getType(),
             callback
         );
     }
@@ -259,55 +262,137 @@ public class AuctionFacade {
             Platform.runLater(() -> {
                 try {
                     String body = response.body();
+
                     System.out.println("=== DEBUG RESPONSE ===");
                     System.out.println("Response Status: " + response.statusCode());
-                    System.out.println("Response Body (first 500 chars): " + (body != null ? body.substring(0, Math.min(500, body.length())) : "null"));
-                    
+                    System.out.println("Response Body (first 500 chars): "
+                            + (body != null ? body.substring(0, Math.min(500, body.length())) : "null"));
+
                     if (body == null || body.isBlank()) {
                         System.err.println("ERROR: Server returned empty response");
                         callback.onError("Server trả về phản hồi trống.");
                         return;
                     }
 
-                    JsonObject rootObj = gson.fromJson(body, JsonObject.class);
-                    System.out.println("Parsed JSON - has status: " + (rootObj != null && rootObj.has("status")));
-                    
-                    if (rootObj != null && rootObj.has("status")) {
-                        String status = rootObj.get("status").getAsString();
-                        System.out.println("Status: " + status);
-                        
-                        if ("error".equals(status)) {
-                            String msg = rootObj.has("message")
-                                    ? rootObj.get("message").getAsString()
-                                    : "Lỗi server";
-                            System.err.println("ERROR from server: " + msg);
-                            callback.onError(msg);
-                            return;
+                    JsonElement rootEl;
+                    try {
+                        rootEl = JsonParser.parseString(body);
+                    } catch (Exception parseEx) {
+                        System.err.println("ERROR: Invalid JSON: " + parseEx.getMessage());
+                        callback.onError("Định dạng phản hồi từ Server không hợp lệ.");
+                        return;
+                    }
+
+                    // =========================
+                    // 1) JSON object có wrapper
+                    // =========================
+                    if (rootEl.isJsonObject()) {
+                        JsonObject rootObj = rootEl.getAsJsonObject();
+
+                        Boolean successFlag = null;
+
+                        // wrapper kiểu cũ: {"status":"success"/"error"}
+                        if (rootObj.has("status") && !rootObj.get("status").isJsonNull()) {
+                            JsonElement statusEl = rootObj.get("status");
+                            if (statusEl.isJsonPrimitive()) {
+                                JsonPrimitive p = statusEl.getAsJsonPrimitive();
+                                if (p.isBoolean()) {
+                                    successFlag = p.getAsBoolean();
+                                } else if (p.isString()) {
+                                    String status = p.getAsString();
+                                    successFlag = "success".equalsIgnoreCase(status)
+                                            || "ok".equalsIgnoreCase(status)
+                                            || "true".equalsIgnoreCase(status);
+                                }
+                            }
                         }
-                        if ("success".equals(status)) {
-                            if (rootObj.has("data") && !rootObj.get("data").isJsonNull()) {
-                                System.out.println("Data field type: " + rootObj.get("data").getClass().getSimpleName());
-                                System.out.println("Data field (first 200 chars): " + rootObj.get("data").toString().substring(0, Math.min(200, rootObj.get("data").toString().length())));
-                                T result = gson.fromJson(rootObj.get("data"), responseType);
-                                System.out.println("Successfully parsed data. Result type: " + (result != null ? result.getClass().getSimpleName() : "null"));
-                                callback.onSuccess(result);
-                            } else {
+
+                        // wrapper kiểu mới: {"success":true/false}
+                        if (successFlag == null && rootObj.has("success") && !rootObj.get("success").isJsonNull()) {
+                            JsonElement successEl = rootObj.get("success");
+                            if (successEl.isJsonPrimitive()) {
+                                JsonPrimitive p = successEl.getAsJsonPrimitive();
+                                if (p.isBoolean()) {
+                                    successFlag = p.getAsBoolean();
+                                } else if (p.isString()) {
+                                    String s = p.getAsString();
+                                    successFlag = "true".equalsIgnoreCase(s)
+                                            || "success".equalsIgnoreCase(s)
+                                            || "ok".equalsIgnoreCase(s);
+                                }
+                            }
+                        }
+
+                        // Nếu có wrapper success/status thì xử lý theo wrapper
+                        if (successFlag != null) {
+                            if (!successFlag) {
+                                String msg = rootObj.has("message") && !rootObj.get("message").isJsonNull()
+                                        ? rootObj.get("message").getAsString()
+                                        : "Lỗi server";
+                                System.err.println("ERROR from server: " + msg);
+                                callback.onError(msg);
+                                return;
+                            }
+
+                            // success nhưng không có data => trả null
+                            if (!rootObj.has("data") || rootObj.get("data").isJsonNull()) {
                                 System.out.println("SUCCESS but no data field - returning null");
-                                // success nhưng không có data (vd: logout, deposit) → trả null
                                 callback.onSuccess(null);
+                                return;
+                            }
+
+                            JsonElement dataEl = rootObj.get("data");
+                            System.out.println("Data field type: " + dataEl.getClass().getSimpleName());
+                            System.out.println("Data field (first 200 chars): "
+                                    + dataEl.toString().substring(0, Math.min(200, dataEl.toString().length())));
+
+                            try {
+                                T result = gson.fromJson(dataEl, responseType);
+                                System.out.println("Successfully parsed data. Result type: "
+                                        + (result != null ? result.getClass().getSimpleName() : "null"));
+                                callback.onSuccess(result);
+                            } catch (Exception ex) {
+                                System.err.println("Failed to parse 'data' as " + responseType + ": " + ex.getMessage());
+                                callback.onError("Định dạng data từ Server không đúng.");
                             }
                             return;
                         }
+
+                        // =========================
+                        // 2) JSON object KHÔNG có wrapper
+                        //    => thử parse trực tiếp, ưu tiên data nếu có
+                        // =========================
+                        if (rootObj.has("data") && !rootObj.get("data").isJsonNull()) {
+                            try {
+                                T result = gson.fromJson(rootObj.get("data"), responseType);
+                                callback.onSuccess(result);
+                            } catch (Exception ex) {
+                                System.err.println("Failed to parse rootObj.data: " + ex.getMessage());
+                                callback.onError("Định dạng phản hồi từ Server không chuẩn xác.");
+                            }
+                            return;
+                        }
+
+                        // Không có wrapper, không có data => parse cả object
+                        try {
+                            T result = gson.fromJson(rootObj, responseType);
+                            callback.onSuccess(result);
+                        } catch (Exception ex) {
+                            System.err.println("Failed to parse root object: " + ex.getMessage());
+                            callback.onError("Định dạng phản hồi từ Server không chuẩn xác.");
+                        }
+                        return;
                     }
 
-                    // Nếu server trả về JSON nhưng không có trường "status"
-                    // → thử parse thẳng phần body như là data (dùng cho API cũ không wrap)
-                    System.out.println("No status field - trying to parse directly as response type");
+                    // =========================
+                    // 3) JSON không phải object
+                    //    => parse trực tiếp
+                    // =========================
                     try {
-                        T result = gson.fromJson(body, responseType);
+                        T result = gson.fromJson(rootEl, responseType);
                         callback.onSuccess(result);
-                    } catch (Exception parseEx) {
-                        System.err.println("Failed to parse as " + responseType + ": " + parseEx.getMessage());
+                    } catch (Exception ex) {
+                        System.err.println("Failed to parse non-object JSON: " + ex.getMessage());
                         callback.onError("Định dạng phản hồi từ Server không chuẩn xác.");
                     }
 

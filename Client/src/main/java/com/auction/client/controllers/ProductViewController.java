@@ -232,22 +232,29 @@ public class ProductViewController extends BaseController implements Initializab
     // PHẦN 4: LỊCH SỬ ĐẤU GIÁ
     // ==========================================
     private void loadBidderHistory() {
-        AuctionFacade.getInstance().getMyActiveBids(new ApiCallback<List<JsonObject>>() {
+        AuctionFacade.getInstance().getMyActiveBids(new ApiCallback<List<ItemDTO>>() {
             @Override
-            public void onSuccess(List<JsonObject> bids) {
+            public void onSuccess(List<ItemDTO> items) {
                 Platform.runLater(() -> {
                     if (listActiveBids != null) listActiveBids.getItems().clear();
-                    if (bids != null) {
-                        for (JsonObject bid : bids) {
+
+                    if (items != null) {
+                        for (ItemDTO item : items) {
                             listActiveBids.getItems().add(
-                                "SP ID: " + bid.get("auction_id").getAsInt()
-                                + " | Bạn Bid: " + String.format("%,.0f", bid.get("amount").getAsDouble())
+                                "SP #" + item.getId()
+                                + " | " + item.getName()
+                                + " | Giá hiện tại: " + String.format("%,.0f VNĐ", item.getCurrentMaxPrice())
+                                + " | " + (item.getStatus() != null ? item.getStatus() : "N/A")
                             );
                         }
                     }
                 });
             }
-            @Override public void onError(String err) {}
+
+            @Override
+            public void onError(String err) {
+                Platform.runLater(() -> showAlert("Lỗi tải danh sách đang tham gia", err));
+            }
         });
 
         AuctionFacade.getInstance().getMyWonItems(new ApiCallback<List<ItemDTO>>() {
@@ -262,22 +269,39 @@ public class ProductViewController extends BaseController implements Initializab
                     }
                 });
             }
-            @Override public void onError(String err) {}
+
+            @Override
+            public void onError(String err) {
+                Platform.runLater(() -> showAlert("Lỗi tải sản phẩm thắng", err));
+            }
         });
     }
 
     // ==========================================
     // PHẦN 5: CHUYỂN PHÒNG & ĐĂNG XUẤT
     // ==========================================
+    @FXML
     public void openBiddingRoom(Event event) {
-        try {
-            Node sourceNode = (Node) event.getSource();
-            Object userData = sourceNode.getUserData();
 
-            if (userData == null) {
-                showAlert("Lỗi", "Không thể lấy thông tin sản phẩm!");
+        try {
+
+            Node clickedNode = (Node) event.getTarget();
+
+            // Tìm ItemCard cha gần nhất
+            while (clickedNode != null &&
+                !(clickedNode instanceof ItemCard)) {
+
+                clickedNode = clickedNode.getParent();
+            }
+
+            if (clickedNode == null) {
+                showAlert("Lỗi", "Không tìm thấy sản phẩm!");
                 return;
             }
+
+            ItemCard card = (ItemCard) clickedNode;
+
+            Object userData = card.getUserData();
 
             if (!(userData instanceof ItemDTO)) {
                 showAlert("Lỗi", "Dữ liệu sản phẩm không hợp lệ!");
@@ -285,47 +309,45 @@ public class ProductViewController extends BaseController implements Initializab
             }
 
             ItemDTO selectedItem = (ItemDTO) userData;
+
+            System.out.println("=== OPEN BIDDING ROOM ===");
+            System.out.println("Item ID: " + selectedItem.getId());
+            System.out.println("Auction ID: " + selectedItem.getAuctionId());
+            System.out.println("Name: " + selectedItem.getName());
+
             if (selectedItem.getAuctionId() <= 0) {
-                showAlert("Lỗi", "Sản phẩm này chưa có phiên đấu giá hợp lệ!");
+                showAlert("Lỗi", "Sản phẩm chưa có phiên đấu giá!");
                 return;
             }
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BiddingRoomView.fxml"));
-            if (loader.getLocation() == null) {
-                showAlert("Lỗi hệ thống", "Không tìm thấy file BiddingRoomView.fxml");
-                return;
-            }
+            FXMLLoader loader =
+                    new FXMLLoader(getClass().getResource("/view/BiddingRoomView.fxml"));
 
             Parent root = loader.load();
+
             BiddingRoomController controller = loader.getController();
 
-            if (controller == null) {
-                showAlert("Lỗi", "Không thể khởi tạo BiddingRoomController.");
-                return;
-            }
-
+            // QUAN TRỌNG
             controller.setData(selectedItem);
 
-            Stage stage = (Stage) sourceNode.getScene().getWindow();
+            Stage stage = (Stage) card.getScene().getWindow();
+
             stage.setScene(new Scene(root, 1200, 700));
+
             stage.setTitle("Phòng đấu giá: " + selectedItem.getName());
+
             stage.show();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-            Throwable root = e;
-            while (root.getCause() != null) {
-                root = root.getCause();
-            }
-            showAlert("Lỗi hệ thống",
-                    "Không thể nạp giao diện phòng đấu giá:\n"
-                            + root.getClass().getSimpleName() + ": " + root.getMessage());
         } catch (Exception e) {
+
             e.printStackTrace();
-            showAlert("Lỗi hệ thống", "Lỗi không xác định: " + e.getMessage());
+
+            showAlert(
+                    "Lỗi hệ thống",
+                    "Không thể mở phòng đấu giá:\n" + e.getMessage()
+            );
         }
     }
-
     // ==========================================
     // PHẦN 6: GIỎ HÀNG
     // ==========================================

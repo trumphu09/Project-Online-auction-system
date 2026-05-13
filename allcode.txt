@@ -813,8 +813,54 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
     setText(lblStartTime,   "Bắt đầu: " + safeText(item.getStartTime(), "N/A"));
     setText(lblEndTime,     "Kết thúc: " + safeText(item.getEndTime(), "N/A"));
     setText(lblCategory,    "Loại: " + safeText(item.getCategory(), "N/A"));
-    setText(lblSeller,      "Người bán: " + item.getSellerId());
+    // ── Người bán ─────────────────────────────────────────────
+    int sellerId = item.getSellerId();
 
+    AuctionFacade.getInstance().getUserById(sellerId, new ApiCallback<UserDTO>() {
+
+        @Override
+        public void onSuccess(UserDTO seller) {
+            Platform.runLater(() -> {
+
+                if (seller != null) {
+
+                    String sellerName =
+                            seller.getFullName() != null &&
+                            !seller.getFullName().isBlank()
+                                    ? seller.getFullName()
+                                    : seller.getUsername();
+
+                    setText(lblSeller, "Người bán: " + sellerName);
+
+                    // optional
+                    if (lblSellerRating != null) {
+                        lblSellerRating.setText(
+                                String.format("⭐ %.1f", seller.getTotalRating())
+                        );
+                    }
+
+                    if (lblSellerSaleCount != null) {
+                        lblSellerSaleCount.setText(
+                                "Đã bán: " + seller.getSaleCount()
+                        );
+                    }
+
+                } else {
+                    setText(lblSeller, "Người bán: Không xác định");
+                }
+            });
+        }
+
+        @Override
+        public void onError(String errorMessage) {
+            Platform.runLater(() -> {
+                setText(lblSeller, "Người bán: Không tải được");
+                System.out.println("Lỗi load seller: " + errorMessage);
+            });
+        }
+    });
+
+    
     // ── Giá hiện tại ─────────────────────────────────────────────────
     displayedCurrentPrice = item.getCurrentMaxPrice() > 0
       ? item.getCurrentMaxPrice()
@@ -7129,6 +7175,8 @@ public class AuctionDAO {
         }
         return null;
     }
+
+    
 }
  
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\BidderDAO.java ===  
@@ -8642,23 +8690,37 @@ public class PaymentDAO {
         Connection conn = null;
         try {
             conn = DatabaseConnection.getInstance().getConnection();
-            conn.setAutoCommit(false); // Bắt đầu Transaction an toàn
+            conn.setAutoCommit(false); // Bắt đầu Transaction
 
-            // 1. Lấy thông tin cần thiết từ phiên đấu giá đang FINISHED
-            String getAuctionInfoSql = "SELECT current_max_price, highest_bidder_id, seller_id FROM auctions WHERE id = ? AND status = 'FINISHED' FOR UPDATE";
+            // 1. Lấy thông tin VÀ TRẠNG THÁI HIỆN TẠI (Bỏ điều kiện cứng status='FINISHED' ở WHERE)
+            String getAuctionInfoSql = "SELECT current_max_price, highest_bidder_id, seller_id, status FROM auctions WHERE id = ? FOR UPDATE";
             double amount = 0;
             int bidderId = 0, sellerId = 0;
-
+            
             try (PreparedStatement checkStmt = conn.prepareStatement(getAuctionInfoSql)) {
                 checkStmt.setInt(1, auctionId);
                 try (ResultSet rs = checkStmt.executeQuery()) {
                     if (rs.next()) {
+                        String currentStatus = rs.getString("status");
+                        
+                        // FIX SPAM CLICK: Nếu DB đã là PAID rồi, báo thành công luôn để UI không bị quăng lỗi!
+                        if ("PAID".equalsIgnoreCase(currentStatus)) {
+                            conn.rollback(); 
+                            return true; 
+                        }
+                        
+                        // Nếu chưa thanh toán thì bắt buộc phải là FINISHED mới cho đi tiếp
+                        if (!"FINISHED".equalsIgnoreCase(currentStatus)) {
+                            conn.rollback();
+                            return false; 
+                        }
+
                         amount = rs.getDouble("current_max_price");
                         bidderId = rs.getInt("highest_bidder_id");
                         sellerId = rs.getInt("seller_id");
                     } else {
                         conn.rollback();
-                        return false; // Phiên không tồn tại hoặc chưa kết thúc
+                        return false; // Phiên không tồn tại
                     }
                 }
             }

@@ -3,6 +3,7 @@ package com.auction.controller;
 import com.auction.service.BidService;
 import com.auction.server.models.BidTransactionDTO;
 import com.auction.server.models.Item;
+import com.auction.server.models.ItemDTO;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -30,7 +31,7 @@ public class BidController {
 
     public String handleGetActiveBids(int userId) {
         try {
-            List<Item> items = bidService.getActiveBids(userId);
+            List<ItemDTO> items = bidService.getActiveBids(userId);
             return createResponse("success", "Lấy danh sách các phiên đang tham gia thành công.", gson.toJsonTree(items));
         } catch (Exception e) {
             e.printStackTrace();

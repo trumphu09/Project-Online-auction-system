@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.auction.server.models.BidTransactionDTO;
 import com.auction.server.models.Item;
+import com.auction.server.models.ItemDTO;
 import com.auction.server.models.AuctionStatus;
 
 public class BidsDAO {
@@ -172,29 +173,70 @@ public class BidsDAO {
     /**
      * Lấy danh sách các sản phẩm mà một người dùng đang tham gia đấu giá (trạng thái RUNNING).
      */
-    public List<Item> getActiveBidsByUserId(int userId) {
-        List<Item> activeBidItems = new ArrayList<>();
-        String sql = "SELECT i.* FROM items i " +
-                     "JOIN (SELECT DISTINCT a.item_id FROM bids b JOIN auctions a ON b.auction_id = a.id WHERE b.bidder_id = ?) tb " +
-                     "ON i.id = tb.item_id " +
-                     "WHERE i.status = 'RUNNING' " +
-                     "ORDER BY i.id";
+    public List<ItemDTO> getActiveBidsByUserId(int userId) {
+        List<ItemDTO> activeBidItems = new ArrayList<>();
+
+        String sql = """
+            SELECT DISTINCT
+                i.id,
+                i.seller_id,
+                i.name,
+                i.description,
+                i.starting_price,
+                i.category,
+                i.created_at,
+                i.image_path,
+                a.id AS auction_id,
+                a.current_max_price,
+                a.highest_bidder_id,
+                a.price_step,
+                a.start_time,
+                a.end_time,
+                a.status AS auction_status
+            FROM bids b
+            JOIN auctions a ON b.auction_id = a.id
+            JOIN items i ON a.item_id = i.id
+            WHERE b.bidder_id = ?
+            AND a.status IN ('OPEN', 'RUNNING')
+            ORDER BY a.end_time DESC
+            """;
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, userId);
-            try (ResultSet rs = pstmt.executeQuery()) {
+            ps.setInt(1, userId);
+
+            try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    activeBidItems.add(mapRowToItem(rs));
+                    ItemDTO item = new ItemDTO();
+                    item.setId(rs.getInt("id"));
+                    item.setSellerId(rs.getInt("seller_id"));
+                    item.setName(rs.getString("name"));
+                    item.setDescription(rs.getString("description"));
+                    item.setStartingPrice(rs.getDouble("starting_price"));
+                    item.setCategory(rs.getString("category"));
+                    item.setCreatedAt(rs.getString("created_at"));
+                    item.setImagePath(rs.getString("image_path"));
+
+                    item.setAuctionId(rs.getInt("auction_id"));
+                    item.setCurrentMaxPrice(rs.getDouble("current_max_price"));
+                    item.setHighestBidderId(rs.getInt("highest_bidder_id"));
+                    item.setPriceStep(rs.getDouble("price_step"));
+                    item.setStartTime(rs.getTimestamp("start_time") != null
+                            ? rs.getTimestamp("start_time").toString() : null);
+                    item.setEndTime(rs.getTimestamp("end_time") != null
+                            ? rs.getTimestamp("end_time").toString() : null);
+                    item.setStatus(rs.getString("auction_status"));
+
+                    activeBidItems.add(item);
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return activeBidItems;
     }
-
     // Hàm phụ trợ để chuyển row -> Item (giữ tương thích với model Item trong project)
     private Item mapRowToItem(ResultSet rs) throws SQLException {
         int id = rs.getInt("id");

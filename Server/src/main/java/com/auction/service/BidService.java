@@ -2,6 +2,7 @@ package com.auction.service;
 
 import com.auction.server.dao.BidsDAO;
 import com.auction.server.dao.ItemDAO;
+import com.auction.server.models.ItemDTO;
 import com.auction.server.dao.DatabaseConnection;
 import com.auction.server.models.BidTransactionDTO; // Import đúng DTO của ông
 import com.auction.server.models.Item;              // Import đúng Model của ông
@@ -31,7 +32,7 @@ public class BidService {
         return bidsDAO.getBidHistoryByItemId(itemId); 
     }
 
-    public List<Item> getActiveBids(int userId) {
+    public List<ItemDTO> getActiveBids(int userId) {
         return bidsDAO.getActiveBidsByUserId(userId);
     }
 
