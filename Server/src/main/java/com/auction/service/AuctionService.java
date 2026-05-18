@@ -1,6 +1,7 @@
 package com.auction.service;
 
 import com.auction.server.dao.BidsDAO;
+import com.auction.server.dao.BidsDAO.BidResult;
 import com.auction.server.dao.AuctionDAO;
 import com.auction.server.dao.UserDAO;
 import com.auction.server.models.AuctionDataDTO;
@@ -27,12 +28,14 @@ public class AuctionService {
         return instance;
     }
 
-    public String placeBid(int auctionId, int bidderId, double amount) {
-        if (amount <= 0) return "Lỗi: Số tiền không hợp lệ!";
-        
-        boolean success = bidsDAO.executeBid(auctionId, bidderId, amount);
-        
-        if (success) {
+    public BidResult placeBid(int auctionId, int bidderId, double amount) {
+        if (amount <= 0) {
+            return new BidResult(false, false, null, "Lỗi: Số tiền không hợp lệ!");
+        }
+
+        BidResult result = bidsDAO.executeBidDetailed(auctionId, bidderId, amount);
+
+        if (result.isSuccess()) {
             UserDTO bidder = userDAO.getUserById(bidderId);
             String bidderUsername = (bidder != null) ? bidder.getUsername() : "Một người dùng";
 
@@ -40,13 +43,24 @@ public class AuctionService {
             bidData.put("auctionId", auctionId);
             bidData.put("newPrice", amount);
             bidData.put("bidderUsername", bidderUsername);
+            bidData.put("timeExtended", result.isTimeExtended());
+
+            if (result.isTimeExtended() && result.getNewEndTime() != null) {
+                String newEndTimeIso = result.getNewEndTime().toString();
+                bidData.put("newEndTime", newEndTimeIso);
+
+                Map<String, Object> extData = new HashMap<>();
+                extData.put("auctionId", auctionId);
+                extData.put("newEndTime", newEndTimeIso);
+                extData.put("message", "Phiên đấu giá vừa được gia hạn thêm 1 phút!");
+
+                AuctionManager.getInstance().broadcastUpdate("AUCTION_EXTENDED", extData);
+            }
 
             AuctionManager.getInstance().broadcastUpdate("NEW_BID", bidData);
-
-            return "Thành công: Đã chốt giá $" + amount;
-        } else {
-            return "Thất bại: Giá không đủ cao, phiên đã đóng, hoặc số dư không đủ!";
         }
+
+        return result;
     }
 
     public AuctionStatus closeAuction(int auctionId) {

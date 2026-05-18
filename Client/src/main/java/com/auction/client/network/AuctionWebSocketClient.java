@@ -184,6 +184,11 @@ public class AuctionWebSocketClient {
           handlePriceUpdate(root);
           break;
 
+        case "AUCTION_EXTENDED":
+          // Format từ broadcastUpdate khi gia hạn: {"type":"AUCTION_EXTENDED","data":{"auctionId":X,"newEndTime":"...","message":"..."}}
+           // Hiện tại client chưa dùng đến, nhưng có thể mở rộng để hiển thị thông báo gia hạn.
+           break;
+
         case "AUCTION_ENDED":
           handleAuctionEnded(root);
           break;
@@ -209,10 +214,10 @@ public class AuctionWebSocketClient {
     int auctionId   = getInt(data, "auctionId", -1);
     double newPrice = getDouble(data, "newPrice", 0);
     String username = getString(data, "bidderUsername", "Ẩn danh");
+    String newEndTime = getString(data, "newEndTime", null);
 
-    // Chỉ xử lý nếu đúng phiên đang xem
     if (watchedAuctionId == -1 || auctionId == watchedAuctionId) {
-      notifyNewBid(auctionId, newPrice, username);
+      notifyNewBid(auctionId, newPrice, username, newEndTime);
     }
   }
 
@@ -223,9 +228,10 @@ public class AuctionWebSocketClient {
   private void handlePriceUpdate(JsonObject root) {
     int auctionId   = getInt(root, "auctionId", -1);
     double newPrice = getDouble(root, "newPrice", 0);
+    String newEndTime = getString(root, "newEndTime", null);
 
     if (watchedAuctionId == -1 || auctionId == watchedAuctionId) {
-      notifyNewBid(auctionId, newPrice, null);
+      notifyNewBid(auctionId, newPrice, null, newEndTime);
     }
   }
 
@@ -256,12 +262,22 @@ public class AuctionWebSocketClient {
     }
   }
 
-  private void notifyNewBid(int auctionId, double price, String username) {
-    if (listener != null) {
-      Platform.runLater(() -> listener.onNewBid(auctionId, price, username));
+  private void handleAuctionExtended(JsonObject root) {
+    if (!root.has("data") || root.get("data").isJsonNull()) return;
+
+    JsonObject data = root.getAsJsonObject("data");
+    int auctionId = getInt(data, "auctionId", -1);
+    String newEndTime = getString(data, "newEndTime", null);
+
+    if (watchedAuctionId == -1 || auctionId == watchedAuctionId) {
+      notifyNewBid(auctionId, 0, null, newEndTime);
     }
   }
-
+  private void notifyNewBid(int auctionId, double price, String username, String newEndTime) {
+    if (listener != null) {
+      Platform.runLater(() -> listener.onNewBid(auctionId, price, username, newEndTime));
+    }
+  }
   // ===================================================================
   // HELPER — an toàn khi đọc JSON (tránh NPE)
   // ===================================================================

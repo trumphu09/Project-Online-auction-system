@@ -48,21 +48,34 @@ public class PaymentDAO {
                         
                         // FIX SPAM CLICK: Nếu DB đã là PAID rồi, báo thành công luôn để UI không bị quăng lỗi!
                         if ("PAID".equalsIgnoreCase(currentStatus)) {
-                            conn.rollback(); 
+                            conn.rollback();
+                            conn.setAutoCommit(true);
                             return true; 
                         }
                         
                         // Nếu chưa thanh toán thì bắt buộc phải là FINISHED mới cho đi tiếp
                         if (!"FINISHED".equalsIgnoreCase(currentStatus)) {
+                            System.err.println("Lỗi: Phiên " + auctionId + " không ở trạng thái FINISHED (status=" + currentStatus + ")");
                             conn.rollback();
+                            conn.setAutoCommit(true);
                             return false; 
                         }
 
                         amount = rs.getDouble("current_max_price");
                         bidderId = rs.getInt("highest_bidder_id");
                         sellerId = rs.getInt("seller_id");
+                        
+                        // Kiểm tra dữ liệu hợp lệ
+                        if (amount <= 0 || bidderId <= 0 || sellerId <= 0) {
+                            System.err.println("Lỗi: Dữ liệu phiên không hợp lệ - amount=" + amount + ", bidderId=" + bidderId + ", sellerId=" + sellerId);
+                            conn.rollback();
+                            conn.setAutoCommit(true);
+                            return false;
+                        }
                     } else {
+                        System.err.println("Lỗi: Phiên " + auctionId + " không tồn tại");
                         conn.rollback();
+                        conn.setAutoCommit(true);
                         return false; // Phiên không tồn tại
                     }
                 }
@@ -75,7 +88,11 @@ public class PaymentDAO {
                 insertStmt.setInt(2, bidderId);
                 insertStmt.setInt(3, sellerId);
                 insertStmt.setDouble(4, amount);
-                insertStmt.executeUpdate();
+                int rowsInserted = insertStmt.executeUpdate();
+                if (rowsInserted == 0) {
+                    throw new SQLException("Không thể tạo payment record");
+                }
+                System.out.println("✓ Tạo payment record: bidder=" + bidderId + ", seller=" + sellerId + ", amount=" + amount);
             }
 
             // 3. Cộng tiền cho người bán (Seller)
@@ -83,25 +100,45 @@ public class PaymentDAO {
             try (PreparedStatement addStmt = conn.prepareStatement(addMoneySql)) {
                 addStmt.setDouble(1, amount);
                 addStmt.setInt(2, sellerId);
-                addStmt.executeUpdate();
+                int rowsUpdated = addStmt.executeUpdate();
+                if (rowsUpdated == 0) {
+                    throw new SQLException("Người bán (id=" + sellerId + ") không tồn tại trong bảng sellers");
+                }
+                System.out.println("✓ Cộng tiền cho seller: " + amount + " cho user_id=" + sellerId);
             }
 
             // 4. Chuyển trạng thái phiên đấu giá sang PAID
             String updateAuctionSql = "UPDATE auctions SET status = 'PAID' WHERE id = ?";
             try (PreparedStatement updateAuctionStmt = conn.prepareStatement(updateAuctionSql)) {
                 updateAuctionStmt.setInt(1, auctionId);
-                updateAuctionStmt.executeUpdate();
+                int rowsUpdated = updateAuctionStmt.executeUpdate();
+                if (rowsUpdated == 0) {
+                    throw new SQLException("Không thể cập nhật trạng thái phiên " + auctionId);
+                }
+                System.out.println("✓ Cập nhật trạng thái phiên " + auctionId + " thành PAID");
             }
 
             conn.commit(); // Thành công tất cả thì chốt lưu!
+            System.out.println("✓✓✓ TRANSACTION COMMIT THÀNH CÔNG cho phiên " + auctionId);
             return true;
 
         } catch (SQLException e) {
             System.err.println("Lỗi processPayment: " + e.getMessage());
-            if (conn != null) try { conn.rollback(); } catch (SQLException ex) { }
+            e.printStackTrace();
+            if (conn != null) try { 
+                conn.rollback();
+                System.err.println("TRANSACTION ROLLED BACK!");
+            } catch (SQLException ex) { 
+                ex.printStackTrace();
+            }
             return false;
         } finally {
-            if (conn != null) try { conn.setAutoCommit(true); conn.close(); } catch (SQLException e) { }
+            if (conn != null) try { 
+                conn.setAutoCommit(true);
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 

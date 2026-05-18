@@ -14,7 +14,7 @@ public class AuctionStatusScheduler {
     public void start() {
         scheduler = Executors.newSingleThreadScheduledExecutor();
         // Cứ mỗi 1 phút (60 giây), chạy hàm kiểm tra 1 lần
-        scheduler.scheduleAtFixedRate(this::checkAndSyncAuctionStatuses, 0, 1, TimeUnit.MINUTES);
+        scheduler.scheduleAtFixedRate(this::checkAndSyncAuctionStatuses, 0, 1, TimeUnit.SECONDS);
         System.out.println("[SCHEDULER] Hệ thống tự động quản lý phiên đấu giá đã khởi động!");
     }
 

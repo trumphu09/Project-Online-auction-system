@@ -11,6 +11,7 @@ import org.apache.tomcat.util.descriptor.web.FilterDef;
 import org.apache.tomcat.util.descriptor.web.FilterMap;
 
 import java.io.File;
+import java.util.TimeZone;
 
 public class AuctionServer {
 
@@ -24,7 +25,10 @@ public class AuctionServer {
 
     public static void main(String[] args) {
         System.out.println("=== AUCTION SERVER STARTING ===");
-
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+        System.out.println(java.time.ZoneId.systemDefault());
+        System.out.println(java.util.TimeZone.getDefault());
+        System.out.println(java.time.LocalDateTime.now());
         try {
             // ✅ FIX: Ensure consistent upload directory
             // Set to project root /uploads folder (not dependent on working directory)
@@ -94,6 +98,8 @@ public class AuctionServer {
             ctx.addServletMappingDecoded("/api/images/*", "ImageAPI");
             Tomcat.addServlet(ctx, "UserDetailAPI", new UserDetailAPI());
             ctx.addServletMappingDecoded("/api/users/*", "UserDetailAPI");
+            Tomcat.addServlet(ctx, "SellerRatingAPI", new SellerRatingAPI());
+            ctx.addServletMappingDecoded("/api/my/rating-seller", "SellerRatingAPI");
             tomcat.start();
             System.out.println("✓ [HTTP API] Web Server đang chạy ở cổng 8080!");
 

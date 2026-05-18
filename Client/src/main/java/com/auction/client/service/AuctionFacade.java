@@ -189,6 +189,30 @@ public class AuctionFacade {
         executeRequest(apiService.sendPostRequest("/payments", gson.toJson(json)), JsonObject.class, callback);
     }
 
+    public void rateSeller(int sellerId, int auctionId, int rating, ApiCallback<JsonObject> callback) {
+        JsonObject body = new JsonObject();
+        body.addProperty("sellerId", sellerId);
+        body.addProperty("auctionId", auctionId);
+        body.addProperty("rating", rating);
+
+        apiService.sendPostRequest("/my/rating-seller", gson.toJson(body))            
+        .thenAccept(response -> {
+                String responseBody = response.body();
+                JsonObject obj = JsonParser.parseString(responseBody).getAsJsonObject();
+
+                if (obj.has("status") && "success".equalsIgnoreCase(obj.get("status").getAsString())) {
+                    callback.onSuccess(obj);
+                } else {
+                    String msg = obj.has("message") ? obj.get("message").getAsString() : "Không thể đánh giá người bán.";
+                    callback.onError(msg);
+                }
+            })
+            .exceptionally(ex -> {
+                callback.onError("Lỗi kết nối: " + ex.getMessage());
+                return null;
+            });
+    }
+
     // =========================================================================
     // 4. SELLER
     // =========================================================================
@@ -336,8 +360,22 @@ public class AuctionFacade {
 
                             // success nhưng không có data => trả null
                             if (!rootObj.has("data") || rootObj.get("data").isJsonNull()) {
-                                System.out.println("SUCCESS but no data field - returning null");
-                                callback.onSuccess(null);
+
+                                System.out.println("SUCCESS but no data field");
+
+                                // FIX CHO PAYMENT:
+                                // nếu caller muốn JsonObject thì trả luôn rootObj
+                                if (responseType == JsonObject.class) {
+
+                                    @SuppressWarnings("unchecked")
+                                    T resultObj = (T) rootObj;
+
+                                    callback.onSuccess(resultObj);
+
+                                } else {
+                                    callback.onSuccess(null);
+                                }
+
                                 return;
                             }
 

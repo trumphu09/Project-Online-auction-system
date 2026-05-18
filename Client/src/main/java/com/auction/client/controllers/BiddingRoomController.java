@@ -86,6 +86,7 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
   private ScheduledExecutorService timerScheduler;
   private ScheduledFuture<?> timerTask;
   private LocalDateTime auctionEndTime;
+  private boolean hasRatedThisAuction = false;
 
   // ─── Series biểu đồ ──────────────────────────────────────────────────────
   private XYChart.Series<String, Number> chartSeries;
@@ -134,6 +135,7 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
     }
 
     this.currentItem = item;
+    this.hasRatedThisAuction = false;
 
     // ── Thông tin cơ bản ──────────────────────────────────────────────
     setText(lblDescription, safeText(item.getDescription(), "Không có mô tả"));
@@ -272,24 +274,63 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
    */
   @Override
   public void onNewBid(int auctionId, double newPrice, String bidderUsername) {
-    if (newPrice <= displayedCurrentPrice) return; // Bỏ qua nếu giá cũ hơn
+      onNewBid(auctionId, newPrice, bidderUsername, null);
+  }
 
-    displayedCurrentPrice = newPrice;
+  @Override
+  public void onNewBid(int auctionId, double newPrice, String bidderUsername, String newEndTime) {
+      if (newPrice > 0 && newPrice > displayedCurrentPrice) {
+          displayedCurrentPrice = newPrice;
+          setText(lblCurrentPrice, formatVnd(newPrice));
 
-    // ── Giá hiện tại ─────────────────────────────────────────────────
-    setText(lblCurrentPrice, formatVnd(newPrice));
+          if (bidderUsername != null && !bidderUsername.isBlank()) {
+              setText(lblHighestBidder, bidderUsername);
+          }
 
-    // ── Hiển thị người đặt ────────────────────────────────────────────
-    if (bidderUsername != null && !bidderUsername.isBlank()) {
-      setText(lblHighestBidder, bidderUsername);
-    }
+          String label = DISPLAY_FORMATTER.format(LocalDateTime.now());
+          addChartPoint(label, newPrice);
 
-    // ── Cập nhật biểu đồ ─────────────────────────────────────────────
-    String label = DISPLAY_FORMATTER.format(LocalDateTime.now());
-    addChartPoint(label, newPrice);
+          loadCurrentUserInfo();
+      }
 
-    // ── Cập nhật số dư user (giá trị này đã thay đổi sau khi đặt cọc) ─
-    loadCurrentUserInfo();
+      if (newEndTime != null && !newEndTime.isBlank()) {
+          applyNewEndTimeFromServer(newEndTime);
+      }
+  }
+  private void applyNewEndTimeFromServer(String newEndTimeIso) {
+      try {
+          LocalDateTime parsedEndTime = LocalDateTime.parse(newEndTimeIso);
+
+          Platform.runLater(() -> {
+              this.auctionEndTime = parsedEndTime;
+
+              // Cập nhật text hiển thị kết thúc
+              if (lblEndTime != null) {
+                  lblEndTime.setText("Kết thúc: " + parsedEndTime.format(DT_FORMATTER));
+              }
+
+              // Khởi động lại timer từ endTime mới
+              restartCountdownTimer();
+
+              // Thông báo trực quan
+              if (lblBidNote != null) {
+                  lblBidNote.setText("⏰ Phiên đấu giá vừa được gia hạn thêm 1 phút!");
+                  lblBidNote.setStyle("-fx-font-size: 11; -fx-text-fill: #f39c12; -fx-font-style: italic; -fx-font-weight: bold;");
+              }
+
+              // Nếu muốn nháy nhẹ bằng style
+              if (lblTimer != null) {
+                  lblTimer.setStyle("-fx-font-size: 40px; -fx-text-fill: #27ae60; -fx-font-weight: bold;");
+              }
+          });
+
+      } catch (Exception ex) {
+          System.err.println("[BiddingRoom] Không parse được newEndTime: " + newEndTimeIso);
+      }
+  }
+  private void restartCountdownTimer() {
+      stopCountdownTimer();
+      startCountdownTimer();
   }
 
   /**
@@ -350,48 +391,44 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
   }
 
   private void startCountdownTimer() {
-    timerScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
-      Thread t = new Thread(r, "auction-countdown");
-      t.setDaemon(true);
-      return t;
-    });
-
-    timerTask = timerScheduler.scheduleAtFixedRate(() -> {
-      if (auctionEndTime == null || auctionEnded) return;
-
-      LocalDateTime now = LocalDateTime.now();
-      long totalSeconds = java.time.Duration.between(now, auctionEndTime).getSeconds();
-
-      if (totalSeconds <= 0) {
-        Platform.runLater(() -> {
-          setText(lblTimer, "00:00:00");
-          if (lblTimer != null) {
-            lblTimer.setStyle("-fx-font-size: 40px; -fx-text-fill: #95a5a6; -fx-font-weight: bold;");
-          }
-        });
-        stopCountdownTimer();
-        return;
-      }
-
-      long hours   = totalSeconds / 3600;
-      long minutes = (totalSeconds % 3600) / 60;
-      long seconds = totalSeconds % 60;
-      String formatted = String.format("%02d:%02d:%02d", hours, minutes, seconds);
-
-      // Đổi màu timer khi sắp hết giờ (dưới 5 phút)
-      final String timerStyle;
-      if (totalSeconds <= 300) {
-        timerStyle = "-fx-font-size: 40px; -fx-text-fill: #e74c3c; -fx-font-weight: bold;";
-      } else {
-        timerStyle = "-fx-font-size: 40px; -fx-text-fill: #27ae60; -fx-font-weight: bold;";
-      }
-
-      Platform.runLater(() -> {
-        setText(lblTimer, formatted);
-        if (lblTimer != null) lblTimer.setStyle(timerStyle);
+      timerScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+          Thread t = new Thread(r, "auction-countdown");
+          t.setDaemon(true);
+          return t;
       });
 
-    }, 0, 1, TimeUnit.SECONDS);
+      timerTask = timerScheduler.scheduleAtFixedRate(() -> {
+          if (auctionEndTime == null || auctionEnded) return;
+
+          LocalDateTime now = LocalDateTime.now();
+          long totalSeconds = java.time.Duration.between(now, auctionEndTime).getSeconds();
+
+          if (totalSeconds <= 0) {
+              Platform.runLater(() -> {
+                  setText(lblTimer, "00:00:00");
+                  if (lblTimer != null) {
+                      lblTimer.setStyle("-fx-font-size: 40px; -fx-text-fill: #95a5a6; -fx-font-weight: bold;");
+                  }
+              });
+              stopCountdownTimer();
+              return;
+          }
+
+          long hours   = totalSeconds / 3600;
+          long minutes = (totalSeconds % 3600) / 60;
+          long seconds = totalSeconds % 60;
+          String formatted = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+
+          final String timerStyle = totalSeconds <= 300
+              ? "-fx-font-size: 40px; -fx-text-fill: #e74c3c; -fx-font-weight: bold;"
+              : "-fx-font-size: 40px; -fx-text-fill: #27ae60; -fx-font-weight: bold;";
+
+          Platform.runLater(() -> {
+              setText(lblTimer, formatted);
+              if (lblTimer != null) lblTimer.setStyle(timerStyle);
+          });
+
+      }, 0, 1, TimeUnit.SECONDS);
   }
 
   private void stopCountdownTimer() {
@@ -411,18 +448,19 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
   private void handleBidAction() {
 
     // THÊM ĐOẠN NÀY LÊN ĐẦU HÀM
+    if (currentItem == null) {
+        showAlert("Lỗi", "Chưa có sản phẩm đấu giá!");
+        return;
+    }
+
     if (!"RUNNING".equalsIgnoreCase(currentItem.getStatus())) {
         showAlert("Thông báo", "Phiên đấu giá này hiện chưa mở hoặc đã kết thúc. Bạn không thể đặt giá lúc này!");
         return;
     }
 
     if (auctionEnded) {
-      showAlert("Thông báo", "Phiên đấu giá này đã kết thúc!");
-      return;
-    }
-    if (currentItem == null) {
-      showAlert("Lỗi", "Chưa có sản phẩm đấu giá!");
-      return;
+        showAlert("Thông báo", "Phiên đấu giá này đã kết thúc!");
+        return;
     }
 
     String amountStr = (txtBidAmount != null && txtBidAmount.getText() != null)
@@ -500,51 +538,96 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
 
   @FXML
   private void handlePayment() {
-    // 1. Khởi tạo Alert xác nhận
-    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-    alert.setTitle("Xác nhận thanh toán");
-    alert.setHeaderText(null);
-    alert.setContentText("Bạn có chắc chắn muốn chuyển " + formatVnd(currentItem.getCurrentMaxPrice()) + " cho người bán?");
+      if (currentItem == null || currentUser == null) {
+          showAlert("Lỗi", "Thiếu dữ liệu phiên hoặc người dùng.");
+          return;
+      }
 
-    Optional<ButtonType> option = alert.showAndWait();
-    
-    if (option.isPresent() && option.get() == ButtonType.OK) {
-        if (btnPay != null) btnPay.setDisable(true);
+      if (!"FINISHED".equalsIgnoreCase(currentItem.getStatus()) && !auctionEnded) {
+          showAlert("Thông báo", "Phiên đấu giá chưa kết thúc.");
+          return;
+      }
 
-        // FIX 1: Dùng AuctionFacade.getInstance() thay vì paymentService
-        // FIX 2: Dùng full name com.google.gson.JsonObject để tránh lỗi thiếu import
-        AuctionFacade.getInstance().processPayment(currentItem.getAuctionId(), new ApiCallback<com.google.gson.JsonObject>() {
-            @Override
-            public void onSuccess(com.google.gson.JsonObject result) {
-                Platform.runLater(() -> {
-                    if (result != null && "success".equals(result.get("status").getAsString())) {
-                        showAlert("Thành công", "Thanh toán thành công! Giao dịch đã hoàn tất.");
-                        if (btnPay != null) {
-                            btnPay.setVisible(false);
-                            btnPay.setManaged(false);
-                        }
-                        
-                        // FIX 3: Dùng BiddingRoomController.this để IDE nhận diện rõ field và method của lớp ngoài
-                        BiddingRoomController.this.currentItem.setStatus("PAID");
-                        BiddingRoomController.this.loadCurrentUserInfo(); 
-                        
-                    } else {
-                        if (btnPay != null) btnPay.setDisable(false);
-                        String msg = (result != null && result.has("message")) ? result.get("message").getAsString() : "Lỗi xác định.";
-                        showAlert("Lỗi", msg);
-                    }
-                });
-            }
+      if (currentUser.getId() != currentItem.getHighestBidderId()) {
+          showAlert("Thông báo", "Bạn không phải người thắng phiên đấu giá này.");
+          return;
+      }
 
-            @Override
-            public void onError(String errorMessage) {
-                Platform.runLater(() -> {
-                    if (btnPay != null) btnPay.setDisable(false);
-                    showAlert("Lỗi kết nối", "Không thể thanh toán: " + errorMessage);
-                });
-            }
-        });
-    }
+      java.util.List<Integer> choices = java.util.Arrays.asList(0, 1, 2, 3, 4, 5);
+      javafx.scene.control.ChoiceDialog<Integer> dialog =
+          new javafx.scene.control.ChoiceDialog<>(5, choices);
+
+      dialog.setTitle("Đánh giá người bán");
+      dialog.setHeaderText("Chọn số sao cho người bán");
+      dialog.setContentText("Điểm đánh giá (0 - 5):");
+
+      Optional<Integer> result = dialog.showAndWait();
+      if (result.isEmpty()) return;
+
+      int rating = result.get();
+
+      if (btnPay != null) btnPay.setDisable(true);
+
+      AuctionFacade.getInstance().rateSeller(
+          currentItem.getSellerId(),
+          currentItem.getAuctionId(),
+          rating,
+          new ApiCallback<com.google.gson.JsonObject>() {
+              @Override
+              public void onSuccess(com.google.gson.JsonObject response) {
+                  Platform.runLater(() -> {
+                      hasRatedThisAuction = true;
+
+                      showAlert("Thành công", "Cảm ơn bạn đã đánh giá người bán!");
+
+                      if (btnPay != null) {
+                          btnPay.setVisible(false);
+                          btnPay.setManaged(false);
+                      }
+
+                      // Reload thông tin seller để hiện rating mới ngay trên UI
+                      refreshSellerInfo(currentItem.getSellerId());
+                  });
+              }
+
+              @Override
+              public void onError(String errorMessage) {
+                  Platform.runLater(() -> {
+                      if (btnPay != null) btnPay.setDisable(false);
+                      showAlert("Lỗi", errorMessage);
+                  });
+              }
+          }
+      );
+  }
+  private void refreshSellerInfo(int sellerId) {
+      AuctionFacade.getInstance().getUserById(sellerId, new ApiCallback<UserDTO>() {
+          @Override
+          public void onSuccess(UserDTO seller) {
+              Platform.runLater(() -> {
+                  if (seller != null) {
+                      String sellerName =
+                          seller.getFullName() != null && !seller.getFullName().isBlank()
+                              ? seller.getFullName()
+                              : seller.getUsername();
+
+                      setText(lblSeller, "Người bán: " + sellerName);
+
+                      if (lblSellerRating != null) {
+                          lblSellerRating.setText(String.format("⭐ %.1f", seller.getTotalRating()));
+                      }
+                      if (lblSellerSaleCount != null) {
+                          lblSellerSaleCount.setText("Đã bán: " + seller.getSaleCount());
+                      }
+                  }
+              });
+          }
+
+          @Override
+          public void onError(String errorMessage) {
+              System.err.println("Không tải lại được thông tin seller: " + errorMessage);
+          }
+      });
   }
   
   
@@ -584,21 +667,23 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
   }
 
   // Thêm hàm này ngay bên dưới
+  // đổi thành đánh giá người bán nếu user này là người thắng và phiên đã kết thúc
   private void checkPaymentButtonVisibility() {
-    if (currentItem == null || currentUser == null || btnPay == null) return;
+      if (currentItem == null || currentUser == null || btnPay == null) return;
 
-    boolean isFinished = "FINISHED".equalsIgnoreCase(currentItem.getStatus()) || auctionEnded;
-    boolean isWinner = (currentUser.getId() == currentItem.getHighestBidderId());
+      boolean isFinished = "FINISHED".equalsIgnoreCase(currentItem.getStatus()) || auctionEnded;
+      boolean isWinner = (currentUser.getId() == currentItem.getHighestBidderId());
 
-    if (isFinished && isWinner) {
-        btnPay.setVisible(true);
-        btnPay.setManaged(true);
-    } else {
-        btnPay.setVisible(false);
-        btnPay.setManaged(false);
-    }
+      if (isFinished && isWinner && !hasRatedThisAuction) {
+          btnPay.setText("ĐÁNH GIÁ NGƯỜI BÁN");
+          btnPay.setVisible(true);
+          btnPay.setManaged(true);
+          btnPay.setDisable(false);
+      } else {
+          btnPay.setVisible(false);
+          btnPay.setManaged(false);
+      }
   }
-
   private void loadProductImage(String rawPath) {
     if (rawPath == null || rawPath.isBlank() || imgProduct == null) return;
     String imageUrl = resolveImageUrl(rawPath);

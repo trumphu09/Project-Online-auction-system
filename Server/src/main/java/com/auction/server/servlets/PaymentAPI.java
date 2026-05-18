@@ -20,11 +20,9 @@ public class PaymentAPI extends HttpServlet {
         
         String jsonResponse = paymentController.handleExecutePayment(jsonRequest);
 
-        if (jsonResponse.contains("\"status\":\"success\"")) {
-            resp.setStatus(HttpServletResponse.SC_OK);
-        } else {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        }
+        // LUÔN TRẢ VỀ HTTP 200 ĐỂ CLIENT NHẬN ĐƯỢC RESPONSE
+        // Phân biệt thành công/lỗi bằng JSON status field, không dùng HTTP status code
+        resp.setStatus(HttpServletResponse.SC_OK);
         
         resp.getWriter().write(jsonResponse);
     }

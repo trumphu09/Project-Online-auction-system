@@ -297,8 +297,14 @@
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\Main.java ===  
 package com.auction.client;
 
+import java.util.TimeZone;
+
 public class Main {
     public static void main(String[] args) {
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+        System.out.println(java.time.ZoneId.systemDefault());
+        System.out.println(java.util.TimeZone.getDefault());
+        System.out.println(java.time.LocalDateTime.now());
         // Gọi hàm main của MainApp để kích hoạt giao diện JavaFX
         MainApp.main(args);
     }
@@ -757,6 +763,7 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
   private ScheduledExecutorService timerScheduler;
   private ScheduledFuture<?> timerTask;
   private LocalDateTime auctionEndTime;
+  private boolean hasRatedThisAuction = false;
 
   // ─── Series biểu đồ ──────────────────────────────────────────────────────
   private XYChart.Series<String, Number> chartSeries;
@@ -805,6 +812,7 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
     }
 
     this.currentItem = item;
+    this.hasRatedThisAuction = false;
 
     // ── Thông tin cơ bản ──────────────────────────────────────────────
     setText(lblDescription, safeText(item.getDescription(), "Không có mô tả"));
@@ -816,10 +824,13 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
     // ── Người bán ─────────────────────────────────────────────
     int sellerId = item.getSellerId();
 
-    AuctionFacade.getInstance().getUserById(sellerId, new ApiCallback<UserDTO>() {
+    AuctionFacade.getInstance().getUserById(
+            sellerId,
+            new ApiCallback<UserDTO>() {
 
         @Override
         public void onSuccess(UserDTO seller) {
+
             Platform.runLater(() -> {
 
                 if (seller != null) {
@@ -832,13 +843,14 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
 
                     setText(lblSeller, "Người bán: " + sellerName);
 
-                    // optional
+                    // rating
                     if (lblSellerRating != null) {
                         lblSellerRating.setText(
                                 String.format("⭐ %.1f", seller.getTotalRating())
                         );
                     }
 
+                    // sale count
                     if (lblSellerSaleCount != null) {
                         lblSellerSaleCount.setText(
                                 "Đã bán: " + seller.getSaleCount()
@@ -846,6 +858,7 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
                     }
 
                 } else {
+
                     setText(lblSeller, "Người bán: Không xác định");
                 }
             });
@@ -853,8 +866,19 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
 
         @Override
         public void onError(String errorMessage) {
+
             Platform.runLater(() -> {
+
                 setText(lblSeller, "Người bán: Không tải được");
+
+                if (lblSellerRating != null) {
+                    lblSellerRating.setText("");
+                }
+
+                if (lblSellerSaleCount != null) {
+                    lblSellerSaleCount.setText("");
+                }
+
                 System.out.println("Lỗi load seller: " + errorMessage);
             });
         }
@@ -927,24 +951,63 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
    */
   @Override
   public void onNewBid(int auctionId, double newPrice, String bidderUsername) {
-    if (newPrice <= displayedCurrentPrice) return; // Bỏ qua nếu giá cũ hơn
+      onNewBid(auctionId, newPrice, bidderUsername, null);
+  }
 
-    displayedCurrentPrice = newPrice;
+  @Override
+  public void onNewBid(int auctionId, double newPrice, String bidderUsername, String newEndTime) {
+      if (newPrice > 0 && newPrice > displayedCurrentPrice) {
+          displayedCurrentPrice = newPrice;
+          setText(lblCurrentPrice, formatVnd(newPrice));
 
-    // ── Giá hiện tại ─────────────────────────────────────────────────
-    setText(lblCurrentPrice, formatVnd(newPrice));
+          if (bidderUsername != null && !bidderUsername.isBlank()) {
+              setText(lblHighestBidder, bidderUsername);
+          }
 
-    // ── Hiển thị người đặt ────────────────────────────────────────────
-    if (bidderUsername != null && !bidderUsername.isBlank()) {
-      setText(lblHighestBidder, bidderUsername);
-    }
+          String label = DISPLAY_FORMATTER.format(LocalDateTime.now());
+          addChartPoint(label, newPrice);
 
-    // ── Cập nhật biểu đồ ─────────────────────────────────────────────
-    String label = DISPLAY_FORMATTER.format(LocalDateTime.now());
-    addChartPoint(label, newPrice);
+          loadCurrentUserInfo();
+      }
 
-    // ── Cập nhật số dư user (giá trị này đã thay đổi sau khi đặt cọc) ─
-    loadCurrentUserInfo();
+      if (newEndTime != null && !newEndTime.isBlank()) {
+          applyNewEndTimeFromServer(newEndTime);
+      }
+  }
+  private void applyNewEndTimeFromServer(String newEndTimeIso) {
+      try {
+          LocalDateTime parsedEndTime = LocalDateTime.parse(newEndTimeIso);
+
+          Platform.runLater(() -> {
+              this.auctionEndTime = parsedEndTime;
+
+              // Cập nhật text hiển thị kết thúc
+              if (lblEndTime != null) {
+                  lblEndTime.setText("Kết thúc: " + parsedEndTime.format(DT_FORMATTER));
+              }
+
+              // Khởi động lại timer từ endTime mới
+              restartCountdownTimer();
+
+              // Thông báo trực quan
+              if (lblBidNote != null) {
+                  lblBidNote.setText("⏰ Phiên đấu giá vừa được gia hạn thêm 1 phút!");
+                  lblBidNote.setStyle("-fx-font-size: 11; -fx-text-fill: #f39c12; -fx-font-style: italic; -fx-font-weight: bold;");
+              }
+
+              // Nếu muốn nháy nhẹ bằng style
+              if (lblTimer != null) {
+                  lblTimer.setStyle("-fx-font-size: 40px; -fx-text-fill: #27ae60; -fx-font-weight: bold;");
+              }
+          });
+
+      } catch (Exception ex) {
+          System.err.println("[BiddingRoom] Không parse được newEndTime: " + newEndTimeIso);
+      }
+  }
+  private void restartCountdownTimer() {
+      stopCountdownTimer();
+      startCountdownTimer();
   }
 
   /**
@@ -1005,48 +1068,44 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
   }
 
   private void startCountdownTimer() {
-    timerScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
-      Thread t = new Thread(r, "auction-countdown");
-      t.setDaemon(true);
-      return t;
-    });
-
-    timerTask = timerScheduler.scheduleAtFixedRate(() -> {
-      if (auctionEndTime == null || auctionEnded) return;
-
-      LocalDateTime now = LocalDateTime.now();
-      long totalSeconds = java.time.Duration.between(now, auctionEndTime).getSeconds();
-
-      if (totalSeconds <= 0) {
-        Platform.runLater(() -> {
-          setText(lblTimer, "00:00:00");
-          if (lblTimer != null) {
-            lblTimer.setStyle("-fx-font-size: 40px; -fx-text-fill: #95a5a6; -fx-font-weight: bold;");
-          }
-        });
-        stopCountdownTimer();
-        return;
-      }
-
-      long hours   = totalSeconds / 3600;
-      long minutes = (totalSeconds % 3600) / 60;
-      long seconds = totalSeconds % 60;
-      String formatted = String.format("%02d:%02d:%02d", hours, minutes, seconds);
-
-      // Đổi màu timer khi sắp hết giờ (dưới 5 phút)
-      final String timerStyle;
-      if (totalSeconds <= 300) {
-        timerStyle = "-fx-font-size: 40px; -fx-text-fill: #e74c3c; -fx-font-weight: bold;";
-      } else {
-        timerStyle = "-fx-font-size: 40px; -fx-text-fill: #27ae60; -fx-font-weight: bold;";
-      }
-
-      Platform.runLater(() -> {
-        setText(lblTimer, formatted);
-        if (lblTimer != null) lblTimer.setStyle(timerStyle);
+      timerScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+          Thread t = new Thread(r, "auction-countdown");
+          t.setDaemon(true);
+          return t;
       });
 
-    }, 0, 1, TimeUnit.SECONDS);
+      timerTask = timerScheduler.scheduleAtFixedRate(() -> {
+          if (auctionEndTime == null || auctionEnded) return;
+
+          LocalDateTime now = LocalDateTime.now();
+          long totalSeconds = java.time.Duration.between(now, auctionEndTime).getSeconds();
+
+          if (totalSeconds <= 0) {
+              Platform.runLater(() -> {
+                  setText(lblTimer, "00:00:00");
+                  if (lblTimer != null) {
+                      lblTimer.setStyle("-fx-font-size: 40px; -fx-text-fill: #95a5a6; -fx-font-weight: bold;");
+                  }
+              });
+              stopCountdownTimer();
+              return;
+          }
+
+          long hours   = totalSeconds / 3600;
+          long minutes = (totalSeconds % 3600) / 60;
+          long seconds = totalSeconds % 60;
+          String formatted = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+
+          final String timerStyle = totalSeconds <= 300
+              ? "-fx-font-size: 40px; -fx-text-fill: #e74c3c; -fx-font-weight: bold;"
+              : "-fx-font-size: 40px; -fx-text-fill: #27ae60; -fx-font-weight: bold;";
+
+          Platform.runLater(() -> {
+              setText(lblTimer, formatted);
+              if (lblTimer != null) lblTimer.setStyle(timerStyle);
+          });
+
+      }, 0, 1, TimeUnit.SECONDS);
   }
 
   private void stopCountdownTimer() {
@@ -1066,18 +1125,19 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
   private void handleBidAction() {
 
     // THÊM ĐOẠN NÀY LÊN ĐẦU HÀM
+    if (currentItem == null) {
+        showAlert("Lỗi", "Chưa có sản phẩm đấu giá!");
+        return;
+    }
+
     if (!"RUNNING".equalsIgnoreCase(currentItem.getStatus())) {
         showAlert("Thông báo", "Phiên đấu giá này hiện chưa mở hoặc đã kết thúc. Bạn không thể đặt giá lúc này!");
         return;
     }
 
     if (auctionEnded) {
-      showAlert("Thông báo", "Phiên đấu giá này đã kết thúc!");
-      return;
-    }
-    if (currentItem == null) {
-      showAlert("Lỗi", "Chưa có sản phẩm đấu giá!");
-      return;
+        showAlert("Thông báo", "Phiên đấu giá này đã kết thúc!");
+        return;
     }
 
     String amountStr = (txtBidAmount != null && txtBidAmount.getText() != null)
@@ -1166,27 +1226,45 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
     if (option.isPresent() && option.get() == ButtonType.OK) {
         if (btnPay != null) btnPay.setDisable(true);
 
-        // FIX 1: Dùng AuctionFacade.getInstance() thay vì paymentService
-        // FIX 2: Dùng full name com.google.gson.JsonObject để tránh lỗi thiếu import
+        // Gọi API thanh toán
         AuctionFacade.getInstance().processPayment(currentItem.getAuctionId(), new ApiCallback<com.google.gson.JsonObject>() {
             @Override
             public void onSuccess(com.google.gson.JsonObject result) {
                 Platform.runLater(() -> {
-                    if (result != null && "success".equals(result.get("status").getAsString())) {
-                        showAlert("Thành công", "Thanh toán thành công! Giao dịch đã hoàn tất.");
-                        if (btnPay != null) {
-                            btnPay.setVisible(false);
-                            btnPay.setManaged(false);
+                    try {
+                        // FIX: Kiểm tra kỹ response status
+                        boolean isSuccess = false;
+                        String message = "Lỗi không xác định";
+                        
+                        if (result != null && result.has("status")) {
+                            String status = result.get("status").getAsString();
+                            isSuccess = "success".equalsIgnoreCase(status);
+                            if (result.has("message")) {
+                                message = result.get("message").getAsString();
+                            }
                         }
                         
-                        // FIX 3: Dùng BiddingRoomController.this để IDE nhận diện rõ field và method của lớp ngoài
-                        BiddingRoomController.this.currentItem.setStatus("PAID");
-                        BiddingRoomController.this.loadCurrentUserInfo(); 
-                        
-                    } else {
+                        if (isSuccess) {
+                            // Thanh toán thành công → chỉ khi này mới ẩn nút
+                            showAlert("Thành công", "Thanh toán thành công! Giao dịch đã hoàn tất.\nNgười bán đã nhận được tiền.");
+                            if (btnPay != null) {
+                                btnPay.setVisible(false);
+                                btnPay.setManaged(false);
+                            }
+                            
+                            // Cập nhật trạng thái item
+                            BiddingRoomController.this.currentItem.setStatus("PAID");
+                            BiddingRoomController.this.loadCurrentUserInfo();
+                            
+                        } else {
+                            // Lỗi → giữ lại nút để người dùng thử lại
+                            if (btnPay != null) btnPay.setDisable(false);
+                            showAlert("Lỗi thanh toán", message + "\n\nNút thanh toán vẫn còn, vui lòng thử lại sau.");
+                        }
+                    } catch (Exception e) {
+                        // Nếu có lỗi parse JSON → giữ nút
                         if (btnPay != null) btnPay.setDisable(false);
-                        String msg = (result != null && result.has("message")) ? result.get("message").getAsString() : "Lỗi xác định.";
-                        showAlert("Lỗi", msg);
+                        showAlert("Lỗi hệ thống", "Lỗi xử lý response: " + e.getMessage());
                     }
                 });
             }
@@ -1194,8 +1272,9 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
             @Override
             public void onError(String errorMessage) {
                 Platform.runLater(() -> {
+                    // Lỗi kết nối → giữ nút để người dùng thử lại
                     if (btnPay != null) btnPay.setDisable(false);
-                    showAlert("Lỗi kết nối", "Không thể thanh toán: " + errorMessage);
+                    showAlert("Lỗi kết nối", "Không thể kết nối tới máy chủ: " + errorMessage + "\n\nNút thanh toán vẫn còn, vui lòng thử lại sau.");
                 });
             }
         });
@@ -1239,21 +1318,23 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
   }
 
   // Thêm hàm này ngay bên dưới
+  // đổi thành đánh giá người bán nếu user này là người thắng và phiên đã kết thúc
   private void checkPaymentButtonVisibility() {
-    if (currentItem == null || currentUser == null || btnPay == null) return;
+      if (currentItem == null || currentUser == null || btnPay == null) return;
 
-    boolean isFinished = "FINISHED".equalsIgnoreCase(currentItem.getStatus()) || auctionEnded;
-    boolean isWinner = (currentUser.getId() == currentItem.getHighestBidderId());
+      boolean isFinished = "FINISHED".equalsIgnoreCase(currentItem.getStatus()) || auctionEnded;
+      boolean isWinner = (currentUser.getId() == currentItem.getHighestBidderId());
 
-    if (isFinished && isWinner) {
-        btnPay.setVisible(true);
-        btnPay.setManaged(true);
-    } else {
-        btnPay.setVisible(false);
-        btnPay.setManaged(false);
-    }
+      if (isFinished && isWinner && !hasRatedThisAuction) {
+          btnPay.setText("ĐÁNH GIÁ NGƯỜI BÁN");
+          btnPay.setVisible(true);
+          btnPay.setManaged(true);
+          btnPay.setDisable(false);
+      } else {
+          btnPay.setVisible(false);
+          btnPay.setManaged(false);
+      }
   }
-
   private void loadProductImage(String rawPath) {
     if (rawPath == null || rawPath.isBlank() || imgProduct == null) return;
     String imageUrl = resolveImageUrl(rawPath);
@@ -1805,22 +1886,29 @@ public class ProductViewController extends BaseController implements Initializab
     // PHẦN 4: LỊCH SỬ ĐẤU GIÁ
     // ==========================================
     private void loadBidderHistory() {
-        AuctionFacade.getInstance().getMyActiveBids(new ApiCallback<List<JsonObject>>() {
+        AuctionFacade.getInstance().getMyActiveBids(new ApiCallback<List<ItemDTO>>() {
             @Override
-            public void onSuccess(List<JsonObject> bids) {
+            public void onSuccess(List<ItemDTO> items) {
                 Platform.runLater(() -> {
                     if (listActiveBids != null) listActiveBids.getItems().clear();
-                    if (bids != null) {
-                        for (JsonObject bid : bids) {
+
+                    if (items != null) {
+                        for (ItemDTO item : items) {
                             listActiveBids.getItems().add(
-                                "SP ID: " + bid.get("auction_id").getAsInt()
-                                + " | Bạn Bid: " + String.format("%,.0f", bid.get("amount").getAsDouble())
+                                "SP #" + item.getId()
+                                + " | " + item.getName()
+                                + " | Giá hiện tại: " + String.format("%,.0f VNĐ", item.getCurrentMaxPrice())
+                                + " | " + (item.getStatus() != null ? item.getStatus() : "N/A")
                             );
                         }
                     }
                 });
             }
-            @Override public void onError(String err) {}
+
+            @Override
+            public void onError(String err) {
+                Platform.runLater(() -> showAlert("Lỗi tải danh sách đang tham gia", err));
+            }
         });
 
         AuctionFacade.getInstance().getMyWonItems(new ApiCallback<List<ItemDTO>>() {
@@ -1835,22 +1923,39 @@ public class ProductViewController extends BaseController implements Initializab
                     }
                 });
             }
-            @Override public void onError(String err) {}
+
+            @Override
+            public void onError(String err) {
+                Platform.runLater(() -> showAlert("Lỗi tải sản phẩm thắng", err));
+            }
         });
     }
 
     // ==========================================
     // PHẦN 5: CHUYỂN PHÒNG & ĐĂNG XUẤT
     // ==========================================
+    @FXML
     public void openBiddingRoom(Event event) {
-        try {
-            Node sourceNode = (Node) event.getSource();
-            Object userData = sourceNode.getUserData();
 
-            if (userData == null) {
-                showAlert("Lỗi", "Không thể lấy thông tin sản phẩm!");
+        try {
+
+            Node clickedNode = (Node) event.getTarget();
+
+            // Tìm ItemCard cha gần nhất
+            while (clickedNode != null &&
+                !(clickedNode instanceof ItemCard)) {
+
+                clickedNode = clickedNode.getParent();
+            }
+
+            if (clickedNode == null) {
+                showAlert("Lỗi", "Không tìm thấy sản phẩm!");
                 return;
             }
+
+            ItemCard card = (ItemCard) clickedNode;
+
+            Object userData = card.getUserData();
 
             if (!(userData instanceof ItemDTO)) {
                 showAlert("Lỗi", "Dữ liệu sản phẩm không hợp lệ!");
@@ -1858,47 +1963,45 @@ public class ProductViewController extends BaseController implements Initializab
             }
 
             ItemDTO selectedItem = (ItemDTO) userData;
+
+            System.out.println("=== OPEN BIDDING ROOM ===");
+            System.out.println("Item ID: " + selectedItem.getId());
+            System.out.println("Auction ID: " + selectedItem.getAuctionId());
+            System.out.println("Name: " + selectedItem.getName());
+
             if (selectedItem.getAuctionId() <= 0) {
-                showAlert("Lỗi", "Sản phẩm này chưa có phiên đấu giá hợp lệ!");
+                showAlert("Lỗi", "Sản phẩm chưa có phiên đấu giá!");
                 return;
             }
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BiddingRoomView.fxml"));
-            if (loader.getLocation() == null) {
-                showAlert("Lỗi hệ thống", "Không tìm thấy file BiddingRoomView.fxml");
-                return;
-            }
+            FXMLLoader loader =
+                    new FXMLLoader(getClass().getResource("/view/BiddingRoomView.fxml"));
 
             Parent root = loader.load();
+
             BiddingRoomController controller = loader.getController();
 
-            if (controller == null) {
-                showAlert("Lỗi", "Không thể khởi tạo BiddingRoomController.");
-                return;
-            }
-
+            // QUAN TRỌNG
             controller.setData(selectedItem);
 
-            Stage stage = (Stage) sourceNode.getScene().getWindow();
+            Stage stage = (Stage) card.getScene().getWindow();
+
             stage.setScene(new Scene(root, 1200, 700));
+
             stage.setTitle("Phòng đấu giá: " + selectedItem.getName());
+
             stage.show();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-            Throwable root = e;
-            while (root.getCause() != null) {
-                root = root.getCause();
-            }
-            showAlert("Lỗi hệ thống",
-                    "Không thể nạp giao diện phòng đấu giá:\n"
-                            + root.getClass().getSimpleName() + ": " + root.getMessage());
         } catch (Exception e) {
+
             e.printStackTrace();
-            showAlert("Lỗi hệ thống", "Lỗi không xác định: " + e.getMessage());
+
+            showAlert(
+                    "Lỗi hệ thống",
+                    "Không thể mở phòng đấu giá:\n" + e.getMessage()
+            );
         }
     }
-
     // ==========================================
     // PHẦN 6: GIỎ HÀNG
     // ==========================================
@@ -3460,6 +3563,11 @@ public class AuctionWebSocketClient {
           handlePriceUpdate(root);
           break;
 
+        case "AUCTION_EXTENDED":
+          // Format từ broadcastUpdate khi gia hạn: {"type":"AUCTION_EXTENDED","data":{"auctionId":X,"newEndTime":"...","message":"..."}}
+           // Hiện tại client chưa dùng đến, nhưng có thể mở rộng để hiển thị thông báo gia hạn.
+           break;
+
         case "AUCTION_ENDED":
           handleAuctionEnded(root);
           break;
@@ -3485,10 +3593,10 @@ public class AuctionWebSocketClient {
     int auctionId   = getInt(data, "auctionId", -1);
     double newPrice = getDouble(data, "newPrice", 0);
     String username = getString(data, "bidderUsername", "Ẩn danh");
+    String newEndTime = getString(data, "newEndTime", null);
 
-    // Chỉ xử lý nếu đúng phiên đang xem
     if (watchedAuctionId == -1 || auctionId == watchedAuctionId) {
-      notifyNewBid(auctionId, newPrice, username);
+      notifyNewBid(auctionId, newPrice, username, newEndTime);
     }
   }
 
@@ -3499,9 +3607,10 @@ public class AuctionWebSocketClient {
   private void handlePriceUpdate(JsonObject root) {
     int auctionId   = getInt(root, "auctionId", -1);
     double newPrice = getDouble(root, "newPrice", 0);
+    String newEndTime = getString(root, "newEndTime", null);
 
     if (watchedAuctionId == -1 || auctionId == watchedAuctionId) {
-      notifyNewBid(auctionId, newPrice, null);
+      notifyNewBid(auctionId, newPrice, null, newEndTime);
     }
   }
 
@@ -3532,12 +3641,22 @@ public class AuctionWebSocketClient {
     }
   }
 
-  private void notifyNewBid(int auctionId, double price, String username) {
-    if (listener != null) {
-      Platform.runLater(() -> listener.onNewBid(auctionId, price, username));
+  private void handleAuctionExtended(JsonObject root) {
+    if (!root.has("data") || root.get("data").isJsonNull()) return;
+
+    JsonObject data = root.getAsJsonObject("data");
+    int auctionId = getInt(data, "auctionId", -1);
+    String newEndTime = getString(data, "newEndTime", null);
+
+    if (watchedAuctionId == -1 || auctionId == watchedAuctionId) {
+      notifyNewBid(auctionId, 0, null, newEndTime);
     }
   }
-
+  private void notifyNewBid(int auctionId, double price, String username, String newEndTime) {
+    if (listener != null) {
+      Platform.runLater(() -> listener.onNewBid(auctionId, price, username, newEndTime));
+    }
+  }
   // ===================================================================
   // HELPER — an toàn khi đọc JSON (tránh NPE)
   // ===================================================================
@@ -3581,7 +3700,10 @@ package com.auction.client.service;
 import com.auction.client.network.ApiService;
 import com.auction.client.model.dto.ItemDTO;
 import com.auction.client.model.dto.UserDTO;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.reflect.TypeToken;
 import javafx.application.Platform;
 
@@ -3749,10 +3871,10 @@ public class AuctionFacade {
         );
     }
 
-    public void getMyActiveBids(ApiCallback<List<JsonObject>> callback) {
+    public void getMyActiveBids(ApiCallback<List<ItemDTO>> callback) {
         executeRequest(
             apiService.sendGetRequest("/my/active-bids"),
-            new TypeToken<List<JsonObject>>() {}.getType(),
+            new TypeToken<List<ItemDTO>>() {}.getType(),
             callback
         );
     }
@@ -3762,6 +3884,30 @@ public class AuctionFacade {
         json.addProperty("action", "PAYMENT"); // BỔ SUNG DÒNG NÀY ĐỂ SERVER NHẬN DIỆN
         json.addProperty("auction_id", auctionId);
         executeRequest(apiService.sendPostRequest("/payments", gson.toJson(json)), JsonObject.class, callback);
+    }
+
+    public void rateSeller(int sellerId, int auctionId, int rating, ApiCallback<JsonObject> callback) {
+        JsonObject body = new JsonObject();
+        body.addProperty("sellerId", sellerId);
+        body.addProperty("auctionId", auctionId);
+        body.addProperty("rating", rating);
+
+        apiService.sendPostRequest("/api/my/rating-seller", gson.toJson(body))
+            .thenAccept(response -> {
+                String responseBody = response.body();
+                JsonObject obj = JsonParser.parseString(responseBody).getAsJsonObject();
+
+                if (obj.has("status") && "success".equalsIgnoreCase(obj.get("status").getAsString())) {
+                    callback.onSuccess(obj);
+                } else {
+                    String msg = obj.has("message") ? obj.get("message").getAsString() : "Không thể đánh giá người bán.";
+                    callback.onError(msg);
+                }
+            })
+            .exceptionally(ex -> {
+                callback.onError("Lỗi kết nối: " + ex.getMessage());
+                return null;
+            });
     }
 
     // =========================================================================
@@ -3837,55 +3983,151 @@ public class AuctionFacade {
             Platform.runLater(() -> {
                 try {
                     String body = response.body();
+
                     System.out.println("=== DEBUG RESPONSE ===");
                     System.out.println("Response Status: " + response.statusCode());
-                    System.out.println("Response Body (first 500 chars): " + (body != null ? body.substring(0, Math.min(500, body.length())) : "null"));
-                    
+                    System.out.println("Response Body (first 500 chars): "
+                            + (body != null ? body.substring(0, Math.min(500, body.length())) : "null"));
+
                     if (body == null || body.isBlank()) {
                         System.err.println("ERROR: Server returned empty response");
                         callback.onError("Server trả về phản hồi trống.");
                         return;
                     }
 
-                    JsonObject rootObj = gson.fromJson(body, JsonObject.class);
-                    System.out.println("Parsed JSON - has status: " + (rootObj != null && rootObj.has("status")));
-                    
-                    if (rootObj != null && rootObj.has("status")) {
-                        String status = rootObj.get("status").getAsString();
-                        System.out.println("Status: " + status);
-                        
-                        if ("error".equals(status)) {
-                            String msg = rootObj.has("message")
-                                    ? rootObj.get("message").getAsString()
-                                    : "Lỗi server";
-                            System.err.println("ERROR from server: " + msg);
-                            callback.onError(msg);
-                            return;
+                    JsonElement rootEl;
+                    try {
+                        rootEl = JsonParser.parseString(body);
+                    } catch (Exception parseEx) {
+                        System.err.println("ERROR: Invalid JSON: " + parseEx.getMessage());
+                        callback.onError("Định dạng phản hồi từ Server không hợp lệ.");
+                        return;
+                    }
+
+                    // =========================
+                    // 1) JSON object có wrapper
+                    // =========================
+                    if (rootEl.isJsonObject()) {
+                        JsonObject rootObj = rootEl.getAsJsonObject();
+
+                        Boolean successFlag = null;
+
+                        // wrapper kiểu cũ: {"status":"success"/"error"}
+                        if (rootObj.has("status") && !rootObj.get("status").isJsonNull()) {
+                            JsonElement statusEl = rootObj.get("status");
+                            if (statusEl.isJsonPrimitive()) {
+                                JsonPrimitive p = statusEl.getAsJsonPrimitive();
+                                if (p.isBoolean()) {
+                                    successFlag = p.getAsBoolean();
+                                } else if (p.isString()) {
+                                    String status = p.getAsString();
+                                    successFlag = "success".equalsIgnoreCase(status)
+                                            || "ok".equalsIgnoreCase(status)
+                                            || "true".equalsIgnoreCase(status);
+                                }
+                            }
                         }
-                        if ("success".equals(status)) {
-                            if (rootObj.has("data") && !rootObj.get("data").isJsonNull()) {
-                                System.out.println("Data field type: " + rootObj.get("data").getClass().getSimpleName());
-                                System.out.println("Data field (first 200 chars): " + rootObj.get("data").toString().substring(0, Math.min(200, rootObj.get("data").toString().length())));
-                                T result = gson.fromJson(rootObj.get("data"), responseType);
-                                System.out.println("Successfully parsed data. Result type: " + (result != null ? result.getClass().getSimpleName() : "null"));
+
+                        // wrapper kiểu mới: {"success":true/false}
+                        if (successFlag == null && rootObj.has("success") && !rootObj.get("success").isJsonNull()) {
+                            JsonElement successEl = rootObj.get("success");
+                            if (successEl.isJsonPrimitive()) {
+                                JsonPrimitive p = successEl.getAsJsonPrimitive();
+                                if (p.isBoolean()) {
+                                    successFlag = p.getAsBoolean();
+                                } else if (p.isString()) {
+                                    String s = p.getAsString();
+                                    successFlag = "true".equalsIgnoreCase(s)
+                                            || "success".equalsIgnoreCase(s)
+                                            || "ok".equalsIgnoreCase(s);
+                                }
+                            }
+                        }
+
+                        // Nếu có wrapper success/status thì xử lý theo wrapper
+                        if (successFlag != null) {
+                            if (!successFlag) {
+                                String msg = rootObj.has("message") && !rootObj.get("message").isJsonNull()
+                                        ? rootObj.get("message").getAsString()
+                                        : "Lỗi server";
+                                System.err.println("ERROR from server: " + msg);
+                                callback.onError(msg);
+                                return;
+                            }
+
+                            // success nhưng không có data => trả null
+                            if (!rootObj.has("data") || rootObj.get("data").isJsonNull()) {
+
+                                System.out.println("SUCCESS but no data field");
+
+                                // FIX CHO PAYMENT:
+                                // nếu caller muốn JsonObject thì trả luôn rootObj
+                                if (responseType == JsonObject.class) {
+
+                                    @SuppressWarnings("unchecked")
+                                    T resultObj = (T) rootObj;
+
+                                    callback.onSuccess(resultObj);
+
+                                } else {
+                                    callback.onSuccess(null);
+                                }
+
+                                return;
+                            }
+
+                            JsonElement dataEl = rootObj.get("data");
+                            System.out.println("Data field type: " + dataEl.getClass().getSimpleName());
+                            System.out.println("Data field (first 200 chars): "
+                                    + dataEl.toString().substring(0, Math.min(200, dataEl.toString().length())));
+
+                            try {
+                                T result = gson.fromJson(dataEl, responseType);
+                                System.out.println("Successfully parsed data. Result type: "
+                                        + (result != null ? result.getClass().getSimpleName() : "null"));
                                 callback.onSuccess(result);
-                            } else {
-                                System.out.println("SUCCESS but no data field - returning null");
-                                // success nhưng không có data (vd: logout, deposit) → trả null
-                                callback.onSuccess(null);
+                            } catch (Exception ex) {
+                                System.err.println("Failed to parse 'data' as " + responseType + ": " + ex.getMessage());
+                                callback.onError("Định dạng data từ Server không đúng.");
                             }
                             return;
                         }
+
+                        // =========================
+                        // 2) JSON object KHÔNG có wrapper
+                        //    => thử parse trực tiếp, ưu tiên data nếu có
+                        // =========================
+                        if (rootObj.has("data") && !rootObj.get("data").isJsonNull()) {
+                            try {
+                                T result = gson.fromJson(rootObj.get("data"), responseType);
+                                callback.onSuccess(result);
+                            } catch (Exception ex) {
+                                System.err.println("Failed to parse rootObj.data: " + ex.getMessage());
+                                callback.onError("Định dạng phản hồi từ Server không chuẩn xác.");
+                            }
+                            return;
+                        }
+
+                        // Không có wrapper, không có data => parse cả object
+                        try {
+                            T result = gson.fromJson(rootObj, responseType);
+                            callback.onSuccess(result);
+                        } catch (Exception ex) {
+                            System.err.println("Failed to parse root object: " + ex.getMessage());
+                            callback.onError("Định dạng phản hồi từ Server không chuẩn xác.");
+                        }
+                        return;
                     }
 
-                    // Nếu server trả về JSON nhưng không có trường "status"
-                    // → thử parse thẳng phần body như là data (dùng cho API cũ không wrap)
-                    System.out.println("No status field - trying to parse directly as response type");
+                    // =========================
+                    // 3) JSON không phải object
+                    //    => parse trực tiếp
+                    // =========================
                     try {
-                        T result = gson.fromJson(body, responseType);
+                        T result = gson.fromJson(rootEl, responseType);
                         callback.onSuccess(result);
-                    } catch (Exception parseEx) {
-                        System.err.println("Failed to parse as " + responseType + ": " + parseEx.getMessage());
+                    } catch (Exception ex) {
+                        System.err.println("Failed to parse non-object JSON: " + ex.getMessage());
                         callback.onError("Định dạng phản hồi từ Server không chuẩn xác.");
                     }
 
@@ -3906,41 +4148,18 @@ public class AuctionFacade {
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\service\BidUpdateListener.java ===  
 package com.auction.client.service;
 
-/**
- * Interface lắng nghe các sự kiện đấu giá realtime từ WebSocket Server.
- *
- * Implement interface này trong BiddingRoomController để nhận cập nhật trực tiếp
- * khi có người đặt giá hoặc phiên kết thúc mà không cần reload trang.
- */
 public interface BidUpdateListener {
 
-  /**
-   * Gọi khi server broadcast giá mới (type: "NEW_BID" hoặc "PRICE_UPDATE").
-   *
-   * @param auctionId       ID phiên đấu giá bị ảnh hưởng
-   * @param newPrice        Giá mới vừa được chốt
-   * @param bidderUsername  Tên người vừa đặt giá (có thể null với PRICE_UPDATE)
-   */
   void onNewBid(int auctionId, double newPrice, String bidderUsername);
 
-  /**
-   * Gọi khi phiên đấu giá kết thúc (type: "AUCTION_ENDED").
-   *
-   * @param auctionId  ID phiên đấu giá vừa đóng
-   * @param status     Trạng thái cuối: "FINISHED" hoặc "CANCELED"
-   */
+  default void onNewBid(int auctionId, double newPrice, String bidderUsername, String newEndTime) {
+    onNewBid(auctionId, newPrice, bidderUsername);
+  }
+
   void onAuctionEnded(int auctionId, String status);
 
-  /**
-   * Gọi khi kết nối WebSocket được thiết lập thành công.
-   */
   void onConnected();
 
-  /**
-   * Gọi khi mất kết nối WebSocket.
-   *
-   * @param reason  Lý do mất kết nối
-   */
   void onDisconnected(String reason);
 } 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\util\ItemCard.java ===  
@@ -6084,6 +6303,7 @@ CREATE TABLE watchlist (
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\AuctionController.java ===  
 package com.auction.controller;
 
+import com.auction.server.dao.BidsDAO.BidResult;
 import com.auction.service.AuctionService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -6102,7 +6322,7 @@ public class AuctionController {
     public String handlePlaceBid(String jsonRequest, int secureUserId) {
         try {
             JsonObject req = gson.fromJson(jsonRequest, JsonObject.class);
-            
+
             if (req == null || !req.has("auction_id") || !req.has("amount")) {
                 return createResponse("error", "Thất bại: Thiếu 'auction_id' hoặc 'amount'!", null);
             }
@@ -6110,14 +6330,20 @@ public class AuctionController {
             int auctionId = req.get("auction_id").getAsInt();
             double amount = req.get("amount").getAsDouble();
 
-            // Sử dụng userId an toàn từ session, không dùng bidder_id từ JSON
-            String result = auctionService.placeBid(auctionId, secureUserId, amount);
+            BidResult result = auctionService.placeBid(auctionId, secureUserId, amount);
 
-            if (result.startsWith("Thành công")) {
-                return createResponse("success", result, null);
-            } else {
-                return createResponse("error", result, null);
+            JsonObject data = new JsonObject();
+            data.addProperty("auction_id", auctionId);
+            data.addProperty("amount", amount);
+            data.addProperty("time_extended", result.isTimeExtended());
+            if (result.getNewEndTime() != null) {
+                data.addProperty("new_end_time", result.getNewEndTime().toString());
             }
+
+            if (result.isSuccess()) {
+                return createResponse("success", result.getMessage(), data);
+            }
+            return createResponse("error", result.getMessage(), null);
 
         } catch (JsonSyntaxException | NullPointerException e) {
             return createResponse("error", "Thất bại: Sai định dạng JSON!", null);
@@ -6130,9 +6356,7 @@ public class AuctionController {
         JsonObject response = new JsonObject();
         response.addProperty("status", status);
         response.addProperty("message", message);
-        if (data != null) {
-            response.add("data", data);
-        }
+        if (data != null) response.add("data", data);
         return gson.toJson(response);
     }
 } 
@@ -6142,6 +6366,7 @@ package com.auction.controller;
 import com.auction.service.BidService;
 import com.auction.server.models.BidTransactionDTO;
 import com.auction.server.models.Item;
+import com.auction.server.models.ItemDTO;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -6169,7 +6394,7 @@ public class BidController {
 
     public String handleGetActiveBids(int userId) {
         try {
-            List<Item> items = bidService.getActiveBids(userId);
+            List<ItemDTO> items = bidService.getActiveBids(userId);
             return createResponse("success", "Lấy danh sách các phiên đang tham gia thành công.", gson.toJsonTree(items));
         } catch (Exception e) {
             e.printStackTrace();
@@ -6804,6 +7029,7 @@ import org.apache.tomcat.util.descriptor.web.FilterDef;
 import org.apache.tomcat.util.descriptor.web.FilterMap;
 
 import java.io.File;
+import java.util.TimeZone;
 
 public class AuctionServer {
 
@@ -6817,7 +7043,10 @@ public class AuctionServer {
 
     public static void main(String[] args) {
         System.out.println("=== AUCTION SERVER STARTING ===");
-
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+        System.out.println(java.time.ZoneId.systemDefault());
+        System.out.println(java.util.TimeZone.getDefault());
+        System.out.println(java.time.LocalDateTime.now());
         try {
             // ✅ FIX: Ensure consistent upload directory
             // Set to project root /uploads folder (not dependent on working directory)
@@ -6885,7 +7114,10 @@ public class AuctionServer {
             // ĐĂNG KÝ API HÌNH ẢNH (BUG FIX)
             Tomcat.addServlet(ctx, "ImageAPI", new ImageAPI());
             ctx.addServletMappingDecoded("/api/images/*", "ImageAPI");
-
+            Tomcat.addServlet(ctx, "UserDetailAPI", new UserDetailAPI());
+            ctx.addServletMappingDecoded("/api/users/*", "UserDetailAPI");
+            Tomcat.addServlet(ctx, "SellerRatingAPI", new SellerRatingAPI());
+            ctx.addServletMappingDecoded("/api/my/rating-seller", "SellerRatingAPI");
             tomcat.start();
             System.out.println("✓ [HTTP API] Web Server đang chạy ở cổng 8080!");
 
@@ -7308,60 +7540,110 @@ import java.util.List;
 
 import com.auction.server.models.BidTransactionDTO;
 import com.auction.server.models.Item;
+import com.auction.server.models.ItemDTO;
 import com.auction.server.models.AuctionStatus;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class BidsDAO {
 
-    // Thực hiện đặt giá (giữ nguyên logic nhưng đảm bảo try-with-resources và exception handling)
-    public boolean executeBid(int auctionId, int newBidderId, double newBidAmount) {
-        try (Connection conn = DatabaseConnection.getInstance().getConnection()) {
-            conn.setAutoCommit(false); // Khóa Transaction an toàn tuyệt đối
+    public static class BidResult {
+    private final boolean success;
+    private final boolean timeExtended;
+    private final LocalDateTime newEndTime;
+    private final String message;
 
-            String checkItemSql = "SELECT current_max_price, highest_bidder_id, status FROM auctions WHERE id = ? FOR UPDATE";
+    public BidResult(boolean success, boolean timeExtended, LocalDateTime newEndTime, String message) {
+            this.success = success;
+            this.timeExtended = timeExtended;
+            this.newEndTime = newEndTime;
+            this.message = message;
+    }
+
+        public boolean isSuccess() { return success; }
+        public boolean isTimeExtended() { return timeExtended; }
+        public LocalDateTime getNewEndTime() { return newEndTime; }
+        public String getMessage() { return message; }
+    }
+
+    // Thực hiện đặt giá (giữ nguyên logic nhưng đảm bảo try-with-resources và exception handling)
+    // Giữ tương thích cũ nếu nơi khác vẫn gọi boolean
+    public boolean executeBid(int auctionId, int newBidderId, double newBidAmount) {
+        return executeBidDetailed(auctionId, newBidderId, newBidAmount).isSuccess();
+    }
+
+    // Hàm mới: trả về cả trạng thái gia hạn
+    public BidResult executeBidDetailed(int auctionId, int newBidderId, double newBidAmount) {
+        try (Connection conn = DatabaseConnection.getInstance().getConnection()) {
+            conn.setAutoCommit(false);
+
+            String checkItemSql =
+                "SELECT current_max_price, highest_bidder_id, status, end_time " +
+                "FROM auctions WHERE id = ? FOR UPDATE";
+
             double currentMaxPrice;
             int oldBidderId;
+            LocalDateTime endTime;
 
             try (PreparedStatement checkStmt = conn.prepareStatement(checkItemSql)) {
                 checkStmt.setInt(1, auctionId);
+
                 try (ResultSet rs = checkStmt.executeQuery()) {
-                    if (rs.next()) {
-                        String status = rs.getString("status");
-                        if (!"RUNNING".equals(status) && !"OPEN".equals(status)) {
-                            conn.rollback();
-                            return false;
-                        }
-                        currentMaxPrice = rs.getDouble("current_max_price");
-                        oldBidderId = rs.getInt("highest_bidder_id");
-                    } else {
+                    if (!rs.next()) {
                         conn.rollback();
-                        return false;
+                        return new BidResult(false, false, null, "Thất bại: Không tìm thấy phiên đấu giá!");
                     }
+
+                    String status = rs.getString("status");
+                    if (!"RUNNING".equals(status) && !"OPEN".equals(status)) {
+                        conn.rollback();
+                        return new BidResult(false, false, null, "Thất bại: Phiên đấu giá không còn mở!");
+                    }
+
+                    currentMaxPrice = rs.getDouble("current_max_price");
+                    oldBidderId = rs.getInt("highest_bidder_id");
+
+                    Timestamp endTs = rs.getTimestamp("end_time");
+                    if (endTs == null) {
+                        conn.rollback();
+                        return new BidResult(false, false, null, "Thất bại: end_time không hợp lệ!");
+                    }
+                    endTime = endTs.toLocalDateTime();
                 }
             }
 
-            if (newBidAmount <= currentMaxPrice) {
+            // 1) Chặn bid quá giờ ngay trong transaction
+            LocalDateTime now = LocalDateTime.now();
+            long remainingSeconds = Duration.between(now, endTime).getSeconds();
+
+            if (remainingSeconds <= 0) {
                 conn.rollback();
-                return false;
+                return new BidResult(false, false, null, "Thất bại: Phiên đấu giá đã hết giờ!");
             }
 
-            // === LOGIC HOÀN TIỀN VÀ TRỪ TIỀN CHUẨN MỰC ===
+            // 2) Giữ nguyên logic giá hiện có
+            if (newBidAmount <= currentMaxPrice) {
+                conn.rollback();
+                return new BidResult(false, false, null, "Thất bại: Giá đặt phải cao hơn giá hiện tại!");
+            }
+
             if (oldBidderId == newBidderId) {
-                // KỊCH BẢN 1: Tự outplay chính mình (Nâng giá bid của bản thân lên)
-                // Phép thuật ở đây: Chỉ trừ đúng số tiền chênh lệch (newBidAmount - currentMaxPrice)
                 double difference = newBidAmount - currentMaxPrice;
-                String deductDiffSql = "UPDATE bidders SET account_balance = account_balance - ? WHERE user_id = ? AND account_balance >= ?";
+                String deductDiffSql =
+                    "UPDATE bidders SET account_balance = account_balance - ? " +
+                    "WHERE user_id = ? AND account_balance >= ?";
+
                 try (PreparedStatement deductStmt = conn.prepareStatement(deductDiffSql)) {
                     deductStmt.setDouble(1, difference);
                     deductStmt.setInt(2, newBidderId);
                     deductStmt.setDouble(3, difference);
+
                     if (deductStmt.executeUpdate() == 0) {
                         conn.rollback();
-                        return false; // Ví không đủ trả phần chênh lệch
+                        return new BidResult(false, false, null, "Thất bại: Ví không đủ tiền để trả phần chênh lệch!");
                     }
                 }
             } else {
-                // KỊCH BẢN 2: Tranh giá với người khác
-                // BƯỚC 1: Hoàn tiền ngay lập tức cho người cũ (Giải phóng vốn)
                 if (oldBidderId != 0) {
                     String refundSql = "UPDATE bidders SET account_balance = account_balance + ? WHERE user_id = ?";
                     try (PreparedStatement refundStmt = conn.prepareStatement(refundSql)) {
@@ -7371,44 +7653,81 @@ public class BidsDAO {
                     }
                 }
 
-                // BƯỚC 2: Trừ toàn bộ tiền của người đặt mới
-                String deductSql = "UPDATE bidders SET account_balance = account_balance - ? WHERE user_id = ? AND account_balance >= ?";
+                String deductSql =
+                    "UPDATE bidders SET account_balance = account_balance - ? " +
+                    "WHERE user_id = ? AND account_balance >= ?";
+
                 try (PreparedStatement deductStmt = conn.prepareStatement(deductSql)) {
                     deductStmt.setDouble(1, newBidAmount);
                     deductStmt.setInt(2, newBidderId);
                     deductStmt.setDouble(3, newBidAmount);
+
                     if (deductStmt.executeUpdate() == 0) {
                         conn.rollback();
-                        return false; // Người mới không đủ tiền
+                        return new BidResult(false, false, null, "Thất bại: Số dư không đủ!");
                     }
                 }
             }
-            // ===============================================
 
-            // Cập nhật giá mới nhất và người thắng tạm thời vào phiên đấu giá
-            String updateItemSql = "UPDATE auctions SET current_max_price = ?, highest_bidder_id = ? WHERE id = ?";
-            try (PreparedStatement updateItemStmt = conn.prepareStatement(updateItemSql)) {
-                updateItemStmt.setDouble(1, newBidAmount);
-                updateItemStmt.setInt(2, newBidderId);
-                updateItemStmt.setInt(3, auctionId);
-                updateItemStmt.executeUpdate();
+            // 3) Anti-sniping: còn <= 15 giây thì cộng thêm 1 phút
+            boolean timeExtended = false;
+            LocalDateTime newEndTime = endTime;
+            if (remainingSeconds > 0 && remainingSeconds <= 15) {
+                timeExtended = true;
+                newEndTime = endTime.plusMinutes(1);
             }
 
-            // Ghi lịch sử giao dịch (bids table)
-            String insertHistorySql = "INSERT INTO bids (auction_id, bidder_id, bid_amount) VALUES (?, ?, ?)";
-            try (PreparedStatement insertHistoryStmt = conn.prepareStatement(insertHistorySql)) {
-                insertHistoryStmt.setInt(1, auctionId);
-                insertHistoryStmt.setInt(2, newBidderId);
-                insertHistoryStmt.setDouble(3, newBidAmount);
-                insertHistoryStmt.executeUpdate();
+            // 4) Update auction trong cùng transaction
+            String updateAuctionSql;
+            if (timeExtended) {
+                updateAuctionSql =
+                    "UPDATE auctions " +
+                    "SET current_max_price = ?, highest_bidder_id = ?, end_time = ?, has_extended = 1 " +
+                    "WHERE id = ?";
+            } else {
+                updateAuctionSql =
+                    "UPDATE auctions " +
+                    "SET current_max_price = ?, highest_bidder_id = ? " +
+                    "WHERE id = ?";
             }
 
-            conn.commit(); // Ghi toàn bộ thao tác xuống DB thành công
-            return true;
+            try (PreparedStatement updateStmt = conn.prepareStatement(updateAuctionSql)) {
+                updateStmt.setDouble(1, newBidAmount);
+                updateStmt.setInt(2, newBidderId);
+
+                if (timeExtended) {
+                    updateStmt.setTimestamp(3, Timestamp.valueOf(newEndTime));
+                    updateStmt.setInt(4, auctionId);
+                } else {
+                    updateStmt.setInt(3, auctionId);
+                }
+
+                if (updateStmt.executeUpdate() == 0) {
+                    conn.rollback();
+                    return new BidResult(false, false, null, "Thất bại: Không thể cập nhật phiên đấu giá!");
+                }
+            }
+
+            // 5) Lưu lịch sử bid
+            String insertHistorySql =
+                "INSERT INTO bids (auction_id, bidder_id, bid_amount) VALUES (?, ?, ?)";
+            try (PreparedStatement insertStmt = conn.prepareStatement(insertHistorySql)) {
+                insertStmt.setInt(1, auctionId);
+                insertStmt.setInt(2, newBidderId);
+                insertStmt.setDouble(3, newBidAmount);
+                insertStmt.executeUpdate();
+            }
+
+            conn.commit();
+
+            String msg = timeExtended
+                ? "Thành công: Đã đặt giá và gia hạn thêm 1 phút do sắp hết giờ!"
+                : "Thành công: Đã đặt giá!";
+            return new BidResult(true, timeExtended, newEndTime, msg);
 
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return new BidResult(false, false, null, "Thất bại: Lỗi hệ thống khi đặt giá!");
         }
     }
 
@@ -7473,29 +7792,70 @@ public class BidsDAO {
     /**
      * Lấy danh sách các sản phẩm mà một người dùng đang tham gia đấu giá (trạng thái RUNNING).
      */
-    public List<Item> getActiveBidsByUserId(int userId) {
-        List<Item> activeBidItems = new ArrayList<>();
-        String sql = "SELECT i.* FROM items i " +
-                     "JOIN (SELECT DISTINCT a.item_id FROM bids b JOIN auctions a ON b.auction_id = a.id WHERE b.bidder_id = ?) tb " +
-                     "ON i.id = tb.item_id " +
-                     "WHERE i.status = 'RUNNING' " +
-                     "ORDER BY i.id";
+    public List<ItemDTO> getActiveBidsByUserId(int userId) {
+        List<ItemDTO> activeBidItems = new ArrayList<>();
+
+        String sql = """
+            SELECT DISTINCT
+                i.id,
+                i.seller_id,
+                i.name,
+                i.description,
+                i.starting_price,
+                i.category,
+                i.created_at,
+                i.image_path,
+                a.id AS auction_id,
+                a.current_max_price,
+                a.highest_bidder_id,
+                a.price_step,
+                a.start_time,
+                a.end_time,
+                a.status AS auction_status
+            FROM bids b
+            JOIN auctions a ON b.auction_id = a.id
+            JOIN items i ON a.item_id = i.id
+            WHERE b.bidder_id = ?
+            AND a.status IN ('OPEN', 'RUNNING')
+            ORDER BY a.end_time DESC
+            """;
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, userId);
-            try (ResultSet rs = pstmt.executeQuery()) {
+            ps.setInt(1, userId);
+
+            try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    activeBidItems.add(mapRowToItem(rs));
+                    ItemDTO item = new ItemDTO();
+                    item.setId(rs.getInt("id"));
+                    item.setSellerId(rs.getInt("seller_id"));
+                    item.setName(rs.getString("name"));
+                    item.setDescription(rs.getString("description"));
+                    item.setStartingPrice(rs.getDouble("starting_price"));
+                    item.setCategory(rs.getString("category"));
+                    item.setCreatedAt(rs.getString("created_at"));
+                    item.setImagePath(rs.getString("image_path"));
+
+                    item.setAuctionId(rs.getInt("auction_id"));
+                    item.setCurrentMaxPrice(rs.getDouble("current_max_price"));
+                    item.setHighestBidderId(rs.getInt("highest_bidder_id"));
+                    item.setPriceStep(rs.getDouble("price_step"));
+                    item.setStartTime(rs.getTimestamp("start_time") != null
+                            ? rs.getTimestamp("start_time").toString() : null);
+                    item.setEndTime(rs.getTimestamp("end_time") != null
+                            ? rs.getTimestamp("end_time").toString() : null);
+                    item.setStatus(rs.getString("auction_status"));
+
+                    activeBidItems.add(item);
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return activeBidItems;
     }
-
     // Hàm phụ trợ để chuyển row -> Item (giữ tương thích với model Item trong project)
     private Item mapRowToItem(ResultSet rs) throws SQLException {
         int id = rs.getInt("id");
@@ -7547,8 +7907,8 @@ public class DatabaseConnection {
 
     private DatabaseConnection() {
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:mysql://localhost:3306/online_auction?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC");
-        config.setUsername("root");
+        // ✅ Đổi serverTimezone=UTC thành serverTimezone=Asia/Ho_Chi_Minh
+        config.setJdbcUrl("jdbc:mysql://localhost:3306/online_auction?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh");        config.setUsername("root");
         config.setPassword("123456"); 
 
         config.setMaximumPoolSize(50);
@@ -7933,26 +8293,38 @@ public class ItemDAO {
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             try (PreparedStatement pstmtAuction = conn.prepareStatement(sqlAuction)) {
+                java.sql.Timestamp createdAt = new java.sql.Timestamp(System.currentTimeMillis());
+
+                java.sql.Timestamp startTs;
+                if (item.getStartTime() != null && !item.getStartTime().isEmpty()) {
+                    startTs = java.sql.Timestamp.valueOf(item.getStartTime());
+                } else {
+                    startTs = createdAt;
+                }
+
+                java.sql.Timestamp endTs;
+                if (item.getEndTime() != null && !item.getEndTime().isEmpty()) {
+                    endTs = java.sql.Timestamp.valueOf(item.getEndTime());
+                } else {
+                    endTs = new java.sql.Timestamp(System.currentTimeMillis() + 7L * 24 * 3600 * 1000);
+                }
+
+                // Nếu startTime đã sớm hơn hoặc bằng thời điểm tạo -> RUNNING
+                AuctionStatus auctionStatus = startTs.before(createdAt)
+                        || startTs.equals(createdAt)
+                        ? AuctionStatus.RUNNING
+                        : AuctionStatus.OPEN;
+
                 pstmtAuction.setInt(1, item.getId());
                 pstmtAuction.setInt(2, item.getSellerId());
                 pstmtAuction.setDouble(3, item.getStartingPrice());
                 pstmtAuction.setDouble(4, item.getPriceStep() > 0 ? item.getPriceStep() : 1000);
-
-                if (item.getStartTime() != null && !item.getStartTime().isEmpty()) {
-                    pstmtAuction.setTimestamp(5, java.sql.Timestamp.valueOf(item.getStartTime()));
-                } else {
-                    pstmtAuction.setTimestamp(5, new java.sql.Timestamp(System.currentTimeMillis()));
-                }
-
-                if (item.getEndTime() != null && !item.getEndTime().isEmpty()) {
-                    pstmtAuction.setTimestamp(6, java.sql.Timestamp.valueOf(item.getEndTime()));
-                } else {
-                    pstmtAuction.setTimestamp(6, new java.sql.Timestamp(System.currentTimeMillis() + 7L * 24 * 3600 * 1000));
-                }
-
-                pstmtAuction.setString(7, AuctionStatus.OPEN.name());
+                pstmtAuction.setTimestamp(5, startTs);
+                pstmtAuction.setTimestamp(6, endTs);
+                pstmtAuction.setString(7, auctionStatus.name());
                 pstmtAuction.setBoolean(8, false);
-                pstmtAuction.setTimestamp(9, new java.sql.Timestamp(System.currentTimeMillis()));
+                pstmtAuction.setTimestamp(9, createdAt);
+
                 pstmtAuction.executeUpdate();
             }
 
@@ -8705,21 +9077,34 @@ public class PaymentDAO {
                         
                         // FIX SPAM CLICK: Nếu DB đã là PAID rồi, báo thành công luôn để UI không bị quăng lỗi!
                         if ("PAID".equalsIgnoreCase(currentStatus)) {
-                            conn.rollback(); 
+                            conn.rollback();
+                            conn.setAutoCommit(true);
                             return true; 
                         }
                         
                         // Nếu chưa thanh toán thì bắt buộc phải là FINISHED mới cho đi tiếp
                         if (!"FINISHED".equalsIgnoreCase(currentStatus)) {
+                            System.err.println("Lỗi: Phiên " + auctionId + " không ở trạng thái FINISHED (status=" + currentStatus + ")");
                             conn.rollback();
+                            conn.setAutoCommit(true);
                             return false; 
                         }
 
                         amount = rs.getDouble("current_max_price");
                         bidderId = rs.getInt("highest_bidder_id");
                         sellerId = rs.getInt("seller_id");
+                        
+                        // Kiểm tra dữ liệu hợp lệ
+                        if (amount <= 0 || bidderId <= 0 || sellerId <= 0) {
+                            System.err.println("Lỗi: Dữ liệu phiên không hợp lệ - amount=" + amount + ", bidderId=" + bidderId + ", sellerId=" + sellerId);
+                            conn.rollback();
+                            conn.setAutoCommit(true);
+                            return false;
+                        }
                     } else {
+                        System.err.println("Lỗi: Phiên " + auctionId + " không tồn tại");
                         conn.rollback();
+                        conn.setAutoCommit(true);
                         return false; // Phiên không tồn tại
                     }
                 }
@@ -8732,7 +9117,11 @@ public class PaymentDAO {
                 insertStmt.setInt(2, bidderId);
                 insertStmt.setInt(3, sellerId);
                 insertStmt.setDouble(4, amount);
-                insertStmt.executeUpdate();
+                int rowsInserted = insertStmt.executeUpdate();
+                if (rowsInserted == 0) {
+                    throw new SQLException("Không thể tạo payment record");
+                }
+                System.out.println("✓ Tạo payment record: bidder=" + bidderId + ", seller=" + sellerId + ", amount=" + amount);
             }
 
             // 3. Cộng tiền cho người bán (Seller)
@@ -8740,25 +9129,45 @@ public class PaymentDAO {
             try (PreparedStatement addStmt = conn.prepareStatement(addMoneySql)) {
                 addStmt.setDouble(1, amount);
                 addStmt.setInt(2, sellerId);
-                addStmt.executeUpdate();
+                int rowsUpdated = addStmt.executeUpdate();
+                if (rowsUpdated == 0) {
+                    throw new SQLException("Người bán (id=" + sellerId + ") không tồn tại trong bảng sellers");
+                }
+                System.out.println("✓ Cộng tiền cho seller: " + amount + " cho user_id=" + sellerId);
             }
 
             // 4. Chuyển trạng thái phiên đấu giá sang PAID
             String updateAuctionSql = "UPDATE auctions SET status = 'PAID' WHERE id = ?";
             try (PreparedStatement updateAuctionStmt = conn.prepareStatement(updateAuctionSql)) {
                 updateAuctionStmt.setInt(1, auctionId);
-                updateAuctionStmt.executeUpdate();
+                int rowsUpdated = updateAuctionStmt.executeUpdate();
+                if (rowsUpdated == 0) {
+                    throw new SQLException("Không thể cập nhật trạng thái phiên " + auctionId);
+                }
+                System.out.println("✓ Cập nhật trạng thái phiên " + auctionId + " thành PAID");
             }
 
             conn.commit(); // Thành công tất cả thì chốt lưu!
+            System.out.println("✓✓✓ TRANSACTION COMMIT THÀNH CÔNG cho phiên " + auctionId);
             return true;
 
         } catch (SQLException e) {
             System.err.println("Lỗi processPayment: " + e.getMessage());
-            if (conn != null) try { conn.rollback(); } catch (SQLException ex) { }
+            e.printStackTrace();
+            if (conn != null) try { 
+                conn.rollback();
+                System.err.println("TRANSACTION ROLLED BACK!");
+            } catch (SQLException ex) { 
+                ex.printStackTrace();
+            }
             return false;
         } finally {
-            if (conn != null) try { conn.setAutoCommit(true); conn.close(); } catch (SQLException e) { }
+            if (conn != null) try { 
+                conn.setAutoCommit(true);
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -8867,6 +9276,7 @@ package com.auction.server.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import com.auction.server.models.Seller;
 import com.auction.server.models.SellerDTO;
@@ -8875,20 +9285,20 @@ public class SellerDAO {
     private UserDAO userDAO = new UserDAO();
 
     public SellerDTO getSellerById(int sellerId){
-        String sql = "SELECT u.id, u.username, u.email, s.account_balance, s.total_rating, s.sale_count "+
+        String sql = "SELECT u.id, u.username, u.email, s.account_balance, s.total_rating, s.sale_count " +
                      "FROM users u JOIN sellers s ON u.id = s.user_id WHERE u.id = ?";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-             
+
             pstmt.setInt(1, sellerId);
-            try (java.sql.ResultSet rs = pstmt.executeQuery()) {
+            try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     return new SellerDTO(
-                        rs.getInt("id"), 
-                        rs.getString("username"), 
-                        rs.getString("email"), 
-                        rs.getDouble("account_balance"), 
-                        rs.getDouble("total_rating"), 
+                        rs.getInt("id"),
+                        rs.getString("username"),
+                        rs.getString("email"),
+                        rs.getDouble("account_balance"),
+                        rs.getDouble("total_rating"),
                         rs.getInt("sale_count")
                     );
                 }
@@ -8898,27 +9308,67 @@ public class SellerDAO {
         }
         return null;
     }
-    
+
+    // Transaction-safe rating update
     public boolean rateSeller(int sellerId, double newScore) {
-        if (newScore < 0.0) newScore = 0.0;
-        if (newScore > 5.0) newScore = 5.0;
-        
-        String sql = "UPDATE sellers " +
-                     "SET total_rating = ((total_rating * sale_count) + ?) / (sale_count + 1), " +
-                     "sale_count = sale_count + 1 " +
-                     "WHERE user_id = ?";
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setDouble(1, newScore);
-            pstmt.setInt(2, sellerId);
-            return pstmt.executeUpdate() > 0; 
-            
+        newScore = Math.max(0.0, Math.min(5.0, newScore));
+
+        Connection conn = null;
+        try {
+            conn = DatabaseConnection.getInstance().getConnection();
+            conn.setAutoCommit(false);
+
+            // Lock row seller để tránh 2 request rating cùng lúc
+            String lockSql = "SELECT total_rating, sale_count FROM sellers WHERE user_id = ? FOR UPDATE";
+            double currentRating;
+            int currentCount;
+
+            try (PreparedStatement lockStmt = conn.prepareStatement(lockSql)) {
+                lockStmt.setInt(1, sellerId);
+                try (ResultSet rs = lockStmt.executeQuery()) {
+                    if (!rs.next()) {
+                        conn.rollback();
+                        return false;
+                    }
+                    currentRating = rs.getDouble("total_rating");
+                    currentCount = rs.getInt("sale_count");
+                }
+            }
+
+            double newAverage = ((currentRating * currentCount) + newScore) / (currentCount + 1);
+
+            String updateSql =
+                "UPDATE sellers SET total_rating = ?, sale_count = sale_count + 1 WHERE user_id = ?";
+
+            try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                updateStmt.setDouble(1, newAverage);
+                updateStmt.setInt(2, sellerId);
+
+                if (updateStmt.executeUpdate() == 0) {
+                    conn.rollback();
+                    return false;
+                }
+            }
+
+            conn.commit();
+            return true;
+
         } catch (SQLException e) {
             System.err.println("Lỗi rateSeller: " + e.getMessage());
+            try {
+                if (conn != null) conn.rollback();
+            } catch (SQLException ignored) {}
             return false;
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                }
+            } catch (SQLException ignored) {}
         }
     }
+
 } 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\SellerSubDAO.java ===  
 package com.auction.server.dao;
@@ -11378,7 +11828,7 @@ public class AuctionStatusScheduler {
     public void start() {
         scheduler = Executors.newSingleThreadScheduledExecutor();
         // Cứ mỗi 1 phút (60 giây), chạy hàm kiểm tra 1 lần
-        scheduler.scheduleAtFixedRate(this::checkAndSyncAuctionStatuses, 0, 1, TimeUnit.MINUTES);
+        scheduler.scheduleAtFixedRate(this::checkAndSyncAuctionStatuses, 0, 1, TimeUnit.SECONDS);
         System.out.println("[SCHEDULER] Hệ thống tự động quản lý phiên đấu giá đã khởi động!");
     }
 
@@ -12289,11 +12739,9 @@ public class PaymentAPI extends HttpServlet {
         
         String jsonResponse = paymentController.handleExecutePayment(jsonRequest);
 
-        if (jsonResponse.contains("\"status\":\"success\"")) {
-            resp.setStatus(HttpServletResponse.SC_OK);
-        } else {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        }
+        // LUÔN TRẢ VỀ HTTP 200 ĐỂ CLIENT NHẬN ĐƯỢC RESPONSE
+        // Phân biệt thành công/lỗi bằng JSON status field, không dùng HTTP status code
+        resp.setStatus(HttpServletResponse.SC_OK);
         
         resp.getWriter().write(jsonResponse);
     }
@@ -12403,6 +12851,52 @@ public class SearchItemsAPI extends HttpServlet {
 
         String jsonResponse = itemController.handleSearchItems(keyword, page, limit);
         resp.setStatus(HttpServletResponse.SC_OK);
+        resp.getWriter().write(jsonResponse);
+    }
+} 
+// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\SellerRatingAPI.java ===  
+package com.auction.server.servlets;
+
+import com.auction.controller.UserController;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.util.stream.Collectors;
+
+public class SellerRatingAPI extends HttpServlet {
+
+    private final UserController userController = new UserController();
+    private final Gson gson = new Gson();
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+
+        HttpSession session = req.getSession(false);
+        if (session == null || session.getAttribute("userId") == null) {
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            resp.getWriter().write("{\"status\":\"error\",\"message\":\"Bạn cần đăng nhập.\"}");
+            return;
+        }
+
+        String jsonRequest = req.getReader().lines()
+                .collect(Collectors.joining(System.lineSeparator()));
+
+        String jsonResponse = userController.handleRateSeller(jsonRequest);
+        JsonObject obj = gson.fromJson(jsonResponse, JsonObject.class);
+
+        if (obj != null && "success".equalsIgnoreCase(obj.get("status").getAsString())) {
+            resp.setStatus(HttpServletResponse.SC_OK);
+        } else {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        }
+
         resp.getWriter().write(jsonResponse);
     }
 } 
@@ -12786,6 +13280,7 @@ public class AuctionWebSocketServer extends WebSocketServer implements AuctionUp
 package com.auction.service;
 
 import com.auction.server.dao.BidsDAO;
+import com.auction.server.dao.BidsDAO.BidResult;
 import com.auction.server.dao.AuctionDAO;
 import com.auction.server.dao.UserDAO;
 import com.auction.server.models.AuctionDataDTO;
@@ -12812,12 +13307,14 @@ public class AuctionService {
         return instance;
     }
 
-    public String placeBid(int auctionId, int bidderId, double amount) {
-        if (amount <= 0) return "Lỗi: Số tiền không hợp lệ!";
-        
-        boolean success = bidsDAO.executeBid(auctionId, bidderId, amount);
-        
-        if (success) {
+    public BidResult placeBid(int auctionId, int bidderId, double amount) {
+        if (amount <= 0) {
+            return new BidResult(false, false, null, "Lỗi: Số tiền không hợp lệ!");
+        }
+
+        BidResult result = bidsDAO.executeBidDetailed(auctionId, bidderId, amount);
+
+        if (result.isSuccess()) {
             UserDTO bidder = userDAO.getUserById(bidderId);
             String bidderUsername = (bidder != null) ? bidder.getUsername() : "Một người dùng";
 
@@ -12825,13 +13322,24 @@ public class AuctionService {
             bidData.put("auctionId", auctionId);
             bidData.put("newPrice", amount);
             bidData.put("bidderUsername", bidderUsername);
+            bidData.put("timeExtended", result.isTimeExtended());
+
+            if (result.isTimeExtended() && result.getNewEndTime() != null) {
+                String newEndTimeIso = result.getNewEndTime().toString();
+                bidData.put("newEndTime", newEndTimeIso);
+
+                Map<String, Object> extData = new HashMap<>();
+                extData.put("auctionId", auctionId);
+                extData.put("newEndTime", newEndTimeIso);
+                extData.put("message", "Phiên đấu giá vừa được gia hạn thêm 1 phút!");
+
+                AuctionManager.getInstance().broadcastUpdate("AUCTION_EXTENDED", extData);
+            }
 
             AuctionManager.getInstance().broadcastUpdate("NEW_BID", bidData);
-
-            return "Thành công: Đã chốt giá $" + amount;
-        } else {
-            return "Thất bại: Giá không đủ cao, phiên đã đóng, hoặc số dư không đủ!";
         }
+
+        return result;
     }
 
     public AuctionStatus closeAuction(int auctionId) {
@@ -12922,6 +13430,7 @@ package com.auction.service;
 
 import com.auction.server.dao.BidsDAO;
 import com.auction.server.dao.ItemDAO;
+import com.auction.server.models.ItemDTO;
 import com.auction.server.dao.DatabaseConnection;
 import com.auction.server.models.BidTransactionDTO; // Import đúng DTO của ông
 import com.auction.server.models.Item;              // Import đúng Model của ông
@@ -12951,7 +13460,7 @@ public class BidService {
         return bidsDAO.getBidHistoryByItemId(itemId); 
     }
 
-    public List<Item> getActiveBids(int userId) {
+    public List<ItemDTO> getActiveBids(int userId) {
         return bidsDAO.getActiveBidsByUserId(userId);
     }
 
@@ -13224,6 +13733,7 @@ package com.auction.service;
 
 import com.auction.server.dao.UserDAO;
 import com.auction.server.models.UserDTO;
+import com.auction.server.dao.SellerDAO;
 import com.auction.server.models.UserRole;
 import java.util.List;
 import java.util.Map;
@@ -13232,9 +13742,11 @@ public class UserService {
 
     private static final UserService instance = new UserService();
     private final UserDAO userDAO;
+    private final SellerDAO sellerDAO;
 
     private UserService() {
         this.userDAO = new UserDAO();
+        this.sellerDAO = new SellerDAO();
     }
 
     public static UserService getInstance() {
@@ -13280,5 +13792,11 @@ public class UserService {
             return false;
         }
         return userDAO.updateUserRole(userId, newRole);
+    }
+
+
+    public boolean rateSeller(int sellerId, double rating) {
+        if (sellerId <= 0) return false;
+        return sellerDAO.rateSeller(sellerId, rating);
     }
 } 

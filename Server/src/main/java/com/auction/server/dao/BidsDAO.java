@@ -9,59 +9,108 @@ import com.auction.server.models.BidTransactionDTO;
 import com.auction.server.models.Item;
 import com.auction.server.models.ItemDTO;
 import com.auction.server.models.AuctionStatus;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class BidsDAO {
 
-    // Thực hiện đặt giá (giữ nguyên logic nhưng đảm bảo try-with-resources và exception handling)
-    public boolean executeBid(int auctionId, int newBidderId, double newBidAmount) {
-        try (Connection conn = DatabaseConnection.getInstance().getConnection()) {
-            conn.setAutoCommit(false); // Khóa Transaction an toàn tuyệt đối
+    public static class BidResult {
+    private final boolean success;
+    private final boolean timeExtended;
+    private final LocalDateTime newEndTime;
+    private final String message;
 
-            String checkItemSql = "SELECT current_max_price, highest_bidder_id, status FROM auctions WHERE id = ? FOR UPDATE";
+    public BidResult(boolean success, boolean timeExtended, LocalDateTime newEndTime, String message) {
+            this.success = success;
+            this.timeExtended = timeExtended;
+            this.newEndTime = newEndTime;
+            this.message = message;
+    }
+
+        public boolean isSuccess() { return success; }
+        public boolean isTimeExtended() { return timeExtended; }
+        public LocalDateTime getNewEndTime() { return newEndTime; }
+        public String getMessage() { return message; }
+    }
+
+    // Thực hiện đặt giá (giữ nguyên logic nhưng đảm bảo try-with-resources và exception handling)
+    // Giữ tương thích cũ nếu nơi khác vẫn gọi boolean
+    public boolean executeBid(int auctionId, int newBidderId, double newBidAmount) {
+        return executeBidDetailed(auctionId, newBidderId, newBidAmount).isSuccess();
+    }
+
+    // Hàm mới: trả về cả trạng thái gia hạn
+    public BidResult executeBidDetailed(int auctionId, int newBidderId, double newBidAmount) {
+        try (Connection conn = DatabaseConnection.getInstance().getConnection()) {
+            conn.setAutoCommit(false);
+
+            String checkItemSql =
+                "SELECT current_max_price, highest_bidder_id, status, end_time " +
+                "FROM auctions WHERE id = ? FOR UPDATE";
+
             double currentMaxPrice;
             int oldBidderId;
+            LocalDateTime endTime;
 
             try (PreparedStatement checkStmt = conn.prepareStatement(checkItemSql)) {
                 checkStmt.setInt(1, auctionId);
+
                 try (ResultSet rs = checkStmt.executeQuery()) {
-                    if (rs.next()) {
-                        String status = rs.getString("status");
-                        if (!"RUNNING".equals(status) && !"OPEN".equals(status)) {
-                            conn.rollback();
-                            return false;
-                        }
-                        currentMaxPrice = rs.getDouble("current_max_price");
-                        oldBidderId = rs.getInt("highest_bidder_id");
-                    } else {
+                    if (!rs.next()) {
                         conn.rollback();
-                        return false;
+                        return new BidResult(false, false, null, "Thất bại: Không tìm thấy phiên đấu giá!");
                     }
+
+                    String status = rs.getString("status");
+                    if (!"RUNNING".equals(status) && !"OPEN".equals(status)) {
+                        conn.rollback();
+                        return new BidResult(false, false, null, "Thất bại: Phiên đấu giá không còn mở!");
+                    }
+
+                    currentMaxPrice = rs.getDouble("current_max_price");
+                    oldBidderId = rs.getInt("highest_bidder_id");
+
+                    Timestamp endTs = rs.getTimestamp("end_time");
+                    if (endTs == null) {
+                        conn.rollback();
+                        return new BidResult(false, false, null, "Thất bại: end_time không hợp lệ!");
+                    }
+                    endTime = endTs.toLocalDateTime();
                 }
             }
 
-            if (newBidAmount <= currentMaxPrice) {
+            // 1) Chặn bid quá giờ ngay trong transaction
+            LocalDateTime now = LocalDateTime.now();
+            long remainingSeconds = Duration.between(now, endTime).getSeconds();
+
+            if (remainingSeconds <= 0) {
                 conn.rollback();
-                return false;
+                return new BidResult(false, false, null, "Thất bại: Phiên đấu giá đã hết giờ!");
             }
 
-            // === LOGIC HOÀN TIỀN VÀ TRỪ TIỀN CHUẨN MỰC ===
+            // 2) Giữ nguyên logic giá hiện có
+            if (newBidAmount <= currentMaxPrice) {
+                conn.rollback();
+                return new BidResult(false, false, null, "Thất bại: Giá đặt phải cao hơn giá hiện tại!");
+            }
+
             if (oldBidderId == newBidderId) {
-                // KỊCH BẢN 1: Tự outplay chính mình (Nâng giá bid của bản thân lên)
-                // Phép thuật ở đây: Chỉ trừ đúng số tiền chênh lệch (newBidAmount - currentMaxPrice)
                 double difference = newBidAmount - currentMaxPrice;
-                String deductDiffSql = "UPDATE bidders SET account_balance = account_balance - ? WHERE user_id = ? AND account_balance >= ?";
+                String deductDiffSql =
+                    "UPDATE bidders SET account_balance = account_balance - ? " +
+                    "WHERE user_id = ? AND account_balance >= ?";
+
                 try (PreparedStatement deductStmt = conn.prepareStatement(deductDiffSql)) {
                     deductStmt.setDouble(1, difference);
                     deductStmt.setInt(2, newBidderId);
                     deductStmt.setDouble(3, difference);
+
                     if (deductStmt.executeUpdate() == 0) {
                         conn.rollback();
-                        return false; // Ví không đủ trả phần chênh lệch
+                        return new BidResult(false, false, null, "Thất bại: Ví không đủ tiền để trả phần chênh lệch!");
                     }
                 }
             } else {
-                // KỊCH BẢN 2: Tranh giá với người khác
-                // BƯỚC 1: Hoàn tiền ngay lập tức cho người cũ (Giải phóng vốn)
                 if (oldBidderId != 0) {
                     String refundSql = "UPDATE bidders SET account_balance = account_balance + ? WHERE user_id = ?";
                     try (PreparedStatement refundStmt = conn.prepareStatement(refundSql)) {
@@ -71,44 +120,81 @@ public class BidsDAO {
                     }
                 }
 
-                // BƯỚC 2: Trừ toàn bộ tiền của người đặt mới
-                String deductSql = "UPDATE bidders SET account_balance = account_balance - ? WHERE user_id = ? AND account_balance >= ?";
+                String deductSql =
+                    "UPDATE bidders SET account_balance = account_balance - ? " +
+                    "WHERE user_id = ? AND account_balance >= ?";
+
                 try (PreparedStatement deductStmt = conn.prepareStatement(deductSql)) {
                     deductStmt.setDouble(1, newBidAmount);
                     deductStmt.setInt(2, newBidderId);
                     deductStmt.setDouble(3, newBidAmount);
+
                     if (deductStmt.executeUpdate() == 0) {
                         conn.rollback();
-                        return false; // Người mới không đủ tiền
+                        return new BidResult(false, false, null, "Thất bại: Số dư không đủ!");
                     }
                 }
             }
-            // ===============================================
 
-            // Cập nhật giá mới nhất và người thắng tạm thời vào phiên đấu giá
-            String updateItemSql = "UPDATE auctions SET current_max_price = ?, highest_bidder_id = ? WHERE id = ?";
-            try (PreparedStatement updateItemStmt = conn.prepareStatement(updateItemSql)) {
-                updateItemStmt.setDouble(1, newBidAmount);
-                updateItemStmt.setInt(2, newBidderId);
-                updateItemStmt.setInt(3, auctionId);
-                updateItemStmt.executeUpdate();
+            // 3) Anti-sniping: còn <= 15 giây thì cộng thêm 1 phút
+            boolean timeExtended = false;
+            LocalDateTime newEndTime = endTime;
+            if (remainingSeconds > 0 && remainingSeconds <= 15) {
+                timeExtended = true;
+                newEndTime = endTime.plusMinutes(1);
             }
 
-            // Ghi lịch sử giao dịch (bids table)
-            String insertHistorySql = "INSERT INTO bids (auction_id, bidder_id, bid_amount) VALUES (?, ?, ?)";
-            try (PreparedStatement insertHistoryStmt = conn.prepareStatement(insertHistorySql)) {
-                insertHistoryStmt.setInt(1, auctionId);
-                insertHistoryStmt.setInt(2, newBidderId);
-                insertHistoryStmt.setDouble(3, newBidAmount);
-                insertHistoryStmt.executeUpdate();
+            // 4) Update auction trong cùng transaction
+            String updateAuctionSql;
+            if (timeExtended) {
+                updateAuctionSql =
+                    "UPDATE auctions " +
+                    "SET current_max_price = ?, highest_bidder_id = ?, end_time = ?, has_extended = 1 " +
+                    "WHERE id = ?";
+            } else {
+                updateAuctionSql =
+                    "UPDATE auctions " +
+                    "SET current_max_price = ?, highest_bidder_id = ? " +
+                    "WHERE id = ?";
             }
 
-            conn.commit(); // Ghi toàn bộ thao tác xuống DB thành công
-            return true;
+            try (PreparedStatement updateStmt = conn.prepareStatement(updateAuctionSql)) {
+                updateStmt.setDouble(1, newBidAmount);
+                updateStmt.setInt(2, newBidderId);
+
+                if (timeExtended) {
+                    updateStmt.setTimestamp(3, Timestamp.valueOf(newEndTime));
+                    updateStmt.setInt(4, auctionId);
+                } else {
+                    updateStmt.setInt(3, auctionId);
+                }
+
+                if (updateStmt.executeUpdate() == 0) {
+                    conn.rollback();
+                    return new BidResult(false, false, null, "Thất bại: Không thể cập nhật phiên đấu giá!");
+                }
+            }
+
+            // 5) Lưu lịch sử bid
+            String insertHistorySql =
+                "INSERT INTO bids (auction_id, bidder_id, bid_amount) VALUES (?, ?, ?)";
+            try (PreparedStatement insertStmt = conn.prepareStatement(insertHistorySql)) {
+                insertStmt.setInt(1, auctionId);
+                insertStmt.setInt(2, newBidderId);
+                insertStmt.setDouble(3, newBidAmount);
+                insertStmt.executeUpdate();
+            }
+
+            conn.commit();
+
+            String msg = timeExtended
+                ? "Thành công: Đã đặt giá và gia hạn thêm 1 phút do sắp hết giờ!"
+                : "Thành công: Đã đặt giá!";
+            return new BidResult(true, timeExtended, newEndTime, msg);
 
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return new BidResult(false, false, null, "Thất bại: Lỗi hệ thống khi đặt giá!");
         }
     }
 

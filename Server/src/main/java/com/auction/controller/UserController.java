@@ -180,4 +180,39 @@ public class UserController {
             return createErrorResponse("Dữ liệu JSON không hợp lệ.");
         }
     }
+
+    public String handleRateSeller(String jsonRequest) {
+        try {
+            JsonObject req = gson.fromJson(jsonRequest, JsonObject.class);
+
+            if (req == null || !req.has("sellerId") || !req.has("rating")) {
+                return createErrorResponse("Thiếu sellerId hoặc rating.");
+            }
+
+            int sellerId = req.get("sellerId").getAsInt();
+            double rating = req.get("rating").getAsDouble();
+
+            if (sellerId <= 0) {
+                return createErrorResponse("sellerId không hợp lệ.");
+            }
+
+            if (rating < 0.0 || rating > 5.0) {
+                return createErrorResponse("Rating phải từ 0 đến 5.");
+            }
+
+            boolean success = userService.rateSeller(sellerId, rating);
+
+            if (success) {
+                return createSuccessResponse("Cảm ơn bạn đã đánh giá người bán!", null);
+            } else {
+                return createErrorResponse("Không thể cập nhật rating.");
+            }
+
+        } catch (JsonSyntaxException e) {
+            return createErrorResponse("Dữ liệu JSON không hợp lệ.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return createErrorResponse("Lỗi hệ thống: " + e.getMessage());
+        }
+    }
 }

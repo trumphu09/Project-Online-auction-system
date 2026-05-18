@@ -2,6 +2,7 @@ package com.auction.server.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import com.auction.server.models.Seller;
 import com.auction.server.models.SellerDTO;
@@ -10,20 +11,20 @@ public class SellerDAO {
     private UserDAO userDAO = new UserDAO();
 
     public SellerDTO getSellerById(int sellerId){
-        String sql = "SELECT u.id, u.username, u.email, s.account_balance, s.total_rating, s.sale_count "+
+        String sql = "SELECT u.id, u.username, u.email, s.account_balance, s.total_rating, s.sale_count " +
                      "FROM users u JOIN sellers s ON u.id = s.user_id WHERE u.id = ?";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-             
+
             pstmt.setInt(1, sellerId);
-            try (java.sql.ResultSet rs = pstmt.executeQuery()) {
+            try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     return new SellerDTO(
-                        rs.getInt("id"), 
-                        rs.getString("username"), 
-                        rs.getString("email"), 
-                        rs.getDouble("account_balance"), 
-                        rs.getDouble("total_rating"), 
+                        rs.getInt("id"),
+                        rs.getString("username"),
+                        rs.getString("email"),
+                        rs.getDouble("account_balance"),
+                        rs.getDouble("total_rating"),
                         rs.getInt("sale_count")
                     );
                 }
@@ -33,25 +34,65 @@ public class SellerDAO {
         }
         return null;
     }
-    
+
+    // Transaction-safe rating update
     public boolean rateSeller(int sellerId, double newScore) {
-        if (newScore < 0.0) newScore = 0.0;
-        if (newScore > 5.0) newScore = 5.0;
-        
-        String sql = "UPDATE sellers " +
-                     "SET total_rating = ((total_rating * sale_count) + ?) / (sale_count + 1), " +
-                     "sale_count = sale_count + 1 " +
-                     "WHERE user_id = ?";
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setDouble(1, newScore);
-            pstmt.setInt(2, sellerId);
-            return pstmt.executeUpdate() > 0; 
-            
+        newScore = Math.max(0.0, Math.min(5.0, newScore));
+
+        Connection conn = null;
+        try {
+            conn = DatabaseConnection.getInstance().getConnection();
+            conn.setAutoCommit(false);
+
+            // Lock row seller để tránh 2 request rating cùng lúc
+            String lockSql = "SELECT total_rating, sale_count FROM sellers WHERE user_id = ? FOR UPDATE";
+            double currentRating;
+            int currentCount;
+
+            try (PreparedStatement lockStmt = conn.prepareStatement(lockSql)) {
+                lockStmt.setInt(1, sellerId);
+                try (ResultSet rs = lockStmt.executeQuery()) {
+                    if (!rs.next()) {
+                        conn.rollback();
+                        return false;
+                    }
+                    currentRating = rs.getDouble("total_rating");
+                    currentCount = rs.getInt("sale_count");
+                }
+            }
+
+            double newAverage = ((currentRating * currentCount) + newScore) / (currentCount + 1);
+
+            String updateSql =
+                "UPDATE sellers SET total_rating = ?, sale_count = sale_count + 1 WHERE user_id = ?";
+
+            try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                updateStmt.setDouble(1, newAverage);
+                updateStmt.setInt(2, sellerId);
+
+                if (updateStmt.executeUpdate() == 0) {
+                    conn.rollback();
+                    return false;
+                }
+            }
+
+            conn.commit();
+            return true;
+
         } catch (SQLException e) {
             System.err.println("Lỗi rateSeller: " + e.getMessage());
+            try {
+                if (conn != null) conn.rollback();
+            } catch (SQLException ignored) {}
             return false;
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                }
+            } catch (SQLException ignored) {}
         }
     }
+
 }

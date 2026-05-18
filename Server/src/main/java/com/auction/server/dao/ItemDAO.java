@@ -296,26 +296,38 @@ public class ItemDAO {
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             try (PreparedStatement pstmtAuction = conn.prepareStatement(sqlAuction)) {
+                java.sql.Timestamp createdAt = new java.sql.Timestamp(System.currentTimeMillis());
+
+                java.sql.Timestamp startTs;
+                if (item.getStartTime() != null && !item.getStartTime().isEmpty()) {
+                    startTs = java.sql.Timestamp.valueOf(item.getStartTime());
+                } else {
+                    startTs = createdAt;
+                }
+
+                java.sql.Timestamp endTs;
+                if (item.getEndTime() != null && !item.getEndTime().isEmpty()) {
+                    endTs = java.sql.Timestamp.valueOf(item.getEndTime());
+                } else {
+                    endTs = new java.sql.Timestamp(System.currentTimeMillis() + 7L * 24 * 3600 * 1000);
+                }
+
+                // Nếu startTime đã sớm hơn hoặc bằng thời điểm tạo -> RUNNING
+                AuctionStatus auctionStatus = startTs.before(createdAt)
+                        || startTs.equals(createdAt)
+                        ? AuctionStatus.RUNNING
+                        : AuctionStatus.OPEN;
+
                 pstmtAuction.setInt(1, item.getId());
                 pstmtAuction.setInt(2, item.getSellerId());
                 pstmtAuction.setDouble(3, item.getStartingPrice());
                 pstmtAuction.setDouble(4, item.getPriceStep() > 0 ? item.getPriceStep() : 1000);
-
-                if (item.getStartTime() != null && !item.getStartTime().isEmpty()) {
-                    pstmtAuction.setTimestamp(5, java.sql.Timestamp.valueOf(item.getStartTime()));
-                } else {
-                    pstmtAuction.setTimestamp(5, new java.sql.Timestamp(System.currentTimeMillis()));
-                }
-
-                if (item.getEndTime() != null && !item.getEndTime().isEmpty()) {
-                    pstmtAuction.setTimestamp(6, java.sql.Timestamp.valueOf(item.getEndTime()));
-                } else {
-                    pstmtAuction.setTimestamp(6, new java.sql.Timestamp(System.currentTimeMillis() + 7L * 24 * 3600 * 1000));
-                }
-
-                pstmtAuction.setString(7, AuctionStatus.OPEN.name());
+                pstmtAuction.setTimestamp(5, startTs);
+                pstmtAuction.setTimestamp(6, endTs);
+                pstmtAuction.setString(7, auctionStatus.name());
                 pstmtAuction.setBoolean(8, false);
-                pstmtAuction.setTimestamp(9, new java.sql.Timestamp(System.currentTimeMillis()));
+                pstmtAuction.setTimestamp(9, createdAt);
+
                 pstmtAuction.executeUpdate();
             }
 

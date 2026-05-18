@@ -1,5 +1,6 @@
 package com.auction.controller;
 
+import com.auction.server.dao.BidsDAO.BidResult;
 import com.auction.service.AuctionService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -18,7 +19,7 @@ public class AuctionController {
     public String handlePlaceBid(String jsonRequest, int secureUserId) {
         try {
             JsonObject req = gson.fromJson(jsonRequest, JsonObject.class);
-            
+
             if (req == null || !req.has("auction_id") || !req.has("amount")) {
                 return createResponse("error", "Thất bại: Thiếu 'auction_id' hoặc 'amount'!", null);
             }
@@ -26,14 +27,20 @@ public class AuctionController {
             int auctionId = req.get("auction_id").getAsInt();
             double amount = req.get("amount").getAsDouble();
 
-            // Sử dụng userId an toàn từ session, không dùng bidder_id từ JSON
-            String result = auctionService.placeBid(auctionId, secureUserId, amount);
+            BidResult result = auctionService.placeBid(auctionId, secureUserId, amount);
 
-            if (result.startsWith("Thành công")) {
-                return createResponse("success", result, null);
-            } else {
-                return createResponse("error", result, null);
+            JsonObject data = new JsonObject();
+            data.addProperty("auction_id", auctionId);
+            data.addProperty("amount", amount);
+            data.addProperty("time_extended", result.isTimeExtended());
+            if (result.getNewEndTime() != null) {
+                data.addProperty("new_end_time", result.getNewEndTime().toString());
             }
+
+            if (result.isSuccess()) {
+                return createResponse("success", result.getMessage(), data);
+            }
+            return createResponse("error", result.getMessage(), null);
 
         } catch (JsonSyntaxException | NullPointerException e) {
             return createResponse("error", "Thất bại: Sai định dạng JSON!", null);
@@ -46,9 +53,7 @@ public class AuctionController {
         JsonObject response = new JsonObject();
         response.addProperty("status", status);
         response.addProperty("message", message);
-        if (data != null) {
-            response.add("data", data);
-        }
+        if (data != null) response.add("data", data);
         return gson.toJson(response);
     }
 }

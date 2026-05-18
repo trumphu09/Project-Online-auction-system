@@ -2,6 +2,7 @@ package com.auction.service;
 
 import com.auction.server.dao.UserDAO;
 import com.auction.server.models.UserDTO;
+import com.auction.server.dao.SellerDAO;
 import com.auction.server.models.UserRole;
 import java.util.List;
 import java.util.Map;
@@ -10,9 +11,11 @@ public class UserService {
 
     private static final UserService instance = new UserService();
     private final UserDAO userDAO;
+    private final SellerDAO sellerDAO;
 
     private UserService() {
         this.userDAO = new UserDAO();
+        this.sellerDAO = new SellerDAO();
     }
 
     public static UserService getInstance() {
@@ -58,5 +61,11 @@ public class UserService {
             return false;
         }
         return userDAO.updateUserRole(userId, newRole);
+    }
+
+
+    public boolean rateSeller(int sellerId, double rating) {
+        if (sellerId <= 0) return false;
+        return sellerDAO.rateSeller(sellerId, rating);
     }
 }

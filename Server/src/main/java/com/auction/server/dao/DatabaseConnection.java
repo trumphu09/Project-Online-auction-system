@@ -12,8 +12,8 @@ public class DatabaseConnection {
 
     private DatabaseConnection() {
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:mysql://localhost:3306/online_auction?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC");
-        config.setUsername("root");
+        // ✅ Đổi serverTimezone=UTC thành serverTimezone=Asia/Ho_Chi_Minh
+        config.setJdbcUrl("jdbc:mysql://localhost:3306/online_auction?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh");        config.setUsername("root");
         config.setPassword("123456"); 
 
         config.setMaximumPoolSize(50);
