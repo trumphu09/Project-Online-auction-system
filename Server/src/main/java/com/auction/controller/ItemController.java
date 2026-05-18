@@ -1,8 +1,9 @@
 package com.auction.controller;
 
 import com.auction.server.factory.ItemFactory;
+import com.auction.server.models.BidTransactionDTO;
 import com.auction.server.models.ItemDTO;
-import com.auction.server.dao.ItemDAO;
+import com.auction.service.BidService;
 import com.auction.service.ItemService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -17,10 +18,12 @@ public class ItemController {
 
     private final Gson gson;
     private final ItemService itemService;
+    private final BidService bidService;
 
     public ItemController() {
         this.gson = new GsonBuilder().setPrettyPrinting().create();
         this.itemService = ItemService.getInstance();
+        this.bidService = BidService.getInstance();
     }
 
     /**
@@ -190,6 +193,16 @@ public class ItemController {
         } catch (Exception e) {
             e.printStackTrace();
             return createResponse("error", "Lỗi server khi lấy chi tiết sản phẩm.", null);
+        }
+    }
+
+    public String handleGetBidHistory(int itemId) {
+        try {
+            List<BidTransactionDTO> history = bidService.getBidHistory(itemId);
+            return createResponse("success", "Lấy lịch sử đấu giá thành công.", gson.toJsonTree(history));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return createResponse("error", "Lỗi server khi lấy lịch sử đấu giá.", null);
         }
     }
 
