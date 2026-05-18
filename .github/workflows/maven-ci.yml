@@ -1,0 +1,50 @@
+name: Fullstack Java CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # Luồng 1: Build phần Server
+  build-server:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./Server
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: 'maven'
+
+    - name: Build and Test Server
+      run: mvn -B package
+
+  # Luồng 2: Build phần Client (JavaFX)
+  build-client:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./Client
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: 'maven'
+
+    - name: Build Client (Skip Tests for UI)
+      # Ứng dụng UI thường bị lỗi khi chạy test trên server không có màn hình (headless)
+      # Nên tạm thời bỏ qua test (skipTests) để đảm bảo code compile thành công.
+      run: mvn -B package -DskipTests
