@@ -1215,70 +1215,96 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
 
   @FXML
   private void handlePayment() {
-    // 1. Khởi tạo Alert xác nhận
-    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-    alert.setTitle("Xác nhận thanh toán");
-    alert.setHeaderText(null);
-    alert.setContentText("Bạn có chắc chắn muốn chuyển " + formatVnd(currentItem.getCurrentMaxPrice()) + " cho người bán?");
+      if (currentItem == null || currentUser == null) {
+          showAlert("Lỗi", "Thiếu dữ liệu phiên hoặc người dùng.");
+          return;
+      }
 
-    Optional<ButtonType> option = alert.showAndWait();
-    
-    if (option.isPresent() && option.get() == ButtonType.OK) {
-        if (btnPay != null) btnPay.setDisable(true);
+      if (!"FINISHED".equalsIgnoreCase(currentItem.getStatus()) && !auctionEnded) {
+          showAlert("Thông báo", "Phiên đấu giá chưa kết thúc.");
+          return;
+      }
 
-        // Gọi API thanh toán
-        AuctionFacade.getInstance().processPayment(currentItem.getAuctionId(), new ApiCallback<com.google.gson.JsonObject>() {
-            @Override
-            public void onSuccess(com.google.gson.JsonObject result) {
-                Platform.runLater(() -> {
-                    try {
-                        // FIX: Kiểm tra kỹ response status
-                        boolean isSuccess = false;
-                        String message = "Lỗi không xác định";
-                        
-                        if (result != null && result.has("status")) {
-                            String status = result.get("status").getAsString();
-                            isSuccess = "success".equalsIgnoreCase(status);
-                            if (result.has("message")) {
-                                message = result.get("message").getAsString();
-                            }
-                        }
-                        
-                        if (isSuccess) {
-                            // Thanh toán thành công → chỉ khi này mới ẩn nút
-                            showAlert("Thành công", "Thanh toán thành công! Giao dịch đã hoàn tất.\nNgười bán đã nhận được tiền.");
-                            if (btnPay != null) {
-                                btnPay.setVisible(false);
-                                btnPay.setManaged(false);
-                            }
-                            
-                            // Cập nhật trạng thái item
-                            BiddingRoomController.this.currentItem.setStatus("PAID");
-                            BiddingRoomController.this.loadCurrentUserInfo();
-                            
-                        } else {
-                            // Lỗi → giữ lại nút để người dùng thử lại
-                            if (btnPay != null) btnPay.setDisable(false);
-                            showAlert("Lỗi thanh toán", message + "\n\nNút thanh toán vẫn còn, vui lòng thử lại sau.");
-                        }
-                    } catch (Exception e) {
-                        // Nếu có lỗi parse JSON → giữ nút
-                        if (btnPay != null) btnPay.setDisable(false);
-                        showAlert("Lỗi hệ thống", "Lỗi xử lý response: " + e.getMessage());
-                    }
-                });
-            }
+      if (currentUser.getId() != currentItem.getHighestBidderId()) {
+          showAlert("Thông báo", "Bạn không phải người thắng phiên đấu giá này.");
+          return;
+      }
 
-            @Override
-            public void onError(String errorMessage) {
-                Platform.runLater(() -> {
-                    // Lỗi kết nối → giữ nút để người dùng thử lại
-                    if (btnPay != null) btnPay.setDisable(false);
-                    showAlert("Lỗi kết nối", "Không thể kết nối tới máy chủ: " + errorMessage + "\n\nNút thanh toán vẫn còn, vui lòng thử lại sau.");
-                });
-            }
-        });
-    }
+      java.util.List<Integer> choices = java.util.Arrays.asList(0, 1, 2, 3, 4, 5);
+      javafx.scene.control.ChoiceDialog<Integer> dialog =
+          new javafx.scene.control.ChoiceDialog<>(5, choices);
+
+      dialog.setTitle("Đánh giá người bán");
+      dialog.setHeaderText("Chọn số sao cho người bán");
+      dialog.setContentText("Điểm đánh giá (0 - 5):");
+
+      Optional<Integer> result = dialog.showAndWait();
+      if (result.isEmpty()) return;
+
+      int rating = result.get();
+
+      if (btnPay != null) btnPay.setDisable(true);
+
+      AuctionFacade.getInstance().rateSeller(
+          currentItem.getSellerId(),
+          currentItem.getAuctionId(),
+          rating,
+          new ApiCallback<com.google.gson.JsonObject>() {
+              @Override
+              public void onSuccess(com.google.gson.JsonObject response) {
+                  Platform.runLater(() -> {
+                      hasRatedThisAuction = true;
+
+                      showAlert("Thành công", "Cảm ơn bạn đã đánh giá người bán!");
+
+                      if (btnPay != null) {
+                          btnPay.setVisible(false);
+                          btnPay.setManaged(false);
+                      }
+
+                      // Reload thông tin seller để hiện rating mới ngay trên UI
+                      refreshSellerInfo(currentItem.getSellerId());
+                  });
+              }
+
+              @Override
+              public void onError(String errorMessage) {
+                  Platform.runLater(() -> {
+                      if (btnPay != null) btnPay.setDisable(false);
+                      showAlert("Lỗi", errorMessage);
+                  });
+              }
+          }
+      );
+  }
+  private void refreshSellerInfo(int sellerId) {
+      AuctionFacade.getInstance().getUserById(sellerId, new ApiCallback<UserDTO>() {
+          @Override
+          public void onSuccess(UserDTO seller) {
+              Platform.runLater(() -> {
+                  if (seller != null) {
+                      String sellerName =
+                          seller.getFullName() != null && !seller.getFullName().isBlank()
+                              ? seller.getFullName()
+                              : seller.getUsername();
+
+                      setText(lblSeller, "Người bán: " + sellerName);
+
+                      if (lblSellerRating != null) {
+                          lblSellerRating.setText(String.format("⭐ %.1f", seller.getTotalRating()));
+                      }
+                      if (lblSellerSaleCount != null) {
+                          lblSellerSaleCount.setText("Đã bán: " + seller.getSaleCount());
+                      }
+                  }
+              });
+          }
+
+          @Override
+          public void onError(String errorMessage) {
+              System.err.println("Không tải lại được thông tin seller: " + errorMessage);
+          }
+      });
   }
   
   
@@ -3892,8 +3918,8 @@ public class AuctionFacade {
         body.addProperty("auctionId", auctionId);
         body.addProperty("rating", rating);
 
-        apiService.sendPostRequest("/api/my/rating-seller", gson.toJson(body))
-            .thenAccept(response -> {
+        apiService.sendPostRequest("/my/rating-seller", gson.toJson(body))            
+        .thenAccept(response -> {
                 String responseBody = response.body();
                 JsonObject obj = JsonParser.parseString(responseBody).getAsJsonObject();
 
@@ -6276,6 +6302,21 @@ CREATE TABLE auctions(
     CONSTRAINT fk_auctions_seller FOREIGN KEY (seller_id) REFERENCES sellers(user_id) ON DELETE CASCADE,
     CONSTRAINT fk_auctions_highest_bidder FOREIGN KEY (highest_bidder_id) REFERENCES bidders(user_id)
 );
+
+CREATE TABLE seller_ratings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    auction_id INT NOT NULL,
+    bidder_id INT NOT NULL,
+    seller_id INT NOT NULL,
+    rating INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE KEY uniq_auction_bidder (auction_id, bidder_id),
+    CONSTRAINT fk_sr_auction FOREIGN KEY (auction_id) REFERENCES auctions(id) ON DELETE CASCADE,
+    CONSTRAINT fk_sr_bidder  FOREIGN KEY (bidder_id)  REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_sr_seller  FOREIGN KEY (seller_id)  REFERENCES users(id) ON DELETE CASCADE
+);
+
 --11. Auto_bids: Bảng này giúp đảm bảo 1 người chỉ có 1 mức giá max cho 1 phiên đấu giá, muốn cài giá mới thì "UPDATE" lại
 CREATE TABLE IF NOT EXISTS auto_bids (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -6964,6 +7005,61 @@ public class UserController {
 
         } catch (JsonSyntaxException e) {
             return createErrorResponse("Dữ liệu JSON không hợp lệ.");
+        }
+    }
+
+    // UserController.java
+    public String handleRateSeller(String jsonRequest, int bidderId) {
+        try {
+            JsonObject req = gson.fromJson(jsonRequest, JsonObject.class);
+
+            if (req == null || !req.has("sellerId") || !req.has("auctionId") || !req.has("rating")) {
+                return createErrorResponse("Thiếu sellerId, auctionId hoặc rating.");
+            }
+
+            int sellerId = req.get("sellerId").getAsInt();
+            int auctionId = req.get("auctionId").getAsInt();
+            double rating = req.get("rating").getAsDouble();
+
+            if (sellerId <= 0 || auctionId <= 0 || bidderId <= 0) {
+                return createErrorResponse("sellerId, auctionId hoặc bidderId không hợp lệ.");
+            }
+
+            if (rating < 0.0 || rating > 5.0) {
+                return createErrorResponse("Rating phải từ 0 đến 5.");
+            }
+
+            boolean success = userService.rateSeller(sellerId, auctionId, bidderId, rating);
+
+            if (success) {
+                return createSuccessResponse("Cảm ơn bạn đã đánh giá người bán!", null);
+            } else {
+                return createErrorResponse("Không thể cập nhật rating hoặc bạn đã đánh giá phiên này rồi.");
+            }
+
+        } catch (JsonSyntaxException e) {
+            return createErrorResponse("Dữ liệu JSON không hợp lệ.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return createErrorResponse("Lỗi hệ thống: " + e.getMessage());
+        }
+    }
+
+    public String handleHasRatedSeller(int auctionId, int bidderId) {
+        try {
+            if (auctionId <= 0 || bidderId <= 0) {
+                return createErrorResponse("auctionId hoặc bidderId không hợp lệ.");
+            }
+
+            boolean rated = userService.hasRatedSeller(auctionId, bidderId);
+
+            JsonObject data = new JsonObject();
+            data.addProperty("rated", rated);
+            return createSuccessResponse("OK", data);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return createErrorResponse("Lỗi hệ thống: " + e.getMessage());
         }
     }
 } 
@@ -9310,7 +9406,24 @@ public class SellerDAO {
     }
 
     // Transaction-safe rating update
-    public boolean rateSeller(int sellerId, double newScore) {
+    public boolean hasRatedSeller(int auctionId, int bidderId) {
+        String sql = "SELECT 1 FROM seller_ratings WHERE auction_id = ? AND bidder_id = ? LIMIT 1";
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, auctionId);
+            ps.setInt(2, bidderId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi hasRatedSeller: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean rateSeller(int sellerId, int auctionId, int bidderId, double newScore) {
         newScore = Math.max(0.0, Math.min(5.0, newScore));
 
         Connection conn = null;
@@ -9318,11 +9431,33 @@ public class SellerDAO {
             conn = DatabaseConnection.getInstance().getConnection();
             conn.setAutoCommit(false);
 
-            // Lock row seller để tránh 2 request rating cùng lúc
+            String checkSql = "SELECT 1 FROM seller_ratings WHERE auction_id = ? AND bidder_id = ? FOR UPDATE";
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+                checkStmt.setInt(1, auctionId);
+                checkStmt.setInt(2, bidderId);
+                try (ResultSet rs = checkStmt.executeQuery()) {
+                    if (rs.next()) {
+                        conn.rollback();
+                        return false;
+                    }
+                }
+            }
+
+            String insertSql = "INSERT INTO seller_ratings (auction_id, bidder_id, seller_id, rating) VALUES (?, ?, ?, ?)";
+            try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+                insertStmt.setInt(1, auctionId);
+                insertStmt.setInt(2, bidderId);
+                insertStmt.setInt(3, sellerId);
+                insertStmt.setDouble(4, newScore);
+                if (insertStmt.executeUpdate() == 0) {
+                    conn.rollback();
+                    return false;
+                }
+            }
+
             String lockSql = "SELECT total_rating, sale_count FROM sellers WHERE user_id = ? FOR UPDATE";
             double currentRating;
             int currentCount;
-
             try (PreparedStatement lockStmt = conn.prepareStatement(lockSql)) {
                 lockStmt.setInt(1, sellerId);
                 try (ResultSet rs = lockStmt.executeQuery()) {
@@ -9337,13 +9472,10 @@ public class SellerDAO {
 
             double newAverage = ((currentRating * currentCount) + newScore) / (currentCount + 1);
 
-            String updateSql =
-                "UPDATE sellers SET total_rating = ?, sale_count = sale_count + 1 WHERE user_id = ?";
-
+            String updateSql = "UPDATE sellers SET total_rating = ?, sale_count = sale_count + 1 WHERE user_id = ?";
             try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
                 updateStmt.setDouble(1, newAverage);
                 updateStmt.setInt(2, sellerId);
-
                 if (updateStmt.executeUpdate() == 0) {
                     conn.rollback();
                     return false;
@@ -9368,7 +9500,6 @@ public class SellerDAO {
             } catch (SQLException ignored) {}
         }
     }
-
 } 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\SellerSubDAO.java ===  
 package com.auction.server.dao;
@@ -13795,8 +13926,13 @@ public class UserService {
     }
 
 
-    public boolean rateSeller(int sellerId, double rating) {
-        if (sellerId <= 0) return false;
-        return sellerDAO.rateSeller(sellerId, rating);
+    public boolean rateSeller(int sellerId, int auctionId, int bidderId, double rating) {
+        if (sellerId <= 0 || auctionId <= 0 || bidderId <= 0) return false;
+        return sellerDAO.rateSeller(sellerId, auctionId, bidderId, rating);
+    }
+
+    public boolean hasRatedSeller(int auctionId, int bidderId) {
+        if (auctionId <= 0 || bidderId <= 0) return false;
+        return sellerDAO.hasRatedSeller(auctionId, bidderId);
     }
 } 

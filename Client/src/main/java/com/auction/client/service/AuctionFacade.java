@@ -212,6 +212,32 @@ public class AuctionFacade {
                 return null;
             });
     }
+    // Thêm method này vào AuctionFacade.java, ngay sau method rateSeller()
+    // =========================================================================
+    // KIỂM TRA người dùng đã đánh giá phiên đấu giá này chưa
+    // =========================================================================
+    public void hasRatedSeller(int auctionId, ApiCallback<JsonObject> callback) {
+        apiService.sendGetRequest("/my/rating-seller?auctionId=" + auctionId)
+            .thenAccept(response -> {
+                try {
+                    String responseBody = response.body();
+                    JsonObject obj = com.google.gson.JsonParser.parseString(responseBody).getAsJsonObject();
+
+                    if (obj.has("status") && "success".equalsIgnoreCase(obj.get("status").getAsString())) {
+                        callback.onSuccess(obj);
+                    } else {
+                        String msg = obj.has("message") ? obj.get("message").getAsString() : "Lỗi kiểm tra đánh giá.";
+                        callback.onError(msg);
+                    }
+                } catch (Exception e) {
+                    callback.onError("Lỗi parse response: " + e.getMessage());
+                }
+            })
+            .exceptionally(ex -> {
+                callback.onError("Lỗi kết nối: " + ex.getMessage());
+                return null;
+            });
+    }
 
     // =========================================================================
     // 4. SELLER

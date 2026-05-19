@@ -64,8 +64,13 @@ public class UserService {
     }
 
 
-    public boolean rateSeller(int sellerId, double rating) {
-        if (sellerId <= 0) return false;
-        return sellerDAO.rateSeller(sellerId, rating);
+    public boolean rateSeller(int sellerId, int auctionId, int bidderId, double rating) {
+        if (sellerId <= 0 || auctionId <= 0 || bidderId <= 0) return false;
+        return sellerDAO.rateSeller(sellerId, auctionId, bidderId, rating);
+    }
+
+    public boolean hasRatedSeller(int auctionId, int bidderId) {
+        if (auctionId <= 0 || bidderId <= 0) return false;
+        return sellerDAO.hasRatedSeller(auctionId, bidderId);
     }
 }

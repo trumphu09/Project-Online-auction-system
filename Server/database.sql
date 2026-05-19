@@ -118,6 +118,21 @@ CREATE TABLE auctions(
     CONSTRAINT fk_auctions_seller FOREIGN KEY (seller_id) REFERENCES sellers(user_id) ON DELETE CASCADE,
     CONSTRAINT fk_auctions_highest_bidder FOREIGN KEY (highest_bidder_id) REFERENCES bidders(user_id)
 );
+
+CREATE TABLE seller_ratings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    auction_id INT NOT NULL,
+    bidder_id INT NOT NULL,
+    seller_id INT NOT NULL,
+    rating INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE KEY uniq_auction_bidder (auction_id, bidder_id),
+    CONSTRAINT fk_sr_auction FOREIGN KEY (auction_id) REFERENCES auctions(id) ON DELETE CASCADE,
+    CONSTRAINT fk_sr_bidder  FOREIGN KEY (bidder_id)  REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_sr_seller  FOREIGN KEY (seller_id)  REFERENCES users(id) ON DELETE CASCADE
+);
+
 --11. Auto_bids: Bảng này giúp đảm bảo 1 người chỉ có 1 mức giá max cho 1 phiên đấu giá, muốn cài giá mới thì "UPDATE" lại
 CREATE TABLE IF NOT EXISTS auto_bids (
     id INT AUTO_INCREMENT PRIMARY KEY,

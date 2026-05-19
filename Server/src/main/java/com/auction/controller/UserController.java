@@ -181,35 +181,55 @@ public class UserController {
         }
     }
 
-    public String handleRateSeller(String jsonRequest) {
+    // UserController.java
+    public String handleRateSeller(String jsonRequest, int bidderId) {
         try {
             JsonObject req = gson.fromJson(jsonRequest, JsonObject.class);
 
-            if (req == null || !req.has("sellerId") || !req.has("rating")) {
-                return createErrorResponse("Thiếu sellerId hoặc rating.");
+            if (req == null || !req.has("sellerId") || !req.has("auctionId") || !req.has("rating")) {
+                return createErrorResponse("Thiếu sellerId, auctionId hoặc rating.");
             }
 
             int sellerId = req.get("sellerId").getAsInt();
+            int auctionId = req.get("auctionId").getAsInt();
             double rating = req.get("rating").getAsDouble();
 
-            if (sellerId <= 0) {
-                return createErrorResponse("sellerId không hợp lệ.");
+            if (sellerId <= 0 || auctionId <= 0 || bidderId <= 0) {
+                return createErrorResponse("sellerId, auctionId hoặc bidderId không hợp lệ.");
             }
 
             if (rating < 0.0 || rating > 5.0) {
                 return createErrorResponse("Rating phải từ 0 đến 5.");
             }
 
-            boolean success = userService.rateSeller(sellerId, rating);
+            boolean success = userService.rateSeller(sellerId, auctionId, bidderId, rating);
 
             if (success) {
                 return createSuccessResponse("Cảm ơn bạn đã đánh giá người bán!", null);
             } else {
-                return createErrorResponse("Không thể cập nhật rating.");
+                return createErrorResponse("Không thể cập nhật rating hoặc bạn đã đánh giá phiên này rồi.");
             }
 
         } catch (JsonSyntaxException e) {
             return createErrorResponse("Dữ liệu JSON không hợp lệ.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return createErrorResponse("Lỗi hệ thống: " + e.getMessage());
+        }
+    }
+
+    public String handleHasRatedSeller(int auctionId, int bidderId) {
+        try {
+            if (auctionId <= 0 || bidderId <= 0) {
+                return createErrorResponse("auctionId hoặc bidderId không hợp lệ.");
+            }
+
+            boolean rated = userService.hasRatedSeller(auctionId, bidderId);
+
+            JsonObject data = new JsonObject();
+            data.addProperty("rated", rated);
+            return createSuccessResponse("OK", data);
+
         } catch (Exception e) {
             e.printStackTrace();
             return createErrorResponse("Lỗi hệ thống: " + e.getMessage());

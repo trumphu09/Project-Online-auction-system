@@ -129,110 +129,106 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
    * Phải gọi sau khi FXML đã được load xong.
    */
   public void setData(ItemDTO item) {
-    if (item == null) {
-      showAlert("Lỗi", "Không có dữ liệu sản phẩm để hiển thị!");
-      return;
-    }
+      if (item == null) {
+        showAlert("Lỗi", "Không có dữ liệu sản phẩm để hiển thị!");
+        return;
+      }
 
-    this.currentItem = item;
-    this.hasRatedThisAuction = false;
+      this.currentItem = item;
+      this.hasRatedThisAuction = true; // mặc định ẩn nút cho đến khi check xong từ server
 
-    // ── Thông tin cơ bản ──────────────────────────────────────────────
-    setText(lblDescription, safeText(item.getDescription(), "Không có mô tả"));
-    setText(lblStartPrice,  formatVnd(item.getStartingPrice()));
-    setText(lblStepPrice,   formatVnd(item.getPriceStep()));
-    setText(lblStartTime,   "Bắt đầu: " + safeText(item.getStartTime(), "N/A"));
-    setText(lblEndTime,     "Kết thúc: " + safeText(item.getEndTime(), "N/A"));
-    setText(lblCategory,    "Loại: " + safeText(item.getCategory(), "N/A"));
-    // ── Người bán ─────────────────────────────────────────────
-    int sellerId = item.getSellerId();
+      // ── Thông tin cơ bản ──────────────────────────────────────────────
+      setText(lblDescription, safeText(item.getDescription(), "Không có mô tả"));
+      setText(lblStartPrice,  formatVnd(item.getStartingPrice()));
+      setText(lblStepPrice,   formatVnd(item.getPriceStep()));
+      setText(lblStartTime,   "Bắt đầu: " + safeText(item.getStartTime(), "N/A"));
+      setText(lblEndTime,     "Kết thúc: " + safeText(item.getEndTime(), "N/A"));
+      setText(lblCategory,    "Loại: " + safeText(item.getCategory(), "N/A"));
 
-    AuctionFacade.getInstance().getUserById(
-            sellerId,
-            new ApiCallback<UserDTO>() {
+      int sellerId = item.getSellerId();
 
-        @Override
-        public void onSuccess(UserDTO seller) {
+      AuctionFacade.getInstance().getUserById(sellerId, new ApiCallback<UserDTO>() {
+          @Override
+          public void onSuccess(UserDTO seller) {
+              Platform.runLater(() -> {
+                  if (seller != null) {
+                      String sellerName =
+                              seller.getFullName() != null && !seller.getFullName().isBlank()
+                                      ? seller.getFullName()
+                                      : seller.getUsername();
 
-            Platform.runLater(() -> {
+                      setText(lblSeller, "Người bán: " + sellerName);
 
-                if (seller != null) {
+                      if (lblSellerRating != null) {
+                          lblSellerRating.setText(String.format("⭐ %.1f", seller.getTotalRating()));
+                      }
 
-                    String sellerName =
-                            seller.getFullName() != null &&
-                            !seller.getFullName().isBlank()
-                                    ? seller.getFullName()
-                                    : seller.getUsername();
+                      if (lblSellerSaleCount != null) {
+                          lblSellerSaleCount.setText("Đã bán: " + seller.getSaleCount());
+                      }
+                  } else {
+                      setText(lblSeller, "Người bán: Không xác định");
+                  }
+              });
+          }
 
-                    setText(lblSeller, "Người bán: " + sellerName);
+          @Override
+          public void onError(String errorMessage) {
+              Platform.runLater(() -> {
+                  setText(lblSeller, "Người bán: Không tải được");
+                  if (lblSellerRating != null) lblSellerRating.setText("");
+                  if (lblSellerSaleCount != null) lblSellerSaleCount.setText("");
+              });
+          }
+      });
 
-                    // rating
-                    if (lblSellerRating != null) {
-                        lblSellerRating.setText(
-                                String.format("⭐ %.1f", seller.getTotalRating())
-                        );
-                    }
+      displayedCurrentPrice = item.getCurrentMaxPrice() > 0
+              ? item.getCurrentMaxPrice()
+              : item.getStartingPrice();
+      setText(lblCurrentPrice, formatVnd(displayedCurrentPrice));
 
-                    // sale count
-                    if (lblSellerSaleCount != null) {
-                        lblSellerSaleCount.setText(
-                                "Đã bán: " + seller.getSaleCount()
-                        );
-                    }
+      if (item.getHighestBidderId() > 0) {
+        setText(lblHighestBidder, "Bidder #" + item.getHighestBidderId());
+      } else {
+        setText(lblHighestBidder, "Chưa có người ra giá");
+      }
 
-                } else {
+      addChartPoint("Khởi điểm", displayedCurrentPrice);
+      loadProductImage(item.getImagePath());
+      parseAndStartTimer(item.getEndTime());
+      connectWebSocket();
 
-                    setText(lblSeller, "Người bán: Không xác định");
-                }
-            });
-        }
-
-        @Override
-        public void onError(String errorMessage) {
-
-            Platform.runLater(() -> {
-
-                setText(lblSeller, "Người bán: Không tải được");
-
-                if (lblSellerRating != null) {
-                    lblSellerRating.setText("");
-                }
-
-                if (lblSellerSaleCount != null) {
-                    lblSellerSaleCount.setText("");
-                }
-
-                System.out.println("Lỗi load seller: " + errorMessage);
-            });
-        }
-    });
-
-    
-    // ── Giá hiện tại ─────────────────────────────────────────────────
-    displayedCurrentPrice = item.getCurrentMaxPrice() > 0
-      ? item.getCurrentMaxPrice()
-      : item.getStartingPrice();
-    setText(lblCurrentPrice, formatVnd(displayedCurrentPrice));
-
-    if (item.getHighestBidderId() > 0) {
-      setText(lblHighestBidder, "Bidder #" + item.getHighestBidderId());
-    } else {
-      setText(lblHighestBidder, "Chưa có người ra giá");
-    }
-
-    // ── Điểm khởi đầu cho biểu đồ ────────────────────────────────────
-    addChartPoint("Khởi điểm", displayedCurrentPrice);
-
-    // ── Hình ảnh ─────────────────────────────────────────────────────
-    loadProductImage(item.getImagePath());
-
-    // ── Countdown timer ───────────────────────────────────────────────
-    parseAndStartTimer(item.getEndTime());
-
-    // ── Kết nối WebSocket ─────────────────────────────────────────────
-    connectWebSocket();
+      loadRatingStatus();
   }
+  private void loadRatingStatus() {
+    if (currentItem == null) return;
 
+    AuctionFacade.getInstance().hasRatedSeller(
+        currentItem.getAuctionId(),
+        new ApiCallback<JsonObject>() {
+            @Override
+            public void onSuccess(JsonObject result) {
+                Platform.runLater(() -> {
+                    boolean rated = false;
+                    if (result != null && result.has("data") && result.get("data").isJsonObject()) {
+                        JsonObject data = result.getAsJsonObject("data");
+                        rated = data.has("rated") && data.get("rated").getAsBoolean();
+                    }
+                    hasRatedThisAuction = rated;
+                    checkPaymentButtonVisibility();
+                });
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                Platform.runLater(() -> {
+                    hasRatedThisAuction = true; // lỗi thì ẩn an toàn
+                    checkPaymentButtonVisibility();
+                });
+            }
+        }
+    );
+  }
   // =========================================================================
   // WEBSOCKET — kết nối / ngắt
   // =========================================================================
