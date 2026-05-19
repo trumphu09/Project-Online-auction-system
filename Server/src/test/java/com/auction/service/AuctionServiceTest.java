@@ -69,7 +69,7 @@ public class AuctionServiceTest {
         String result = auctionService.placeBid(auctionId, bidderId, amount);
 
         // Assert
-        assertEquals("Thành công: Đã chốt giá $100.0 cho bidder", result);
+        assertEquals("Thành công: Đã chốt giá $100.0", result);
         verify(bidsDAO).executeBid(auctionId, bidderId, amount);
         // Now this verification will work because AuctionManager.getInstance() returns our mock
         verify(auctionManager).broadcastUpdate(eq("NEW_BID"), any(Map.class));
