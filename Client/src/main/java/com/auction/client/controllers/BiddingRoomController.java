@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import java.util.Optional;
+import java.util.List;
 import com.google.gson.JsonObject;
 
 /**
@@ -194,12 +195,160 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
       }
 
       addChartPoint("Khởi điểm", displayedCurrentPrice);
+      
+      // ── Tải lịch sử giá từ server ────────────────────────────────────
+      loadBidHistoryFromServer(item.getId());
+      
       loadProductImage(item.getImagePath());
       parseAndStartTimer(item.getEndTime());
       connectWebSocket();
 
       loadRatingStatus();
   }
+
+  /**
+   * Tải lịch sử bid từ server API và thêm vào biểu đồ.
+   * @param itemId ID của sản phẩm
+   */
+  private void loadBidHistoryFromServer(int itemId) {
+    AuctionFacade.getInstance().getBidHistory(itemId, new ApiCallback<List<JsonObject>>() {
+      @Override
+      public void onSuccess(List<JsonObject> bidHistory) {
+        Platform.runLater(() -> {
+          if (bidHistory != null && !bidHistory.isEmpty()) {
+            System.out.println("[BiddingRoom] Đã load " + bidHistory.size() + " bid lịch sử từ server");
+            
+            // DEBUG: In ra object đầu tiên để xem structure
+            if (!bidHistory.isEmpty()) {
+              System.out.println("[BiddingRoom] DEBUG - First bid object: " + bidHistory.get(0).toString());
+            }
+            
+            // Xóa điểm "Khởi điểm" cũ để thay thế bằng lịch sử thực
+            if (chartSeries != null && !chartSeries.getData().isEmpty()) {
+              chartSeries.getData().clear();
+            }
+            
+            // Thêm các điểm từ lịch sử (đã sắp xếp theo bid_time ASC từ server)
+            int successCount = 0;
+            for (int idx = 0; idx < bidHistory.size(); idx++) {
+              try {
+                JsonObject bid = bidHistory.get(idx);
+                
+                // Lấy bid_amount (có thể là bidAmount hoặc bid_amount)
+                double bidAmount = 0;
+                if (bid.has("bidAmount")) {
+                  bidAmount = bid.get("bidAmount").getAsDouble();
+                } else if (bid.has("bid_amount")) {
+                  bidAmount = bid.get("bid_amount").getAsDouble();
+                }
+                
+                // Lấy bidder_username (có thể là bidderUsername hoặc bidder_username)
+                String bidderUsername = "";
+                if (bid.has("bidderUsername")) {
+                  bidderUsername = bid.get("bidderUsername").getAsString();
+                } else if (bid.has("bidder_username")) {
+                  bidderUsername = bid.get("bidder_username").getAsString();
+                }
+                
+                // Lấy timestamp (có thể là timestamp, bid_time, bidTime)
+                String timestamp = "";
+                if (bid.has("timestamp")) {
+                  timestamp = bid.get("timestamp").getAsString();
+                } else if (bid.has("bid_time")) {
+                  timestamp = bid.get("bid_time").getAsString();
+                } else if (bid.has("bidTime")) {
+                  timestamp = bid.get("bidTime").getAsString();
+                }
+                
+                System.out.println("[BiddingRoom] Bid #" + (idx+1) + " - amount=" + bidAmount 
+                  + ", username=" + bidderUsername + ", timestamp=" + timestamp);
+                
+                // Parse timestamp để lấy giờ phút giây
+                String timeLabel = parseTimeLabel(timestamp);
+                System.out.println("[BiddingRoom] Bid #" + (idx+1) + " - timeLabel=" + timeLabel);
+                
+                addChartPoint(timeLabel, bidAmount);
+                successCount++;
+                
+              } catch (Exception e) {
+                System.err.println("[BiddingRoom] Lỗi parse bid #" + (idx+1) + ": " + e.getMessage());
+                e.printStackTrace();
+              }
+            }
+            
+            System.out.println("[BiddingRoom] Đã load xong " + successCount + "/" + bidHistory.size() + " bid vào biểu đồ");
+          }
+        });
+      }
+
+      @Override
+      public void onError(String errorMessage) {
+        System.err.println("[BiddingRoom] Lỗi load lịch sử bid: " + errorMessage);
+        Platform.runLater(() -> {
+          // Nếu lỗi, vẫn giữ điểm "Khởi điểm" ban đầu
+          System.err.println("[BiddingRoom] Fallback: Giữ điểm khởi điểm, chỉ load realtime");
+        });
+      }
+    });
+  }
+
+  /**
+   * Parse timestamp từ API thành label ngắn cho chart (format: HH:mm:ss)
+   * Hỗ trợ các format: yyyy-MM-dd HH:mm:ss, yyyy-MM-dd'T'HH:mm:ss, ISO 8601
+   */
+  private String parseTimeLabel(String timestamp) {
+    try {
+      if (timestamp == null || timestamp.isBlank()) {
+        System.err.println("[BiddingRoom] parseTimeLabel: timestamp is null/blank");
+        return "N/A";
+      }
+      
+      String normalized = timestamp.trim();
+      System.out.println("[BiddingRoom] parseTimeLabel input: " + normalized);
+      
+      // Normalize: cắt milliseconds nếu có
+      if (normalized.contains(".")) {
+        normalized = normalized.substring(0, normalized.indexOf("."));
+      }
+      
+      // Cắt phần 'Z' nếu có (ISO 8601)
+      if (normalized.endsWith("Z")) {
+        normalized = normalized.substring(0, normalized.length() - 1);
+      }
+      
+      // Cắt phần '+XX:XX' timezone nếu có
+      if (normalized.contains("+")) {
+        normalized = normalized.substring(0, normalized.indexOf("+"));
+      }
+      
+      System.out.println("[BiddingRoom] parseTimeLabel normalized: " + normalized);
+      
+      // Try parse với DT_FORMATTER (yyyy-MM-dd HH:mm:ss)
+      LocalDateTime dt = LocalDateTime.parse(normalized, DT_FORMATTER);
+      String result = dt.format(DISPLAY_FORMATTER);
+      System.out.println("[BiddingRoom] parseTimeLabel result: " + result);
+      return result;
+      
+    } catch (Exception e) {
+      System.err.println("[BiddingRoom] Không parse timestamp: " + timestamp + " - Error: " + e.getMessage());
+      
+      // Fallback: cắt giờ phút giây từ string nếu có
+      try {
+        if (timestamp != null && timestamp.length() >= 8) {
+          String timeOnly = timestamp.substring(timestamp.length() - 8);
+          if (timeOnly.matches("\\d{2}:\\d{2}:\\d{2}")) {
+            System.out.println("[BiddingRoom] parseTimeLabel fallback: " + timeOnly);
+            return timeOnly;
+          }
+        }
+      } catch (Exception ex) {
+        // ignore
+      }
+      
+      return "N/A";
+    }
+  }
+
   private void loadRatingStatus() {
     if (currentItem == null) return;
 
@@ -229,6 +378,7 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
         }
     );
   }
+
   // =========================================================================
   // WEBSOCKET — kết nối / ngắt
   // =========================================================================

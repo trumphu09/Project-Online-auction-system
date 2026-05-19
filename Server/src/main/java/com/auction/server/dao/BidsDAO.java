@@ -206,7 +206,7 @@ public class BidsDAO {
                      "JOIN users u ON b.bidder_id = u.id " +
                      "JOIN auctions a ON b.auction_id = a.id " +
                      "WHERE a.item_id = ? " +
-                     "ORDER BY b.bid_time DESC";
+                     "ORDER BY b.bid_time ASC";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -233,7 +233,7 @@ public class BidsDAO {
     public List<BidTransactionDTO> getBidHistoryByAuctionId(int auctionId) {
         List<BidTransactionDTO> history = new ArrayList<>();
         String sql = "SELECT b.id, b.bidder_id, u.username, b.bid_amount, b.bid_time " +
-                     "FROM bids b JOIN users u ON b.bidder_id = u.id WHERE b.auction_id = ? ORDER BY b.bid_time DESC";
+                     "FROM bids b JOIN users u ON b.bidder_id = u.id WHERE b.auction_id = ? ORDER BY b.bid_time ASC";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {

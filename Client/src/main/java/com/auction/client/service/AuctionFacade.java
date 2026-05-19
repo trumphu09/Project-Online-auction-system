@@ -182,6 +182,19 @@ public class AuctionFacade {
         );
     }
 
+    /**
+     * Lấy lịch sử giá của một sản phẩm từ API server.
+     * @param itemId ID của sản phẩm
+     * @param callback Callback với danh sách BidTransactionDTO
+     */
+    public void getBidHistory(int itemId, ApiCallback<List<JsonObject>> callback) {
+        executeRequest(
+            apiService.sendGetRequest("/items/" + itemId + "/bids"),
+            new TypeToken<List<JsonObject>>() {}.getType(),
+            callback
+        );
+    }
+
     public void processPayment(int auctionId, ApiCallback<JsonObject> callback) {
         JsonObject json = new JsonObject();
         json.addProperty("action", "PAYMENT"); // BỔ SUNG DÒNG NÀY ĐỂ SERVER NHẬN DIỆN
