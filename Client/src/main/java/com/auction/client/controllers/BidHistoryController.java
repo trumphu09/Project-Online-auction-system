@@ -140,11 +140,33 @@ public class BidHistoryController extends BaseController {
                 return;
             }
 
-            // In real implementation, send to server
-            showAlert("Success", "Auto-bid setup for max $" + maxBid + " with increment $" + increment);
+            if (maxBid <= 0 || increment <= 0) {
+                showAlert("Error", "Max bid và increment phải > 0");
+                return;
+            }
+
+            // ✅ GỌI API THỰC TẾ QUA AUCTIONF ACADE
+            com.auction.client.service.AuctionFacade.getInstance()
+                .setupAutoBid(currentAuctionId, maxBid, increment, new com.auction.client.service.ApiCallback<com.google.gson.JsonObject>() {
+                    @Override
+                    public void onSuccess(com.google.gson.JsonObject result) {
+                        Platform.runLater(() -> {
+                            showAlert("✅ Thành công", 
+                                "Auto-bid max: $" + String.format("%.0f", maxBid) +
+                                "\nBước tăng: $" + String.format("%.0f", increment));
+                            txtMaxBid.clear();
+                            txtIncrement.clear();
+                        });
+                    }
+
+                    @Override
+                    public void onError(String message) {
+                        Platform.runLater(() -> showAlert("❌ Lỗi", "Auto-bid: " + message));
+                    }
+                });
 
         } catch (NumberFormatException e) {
-            showAlert("Error", "Please enter valid numbers for max bid and increment");
+            showAlert("Error", "Vui lòng nhập số hợp lệ");
         }
     }
 

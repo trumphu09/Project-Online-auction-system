@@ -194,6 +194,42 @@ public class AuctionFacade {
             callback
         );
     }
+    public void setupAutoBid(int auctionId, double maxAmount, double priceStep, ApiCallback<JsonObject> callback) {
+        JsonObject body = new JsonObject();
+        body.addProperty("auction_id", auctionId);
+        body.addProperty("max_amount", maxAmount);
+        body.addProperty("price_step", priceStep);
+
+        System.out.println("[AuctionFacade.setupAutoBid] Sending: auctionId=" + auctionId + 
+            ", maxAmount=" + maxAmount + ", priceStep=" + priceStep);
+
+        executeRequest(
+            apiService.sendPostRequest("/autobid", gson.toJson(body)),
+            JsonObject.class,
+            callback
+        );
+    }
+    
+    // Overload for backward compatibility
+    public void setupAutoBid(int auctionId, double maxAmount, ApiCallback<JsonObject> callback) {
+        setupAutoBid(auctionId, maxAmount, 50000.0, callback);
+    }
+
+    public void cancelAutoBid(int auctionId, ApiCallback<JsonObject> callback) {
+        executeRequest(
+            apiService.sendDeleteRequest("/autobid?auction_id=" + auctionId),
+            JsonObject.class,
+            callback
+        );
+    }
+
+    public void getAutoBidStatus(int auctionId, ApiCallback<JsonObject> callback) {
+        executeRequest(
+            apiService.sendGetRequest("/autobid?auction_id=" + auctionId),
+            JsonObject.class,
+            callback
+        );
+    }
 
     public void processPayment(int auctionId, ApiCallback<JsonObject> callback) {
         JsonObject json = new JsonObject();
@@ -210,46 +246,32 @@ public class AuctionFacade {
 
         apiService.sendPostRequest("/my/rating-seller", gson.toJson(body))            
         .thenAccept(response -> {
-                String responseBody = response.body();
-                JsonObject obj = JsonParser.parseString(responseBody).getAsJsonObject();
-
-                if (obj.has("status") && "success".equalsIgnoreCase(obj.get("status").getAsString())) {
-                    callback.onSuccess(obj);
-                } else {
-                    String msg = obj.has("message") ? obj.get("message").getAsString() : "Không thể đánh giá người bán.";
-                    callback.onError(msg);
+            executeRequest(CompletableFuture.completedFuture(response), JsonObject.class, new ApiCallback<JsonObject>() {
+                @Override
+                public void onSuccess(JsonObject result) {
+                    callback.onSuccess(result);
                 }
-            })
-            .exceptionally(ex -> {
-                callback.onError("Lỗi kết nối: " + ex.getMessage());
-                return null;
+                @Override
+                public void onError(String message) {
+                    callback.onError(message);
+                }
             });
+        })
+        .exceptionally(ex -> {
+            callback.onError("Lỗi kết nối: " + ex.getMessage());
+            return null;
+        });
     }
     // Thêm method này vào AuctionFacade.java, ngay sau method rateSeller()
     // =========================================================================
     // KIỂM TRA người dùng đã đánh giá phiên đấu giá này chưa
     // =========================================================================
     public void hasRatedSeller(int auctionId, ApiCallback<JsonObject> callback) {
-        apiService.sendGetRequest("/my/rating-seller?auctionId=" + auctionId)
-            .thenAccept(response -> {
-                try {
-                    String responseBody = response.body();
-                    JsonObject obj = com.google.gson.JsonParser.parseString(responseBody).getAsJsonObject();
-
-                    if (obj.has("status") && "success".equalsIgnoreCase(obj.get("status").getAsString())) {
-                        callback.onSuccess(obj);
-                    } else {
-                        String msg = obj.has("message") ? obj.get("message").getAsString() : "Lỗi kiểm tra đánh giá.";
-                        callback.onError(msg);
-                    }
-                } catch (Exception e) {
-                    callback.onError("Lỗi parse response: " + e.getMessage());
-                }
-            })
-            .exceptionally(ex -> {
-                callback.onError("Lỗi kết nối: " + ex.getMessage());
-                return null;
-            });
+        executeRequest(
+            apiService.sendGetRequest("/my/rating-seller?auctionId=" + auctionId),
+            JsonObject.class,
+            callback
+        );
     }
 
     // =========================================================================

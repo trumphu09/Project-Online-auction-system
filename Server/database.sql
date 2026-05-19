@@ -133,14 +133,17 @@ CREATE TABLE seller_ratings (
     CONSTRAINT fk_sr_seller  FOREIGN KEY (seller_id)  REFERENCES users(id) ON DELETE CASCADE
 );
 
---11. Auto_bids: Bảng này giúp đảm bảo 1 người chỉ có 1 mức giá max cho 1 phiên đấu giá, muốn cài giá mới thì "UPDATE" lại
+--11. Auto_bids: 
 CREATE TABLE IF NOT EXISTS auto_bids (
     id INT AUTO_INCREMENT PRIMARY KEY,
     auction_id INT NOT NULL,
     user_id INT NOT NULL,
     max_amount DECIMAL(15,2) NOT NULL,
+    price_step DECIMAL(15,2) DEFAULT 50000,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY unique_auto_bid (auction_id, user_id)
+    UNIQUE KEY unique_auto_bid (auction_id, user_id),
+    CONSTRAINT fk_autobid_auction FOREIGN KEY (auction_id) REFERENCES auctions(id) ON DELETE CASCADE,
+    CONSTRAINT fk_autobid_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 -- 12. Watchlist (Giỏ hàng / Danh sách theo dõi - Tính năng sáng tạo)
 CREATE TABLE watchlist (

@@ -1,4 +1,4 @@
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\.idea\compiler.xml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\.idea\compiler.xml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
@@ -13,14 +13,14 @@
     </annotationProcessing>
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\.idea\copilot.data.migration.ask2agent.xml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\.idea\copilot.data.migration.ask2agent.xml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Ask2AgentMigrationStateService">
     <option name="migrationStatus" value="COMPLETED" />
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\.idea\encodings.xml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\.idea\encodings.xml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
@@ -30,7 +30,7 @@
     <file url="file://$PROJECT_DIR$/Server/src/main/resources" charset="UTF-8" />
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\.idea\jarRepositories.xml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\.idea\jarRepositories.xml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="RemoteRepositoriesConfiguration">
@@ -51,7 +51,7 @@
     </remote-repository>
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\.idea\misc.xml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\.idea\misc.xml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ExternalStorageConfigurationManager" enabled="true" />
@@ -67,7 +67,7 @@
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\.idea\modules.xml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\.idea\modules.xml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ProjectModuleManager">
@@ -76,14 +76,14 @@
     </modules>
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\.idea\vcs.xml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\.idea\vcs.xml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\.idea\workspace.xml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\.idea\workspace.xml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="AutoImportSettings">
@@ -173,7 +173,7 @@
     <option name="version" value="3" />
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\pom.xml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\pom.xml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -213,7 +213,7 @@
         </dependency>
     </dependencies>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\.idea\compiler.xml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\.idea\compiler.xml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
@@ -227,7 +227,7 @@
     </annotationProcessing>
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\.idea\encodings.xml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\.idea\encodings.xml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
@@ -235,7 +235,7 @@
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\.idea\jarRepositories.xml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\.idea\jarRepositories.xml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="RemoteRepositoriesConfiguration">
@@ -256,7 +256,7 @@
     </remote-repository>
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\.idea\misc.xml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\.idea\misc.xml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ExternalStorageConfigurationManager" enabled="true" />
@@ -271,21 +271,21 @@
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\.idea\vcs.xml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\.idea\vcs.xml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$/.." vcs="Git" />
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\.idea\misc.xml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\.idea\misc.xml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ProjectRootManager" version="2" languageLevel="JDK_25" default="true" project-jdk-name="25" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\.idea\modules.xml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\.idea\modules.xml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ProjectModuleManager">
@@ -294,7 +294,7 @@
     </modules>
   </component>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\Main.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\Main.java ===  
 package com.auction.client;
 
 import java.util.TimeZone;
@@ -309,7 +309,7 @@ public class Main {
         MainApp.main(args);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\MainApp.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\MainApp.java ===  
 package com.auction.client;
 
 import javafx.application.Application;
@@ -363,7 +363,7 @@ public class MainApp extends Application {
 //        launch(args);
 //    }
 //} 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\AdminController.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\AdminController.java ===  
 package com.auction.client.controllers;
 
 import com.auction.client.model.dto.ItemDTO;
@@ -636,7 +636,7 @@ public class AdminController extends BaseController {
         });
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\BaseController.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\BaseController.java ===  
 package com.auction.client.controllers;
 
 import javafx.event.Event;
@@ -674,7 +674,7 @@ public abstract class BaseController {
     }
 }
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\BiddingRoomController.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\BiddingRoomController.java ===  
 package com.auction.client.controllers;
 
 import com.auction.client.model.dto.ItemDTO;
@@ -710,6 +710,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import java.util.Optional;
+import java.util.List;
 import com.google.gson.JsonObject;
 
 /**
@@ -739,6 +740,9 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
   @FXML private Label lblSellerRating, lblSellerSaleCount, lblBidNote;
   // Thêm 2 biến này vào danh sách khai báo FXML nodes ở đầu file:
   @FXML private Button btnPay;
+  @FXML private TextField txtAutoMaxAmount;
+  @FXML private Button btnAutoBid;
+  private boolean isAutoBidActive = false;
   private UserDTO currentUser; // Lưu thông tin người dùng hiện tại
 
   // ─── Hằng số ─────────────────────────────────────────────────────────────
@@ -806,108 +810,253 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
    * Phải gọi sau khi FXML đã được load xong.
    */
   public void setData(ItemDTO item) {
-    if (item == null) {
-      showAlert("Lỗi", "Không có dữ liệu sản phẩm để hiển thị!");
-      return;
-    }
+      if (item == null) {
+        showAlert("Lỗi", "Không có dữ liệu sản phẩm để hiển thị!");
+        return;
+      }
 
-    this.currentItem = item;
-    this.hasRatedThisAuction = false;
+      this.currentItem = item;
+      this.hasRatedThisAuction = true; // mặc định ẩn nút cho đến khi check xong từ server
 
-    // ── Thông tin cơ bản ──────────────────────────────────────────────
-    setText(lblDescription, safeText(item.getDescription(), "Không có mô tả"));
-    setText(lblStartPrice,  formatVnd(item.getStartingPrice()));
-    setText(lblStepPrice,   formatVnd(item.getPriceStep()));
-    setText(lblStartTime,   "Bắt đầu: " + safeText(item.getStartTime(), "N/A"));
-    setText(lblEndTime,     "Kết thúc: " + safeText(item.getEndTime(), "N/A"));
-    setText(lblCategory,    "Loại: " + safeText(item.getCategory(), "N/A"));
-    // ── Người bán ─────────────────────────────────────────────
-    int sellerId = item.getSellerId();
+      // ── Thông tin cơ bản ──────────────────────────────────────────────
+      setText(lblDescription, safeText(item.getDescription(), "Không có mô tả"));
+      setText(lblStartPrice,  formatVnd(item.getStartingPrice()));
+      setText(lblStepPrice,   formatVnd(item.getPriceStep()));
+      setText(lblStartTime,   "Bắt đầu: " + safeText(item.getStartTime(), "N/A"));
+      setText(lblEndTime,     "Kết thúc: " + safeText(item.getEndTime(), "N/A"));
+      setText(lblCategory,    "Loại: " + safeText(item.getCategory(), "N/A"));
 
-    AuctionFacade.getInstance().getUserById(
-            sellerId,
-            new ApiCallback<UserDTO>() {
+      int sellerId = item.getSellerId();
 
-        @Override
-        public void onSuccess(UserDTO seller) {
+      AuctionFacade.getInstance().getUserById(sellerId, new ApiCallback<UserDTO>() {
+          @Override
+          public void onSuccess(UserDTO seller) {
+              Platform.runLater(() -> {
+                  if (seller != null) {
+                      String sellerName =
+                              seller.getFullName() != null && !seller.getFullName().isBlank()
+                                      ? seller.getFullName()
+                                      : seller.getUsername();
 
-            Platform.runLater(() -> {
+                      setText(lblSeller, "Người bán: " + sellerName);
 
-                if (seller != null) {
+                      if (lblSellerRating != null) {
+                          lblSellerRating.setText(String.format("⭐ %.1f", seller.getTotalRating()));
+                      }
 
-                    String sellerName =
-                            seller.getFullName() != null &&
-                            !seller.getFullName().isBlank()
-                                    ? seller.getFullName()
-                                    : seller.getUsername();
+                      if (lblSellerSaleCount != null) {
+                          lblSellerSaleCount.setText("Đã bán: " + seller.getSaleCount());
+                      }
+                  } else {
+                      setText(lblSeller, "Người bán: Không xác định");
+                  }
+              });
+          }
 
-                    setText(lblSeller, "Người bán: " + sellerName);
+          @Override
+          public void onError(String errorMessage) {
+              Platform.runLater(() -> {
+                  setText(lblSeller, "Người bán: Không tải được");
+                  if (lblSellerRating != null) lblSellerRating.setText("");
+                  if (lblSellerSaleCount != null) lblSellerSaleCount.setText("");
+              });
+          }
+      });
 
-                    // rating
-                    if (lblSellerRating != null) {
-                        lblSellerRating.setText(
-                                String.format("⭐ %.1f", seller.getTotalRating())
-                        );
-                    }
+      displayedCurrentPrice = item.getCurrentMaxPrice() > 0
+              ? item.getCurrentMaxPrice()
+              : item.getStartingPrice();
+      setText(lblCurrentPrice, formatVnd(displayedCurrentPrice));
 
-                    // sale count
-                    if (lblSellerSaleCount != null) {
-                        lblSellerSaleCount.setText(
-                                "Đã bán: " + seller.getSaleCount()
-                        );
-                    }
+      if (item.getHighestBidderId() > 0) {
+        setText(lblHighestBidder, "Bidder #" + item.getHighestBidderId());
+      } else {
+        setText(lblHighestBidder, "Chưa có người ra giá");
+      }
 
-                } else {
+      addChartPoint("Khởi điểm", displayedCurrentPrice);
+      
+      // ── Tải lịch sử giá từ server ────────────────────────────────────
+      loadBidHistoryFromServer(item.getId());
+      
+      loadProductImage(item.getImagePath());
+      parseAndStartTimer(item.getEndTime());
+      connectWebSocket();
 
-                    setText(lblSeller, "Người bán: Không xác định");
+      loadRatingStatus();
+  }
+
+  /**
+   * Tải lịch sử bid từ server API và thêm vào biểu đồ.
+   * @param itemId ID của sản phẩm
+   */
+  private void loadBidHistoryFromServer(int itemId) {
+    AuctionFacade.getInstance().getBidHistory(itemId, new ApiCallback<List<JsonObject>>() {
+      @Override
+      public void onSuccess(List<JsonObject> bidHistory) {
+        Platform.runLater(() -> {
+          if (bidHistory != null && !bidHistory.isEmpty()) {
+            System.out.println("[BiddingRoom] Đã load " + bidHistory.size() + " bid lịch sử từ server");
+            
+            // DEBUG: In ra object đầu tiên để xem structure
+            if (!bidHistory.isEmpty()) {
+              System.out.println("[BiddingRoom] DEBUG - First bid object: " + bidHistory.get(0).toString());
+            }
+            
+            // Xóa điểm "Khởi điểm" cũ để thay thế bằng lịch sử thực
+            if (chartSeries != null && !chartSeries.getData().isEmpty()) {
+              chartSeries.getData().clear();
+            }
+            
+            // Thêm các điểm từ lịch sử (đã sắp xếp theo bid_time ASC từ server)
+            int successCount = 0;
+            for (int idx = 0; idx < bidHistory.size(); idx++) {
+              try {
+                JsonObject bid = bidHistory.get(idx);
+                
+                // Lấy bid_amount (có thể là bidAmount hoặc bid_amount)
+                double bidAmount = 0;
+                if (bid.has("bidAmount")) {
+                  bidAmount = bid.get("bidAmount").getAsDouble();
+                } else if (bid.has("bid_amount")) {
+                  bidAmount = bid.get("bid_amount").getAsDouble();
                 }
-            });
-        }
-
-        @Override
-        public void onError(String errorMessage) {
-
-            Platform.runLater(() -> {
-
-                setText(lblSeller, "Người bán: Không tải được");
-
-                if (lblSellerRating != null) {
-                    lblSellerRating.setText("");
+                
+                // Lấy bidder_username (có thể là bidderUsername hoặc bidder_username)
+                String bidderUsername = "";
+                if (bid.has("bidderUsername")) {
+                  bidderUsername = bid.get("bidderUsername").getAsString();
+                } else if (bid.has("bidder_username")) {
+                  bidderUsername = bid.get("bidder_username").getAsString();
                 }
-
-                if (lblSellerSaleCount != null) {
-                    lblSellerSaleCount.setText("");
+                
+                // Lấy timestamp (có thể là timestamp, bid_time, bidTime)
+                String timestamp = "";
+                if (bid.has("timestamp")) {
+                  timestamp = bid.get("timestamp").getAsString();
+                } else if (bid.has("bid_time")) {
+                  timestamp = bid.get("bid_time").getAsString();
+                } else if (bid.has("bidTime")) {
+                  timestamp = bid.get("bidTime").getAsString();
                 }
+                
+                System.out.println("[BiddingRoom] Bid #" + (idx+1) + " - amount=" + bidAmount 
+                  + ", username=" + bidderUsername + ", timestamp=" + timestamp);
+                
+                // Parse timestamp để lấy giờ phút giây
+                String timeLabel = parseTimeLabel(timestamp);
+                System.out.println("[BiddingRoom] Bid #" + (idx+1) + " - timeLabel=" + timeLabel);
+                
+                addChartPoint(timeLabel, bidAmount);
+                successCount++;
+                
+              } catch (Exception e) {
+                System.err.println("[BiddingRoom] Lỗi parse bid #" + (idx+1) + ": " + e.getMessage());
+                e.printStackTrace();
+              }
+            }
+            
+            System.out.println("[BiddingRoom] Đã load xong " + successCount + "/" + bidHistory.size() + " bid vào biểu đồ");
+          }
+        });
+      }
 
-                System.out.println("Lỗi load seller: " + errorMessage);
-            });
-        }
+      @Override
+      public void onError(String errorMessage) {
+        System.err.println("[BiddingRoom] Lỗi load lịch sử bid: " + errorMessage);
+        Platform.runLater(() -> {
+          // Nếu lỗi, vẫn giữ điểm "Khởi điểm" ban đầu
+          System.err.println("[BiddingRoom] Fallback: Giữ điểm khởi điểm, chỉ load realtime");
+        });
+      }
     });
+  }
 
-    
-    // ── Giá hiện tại ─────────────────────────────────────────────────
-    displayedCurrentPrice = item.getCurrentMaxPrice() > 0
-      ? item.getCurrentMaxPrice()
-      : item.getStartingPrice();
-    setText(lblCurrentPrice, formatVnd(displayedCurrentPrice));
-
-    if (item.getHighestBidderId() > 0) {
-      setText(lblHighestBidder, "Bidder #" + item.getHighestBidderId());
-    } else {
-      setText(lblHighestBidder, "Chưa có người ra giá");
+  /**
+   * Parse timestamp từ API thành label ngắn cho chart (format: HH:mm:ss)
+   * Hỗ trợ các format: yyyy-MM-dd HH:mm:ss, yyyy-MM-dd'T'HH:mm:ss, ISO 8601
+   */
+  private String parseTimeLabel(String timestamp) {
+    try {
+      if (timestamp == null || timestamp.isBlank()) {
+        System.err.println("[BiddingRoom] parseTimeLabel: timestamp is null/blank");
+        return "N/A";
+      }
+      
+      String normalized = timestamp.trim();
+      System.out.println("[BiddingRoom] parseTimeLabel input: " + normalized);
+      
+      // Normalize: cắt milliseconds nếu có
+      if (normalized.contains(".")) {
+        normalized = normalized.substring(0, normalized.indexOf("."));
+      }
+      
+      // Cắt phần 'Z' nếu có (ISO 8601)
+      if (normalized.endsWith("Z")) {
+        normalized = normalized.substring(0, normalized.length() - 1);
+      }
+      
+      // Cắt phần '+XX:XX' timezone nếu có
+      if (normalized.contains("+")) {
+        normalized = normalized.substring(0, normalized.indexOf("+"));
+      }
+      
+      System.out.println("[BiddingRoom] parseTimeLabel normalized: " + normalized);
+      
+      // Try parse với DT_FORMATTER (yyyy-MM-dd HH:mm:ss)
+      LocalDateTime dt = LocalDateTime.parse(normalized, DT_FORMATTER);
+      String result = dt.format(DISPLAY_FORMATTER);
+      System.out.println("[BiddingRoom] parseTimeLabel result: " + result);
+      return result;
+      
+    } catch (Exception e) {
+      System.err.println("[BiddingRoom] Không parse timestamp: " + timestamp + " - Error: " + e.getMessage());
+      
+      // Fallback: cắt giờ phút giây từ string nếu có
+      try {
+        if (timestamp != null && timestamp.length() >= 8) {
+          String timeOnly = timestamp.substring(timestamp.length() - 8);
+          if (timeOnly.matches("\\d{2}:\\d{2}:\\d{2}")) {
+            System.out.println("[BiddingRoom] parseTimeLabel fallback: " + timeOnly);
+            return timeOnly;
+          }
+        }
+      } catch (Exception ex) {
+        // ignore
+      }
+      
+      return "N/A";
     }
+  }
 
-    // ── Điểm khởi đầu cho biểu đồ ────────────────────────────────────
-    addChartPoint("Khởi điểm", displayedCurrentPrice);
+  private void loadRatingStatus() {
+    if (currentItem == null) return;
 
-    // ── Hình ảnh ─────────────────────────────────────────────────────
-    loadProductImage(item.getImagePath());
+    AuctionFacade.getInstance().hasRatedSeller(
+        currentItem.getAuctionId(),
+        new ApiCallback<JsonObject>() {
+            @Override
+            public void onSuccess(JsonObject result) {
+                Platform.runLater(() -> {
+                    boolean rated = false;
+                    if (result != null && result.has("data") && result.get("data").isJsonObject()) {
+                        JsonObject data = result.getAsJsonObject("data");
+                        rated = data.has("rated") && data.get("rated").getAsBoolean();
+                    }
+                    hasRatedThisAuction = rated;
+                    checkPaymentButtonVisibility();
+                });
+            }
 
-    // ── Countdown timer ───────────────────────────────────────────────
-    parseAndStartTimer(item.getEndTime());
-
-    // ── Kết nối WebSocket ─────────────────────────────────────────────
-    connectWebSocket();
+            @Override
+            public void onError(String errorMessage) {
+                Platform.runLater(() -> {
+                    hasRatedThisAuction = true; // lỗi thì ẩn an toàn
+                    checkPaymentButtonVisibility();
+                });
+            }
+        }
+    );
   }
 
   // =========================================================================
@@ -1406,8 +1555,122 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
     if (lastSlash >= 0) filename = rawPath.substring(lastSlash + 1);
     return SERVER_BASE_URL + "/images/" + filename;
   }
+
+  // chức năng auto-bid: bật/tắt, đồng bộ trạng thái với server, và cập nhật UI tương ứng
+  @FXML
+  private void handleToggleAutoBid() {
+      if (currentItem == null) {
+          showAlert("Lỗi", "Chưa có sản phẩm đấu giá.");
+          return;
+      }
+
+      if (auctionEnded || "FINISHED".equalsIgnoreCase(currentItem.getStatus())) {
+          showAlert("Thông báo", "Phiên đấu giá đã kết thúc.");
+          return;
+      }
+
+      if (isAutoBidActive) {
+          AuctionFacade.getInstance().cancelAutoBid(currentItem.getAuctionId(), new ApiCallback<JsonObject>() {
+              @Override
+              public void onSuccess(JsonObject result) {
+                  Platform.runLater(() -> {
+                      isAutoBidActive = false;
+                      updateAutoBidUI(false);
+                      showAlert("Thành công", "Đã tắt auto-bid.");
+                  });
+              }
+
+              @Override
+              public void onError(String errorMessage) {
+                  Platform.runLater(() -> showAlert("Lỗi", errorMessage));
+              }
+          });
+          return;
+      }
+
+      String raw = txtAutoMaxAmount.getText() == null ? "" : txtAutoMaxAmount.getText().trim();
+      if (raw.isEmpty()) {
+          showAlert("Lỗi", "Vui lòng nhập giá trần auto-bid.");
+          return;
+      }
+
+      try {
+          double maxAmount = Double.parseDouble(raw);
+          if (maxAmount <= displayedCurrentPrice) {
+              showAlert("Lỗi", "Giá trần phải lớn hơn giá hiện tại.");
+              return;
+          }
+
+          AuctionFacade.getInstance().setupAutoBid(currentItem.getAuctionId(), maxAmount, new ApiCallback<JsonObject>() {
+              @Override
+              public void onSuccess(JsonObject result) {
+                  Platform.runLater(() -> {
+                      isAutoBidActive = true;
+                      updateAutoBidUI(true);
+                      showAlert("Thành công", "Đã bật auto-bid.");
+                  });
+              }
+
+              @Override
+              public void onError(String errorMessage) {
+                  Platform.runLater(() -> showAlert("Lỗi", errorMessage));
+              }
+          });
+
+      } catch (NumberFormatException e) {
+          showAlert("Lỗi", "Giá trần không hợp lệ.");
+      }
+  }
+
+  private void updateAutoBidUI(boolean active) {
+      if (btnAutoBid == null || txtAutoMaxAmount == null) return;
+
+      if (active) {
+          btnAutoBid.setText("TẮT AUTO-BID");
+          btnAutoBid.setStyle("-fx-background-color: #c0392b; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;");
+          txtAutoMaxAmount.setDisable(true);
+      } else {
+          btnAutoBid.setText("BẬT AUTO-BID");
+          btnAutoBid.setStyle("-fx-background-color: #d35400; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;");
+          txtAutoMaxAmount.setDisable(false);
+      }
+  }
+
+  private void syncAutoBidStatus() {
+      if (currentItem == null) return;
+
+      AuctionFacade.getInstance().getAutoBidStatus(currentItem.getAuctionId(), new ApiCallback<JsonObject>() {
+          @Override
+          public void onSuccess(JsonObject result) {
+              Platform.runLater(() -> {
+                  boolean active = false;
+                  if (result != null && result.has("data") && result.get("data").isJsonObject()) {
+                      JsonObject data = result.getAsJsonObject("data");
+                      active = data.has("active") && data.get("active").getAsBoolean();
+                      if (active && data.has("max_amount") && txtAutoMaxAmount != null) {
+                          txtAutoMaxAmount.setText(String.valueOf(data.get("max_amount").getAsDouble()));
+                      }
+                  }
+                  isAutoBidActive = active;
+                  updateAutoBidUI(active);
+              });
+          }
+
+          @Override
+          public void onError(String errorMessage) {
+              System.err.println("[BiddingRoom] Không load được trạng thái auto-bid: " + errorMessage);
+          }
+      });
+  }
+
+  @Override
+  public void onAutoBidNotice(int auctionId, int userId, String message) {
+      if (currentUser != null && currentUser.getId() == userId) {
+          Platform.runLater(() -> showAlert("Auto-Bid", message));
+      }
+  }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\BidHistoryController.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\BidHistoryController.java ===  
 package com.auction.client.controllers;
 
 import javafx.application.Platform;
@@ -1550,11 +1813,33 @@ public class BidHistoryController extends BaseController {
                 return;
             }
 
-            // In real implementation, send to server
-            showAlert("Success", "Auto-bid setup for max $" + maxBid + " with increment $" + increment);
+            if (maxBid <= 0 || increment <= 0) {
+                showAlert("Error", "Max bid và increment phải > 0");
+                return;
+            }
+
+            // ✅ GỌI API THỰC TẾ QUA AUCTIONF ACADE
+            com.auction.client.service.AuctionFacade.getInstance()
+                .setupAutoBid(currentAuctionId, maxBid, increment, new com.auction.client.service.ApiCallback<com.google.gson.JsonObject>() {
+                    @Override
+                    public void onSuccess(com.google.gson.JsonObject result) {
+                        Platform.runLater(() -> {
+                            showAlert("✅ Thành công", 
+                                "Auto-bid max: $" + String.format("%.0f", maxBid) +
+                                "\nBước tăng: $" + String.format("%.0f", increment));
+                            txtMaxBid.clear();
+                            txtIncrement.clear();
+                        });
+                    }
+
+                    @Override
+                    public void onError(String message) {
+                        Platform.runLater(() -> showAlert("❌ Lỗi", "Auto-bid: " + message));
+                    }
+                });
 
         } catch (NumberFormatException e) {
-            showAlert("Error", "Please enter valid numbers for max bid and increment");
+            showAlert("Error", "Vui lòng nhập số hợp lệ");
         }
     }
 
@@ -1595,7 +1880,7 @@ public class BidHistoryController extends BaseController {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\LoginController.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\LoginController.java ===  
 package com.auction.client.controllers;
 
 import com.auction.client.model.Admin;
@@ -1677,7 +1962,7 @@ public class LoginController extends BaseController implements Initializable { /
     });
   }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\ProductViewController.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\ProductViewController.java ===  
 package com.auction.client.controllers;
 
 import com.auction.client.model.dto.ItemDTO;
@@ -2090,7 +2375,7 @@ public class ProductViewController extends BaseController implements Initializab
 
     
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\RegisterController.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\RegisterController.java ===  
 package com.auction.client.controllers;
 
 import com.auction.client.service.ApiCallback;
@@ -2150,7 +2435,7 @@ public class RegisterController extends BaseController {
     switchScene(event, "/view/View.fxml", "Đăng nhập hệ thống", 800, 500);
   }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\SellerController.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\SellerController.java ===  
 package com.auction.client.controllers;
 
 import com.auction.client.model.dto.ElectronicsDTO;
@@ -2842,7 +3127,7 @@ public class SellerController extends BaseController implements Initializable {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\Admin.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\Admin.java ===  
 package com.auction.client.model;
 
 public class Admin extends User {
@@ -2855,7 +3140,7 @@ public class Admin extends User {
 }
 
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\Bidder.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\Bidder.java ===  
 package com.auction.client.model;
 
 public class Bidder extends User {
@@ -2866,7 +3151,7 @@ public class Bidder extends User {
         return "/view/Product.fxml";
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\Seller.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\Seller.java ===  
 package com.auction.client.model;
 
 public class Seller extends User {
@@ -2878,7 +3163,7 @@ public class Seller extends User {
     }
 }
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\User.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\User.java ===  
 package com.auction.client.model;
 
 import java.io.Serializable;
@@ -2910,7 +3195,7 @@ public abstract class User implements Serializable {
     // Phương thức trừu tượng: Mỗi loại User sẽ có một bảng điều khiển riêng
     public abstract String getDashboardFXML();
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\ArtDTO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\ArtDTO.java ===  
 package com.auction.client.model.dto;
 
 import com.google.gson.annotations.Expose;
@@ -2946,7 +3231,7 @@ public class ArtDTO extends ItemDTO {
     public String getMaterial() { return material; }
     public void setMaterial(String material) { this.material = material; }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\AuctionDTO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\AuctionDTO.java ===  
 package com.auction.client.model.dto;
 
 import com.google.gson.annotations.Expose;
@@ -3033,7 +3318,7 @@ public class AuctionDTO implements Serializable {
     public int getHighestBidderId() { return highestBidderId; }
     public void setHighestBidderId(int highestBidderId) { this.highestBidderId = highestBidderId; }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\BidDTO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\BidDTO.java ===  
 package com.auction.client.model.dto;
 
 import com.google.gson.annotations.Expose;
@@ -3096,7 +3381,7 @@ public class BidDTO implements Serializable {
     public void setTimestamp(String timestamp) { this.timestamp = timestamp; }
 }
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\ElectronicsDTO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\ElectronicsDTO.java ===  
 package com.auction.client.model.dto;
 
 import com.google.gson.annotations.Expose;
@@ -3118,7 +3403,7 @@ public class ElectronicsDTO extends ItemDTO {
     public int getWarrantyMonths() { return warrantyMonths; }
     public void setWarrantyMonths(int warrantyMonths) { this.warrantyMonths = warrantyMonths; }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\ItemDTO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\ItemDTO.java ===  
 package com.auction.client.model.dto;
 
 import com.google.gson.annotations.Expose;
@@ -3214,7 +3499,7 @@ public class ItemDTO implements Serializable {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\UserDTO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\UserDTO.java ===  
 package com.auction.client.model.dto;
 
 import com.google.gson.annotations.Expose;
@@ -3283,7 +3568,7 @@ public class UserDTO implements Serializable {
     public int getSaleCount() { return saleCount; }
     public void setSaleCount(int saleCount) { this.saleCount = saleCount; }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\VehicleDTO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\model\dto\VehicleDTO.java ===  
 package com.auction.client.model.dto;
 
 import com.google.gson.annotations.Expose;
@@ -3319,7 +3604,7 @@ public class VehicleDTO extends ItemDTO {
     public String getCondition() { return condition; }
     public void setCondition(String condition) { this.condition = condition; }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\network\ApiService.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\network\ApiService.java ===  
 package com.auction.client.network;
 
 import java.net.CookieManager;
@@ -3402,7 +3687,7 @@ public class ApiService {
     return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
   }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\network\AuctionWebSocketClient.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\network\AuctionWebSocketClient.java ===  
 package com.auction.client.network;
 
 import com.auction.client.service.BidUpdateListener;
@@ -3708,7 +3993,7 @@ public class AuctionWebSocketClient {
     } catch (Exception e) { return defaultVal; }
   }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\service\ApiCallback.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\service\ApiCallback.java ===  
 package com.auction.client.service;
 
 /**
@@ -3720,7 +4005,7 @@ public interface ApiCallback<T> {
   void onError(String errorMessage);
 }
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\service\AuctionFacade.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\service\AuctionFacade.java ===  
 package com.auction.client.service;
 
 import com.auction.client.network.ApiService;
@@ -3905,6 +4190,55 @@ public class AuctionFacade {
         );
     }
 
+    /**
+     * Lấy lịch sử giá của một sản phẩm từ API server.
+     * @param itemId ID của sản phẩm
+     * @param callback Callback với danh sách BidTransactionDTO
+     */
+    public void getBidHistory(int itemId, ApiCallback<List<JsonObject>> callback) {
+        executeRequest(
+            apiService.sendGetRequest("/items/" + itemId + "/bids"),
+            new TypeToken<List<JsonObject>>() {}.getType(),
+            callback
+        );
+    }
+    public void setupAutoBid(int auctionId, double maxAmount, double priceStep, ApiCallback<JsonObject> callback) {
+        JsonObject body = new JsonObject();
+        body.addProperty("auction_id", auctionId);
+        body.addProperty("max_amount", maxAmount);
+        body.addProperty("price_step", priceStep);
+
+        System.out.println("[AuctionFacade.setupAutoBid] Sending: auctionId=" + auctionId + 
+            ", maxAmount=" + maxAmount + ", priceStep=" + priceStep);
+
+        executeRequest(
+            apiService.sendPostRequest("/autobid", gson.toJson(body)),
+            JsonObject.class,
+            callback
+        );
+    }
+    
+    // Overload for backward compatibility
+    public void setupAutoBid(int auctionId, double maxAmount, ApiCallback<JsonObject> callback) {
+        setupAutoBid(auctionId, maxAmount, 50000.0, callback);
+    }
+
+    public void cancelAutoBid(int auctionId, ApiCallback<JsonObject> callback) {
+        executeRequest(
+            apiService.sendDeleteRequest("/autobid?auction_id=" + auctionId),
+            JsonObject.class,
+            callback
+        );
+    }
+
+    public void getAutoBidStatus(int auctionId, ApiCallback<JsonObject> callback) {
+        executeRequest(
+            apiService.sendGetRequest("/autobid?auction_id=" + auctionId),
+            JsonObject.class,
+            callback
+        );
+    }
+
     public void processPayment(int auctionId, ApiCallback<JsonObject> callback) {
         JsonObject json = new JsonObject();
         json.addProperty("action", "PAYMENT"); // BỔ SUNG DÒNG NÀY ĐỂ SERVER NHẬN DIỆN
@@ -3920,20 +4254,32 @@ public class AuctionFacade {
 
         apiService.sendPostRequest("/my/rating-seller", gson.toJson(body))            
         .thenAccept(response -> {
-                String responseBody = response.body();
-                JsonObject obj = JsonParser.parseString(responseBody).getAsJsonObject();
-
-                if (obj.has("status") && "success".equalsIgnoreCase(obj.get("status").getAsString())) {
-                    callback.onSuccess(obj);
-                } else {
-                    String msg = obj.has("message") ? obj.get("message").getAsString() : "Không thể đánh giá người bán.";
-                    callback.onError(msg);
+            executeRequest(CompletableFuture.completedFuture(response), JsonObject.class, new ApiCallback<JsonObject>() {
+                @Override
+                public void onSuccess(JsonObject result) {
+                    callback.onSuccess(result);
                 }
-            })
-            .exceptionally(ex -> {
-                callback.onError("Lỗi kết nối: " + ex.getMessage());
-                return null;
+                @Override
+                public void onError(String message) {
+                    callback.onError(message);
+                }
             });
+        })
+        .exceptionally(ex -> {
+            callback.onError("Lỗi kết nối: " + ex.getMessage());
+            return null;
+        });
+    }
+    // Thêm method này vào AuctionFacade.java, ngay sau method rateSeller()
+    // =========================================================================
+    // KIỂM TRA người dùng đã đánh giá phiên đấu giá này chưa
+    // =========================================================================
+    public void hasRatedSeller(int auctionId, ApiCallback<JsonObject> callback) {
+        executeRequest(
+            apiService.sendGetRequest("/my/rating-seller?auctionId=" + auctionId),
+            JsonObject.class,
+            callback
+        );
     }
 
     // =========================================================================
@@ -4171,7 +4517,7 @@ public class AuctionFacade {
         });
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\service\BidUpdateListener.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\service\BidUpdateListener.java ===  
 package com.auction.client.service;
 
 public interface BidUpdateListener {
@@ -4187,8 +4533,10 @@ public interface BidUpdateListener {
   void onConnected();
 
   void onDisconnected(String reason);
+
+  default void onAutoBidNotice(int auctionId, int userId, String message) {}
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\util\ItemCard.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\util\ItemCard.java ===  
 package com.auction.client.util;
 
 import com.auction.client.model.dto.*;
@@ -4521,7 +4869,7 @@ public class ItemCard extends VBox {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\AdminView.fxml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\AdminView.fxml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.*?>
@@ -4574,7 +4922,7 @@ public class ItemCard extends VBox {
         </VBox>
     </center>
 </BorderPane> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\BiddingRoomView.fxml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\BiddingRoomView.fxml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
@@ -4720,6 +5068,26 @@ public class ItemCard extends VBox {
                         <Label fx:id="lblBidNote" text="* Giá phải ≥ Giá hiện tại + Bước giá" textFill="#7f8c8d" style="-fx-font-size: 11; -fx-font-style: italic;" wrapText="true"/>
                     </children>
                 </VBox>
+
+                <VBox spacing="12.0"
+                    style="-fx-background-color: #fdf2e9; -fx-padding: 15; -fx-background-radius: 10; -fx-border-color: #e67e22; -fx-border-width: 1;">
+                    <children>
+                        <Label text="⚡ AUTO-BID"
+                            style="-fx-font-weight: bold; -fx-font-size: 13;" />
+
+                        <TextField fx:id="txtAutoMaxAmount"
+                                prefHeight="40.0"
+                                promptText="Nhập giá trần auto-bid (VNĐ)"
+                                style="-fx-background-radius: 5; -fx-padding: 10; -fx-font-size: 12;" />
+
+                        <Button fx:id="btnAutoBid"
+                                text="BẬT AUTO-BID"
+                                onAction="#handleToggleAutoBid"
+                                prefHeight="45.0"
+                                maxWidth="Infinity"
+                                style="-fx-background-color: #d35400; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand; -fx-font-size: 13;" />
+                    </children>
+                </VBox>
             </children>
         </VBox>
     </right>
@@ -4733,7 +5101,7 @@ public class ItemCard extends VBox {
     </bottom>
 </BorderPane>
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\BidHistoryView.fxml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\BidHistoryView.fxml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
@@ -4963,7 +5331,7 @@ public class ItemCard extends VBox {
         </HBox>
     </bottom>
 </BorderPane> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\Product.fxml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\Product.fxml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -5053,7 +5421,7 @@ public class ItemCard extends VBox {
     </VBox>
 
 </StackPane> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\Register.fxml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\Register.fxml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.*?>
@@ -5126,7 +5494,7 @@ public class ItemCard extends VBox {
         </VBox>
     </children>
 </StackPane> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\SellerView.fxml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\SellerView.fxml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
@@ -5252,7 +5620,7 @@ public class ItemCard extends VBox {
     </right>
 
 </BorderPane> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\View.fxml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\resources\view\View.fxml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.*?>
@@ -5320,7 +5688,7 @@ public class ItemCard extends VBox {
     </right>
 
 </BorderPane> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\AdminView.fxml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\AdminView.fxml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.*?>
@@ -5373,7 +5741,7 @@ public class ItemCard extends VBox {
         </VBox>
     </center>
 </BorderPane> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\BiddingRoomView.fxml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\BiddingRoomView.fxml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
@@ -5519,6 +5887,26 @@ public class ItemCard extends VBox {
                         <Label fx:id="lblBidNote" text="* Giá phải ≥ Giá hiện tại + Bước giá" textFill="#7f8c8d" style="-fx-font-size: 11; -fx-font-style: italic;" wrapText="true"/>
                     </children>
                 </VBox>
+
+                <VBox spacing="12.0"
+                    style="-fx-background-color: #fdf2e9; -fx-padding: 15; -fx-background-radius: 10; -fx-border-color: #e67e22; -fx-border-width: 1;">
+                    <children>
+                        <Label text="⚡ AUTO-BID"
+                            style="-fx-font-weight: bold; -fx-font-size: 13;" />
+
+                        <TextField fx:id="txtAutoMaxAmount"
+                                prefHeight="40.0"
+                                promptText="Nhập giá trần auto-bid (VNĐ)"
+                                style="-fx-background-radius: 5; -fx-padding: 10; -fx-font-size: 12;" />
+
+                        <Button fx:id="btnAutoBid"
+                                text="BẬT AUTO-BID"
+                                onAction="#handleToggleAutoBid"
+                                prefHeight="45.0"
+                                maxWidth="Infinity"
+                                style="-fx-background-color: #d35400; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand; -fx-font-size: 13;" />
+                    </children>
+                </VBox>
             </children>
         </VBox>
     </right>
@@ -5532,7 +5920,7 @@ public class ItemCard extends VBox {
     </bottom>
 </BorderPane>
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\BidHistoryView.fxml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\BidHistoryView.fxml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
@@ -5762,7 +6150,7 @@ public class ItemCard extends VBox {
         </HBox>
     </bottom>
 </BorderPane> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\Product.fxml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\Product.fxml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -5852,7 +6240,7 @@ public class ItemCard extends VBox {
     </VBox>
 
 </StackPane> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\Register.fxml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\Register.fxml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.*?>
@@ -5925,7 +6313,7 @@ public class ItemCard extends VBox {
         </VBox>
     </children>
 </StackPane> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\SellerView.fxml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\SellerView.fxml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
@@ -6051,7 +6439,7 @@ public class ItemCard extends VBox {
     </right>
 
 </BorderPane> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\View.fxml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\View.fxml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.*?>
@@ -6119,7 +6507,7 @@ public class ItemCard extends VBox {
     </right>
 
 </BorderPane> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\pom.xml ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\pom.xml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -6181,7 +6569,7 @@ public class ItemCard extends VBox {
         </dependency>
     </dependencies>
 </project> 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\database.sql ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\database.sql ===  
 USE defaultdb;
 
 -- 1. Users (chung)
@@ -6317,14 +6705,17 @@ CREATE TABLE seller_ratings (
     CONSTRAINT fk_sr_seller  FOREIGN KEY (seller_id)  REFERENCES users(id) ON DELETE CASCADE
 );
 
---11. Auto_bids: Bảng này giúp đảm bảo 1 người chỉ có 1 mức giá max cho 1 phiên đấu giá, muốn cài giá mới thì "UPDATE" lại
+--11. Auto_bids: 
 CREATE TABLE IF NOT EXISTS auto_bids (
     id INT AUTO_INCREMENT PRIMARY KEY,
     auction_id INT NOT NULL,
     user_id INT NOT NULL,
     max_amount DECIMAL(15,2) NOT NULL,
+    price_step DECIMAL(15,2) DEFAULT 50000,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY unique_auto_bid (auction_id, user_id)
+    UNIQUE KEY unique_auto_bid (auction_id, user_id),
+    CONSTRAINT fk_autobid_auction FOREIGN KEY (auction_id) REFERENCES auctions(id) ON DELETE CASCADE,
+    CONSTRAINT fk_autobid_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 -- 12. Watchlist (Giỏ hàng / Danh sách theo dõi - Tính năng sáng tạo)
 CREATE TABLE watchlist (
@@ -6341,7 +6732,7 @@ CREATE TABLE watchlist (
     UNIQUE KEY unique_user_item (user_id, item_id)
 );
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\AuctionController.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\AuctionController.java ===  
 package com.auction.controller;
 
 import com.auction.server.dao.BidsDAO.BidResult;
@@ -6401,7 +6792,7 @@ public class AuctionController {
         return gson.toJson(response);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\BidController.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\BidController.java ===  
 package com.auction.controller;
 
 import com.auction.service.BidService;
@@ -6453,7 +6844,7 @@ public class BidController {
         return gson.toJson(response);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\BidderController.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\BidderController.java ===  
 package com.auction.controller;
 
 import com.auction.service.BidderService;
@@ -6506,7 +6897,7 @@ public class BidderController {
     }
 }
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\ItemController.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\ItemController.java ===  
 package com.auction.controller;
 
 import com.auction.server.factory.ItemFactory;
@@ -6713,7 +7104,7 @@ public class ItemController {
     }
     
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\PaymentController.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\PaymentController.java ===  
 package com.auction.controller;
 import com.auction.server.models.Payment;
 import com.auction.service.PaymentService;
@@ -6824,7 +7215,7 @@ public class PaymentController {
     }
 }
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\UserController.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\UserController.java ===  
 package com.auction.controller;
 
 import com.auction.service.UserService;
@@ -7063,7 +7454,7 @@ public class UserController {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\WatchlistController.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\controller\WatchlistController.java ===  
 package com.auction.controller;
 
 import com.auction.server.dao.WatchlistDAO;
@@ -7111,7 +7502,7 @@ public class WatchlistController {
     return response;
   }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\AuctionServer.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\AuctionServer.java ===  
 package com.auction.server;
 
 import com.auction.server.dao.DatabaseConnection;
@@ -7214,6 +7605,8 @@ public class AuctionServer {
             ctx.addServletMappingDecoded("/api/users/*", "UserDetailAPI");
             Tomcat.addServlet(ctx, "SellerRatingAPI", new SellerRatingAPI());
             ctx.addServletMappingDecoded("/api/my/rating-seller", "SellerRatingAPI");
+            Tomcat.addServlet(ctx, "AutoBidAPI", new AutoBidAPI());
+            ctx.addServletMappingDecoded("/api/autobid", "AutoBidAPI");
             tomcat.start();
             System.out.println("✓ [HTTP API] Web Server đang chạy ở cổng 8080!");
 
@@ -7244,7 +7637,7 @@ public class AuctionServer {
         System.exit(0);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\AdminDAO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\AdminDAO.java ===  
 package com.auction.server.dao;
 
 import com.auction.server.models.BidderDTO;
@@ -7338,7 +7731,7 @@ public class AdminDAO {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\ArtDAO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\ArtDAO.java ===  
 package com.auction.server.dao;
 
 import com.auction.server.models.ArtDTO;
@@ -7385,7 +7778,7 @@ public class ArtDAO implements IItemSubDAO {
         return null;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\AuctionDAO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\AuctionDAO.java ===  
 package com.auction.server.dao;
 import com.auction.server.models.AuctionDataDTO;
 import com.auction.server.models.AuctionStatus;
@@ -7507,7 +7900,84 @@ public class AuctionDAO {
     
 }
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\BidderDAO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\AutoBidDAO.java ===  
+package com.auction.server.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.HashMap;
+import java.util.Map;
+
+public class AutoBidDAO {
+    private static final AutoBidDAO instance = new AutoBidDAO();
+    public static AutoBidDAO getInstance() { return instance; }
+
+    public boolean upsertAutoBid(int auctionId, int userId, double maxAmount, double priceStep) {
+        String sql = """
+            INSERT INTO auto_bids (auction_id, user_id, max_amount, price_step)
+            VALUES (?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE max_amount = VALUES(max_amount), price_step = VALUES(price_step)
+            """;
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, auctionId);
+            ps.setInt(2, userId);
+            ps.setDouble(3, maxAmount);
+            ps.setDouble(4, priceStep);
+            System.out.println("[AutoBidDAO.upsertAutoBid] Saving: auctionId=" + auctionId + 
+                ", userId=" + userId + ", maxAmount=" + maxAmount + ", priceStep=" + priceStep);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            System.err.println("[AutoBidDAO.upsertAutoBid] ERROR: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    // Overload for backward compatibility
+    public boolean upsertAutoBid(int auctionId, int userId, double maxAmount) {
+        return upsertAutoBid(auctionId, userId, maxAmount, 50000.0);
+    }
+
+    public boolean removeAutoBid(int auctionId, int userId) {
+        String sql = "DELETE FROM auto_bids WHERE auction_id = ? AND user_id = ?";
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, auctionId);
+            ps.setInt(2, userId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public Map<String, Object> getAutoBidStatus(int auctionId, int userId) {
+        String sql = "SELECT max_amount, price_step FROM auto_bids WHERE auction_id = ? AND user_id = ? LIMIT 1";
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, auctionId);
+            ps.setInt(2, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("active", true);
+                    data.put("max_amount", rs.getDouble("max_amount"));
+                    data.put("price_step", rs.getDouble("price_step"));
+                    return data;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[AutoBidDAO.getAutoBidStatus] ERROR: " + e.getMessage());
+            e.printStackTrace();
+        }
+        Map<String, Object> data = new HashMap<>();
+        data.put("active", false);
+        return data;
+    }
+} 
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\BidderDAO.java ===  
 package com.auction.server.dao;
 
 import java.sql.Connection;
@@ -7585,7 +8055,7 @@ public class BidderDAO {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\BidderSubDAO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\BidderSubDAO.java ===  
 package com.auction.server.dao;
 
 import com.auction.server.models.User;
@@ -7626,7 +8096,7 @@ public class BidderSubDAO implements IUserSubDAO {
         return null;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\BidsDAO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\BidsDAO.java ===  
 package com.auction.server.dao;
 
 import java.sql.*;
@@ -7835,7 +8305,7 @@ public class BidsDAO {
                      "JOIN users u ON b.bidder_id = u.id " +
                      "JOIN auctions a ON b.auction_id = a.id " +
                      "WHERE a.item_id = ? " +
-                     "ORDER BY b.bid_time DESC";
+                     "ORDER BY b.bid_time ASC";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -7862,7 +8332,7 @@ public class BidsDAO {
     public List<BidTransactionDTO> getBidHistoryByAuctionId(int auctionId) {
         List<BidTransactionDTO> history = new ArrayList<>();
         String sql = "SELECT b.id, b.bidder_id, u.username, b.bid_amount, b.bid_time " +
-                     "FROM bids b JOIN users u ON b.bidder_id = u.id WHERE b.auction_id = ? ORDER BY b.bid_time DESC";
+                     "FROM bids b JOIN users u ON b.bidder_id = u.id WHERE b.auction_id = ? ORDER BY b.bid_time ASC";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -7988,7 +8458,7 @@ public class BidsDAO {
         return item;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\DatabaseConnection.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\DatabaseConnection.java ===  
 package com.auction.server.dao;
 
 import com.zaxxer.hikari.HikariConfig;
@@ -8034,7 +8504,7 @@ public class DatabaseConnection {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\ElectronicsDAO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\ElectronicsDAO.java ===  
 package com.auction.server.dao;
 
 import com.auction.server.models.ElectronicsDTO;
@@ -8078,7 +8548,7 @@ public class ElectronicsDAO implements IItemSubDAO {
         return null;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\IItemSubDAO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\IItemSubDAO.java ===  
 package com.auction.server.dao;
 
 import com.auction.server.models.ItemDTO;
@@ -8090,7 +8560,7 @@ public interface IItemSubDAO {
     void insertSubItem(Connection conn, ItemDTO item) throws SQLException;
     ItemDTO fetchSubItem(Connection conn, ResultSet rs) throws SQLException;
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\ItemDAO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\ItemDAO.java ===  
 package com.auction.server.dao;
 
 import com.auction.server.models.ItemDTO;
@@ -9108,7 +9578,7 @@ public class ItemDAO {
         return lastSlash >= 0 ? fullPath.substring(lastSlash + 1) : fullPath;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\IUserSubDAO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\IUserSubDAO.java ===  
 package com.auction.server.dao;
 
 import com.auction.server.models.User;
@@ -9122,7 +9592,7 @@ public interface IUserSubDAO {
     // Xử lý lấy và map dữ liệu từ bảng con thành đối tượng User cụ thể (Bidder, Seller)
     User getSubUser(Connection conn, int userId, String username, String password, String email) throws SQLException;
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\PaymentDAO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\PaymentDAO.java ===  
 package com.auction.server.dao;
 
 import com.auction.server.models.Payment;
@@ -9367,7 +9837,7 @@ public class PaymentDAO {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\SellerDAO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\SellerDAO.java ===  
 package com.auction.server.dao;
 
 import java.sql.Connection;
@@ -9501,7 +9971,7 @@ public class SellerDAO {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\SellerSubDAO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\SellerSubDAO.java ===  
 package com.auction.server.dao;
 
 import com.auction.server.models.User;
@@ -9546,7 +10016,7 @@ public class SellerSubDAO implements IUserSubDAO {
         return null;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\UserDAO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\UserDAO.java ===  
 package com.auction.server.dao;
 
 import com.auction.server.models.UserDTO;
@@ -9789,7 +10259,7 @@ public class UserDAO {
         return false;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\VehicleDAO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\VehicleDAO.java ===  
 package com.auction.server.dao;
 
 import com.auction.server.models.VehicleDTO;
@@ -9837,7 +10307,7 @@ public class VehicleDAO implements IItemSubDAO {
         return null;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\WatchlistDAO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\dao\WatchlistDAO.java ===  
 package com.auction.server.dao;
 
 import com.auction.server.models.ItemDTO;
@@ -9974,7 +10444,7 @@ public class WatchlistDAO {
     }
   }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\factory\ItemFactory.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\factory\ItemFactory.java ===  
 package com.auction.server.factory;
 
 import com.auction.server.models.*;
@@ -10002,7 +10472,7 @@ public class ItemFactory {
         return registry.get(category.toUpperCase());
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\factory\UserFactory.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\factory\UserFactory.java ===  
 package com.auction.server.factory;
 
 import com.auction.server.models.Admin;
@@ -10059,7 +10529,7 @@ public class UserFactory {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\filters\AuthFilter.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\filters\AuthFilter.java ===  
 package com.auction.server.filters;
 
 import com.auction.server.models.UserRole;
@@ -10143,7 +10613,7 @@ public class AuthFilter implements Filter {
     @Override
     public void destroy() {}
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Admin.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Admin.java ===  
 package com.auction.server.models;
 
 public class Admin extends User {
@@ -10173,7 +10643,7 @@ public class Admin extends User {
         System.out.println("Xin chào sếp: " + getUsername() + " (Quyền: " + adminRole + ")");
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AdminDTO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AdminDTO.java ===  
 package com.auction.server.models;
 //DataTransferObject for Admin, used to send admin info to clients without exposing sensitive data like password
 public class AdminDTO {
@@ -10195,7 +10665,7 @@ public class AdminDTO {
     public String getEmail() { return email; }
     public String getAdminRole() { return adminRole; }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Art.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Art.java ===  
 package com.auction.server.models;
 
 import java.time.LocalDateTime;
@@ -10260,7 +10730,7 @@ public class Art extends Item {
         System.out.println("Giá khởi điểm: $" + getStartingPrice());
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\ArtDTO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\ArtDTO.java ===  
 package com.auction.server.models;
 
 import com.google.gson.annotations.Expose;
@@ -10325,7 +10795,7 @@ public class ArtDTO extends ItemDTO {
     }
 }
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Auction.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Auction.java ===  
 package com.auction.server.models;
 
 import java.time.LocalDateTime;
@@ -10517,7 +10987,7 @@ public class Auction extends Entity {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionDataDTO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionDataDTO.java ===  
 package com.auction.server.models;
 
 import com.google.gson.annotations.Expose;
@@ -10668,7 +11138,7 @@ public class AuctionDataDTO {
     }
 
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionManager.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionManager.java ===  
 package com.auction.server.models;
 
 import java.util.List;
@@ -10731,7 +11201,7 @@ public class AuctionManager {
         broadcastUpdate("AUCTION_UPDATED", auction);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionStatus.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionStatus.java ===  
 package com.auction.server.models;
 // AuctionStatus.java
 public enum AuctionStatus {
@@ -10741,7 +11211,7 @@ public enum AuctionStatus {
     PAID,       // Đã thanh toán
     CANCELED    // Bị hủy bỏ
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionTimer.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionTimer.java ===  
 package com.auction.server.models;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -10857,7 +11327,7 @@ public class AuctionTimer {
     }
 
 }  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionUpdate.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionUpdate.java ===  
 package com.auction.server.models;
 
 import java.time.LocalDateTime;
@@ -10896,13 +11366,13 @@ public class AuctionUpdate {
     public Object getData() { return data; }
     public LocalDateTime getTimestamp() { return timestamp; }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionUpdateListener.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AuctionUpdateListener.java ===  
 package com.auction.server.models;
 
 public interface AuctionUpdateListener {
     void onAuctionUpdate(AuctionUpdate update);
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AutoBid.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\AutoBid.java ===  
 package com.auction.server.models;
 
 import java.time.LocalDateTime;
@@ -10941,7 +11411,7 @@ public class AutoBid extends Entity {
         return Math.min(currentHighestBid + incrementAmount, maxBidAmount);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Bidder.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Bidder.java ===  
 package com.auction.server.models;
 
 public class Bidder extends User {
@@ -11003,7 +11473,7 @@ public class Bidder extends User {
         this.accountBalance = accountBalance;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\BidderDTO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\BidderDTO.java ===  
 package com.auction.server.models;
 
 import com.google.gson.annotations.Expose;
@@ -11039,7 +11509,7 @@ public class BidderDTO {
     public String getEmail() { return email; }
     public double getAccountBalance() { return accountBalance; }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\BidTransaction.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\BidTransaction.java ===  
 package com.auction.server.models;
 import java.time.LocalDateTime;
 
@@ -11070,7 +11540,7 @@ public class BidTransaction extends Entity {
     }
 
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\BidTransactionDTO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\BidTransactionDTO.java ===  
 package com.auction.server.models;
 import java.time.LocalDateTime;
 
@@ -11098,7 +11568,7 @@ public class BidTransactionDTO {
     public double getBidAmount() { return bidAmount; }
     public LocalDateTime getTimestamp() { return timestamp; }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Electronics.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Electronics.java ===  
 package com.auction.server.models;
 
 import java.time.LocalDateTime;
@@ -11141,7 +11611,7 @@ public class Electronics extends Item {
 
     // KHÔNG CÓ SETTER vì thuộc tính là final (Thiết kế như này là rất chặt chẽ, tốt!)
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\ElectronicsDTO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\ElectronicsDTO.java ===  
 package com.auction.server.models;
 
 import com.google.gson.annotations.Expose;
@@ -11175,7 +11645,7 @@ public class ElectronicsDTO extends ItemDTO {
     }
 }
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Entity.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Entity.java ===  
 package com.auction.server.models;
 
 public abstract class Entity {
@@ -11198,7 +11668,7 @@ public abstract class Entity {
 
 }
   
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Item.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Item.java ===  
 package com.auction.server.models;
 import java.time.LocalDateTime;
 public abstract class Item extends Entity {
@@ -11309,7 +11779,7 @@ public abstract class Item extends Entity {
         return description;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\ItemDTO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\ItemDTO.java ===  
 package com.auction.server.models;
 
 import com.google.gson.annotations.Expose;
@@ -11457,7 +11927,7 @@ public class ItemDTO {
     public void setPriceStep(double priceStep) { this.priceStep = priceStep; }
 
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Payment.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Payment.java ===  
 package com.auction.server.models;
 
 import java.time.LocalDateTime;
@@ -11491,7 +11961,7 @@ public class Payment {
     public LocalDateTime getPaymentDate() { return paymentDate; }
 }
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\PaymentDTO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\PaymentDTO.java ===  
 package com.auction.server.models;
 
 import com.google.gson.annotations.Expose;
@@ -11586,7 +12056,7 @@ public class PaymentDTO {
         this.paymentTime = paymentTime;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\PaymentStatus.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\PaymentStatus.java ===  
 package com.auction.server.models;
 
 public enum PaymentStatus {
@@ -11594,7 +12064,7 @@ public enum PaymentStatus {
     COMPLETED,  // Đã hoàn thành
     FAILED      // Thất bại
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Seller.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Seller.java ===  
 package com.auction.server.models;
 import java.util.ArrayList;
 import java.util.List;
@@ -11657,7 +12127,7 @@ public class Seller extends User {
 
     
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\SellerDTO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\SellerDTO.java ===  
 package com.auction.server.models;
 
 //DataTransferObject for Seller, used to send seller info to clients without exposing sensitive data like password
@@ -11687,7 +12157,7 @@ public class SellerDTO {
     public double getTotalRating() { return totalRating; }
     public int getSaleCount() { return saleCount; }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\User.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\User.java ===  
 package com.auction.server.models;
 
 public abstract class User extends Entity {
@@ -11734,7 +12204,7 @@ public abstract class User extends Entity {
 
     public abstract void showDashboard();
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\UserDTO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\UserDTO.java ===  
 package com.auction.server.models;
 
 import com.google.gson.annotations.SerializedName;
@@ -11790,7 +12260,7 @@ public class UserDTO implements Serializable {
     public int getSaleCount() { return saleCount; }
     public void setSaleCount(int saleCount) { this.saleCount = saleCount; }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\UserRole.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\UserRole.java ===  
 package com.auction.server.models;
 
 public enum UserRole {
@@ -11815,7 +12285,7 @@ public enum UserRole {
         return INACTIVE; // Trả về giá trị mặc định an toàn
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Vehicle.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\Vehicle.java ===  
 package com.auction.server.models;
 
 import java.time.LocalDateTime;
@@ -11883,7 +12353,7 @@ public class Vehicle extends Item {
         this.condition = condition;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\VehicleDTO.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\models\VehicleDTO.java ===  
 package com.auction.server.models;
 
 import com.google.gson.annotations.Expose;
@@ -11942,7 +12412,7 @@ public class VehicleDTO extends ItemDTO {
         this.condition = condition;
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\scheduler\AuctionStatusScheduler.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\scheduler\AuctionStatusScheduler.java ===  
 package com.auction.server.scheduler;
 
 import com.auction.server.dao.DatabaseConnection;
@@ -12030,7 +12500,7 @@ public class AuctionStatusScheduler {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\AdminItemAPI.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\AdminItemAPI.java ===  
 package com.auction.server.servlets;
 
 import com.auction.controller.ItemController;
@@ -12074,7 +12544,7 @@ public class AdminItemAPI extends HttpServlet {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\AdminUserAPI.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\AdminUserAPI.java ===  
 package com.auction.server.servlets;
 
 import com.auction.controller.UserController;
@@ -12167,7 +12637,117 @@ public class AdminUserAPI extends HttpServlet {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\CategoryAPI.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\AutoBidAPI.java ===  
+package com.auction.server.servlets;
+
+import com.auction.server.dao.AutoBidDAO;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
+import javax.servlet.http.*;
+import java.io.IOException;
+import java.util.Map;
+
+public class AutoBidAPI extends HttpServlet {
+    private final Gson gson = new Gson();
+    private final AutoBidDAO autoBidDAO = AutoBidDAO.getInstance();
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+
+        HttpSession session = req.getSession(false);
+        if (session == null || session.getAttribute("userId") == null) {
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            resp.getWriter().write("{\"status\":\"error\",\"message\":\"Chưa đăng nhập\"}");
+            return;
+        }
+
+        int userId = (Integer) session.getAttribute("userId");
+        String auctionIdStr = req.getParameter("auction_id");
+        if (auctionIdStr == null || auctionIdStr.isBlank()) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("{\"status\":\"error\",\"message\":\"Thiếu auction_id\"}");
+            return;
+        }
+
+        int auctionId = Integer.parseInt(auctionIdStr);
+        Map<String, Object> data = autoBidDAO.getAutoBidStatus(auctionId, userId);
+
+        JsonObject root = new JsonObject();
+        root.addProperty("status", "success");
+        root.add("data", gson.toJsonTree(data));
+
+        resp.getWriter().write(gson.toJson(root));
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+
+        HttpSession session = req.getSession(false);
+        if (session == null || session.getAttribute("userId") == null) {
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            resp.getWriter().write("{\"status\":\"error\",\"message\":\"Chưa đăng nhập\"}");
+            return;
+        }
+
+        int userId = (Integer) session.getAttribute("userId");
+        JsonObject body = gson.fromJson(req.getReader(), JsonObject.class);
+
+        int auctionId = body.get("auction_id").getAsInt();
+        double maxAmount = body.get("max_amount").getAsDouble();
+        double priceStep = body.has("price_step") && !body.get("price_step").isJsonNull()
+                ? body.get("price_step").getAsDouble()
+                : 50000.0; // Default
+
+        System.out.println("[AutoBidAPI.doPost] Received: auctionId=" + auctionId + 
+            ", userId=" + userId + ", maxAmount=" + maxAmount + ", priceStep=" + priceStep);
+
+        if (maxAmount <= 0) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("{\"status\":\"error\",\"message\":\"max_amount phải > 0\"}");
+            return;
+        }
+
+        if (priceStep <= 0) priceStep = 50000.0;
+
+        boolean ok = autoBidDAO.upsertAutoBid(auctionId, userId, maxAmount, priceStep);
+        resp.getWriter().write(ok
+                ? "{\"status\":\"success\",\"message\":\"Đã bật auto-bid\"}"
+                : "{\"status\":\"error\",\"message\":\"Không lưu được auto-bid\"}");
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+
+        HttpSession session = req.getSession(false);
+        if (session == null || session.getAttribute("userId") == null) {
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            resp.getWriter().write("{\"status\":\"error\",\"message\":\"Chưa đăng nhập\"}");
+            return;
+        }
+
+        int userId = (Integer) session.getAttribute("userId");
+        String auctionIdStr = req.getParameter("auction_id");
+        if (auctionIdStr == null || auctionIdStr.isBlank()) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("{\"status\":\"error\",\"message\":\"Thiếu auction_id\"}");
+            return;
+        }
+
+        int auctionId = Integer.parseInt(auctionIdStr);
+        boolean ok = autoBidDAO.removeAutoBid(auctionId, userId);
+        resp.getWriter().write(ok
+                ? "{\"status\":\"success\",\"message\":\"Đã tắt auto-bid\"}"
+                : "{\"status\":\"error\",\"message\":\"Không tắt được auto-bid\"}");
+    }
+} 
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\CategoryAPI.java ===  
 package com.auction.server.servlets;
 
 import com.auction.controller.ItemController;
@@ -12211,7 +12791,7 @@ public class CategoryAPI extends HttpServlet {
         resp.getWriter().write(jsonResponse);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\DepositAPI.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\DepositAPI.java ===  
 package com.auction.server.servlets;
 
 import com.auction.controller.BidderController;
@@ -12247,7 +12827,7 @@ public class DepositAPI extends HttpServlet {
         resp.getWriter().write(jsonResponse);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetBidHistoryAPI.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetBidHistoryAPI.java ===  
 package com.auction.server.servlets;
 
 import com.auction.server.dao.BidsDAO;
@@ -12320,7 +12900,7 @@ public class GetBidHistoryAPI extends HttpServlet {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetItemDetailAPI.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetItemDetailAPI.java ===  
 package com.auction.server.servlets;
 
 import com.auction.controller.BidController;
@@ -12423,7 +13003,7 @@ public class GetItemDetailAPI extends HttpServlet {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetItemsAPI.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetItemsAPI.java ===  
 package com.auction.server.servlets;
 
 import com.auction.controller.ItemController;
@@ -12459,7 +13039,7 @@ public class GetItemsAPI extends HttpServlet {
         resp.getWriter().write(jsonResponse);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetMyActiveBidsAPI.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetMyActiveBidsAPI.java ===  
 package com.auction.server.servlets;
 
 import com.auction.controller.BidController;
@@ -12487,7 +13067,7 @@ public class GetMyActiveBidsAPI extends HttpServlet {
         resp.getWriter().write(jsonResponse);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetMyItemsForSaleAPI.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetMyItemsForSaleAPI.java ===  
 package com.auction.server.servlets;
 
 import com.auction.controller.ItemController;
@@ -12514,7 +13094,7 @@ public class GetMyItemsForSaleAPI extends HttpServlet {
         resp.getWriter().write(jsonResponse);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetMyWonItemsAPI.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetMyWonItemsAPI.java ===  
 package com.auction.server.servlets;
 
 import com.auction.controller.ItemController;
@@ -12541,7 +13121,7 @@ public class GetMyWonItemsAPI extends HttpServlet {
         resp.getWriter().write(jsonResponse);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\ImageAPI.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\ImageAPI.java ===  
 package com.auction.server.servlets;
 
 import javax.servlet.http.HttpServlet;
@@ -12695,7 +13275,7 @@ public class ImageAPI extends HttpServlet {
         return "application/octet-stream";
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\ItemsAPI.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\ItemsAPI.java ===  
 package com.auction.server.servlets;
 
 import com.auction.controller.ItemController;
@@ -12746,7 +13326,7 @@ public class ItemsAPI extends HttpServlet {
         resp.getWriter().write(jsonResponse);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\LoginAPI.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\LoginAPI.java ===  
 package com.auction.server.servlets;
 
 import com.auction.controller.UserController;
@@ -12803,7 +13383,7 @@ public class LoginAPI extends HttpServlet {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\LogoutAPI.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\LogoutAPI.java ===  
 package com.auction.server.servlets;
 
 import com.google.gson.Gson;
@@ -12847,7 +13427,7 @@ public class LogoutAPI extends HttpServlet {
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\PaymentAPI.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\PaymentAPI.java ===  
 package com.auction.server.servlets;
 
 import com.auction.controller.PaymentController;
@@ -12877,7 +13457,7 @@ public class PaymentAPI extends HttpServlet {
         resp.getWriter().write(jsonResponse);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\PlaceBidAPI.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\PlaceBidAPI.java ===  
 package com.auction.server.servlets;
 
 import com.auction.controller.AuctionController;
@@ -12917,7 +13497,7 @@ public class PlaceBidAPI extends HttpServlet {
         resp.getWriter().write(jsonResponse);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\RegisterAPI.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\RegisterAPI.java ===  
 package com.auction.server.servlets;
 
 import com.auction.controller.UserController;
@@ -12948,7 +13528,7 @@ public class RegisterAPI extends HttpServlet {
         resp.getWriter().write(jsonResponse);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\SearchItemsAPI.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\SearchItemsAPI.java ===  
 package com.auction.server.servlets;
 
 import com.auction.controller.ItemController;
@@ -12985,7 +13565,7 @@ public class SearchItemsAPI extends HttpServlet {
         resp.getWriter().write(jsonResponse);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\SellerRatingAPI.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\SellerRatingAPI.java ===  
 package com.auction.server.servlets;
 
 import com.auction.controller.UserController;
@@ -13004,6 +13584,7 @@ public class SellerRatingAPI extends HttpServlet {
     private final UserController userController = new UserController();
     private final Gson gson = new Gson();
 
+    // POST /api/my/rating-seller  →  Gửi đánh giá người bán
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         resp.setContentType("application/json");
@@ -13016,10 +13597,14 @@ public class SellerRatingAPI extends HttpServlet {
             return;
         }
 
+        // Lấy bidderId từ session
+        int bidderId = (int) session.getAttribute("userId");
+
         String jsonRequest = req.getReader().lines()
                 .collect(Collectors.joining(System.lineSeparator()));
 
-        String jsonResponse = userController.handleRateSeller(jsonRequest);
+        // Truyền đủ 2 tham số: jsonRequest + bidderId
+        String jsonResponse = userController.handleRateSeller(jsonRequest, bidderId);
         JsonObject obj = gson.fromJson(jsonResponse, JsonObject.class);
 
         if (obj != null && "success".equalsIgnoreCase(obj.get("status").getAsString())) {
@@ -13030,8 +13615,41 @@ public class SellerRatingAPI extends HttpServlet {
 
         resp.getWriter().write(jsonResponse);
     }
+
+    // GET /api/my/rating-seller?auctionId=X  →  Kiểm tra đã đánh giá chưa
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+
+        HttpSession session = req.getSession(false);
+        if (session == null || session.getAttribute("userId") == null) {
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            resp.getWriter().write("{\"status\":\"error\",\"message\":\"Bạn cần đăng nhập.\"}");
+            return;
+        }
+
+        int bidderId = (int) session.getAttribute("userId");
+
+        String auctionIdStr = req.getParameter("auctionId");
+        if (auctionIdStr == null || auctionIdStr.isEmpty()) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("{\"status\":\"error\",\"message\":\"Thiếu auctionId.\"}");
+            return;
+        }
+
+        try {
+            int auctionId = Integer.parseInt(auctionIdStr);
+            String jsonResponse = userController.handleHasRatedSeller(auctionId, bidderId);
+            resp.setStatus(HttpServletResponse.SC_OK);
+            resp.getWriter().write(jsonResponse);
+        } catch (NumberFormatException e) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("{\"status\":\"error\",\"message\":\"auctionId không hợp lệ.\"}");
+        }
+    }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\UserDetailAPI.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\UserDetailAPI.java ===  
 package com.auction.server.servlets;
 
 import com.auction.controller.UserController;
@@ -13096,7 +13714,7 @@ public class UserDetailAPI extends HttpServlet {
     }
 }
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\UserProfileAPI.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\UserProfileAPI.java ===  
 package com.auction.server.servlets;
 
 import com.auction.controller.UserController;
@@ -13153,7 +13771,7 @@ public class UserProfileAPI extends HttpServlet {
         resp.getWriter().write(jsonResponse);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\WatchlistAPI.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\WatchlistAPI.java ===  
 package com.auction.server.servlets;
 
 import com.auction.controller.WatchlistController;
@@ -13261,7 +13879,7 @@ public class WatchlistAPI extends HttpServlet {
     }
   }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\utils\LocalDateTimeAdapter.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\utils\LocalDateTimeAdapter.java ===  
 package com.auction.server.utils;
 
 import com.google.gson.TypeAdapter;
@@ -13292,7 +13910,7 @@ public class LocalDateTimeAdapter extends TypeAdapter<LocalDateTime> {
         return LocalDateTime.parse(in.nextString(), FORMATTER);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\websocket\AuctionWebSocketServer.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\websocket\AuctionWebSocketServer.java ===  
 package com.auction.server.websocket;
 
 import com.auction.server.models.AuctionManager;
@@ -13407,7 +14025,7 @@ public class AuctionWebSocketServer extends WebSocketServer implements AuctionUp
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\service\AuctionService.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\service\AuctionService.java ===  
 package com.auction.service;
 
 import com.auction.server.dao.BidsDAO;
@@ -13506,7 +14124,7 @@ public class AuctionService {
     }
 }
  
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\service\BidderService.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\service\BidderService.java ===  
 package com.auction.service;
 
 import com.auction.server.dao.BidderDAO;
@@ -13556,7 +14174,7 @@ public class BidderService {
         return "Thanh toán thất bại: Lỗi hệ thống!";
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\service\BidService.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\service\BidService.java ===  
 package com.auction.service;
 
 import com.auction.server.dao.BidsDAO;
@@ -13618,7 +14236,12 @@ public class BidService {
 
     // 4. THUẬT TOÁN ĐẤU GIÁ TỰ ĐỘNG
     private void triggerAutoBidLogic(int auctionId, double currentPrice, int currentBidderId) {
-        String sqlGetAutoBid = "SELECT user_id, max_amount FROM auto_bids WHERE auction_id = ? AND user_id != ? AND max_amount > ? ORDER BY max_amount DESC LIMIT 1";
+        System.out.println("\n[BidService.triggerAutoBidLogic] Starting for auctionId=" + auctionId + 
+            ", currentPrice=" + currentPrice + ", currentBidderId=" + currentBidderId);
+            
+        String sqlGetAutoBid = "SELECT user_id, max_amount, price_step FROM auto_bids " +
+                "WHERE auction_id = ? AND user_id != ? AND max_amount > ? " +
+                "ORDER BY max_amount DESC LIMIT 1";
         
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sqlGetAutoBid)) {
@@ -13627,29 +14250,43 @@ public class BidService {
             pstmt.setInt(2, currentBidderId);
             pstmt.setDouble(3, currentPrice);
             
+            System.out.println("[BidService.triggerAutoBidLogic] Query params: auctionId=" + auctionId + 
+                ", excludeUser=" + currentBidderId + ", minMaxAmount=" + currentPrice);
+            
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     int autoBidderId = rs.getInt("user_id");
                     double maxAmount = rs.getDouble("max_amount");
+                    double priceStep = rs.getDouble("price_step");
                     
-                    double priceStep = 50000.0;
+                    System.out.println("[BidService.triggerAutoBidLogic] Found auto-bid: userId=" + autoBidderId + 
+                        ", maxAmount=" + maxAmount + ", priceStep=" + priceStep);
+                    
                     double newAutoPrice = currentPrice + priceStep;
                     
+                    System.out.println("[BidService.triggerAutoBidLogic] Calculated newPrice=" + newAutoPrice + 
+                        ", checking: newPrice (" + newAutoPrice + ") <= maxAmount (" + maxAmount + ") ?");
+                    
                     if (newAutoPrice <= maxAmount) {
-                        System.out.println("🤖 AUTO-BID Kích hoạt! User " + autoBidderId + " tự động đè giá lên " + newAutoPrice);
+                        System.out.println("✅ AUTO-BID Kích hoạt! User " + autoBidderId + " → " + newAutoPrice);
                         processBid(auctionId, autoBidderId, newAutoPrice);
                     } else if (currentPrice < maxAmount) {
-                        System.out.println("🤖 AUTO-BID All-in! User " + autoBidderId + " chốt giá trần " + maxAmount);
+                        System.out.println("💰 AUTO-BID All-in! User " + autoBidderId + " → " + maxAmount);
                         processBid(auctionId, autoBidderId, maxAmount);
+                    } else {
+                        System.out.println("⛔ AUTO-BID BLOCKED: newPrice " + newAutoPrice + " > maxAmount " + maxAmount);
                     }
+                } else {
+                    System.out.println("[BidService.triggerAutoBidLogic] No auto-bid found for this auction");
                 }
             }
         } catch (Exception e) {
-            System.err.println("Lỗi khi chạy Auto-Bid: " + e.getMessage());
+            System.err.println("❌ ERROR in triggerAutoBidLogic: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\service\ItemService.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\service\ItemService.java ===  
 package com.auction.service;
 
 import com.auction.server.dao.ItemDAO;
@@ -13779,7 +14416,7 @@ public class ItemService {
         return items != null ? items : new java.util.ArrayList<>();
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\service\PaymentService.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\service\PaymentService.java ===  
 package com.auction.service;
 
 import com.auction.server.dao.PaymentDAO;
@@ -13859,7 +14496,7 @@ public class PaymentService {
         return paymentDAO.getPaymentHistoryByUser(userId);
     }
 } 
-// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\service\UserService.java ===  
+// === FILE: c:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\service\UserService.java ===  
 package com.auction.service;
 
 import com.auction.server.dao.UserDAO;

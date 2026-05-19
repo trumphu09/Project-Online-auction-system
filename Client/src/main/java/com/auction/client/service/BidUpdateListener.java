@@ -13,4 +13,6 @@ public interface BidUpdateListener {
   void onConnected();
 
   void onDisconnected(String reason);
+
+  default void onAutoBidNotice(int auctionId, int userId, String message) {}
 }

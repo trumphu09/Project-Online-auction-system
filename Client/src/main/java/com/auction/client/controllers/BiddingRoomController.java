@@ -63,6 +63,9 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
   @FXML private Label lblSellerRating, lblSellerSaleCount, lblBidNote;
   // Thêm 2 biến này vào danh sách khai báo FXML nodes ở đầu file:
   @FXML private Button btnPay;
+  @FXML private TextField txtAutoMaxAmount;
+  @FXML private Button btnAutoBid;
+  private boolean isAutoBidActive = false;
   private UserDTO currentUser; // Lưu thông tin người dùng hiện tại
 
   // ─── Hằng số ─────────────────────────────────────────────────────────────
@@ -71,6 +74,9 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
     DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
   private static final DateTimeFormatter DISPLAY_FORMATTER =
     DateTimeFormatter.ofPattern("HH:mm:ss");
+  private static final DateTimeFormatter CHART_TIME_FMT =
+    DateTimeFormatter.ofPattern("HH:mm:ss");
+ 
 
   // ─── Trạng thái ──────────────────────────────────────────────────────────
   private ItemDTO currentItem;
@@ -297,56 +303,41 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
    * Hỗ trợ các format: yyyy-MM-dd HH:mm:ss, yyyy-MM-dd'T'HH:mm:ss, ISO 8601
    */
   private String parseTimeLabel(String timestamp) {
-    try {
       if (timestamp == null || timestamp.isBlank()) {
-        System.err.println("[BiddingRoom] parseTimeLabel: timestamp is null/blank");
-        return "N/A";
+          return "N/A";
       }
-      
+  
+      // Chuẩn hoá: cắt timezone offset (+07:00, Z)
       String normalized = timestamp.trim();
-      System.out.println("[BiddingRoom] parseTimeLabel input: " + normalized);
-      
-      // Normalize: cắt milliseconds nếu có
-      if (normalized.contains(".")) {
-        normalized = normalized.substring(0, normalized.indexOf("."));
-      }
-      
-      // Cắt phần 'Z' nếu có (ISO 8601)
       if (normalized.endsWith("Z")) {
-        normalized = normalized.substring(0, normalized.length() - 1);
+          normalized = normalized.substring(0, normalized.length() - 1);
       }
-      
-      // Cắt phần '+XX:XX' timezone nếu có
-      if (normalized.contains("+")) {
-        normalized = normalized.substring(0, normalized.indexOf("+"));
+      int plusIdx = normalized.lastIndexOf('+');
+      if (plusIdx > 10) {          // tránh cắt nhầm phần date
+          normalized = normalized.substring(0, plusIdx);
       }
-      
-      System.out.println("[BiddingRoom] parseTimeLabel normalized: " + normalized);
-      
-      // Try parse với DT_FORMATTER (yyyy-MM-dd HH:mm:ss)
-      LocalDateTime dt = LocalDateTime.parse(normalized, DT_FORMATTER);
-      String result = dt.format(DISPLAY_FORMATTER);
-      System.out.println("[BiddingRoom] parseTimeLabel result: " + result);
-      return result;
-      
-    } catch (Exception e) {
-      System.err.println("[BiddingRoom] Không parse timestamp: " + timestamp + " - Error: " + e.getMessage());
-      
-      // Fallback: cắt giờ phút giây từ string nếu có
-      try {
-        if (timestamp != null && timestamp.length() >= 8) {
-          String timeOnly = timestamp.substring(timestamp.length() - 8);
-          if (timeOnly.matches("\\d{2}:\\d{2}:\\d{2}")) {
-            System.out.println("[BiddingRoom] parseTimeLabel fallback: " + timeOnly);
-            return timeOnly;
+      int minusIdx = normalized.lastIndexOf('-');
+      // chỉ cắt nếu minus xuất hiện SAU phần date (index > 7) và sau phần time (:)
+      if (minusIdx > 16) {
+          normalized = normalized.substring(0, minusIdx);
+      }
+  
+      // Thử từng formatter
+      for (DateTimeFormatter fmt : TIMESTAMP_PARSERS) {
+          try {
+              LocalDateTime ldt = LocalDateTime.parse(normalized, fmt);
+              return ldt.format(CHART_TIME_FMT);   // trả về "HH:mm:ss"
+          } catch (Exception ignored) {
+              // thử formatter tiếp theo
           }
-        }
-      } catch (Exception ex) {
-        // ignore
       }
-      
-      return "N/A";
-    }
+  
+      // Fallback: cắt lấy 8 ký tự thời gian từ cuối chuỗi
+      System.err.println("[BiddingRoom] parseTimeLabel fallback: " + timestamp);
+      if (normalized.length() >= 8) {
+          return normalized.substring(normalized.length() - 8);
+      }
+      return timestamp;
   }
 
   private void loadRatingStatus() {
@@ -874,5 +865,127 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
     int lastSlash = Math.max(rawPath.lastIndexOf('/'), rawPath.lastIndexOf('\\'));
     if (lastSlash >= 0) filename = rawPath.substring(lastSlash + 1);
     return SERVER_BASE_URL + "/images/" + filename;
+  }
+  private static final DateTimeFormatter[] TIMESTAMP_PARSERS = {
+        DateTimeFormatter.ISO_LOCAL_DATE_TIME,                         // handles T + optional millis
+        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"),            // space separator
+        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"),        // space + millis
+        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"),          // explicit T, no millis
+        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"),      // explicit T + millis
+  };
+
+
+  // chức năng auto-bid: bật/tắt, đồng bộ trạng thái với server, và cập nhật UI tương ứng
+  @FXML
+  private void handleToggleAutoBid() {
+      if (currentItem == null) {
+          showAlert("Lỗi", "Chưa có sản phẩm đấu giá.");
+          return;
+      }
+
+      if (auctionEnded || "FINISHED".equalsIgnoreCase(currentItem.getStatus())) {
+          showAlert("Thông báo", "Phiên đấu giá đã kết thúc.");
+          return;
+      }
+
+      if (isAutoBidActive) {
+          AuctionFacade.getInstance().cancelAutoBid(currentItem.getAuctionId(), new ApiCallback<JsonObject>() {
+              @Override
+              public void onSuccess(JsonObject result) {
+                  Platform.runLater(() -> {
+                      isAutoBidActive = false;
+                      updateAutoBidUI(false);
+                      showAlert("Thành công", "Đã tắt auto-bid.");
+                  });
+              }
+
+              @Override
+              public void onError(String errorMessage) {
+                  Platform.runLater(() -> showAlert("Lỗi", errorMessage));
+              }
+          });
+          return;
+      }
+
+      String raw = txtAutoMaxAmount.getText() == null ? "" : txtAutoMaxAmount.getText().trim();
+      if (raw.isEmpty()) {
+          showAlert("Lỗi", "Vui lòng nhập giá trần auto-bid.");
+          return;
+      }
+
+      try {
+          double maxAmount = Double.parseDouble(raw);
+          if (maxAmount <= displayedCurrentPrice) {
+              showAlert("Lỗi", "Giá trần phải lớn hơn giá hiện tại.");
+              return;
+          }
+
+          AuctionFacade.getInstance().setupAutoBid(currentItem.getAuctionId(), maxAmount, new ApiCallback<JsonObject>() {
+              @Override
+              public void onSuccess(JsonObject result) {
+                  Platform.runLater(() -> {
+                      isAutoBidActive = true;
+                      updateAutoBidUI(true);
+                      showAlert("Thành công", "Đã bật auto-bid.");
+                  });
+              }
+
+              @Override
+              public void onError(String errorMessage) {
+                  Platform.runLater(() -> showAlert("Lỗi", errorMessage));
+              }
+          });
+
+      } catch (NumberFormatException e) {
+          showAlert("Lỗi", "Giá trần không hợp lệ.");
+      }
+  }
+
+  private void updateAutoBidUI(boolean active) {
+      if (btnAutoBid == null || txtAutoMaxAmount == null) return;
+
+      if (active) {
+          btnAutoBid.setText("TẮT AUTO-BID");
+          btnAutoBid.setStyle("-fx-background-color: #c0392b; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;");
+          txtAutoMaxAmount.setDisable(true);
+      } else {
+          btnAutoBid.setText("BẬT AUTO-BID");
+          btnAutoBid.setStyle("-fx-background-color: #d35400; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;");
+          txtAutoMaxAmount.setDisable(false);
+      }
+  }
+
+  private void syncAutoBidStatus() {
+      if (currentItem == null) return;
+
+      AuctionFacade.getInstance().getAutoBidStatus(currentItem.getAuctionId(), new ApiCallback<JsonObject>() {
+          @Override
+          public void onSuccess(JsonObject result) {
+              Platform.runLater(() -> {
+                  boolean active = false;
+                  if (result != null && result.has("data") && result.get("data").isJsonObject()) {
+                      JsonObject data = result.getAsJsonObject("data");
+                      active = data.has("active") && data.get("active").getAsBoolean();
+                      if (active && data.has("max_amount") && txtAutoMaxAmount != null) {
+                          txtAutoMaxAmount.setText(String.valueOf(data.get("max_amount").getAsDouble()));
+                      }
+                  }
+                  isAutoBidActive = active;
+                  updateAutoBidUI(active);
+              });
+          }
+
+          @Override
+          public void onError(String errorMessage) {
+              System.err.println("[BiddingRoom] Không load được trạng thái auto-bid: " + errorMessage);
+          }
+      });
+  }
+
+  @Override
+  public void onAutoBidNotice(int auctionId, int userId, String message) {
+      if (currentUser != null && currentUser.getId() == userId) {
+          Platform.runLater(() -> showAlert("Auto-Bid", message));
+      }
   }
 }

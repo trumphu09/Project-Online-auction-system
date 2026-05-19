@@ -59,7 +59,12 @@ public class BidService {
 
     // 4. THUẬT TOÁN ĐẤU GIÁ TỰ ĐỘNG
     private void triggerAutoBidLogic(int auctionId, double currentPrice, int currentBidderId) {
-        String sqlGetAutoBid = "SELECT user_id, max_amount FROM auto_bids WHERE auction_id = ? AND user_id != ? AND max_amount > ? ORDER BY max_amount DESC LIMIT 1";
+        System.out.println("\n[BidService.triggerAutoBidLogic] Starting for auctionId=" + auctionId + 
+            ", currentPrice=" + currentPrice + ", currentBidderId=" + currentBidderId);
+            
+        String sqlGetAutoBid = "SELECT user_id, max_amount, price_step FROM auto_bids " +
+                "WHERE auction_id = ? AND user_id != ? AND max_amount > ? " +
+                "ORDER BY max_amount DESC LIMIT 1";
         
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sqlGetAutoBid)) {
@@ -68,25 +73,39 @@ public class BidService {
             pstmt.setInt(2, currentBidderId);
             pstmt.setDouble(3, currentPrice);
             
+            System.out.println("[BidService.triggerAutoBidLogic] Query params: auctionId=" + auctionId + 
+                ", excludeUser=" + currentBidderId + ", minMaxAmount=" + currentPrice);
+            
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     int autoBidderId = rs.getInt("user_id");
                     double maxAmount = rs.getDouble("max_amount");
+                    double priceStep = rs.getDouble("price_step");
                     
-                    double priceStep = 50000.0;
+                    System.out.println("[BidService.triggerAutoBidLogic] Found auto-bid: userId=" + autoBidderId + 
+                        ", maxAmount=" + maxAmount + ", priceStep=" + priceStep);
+                    
                     double newAutoPrice = currentPrice + priceStep;
                     
+                    System.out.println("[BidService.triggerAutoBidLogic] Calculated newPrice=" + newAutoPrice + 
+                        ", checking: newPrice (" + newAutoPrice + ") <= maxAmount (" + maxAmount + ") ?");
+                    
                     if (newAutoPrice <= maxAmount) {
-                        System.out.println("🤖 AUTO-BID Kích hoạt! User " + autoBidderId + " tự động đè giá lên " + newAutoPrice);
+                        System.out.println("✅ AUTO-BID Kích hoạt! User " + autoBidderId + " → " + newAutoPrice);
                         processBid(auctionId, autoBidderId, newAutoPrice);
                     } else if (currentPrice < maxAmount) {
-                        System.out.println("🤖 AUTO-BID All-in! User " + autoBidderId + " chốt giá trần " + maxAmount);
+                        System.out.println("💰 AUTO-BID All-in! User " + autoBidderId + " → " + maxAmount);
                         processBid(auctionId, autoBidderId, maxAmount);
+                    } else {
+                        System.out.println("⛔ AUTO-BID BLOCKED: newPrice " + newAutoPrice + " > maxAmount " + maxAmount);
                     }
+                } else {
+                    System.out.println("[BidService.triggerAutoBidLogic] No auto-bid found for this auction");
                 }
             }
         } catch (Exception e) {
-            System.err.println("Lỗi khi chạy Auto-Bid: " + e.getMessage());
+            System.err.println("❌ ERROR in triggerAutoBidLogic: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

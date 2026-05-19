@@ -100,6 +100,8 @@ public class AuctionServer {
             ctx.addServletMappingDecoded("/api/users/*", "UserDetailAPI");
             Tomcat.addServlet(ctx, "SellerRatingAPI", new SellerRatingAPI());
             ctx.addServletMappingDecoded("/api/my/rating-seller", "SellerRatingAPI");
+            Tomcat.addServlet(ctx, "AutoBidAPI", new AutoBidAPI());
+            ctx.addServletMappingDecoded("/api/autobid", "AutoBidAPI");
             tomcat.start();
             System.out.println("✓ [HTTP API] Web Server đang chạy ở cổng 8080!");
 
