@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Project-Online-auction-system.iml" filepath="$PROJECT_DIR$/.idea/Project-Online-auction-system.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Client/testjavafx.iml" filepath="$PROJECT_DIR$/Client/testjavafx.iml" />
     </modules>
   </component>
 </project>
