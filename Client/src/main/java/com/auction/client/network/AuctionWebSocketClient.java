@@ -174,29 +174,29 @@ public class AuctionWebSocketClient {
       JsonObject root = JsonParser.parseString(rawJson).getAsJsonObject();
       String type = root.has("type") ? root.get("type").getAsString() : "";
 
-      switch (type) {
+    switch (type) {
         case "NEW_BID":
-          handleNewBid(root);
-          break;
+            handleNewBid(root);
+            break;
 
         case "PRICE_UPDATE":
-          // Format đơn giản từ broadcastPriceUpdate(): {"type":"PRICE_UPDATE","auctionId":X,"newPrice":Y}
-          handlePriceUpdate(root);
-          break;
+            handlePriceUpdate(root);
+            break;
 
         case "AUCTION_EXTENDED":
-          // Format từ broadcastUpdate khi gia hạn: {"type":"AUCTION_EXTENDED","data":{"auctionId":X,"newEndTime":"...","message":"..."}}
-           // Hiện tại client chưa dùng đến, nhưng có thể mở rộng để hiển thị thông báo gia hạn.
-           break;
+            break;
 
         case "AUCTION_ENDED":
-          handleAuctionEnded(root);
-          break;
+            handleAuctionEnded(root);
+            break;
+
+        case "AUTO_BID_NOTICE":
+            handleAutoBidNotice(root);
+            break;
 
         default:
-          // Bỏ qua các loại không liên quan (NEW_ITEM, ITEM_UPDATED...)
-          break;
-      }
+            break;
+    }
 
     } catch (Exception e) {
       System.err.println("[WS] Lỗi parse JSON: " + e.getMessage() + " | raw=" + rawJson);
@@ -302,4 +302,17 @@ public class AuctionWebSocketClient {
         ? obj.get(key).getAsString() : defaultVal;
     } catch (Exception e) { return defaultVal; }
   }
-}
+  private void handleAutoBidNotice(JsonObject root) {
+    if (!root.has("data") || root.get("data").isJsonNull()) return;
+
+    JsonObject data = root.getAsJsonObject("data");
+    int auctionId = getInt(data, "auctionId", -1);
+    int userId = getInt(data, "userId", -1);
+    String message = getString(data, "message", "Auto-bid");
+
+    if (watchedAuctionId == -1 || auctionId == watchedAuctionId) {
+        if (listener != null) {
+            Platform.runLater(() -> listener.onAutoBidNotice(auctionId, userId, message));
+        }
+    }
+}}

@@ -33,12 +33,18 @@ public class AutoBidAPI extends HttpServlet {
         }
 
         int auctionId = Integer.parseInt(auctionIdStr);
+        System.out.println("[AutoBidAPI.doGet] userId=" + userId + ", auctionId=" + auctionId);
+        
         Map<String, Object> data = autoBidDAO.getAutoBidStatus(auctionId, userId);
 
         JsonObject root = new JsonObject();
         root.addProperty("status", "success");
         root.add("data", gson.toJsonTree(data));
+        
+        System.out.println("[AutoBidAPI.doGet] Result: active=" + data.get("active") + 
+                ", maxAmount=" + data.get("max_amount"));
 
+        resp.setStatus(HttpServletResponse.SC_OK);
         resp.getWriter().write(gson.toJson(root));
     }
 
@@ -61,10 +67,10 @@ public class AutoBidAPI extends HttpServlet {
         double maxAmount = body.get("max_amount").getAsDouble();
         double priceStep = body.has("price_step") && !body.get("price_step").isJsonNull()
                 ? body.get("price_step").getAsDouble()
-                : 50000.0; // Default
+                : 50000.0;
 
-        System.out.println("[AutoBidAPI.doPost] Received: auctionId=" + auctionId + 
-            ", userId=" + userId + ", maxAmount=" + maxAmount + ", priceStep=" + priceStep);
+        System.out.println("[AutoBidAPI.doPost] userId=" + userId + ", auctionId=" + auctionId + 
+                ", maxAmount=" + maxAmount + ", priceStep=" + priceStep);
 
         if (maxAmount <= 0) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -75,9 +81,35 @@ public class AutoBidAPI extends HttpServlet {
         if (priceStep <= 0) priceStep = 50000.0;
 
         boolean ok = autoBidDAO.upsertAutoBid(auctionId, userId, maxAmount, priceStep);
-        resp.getWriter().write(ok
-                ? "{\"status\":\"success\",\"message\":\"Đã bật auto-bid\"}"
-                : "{\"status\":\"error\",\"message\":\"Không lưu được auto-bid\"}");
+        if (!ok) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            System.out.println("[AutoBidAPI.doPost] FAILED to save auto-bid");
+            resp.getWriter().write("{\"status\":\"error\",\"message\":\"Không lưu được auto-bid\"}");
+            return;
+        }
+
+        System.out.println("[AutoBidAPI.doPost] Auto-bid saved, triggering auto-bid resolver...");
+
+        // Kích hoạt auto-bid ngay sau khi bật
+        boolean autoBidExecuted = com.auction.service.AuctionService
+                .getInstance()
+                .resolveAutoBidsAfterCurrentState(auctionId);
+
+        System.out.println("[AutoBidAPI.doPost] Auto-bid executed: " + autoBidExecuted);
+
+        JsonObject data = new JsonObject();
+        data.addProperty("active", true);
+        data.addProperty("auto_bid_executed", autoBidExecuted);
+
+        JsonObject root = new JsonObject();
+        resp.setStatus(HttpServletResponse.SC_OK);
+        root.addProperty("status", "success");
+        root.addProperty("message", autoBidExecuted
+                ? "Đã bật auto-bid và hệ thống đã tự đẩy giá nếu đủ điều kiện."
+                : "Đã bật auto-bid, nhưng hiện chưa đủ điều kiện để tự đặt giá mới.");
+        root.add("data", data);
+
+        resp.getWriter().write(gson.toJson(root));
     }
 
     @Override
@@ -101,9 +133,18 @@ public class AutoBidAPI extends HttpServlet {
         }
 
         int auctionId = Integer.parseInt(auctionIdStr);
+        System.out.println("[AutoBidAPI.doDelete] userId=" + userId + ", auctionId=" + auctionId);
+        
         boolean ok = autoBidDAO.removeAutoBid(auctionId, userId);
-        resp.getWriter().write(ok
-                ? "{\"status\":\"success\",\"message\":\"Đã tắt auto-bid\"}"
-                : "{\"status\":\"error\",\"message\":\"Không tắt được auto-bid\"}");
+        
+        if (ok) {
+            resp.setStatus(HttpServletResponse.SC_OK);
+            System.out.println("[AutoBidAPI.doDelete] SUCCESS - Auto-bid removed for userId=" + userId + ", auctionId=" + auctionId);
+            resp.getWriter().write("{\"status\":\"success\",\"message\":\"Đã tắt auto-bid\"}");
+        } else {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            System.out.println("[AutoBidAPI.doDelete] FAILED - Could not remove auto-bid for userId=" + userId + ", auctionId=" + auctionId);
+            resp.getWriter().write("{\"status\":\"error\",\"message\":\"Không tắt được auto-bid\"}");
+        }
     }
 }

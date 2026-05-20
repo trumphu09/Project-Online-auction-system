@@ -61,22 +61,22 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
   @FXML private TextField txtBidAmount;
   @FXML private Button btnBid;
   @FXML private Label lblSellerRating, lblSellerSaleCount, lblBidNote;
-  // Thêm 2 biến này vào danh sách khai báo FXML nodes ở đầu file:
   @FXML private Button btnPay;
   @FXML private TextField txtAutoMaxAmount;
   @FXML private Button btnAutoBid;
+
   private boolean isAutoBidActive = false;
-  private UserDTO currentUser; // Lưu thông tin người dùng hiện tại
+  private boolean isAutoBidProcessing = false;  // ✅ Cờ để tránh bấm liên tục
+  private UserDTO currentUser;
 
   // ─── Hằng số ─────────────────────────────────────────────────────────────
   private static final String SERVER_BASE_URL = "http://localhost:8080/api";
   private static final DateTimeFormatter DT_FORMATTER =
-    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+      DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
   private static final DateTimeFormatter DISPLAY_FORMATTER =
-    DateTimeFormatter.ofPattern("HH:mm:ss");
+      DateTimeFormatter.ofPattern("HH:mm:ss");
   private static final DateTimeFormatter CHART_TIME_FMT =
-    DateTimeFormatter.ofPattern("HH:mm:ss");
- 
+      DateTimeFormatter.ofPattern("HH:mm:ss");
 
   // ─── Trạng thái ──────────────────────────────────────────────────────────
   private ItemDTO currentItem;
@@ -105,15 +105,13 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
   @FXML
   public void initialize() {
     try {
-      // Biểu đồ lịch sử giá
       if (chartHistory != null) {
         chartSeries = new XYChart.Series<>();
         chartSeries.setName("Lịch sử giá");
         chartHistory.getData().add(chartSeries);
-        chartHistory.setAnimated(false); // Tắt animation để update nhanh
+        chartHistory.setAnimated(false);
       }
 
-      // Đồng hồ đếm ngược: style đỏ to
       if (lblTimer != null) {
         lblTimer.setStyle("-fx-font-size: 40px; -fx-text-fill: red; -fx-font-weight: bold;");
         lblTimer.setText("--:--:--");
@@ -128,13 +126,9 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
   }
 
   // =========================================================================
-  // NHẬN DỮ LIỆU SẢN PHẨM (gọi từ ProductViewController)
+  // NHẬN DỮ LIỆU SẢN PHẨM
   // =========================================================================
 
-  /**
-   * Điền thông tin sản phẩm lên UI và kết nối WebSocket.
-   * Phải gọi sau khi FXML đã được load xong.
-   */
   public void setData(ItemDTO item) {
       if (item == null) {
         showAlert("Lỗi", "Không có dữ liệu sản phẩm để hiển thị!");
@@ -142,9 +136,8 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
       }
 
       this.currentItem = item;
-      this.hasRatedThisAuction = true; // mặc định ẩn nút cho đến khi check xong từ server
+      this.hasRatedThisAuction = true;
 
-      // ── Thông tin cơ bản ──────────────────────────────────────────────
       setText(lblDescription, safeText(item.getDescription(), "Không có mô tả"));
       setText(lblStartPrice,  formatVnd(item.getStartingPrice()));
       setText(lblStepPrice,   formatVnd(item.getPriceStep()));
@@ -201,15 +194,15 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
       }
 
       addChartPoint("Khởi điểm", displayedCurrentPrice);
-      
-      // ── Tải lịch sử giá từ server ────────────────────────────────────
+
       loadBidHistoryFromServer(item.getId());
-      
+
       loadProductImage(item.getImagePath());
       parseAndStartTimer(item.getEndTime());
       connectWebSocket();
 
       loadRatingStatus();
+      syncAutoBidStatus();
   }
 
   /**
@@ -223,40 +216,34 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
         Platform.runLater(() -> {
           if (bidHistory != null && !bidHistory.isEmpty()) {
             System.out.println("[BiddingRoom] Đã load " + bidHistory.size() + " bid lịch sử từ server");
-            
-            // DEBUG: In ra object đầu tiên để xem structure
+
             if (!bidHistory.isEmpty()) {
               System.out.println("[BiddingRoom] DEBUG - First bid object: " + bidHistory.get(0).toString());
             }
-            
-            // Xóa điểm "Khởi điểm" cũ để thay thế bằng lịch sử thực
+
             if (chartSeries != null && !chartSeries.getData().isEmpty()) {
               chartSeries.getData().clear();
             }
-            
-            // Thêm các điểm từ lịch sử (đã sắp xếp theo bid_time ASC từ server)
+
             int successCount = 0;
             for (int idx = 0; idx < bidHistory.size(); idx++) {
               try {
                 JsonObject bid = bidHistory.get(idx);
-                
-                // Lấy bid_amount (có thể là bidAmount hoặc bid_amount)
+
                 double bidAmount = 0;
                 if (bid.has("bidAmount")) {
                   bidAmount = bid.get("bidAmount").getAsDouble();
                 } else if (bid.has("bid_amount")) {
                   bidAmount = bid.get("bid_amount").getAsDouble();
                 }
-                
-                // Lấy bidder_username (có thể là bidderUsername hoặc bidder_username)
+
                 String bidderUsername = "";
                 if (bid.has("bidderUsername")) {
                   bidderUsername = bid.get("bidderUsername").getAsString();
                 } else if (bid.has("bidder_username")) {
                   bidderUsername = bid.get("bidder_username").getAsString();
                 }
-                
-                // Lấy timestamp (có thể là timestamp, bid_time, bidTime)
+
                 String timestamp = "";
                 if (bid.has("timestamp")) {
                   timestamp = bid.get("timestamp").getAsString();
@@ -265,23 +252,22 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
                 } else if (bid.has("bidTime")) {
                   timestamp = bid.get("bidTime").getAsString();
                 }
-                
-                System.out.println("[BiddingRoom] Bid #" + (idx+1) + " - amount=" + bidAmount 
+
+                System.out.println("[BiddingRoom] Bid #" + (idx+1) + " - amount=" + bidAmount
                   + ", username=" + bidderUsername + ", timestamp=" + timestamp);
-                
-                // Parse timestamp để lấy giờ phút giây
+
                 String timeLabel = parseTimeLabel(timestamp);
                 System.out.println("[BiddingRoom] Bid #" + (idx+1) + " - timeLabel=" + timeLabel);
-                
+
                 addChartPoint(timeLabel, bidAmount);
                 successCount++;
-                
+
               } catch (Exception e) {
                 System.err.println("[BiddingRoom] Lỗi parse bid #" + (idx+1) + ": " + e.getMessage());
                 e.printStackTrace();
               }
             }
-            
+
             System.out.println("[BiddingRoom] Đã load xong " + successCount + "/" + bidHistory.size() + " bid vào biểu đồ");
           }
         });
@@ -291,7 +277,6 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
       public void onError(String errorMessage) {
         System.err.println("[BiddingRoom] Lỗi load lịch sử bid: " + errorMessage);
         Platform.runLater(() -> {
-          // Nếu lỗi, vẫn giữ điểm "Khởi điểm" ban đầu
           System.err.println("[BiddingRoom] Fallback: Giữ điểm khởi điểm, chỉ load realtime");
         });
       }
@@ -300,39 +285,33 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
 
   /**
    * Parse timestamp từ API thành label ngắn cho chart (format: HH:mm:ss)
-   * Hỗ trợ các format: yyyy-MM-dd HH:mm:ss, yyyy-MM-dd'T'HH:mm:ss, ISO 8601
    */
   private String parseTimeLabel(String timestamp) {
       if (timestamp == null || timestamp.isBlank()) {
           return "N/A";
       }
-  
-      // Chuẩn hoá: cắt timezone offset (+07:00, Z)
+
       String normalized = timestamp.trim();
       if (normalized.endsWith("Z")) {
           normalized = normalized.substring(0, normalized.length() - 1);
       }
       int plusIdx = normalized.lastIndexOf('+');
-      if (plusIdx > 10) {          // tránh cắt nhầm phần date
+      if (plusIdx > 10) {
           normalized = normalized.substring(0, plusIdx);
       }
       int minusIdx = normalized.lastIndexOf('-');
-      // chỉ cắt nếu minus xuất hiện SAU phần date (index > 7) và sau phần time (:)
       if (minusIdx > 16) {
           normalized = normalized.substring(0, minusIdx);
       }
-  
-      // Thử từng formatter
+
       for (DateTimeFormatter fmt : TIMESTAMP_PARSERS) {
           try {
               LocalDateTime ldt = LocalDateTime.parse(normalized, fmt);
-              return ldt.format(CHART_TIME_FMT);   // trả về "HH:mm:ss"
+              return ldt.format(CHART_TIME_FMT);
           } catch (Exception ignored) {
-              // thử formatter tiếp theo
           }
       }
-  
-      // Fallback: cắt lấy 8 ký tự thời gian từ cuối chuỗi
+
       System.err.println("[BiddingRoom] parseTimeLabel fallback: " + timestamp);
       if (normalized.length() >= 8) {
           return normalized.substring(normalized.length() - 8);
@@ -362,7 +341,7 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
             @Override
             public void onError(String errorMessage) {
                 Platform.runLater(() -> {
-                    hasRatedThisAuction = true; // lỗi thì ẩn an toàn
+                    hasRatedThisAuction = true;
                     checkPaymentButtonVisibility();
                 });
             }
@@ -371,7 +350,7 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
   }
 
   // =========================================================================
-  // WEBSOCKET — kết nối / ngắt
+  // WEBSOCKET
   // =========================================================================
 
   private void connectWebSocket() {
@@ -383,12 +362,11 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
   }
 
   // =========================================================================
-  // BidUpdateListener — nhận sự kiện từ WebSocket
+  // BidUpdateListener
   // =========================================================================
 
   @Override
   public void onConnected() {
-    // Chạy trên JavaFX thread (Platform.runLater đã làm trong AuctionWebSocketClient)
     System.out.println("[BiddingRoom] WebSocket đã kết nối!");
     if (lblBidNote != null) {
       lblBidNote.setText("🟢 Kết nối realtime — Giá phải ≥ Giá hiện tại + Bước giá");
@@ -405,10 +383,6 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
     }
   }
 
-  /**
-   * Nhận giá mới broadcast từ server — cập nhật UI tức thì.
-   * Đã chạy trên JavaFX Application Thread.
-   */
   @Override
   public void onNewBid(int auctionId, double newPrice, String bidderUsername) {
       onNewBid(auctionId, newPrice, bidderUsername, null);
@@ -428,12 +402,15 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
           addChartPoint(label, newPrice);
 
           loadCurrentUserInfo();
+          checkPaymentButtonVisibility();
+          syncAutoBidStatus();
       }
 
       if (newEndTime != null && !newEndTime.isBlank()) {
           applyNewEndTimeFromServer(newEndTime);
       }
   }
+
   private void applyNewEndTimeFromServer(String newEndTimeIso) {
       try {
           LocalDateTime parsedEndTime = LocalDateTime.parse(newEndTimeIso);
@@ -441,21 +418,17 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
           Platform.runLater(() -> {
               this.auctionEndTime = parsedEndTime;
 
-              // Cập nhật text hiển thị kết thúc
               if (lblEndTime != null) {
                   lblEndTime.setText("Kết thúc: " + parsedEndTime.format(DT_FORMATTER));
               }
 
-              // Khởi động lại timer từ endTime mới
               restartCountdownTimer();
 
-              // Thông báo trực quan
               if (lblBidNote != null) {
                   lblBidNote.setText("⏰ Phiên đấu giá vừa được gia hạn thêm 1 phút!");
                   lblBidNote.setStyle("-fx-font-size: 11; -fx-text-fill: #f39c12; -fx-font-style: italic; -fx-font-weight: bold;");
               }
 
-              // Nếu muốn nháy nhẹ bằng style
               if (lblTimer != null) {
                   lblTimer.setStyle("-fx-font-size: 40px; -fx-text-fill: #27ae60; -fx-font-weight: bold;");
               }
@@ -465,19 +438,16 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
           System.err.println("[BiddingRoom] Không parse được newEndTime: " + newEndTimeIso);
       }
   }
+
   private void restartCountdownTimer() {
       stopCountdownTimer();
       startCountdownTimer();
   }
 
-  /**
-   * Phiên đấu giá kết thúc — khoá nút đặt giá.
-   * Đã chạy trên JavaFX Application Thread.
-   */
   @Override
   public void onAuctionEnded(int auctionId, String status) {
     auctionEnded = true;
-    if (currentItem != null) currentItem.setStatus("FINISHED"); // Cập nhật state
+    if (currentItem != null) currentItem.setStatus("FINISHED");
     stopCountdownTimer();
 
     if (btnBid != null) {
@@ -488,22 +458,19 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
     }
 
     if (txtBidAmount != null) txtBidAmount.setDisable(true);
-    if (lblTimer   != null) {
+    if (lblTimer != null) {
       lblTimer.setText("KẾT THÚC");
       lblTimer.setStyle("-fx-font-size: 28px; -fx-text-fill: #95a5a6; -fx-font-weight: bold;");
     }
 
-    // --- BẠN CẦN THÊM DÒNG NÀY VÀO ĐÂY ---
-    // Gọi hàm kiểm tra để tự động hiện nút "XÁC NHẬN THANH TOÁN" nếu user này là người thắng
     Platform.runLater(() -> {
         checkPaymentButtonVisibility();
     });
-    // ------------------------------------
 
     boolean isCanceled = "CANCELED".equalsIgnoreCase(status);
     String msg = isCanceled
       ? "Phiên đấu giá đã bị HỦY (không có người mua)."
-      : "Phiên đấu giá đã KẾT THÚC! Vui lòng xác nhận thanh toán nếu bạn là người chiến thắng."; // Sửa lại câu thông báo một chút cho hợp lý
+      : "Phiên đấu giá đã KẾT THÚC! Vui lòng xác nhận thanh toán nếu bạn là người chiến thắng.";
     showAlert("Thông báo phiên đấu giá", msg);
   }
 
@@ -515,7 +482,6 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
     if (endTimeStr == null || endTimeStr.isBlank()) return;
 
     try {
-      // Server có thể trả về "2024-01-15 20:00:00.0" → cắt milliseconds
       String normalized = endTimeStr.trim();
       if (normalized.contains(".")) {
         normalized = normalized.substring(0, normalized.indexOf("."));
@@ -584,7 +550,6 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
   @FXML
   private void handleBidAction() {
 
-    // THÊM ĐOẠN NÀY LÊN ĐẦU HÀM
     if (currentItem == null) {
         showAlert("Lỗi", "Chưa có sản phẩm đấu giá!");
         return;
@@ -624,7 +589,6 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
         return;
       }
 
-      // Khoá nút tránh double-click
       if (btnBid != null) btnBid.setDisable(true);
 
       AuctionFacade.getInstance().placeBid(auctionId, bidAmount,
@@ -633,11 +597,11 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
           @Override
           public void onSuccess(com.google.gson.JsonObject result) {
             Platform.runLater(() -> {
-              // Giá của mình được ghi nhận; realtime update sẽ tới qua WS
               showAlert("Thành công",
                 "Đã đặt giá " + formatVnd(bidAmount) + " thành công!");
               if (txtBidAmount != null) txtBidAmount.clear();
               if (btnBid != null) btnBid.setDisable(false);
+              syncAutoBidStatus();
             });
           }
 
@@ -722,7 +686,6 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
                           btnPay.setManaged(false);
                       }
 
-                      // Reload thông tin seller để hiện rating mới ngay trên UI
                       refreshSellerInfo(currentItem.getSellerId());
                   });
               }
@@ -737,6 +700,7 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
           }
       );
   }
+
   private void refreshSellerInfo(int sellerId) {
       AuctionFacade.getInstance().getUserById(sellerId, new ApiCallback<UserDTO>() {
           @Override
@@ -766,16 +730,11 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
           }
       });
   }
-  
-  
+
   // =========================================================================
   // HÀM NỘI BỘ
   // =========================================================================
 
-  /**
-   * Dọn dẹp tài nguyên: ngắt WebSocket và dừng timer.
-   * Gọi khi rời phòng đấu giá.
-   */
   private void cleanup() {
     wsClient.disconnect();
     stopCountdownTimer();
@@ -787,13 +746,12 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
       public void onSuccess(UserDTO user) {
         Platform.runLater(() -> {
           if (user == null) return;
-          currentUser = user; // Gán user hiện tại vào biến toàn cục
+          currentUser = user;
           String name = (user.getFullName() != null && !user.getFullName().isEmpty())
             ? user.getFullName() : user.getUsername();
           setText(lblCurrentUser, "Người dùng: " + name);
           setText(lblUserBalance, "Số dư: " + formatVnd(user.getBalance()));
-          
-          checkPaymentButtonVisibility(); // Kiểm tra xem có được hiện nút Pay không
+          checkPaymentButtonVisibility();
         });
       }
       @Override
@@ -803,8 +761,6 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
     });
   }
 
-  // Thêm hàm này ngay bên dưới
-  // đổi thành đánh giá người bán nếu user này là người thắng và phiên đã kết thúc
   private void checkPaymentButtonVisibility() {
       if (currentItem == null || currentUser == null || btnPay == null) return;
 
@@ -821,6 +777,7 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
           btnPay.setManaged(false);
       }
   }
+
   private void loadProductImage(String rawPath) {
     if (rawPath == null || rawPath.isBlank() || imgProduct == null) return;
     String imageUrl = resolveImageUrl(rawPath);
@@ -832,10 +789,6 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
     }
   }
 
-  /**
-   * Thêm một điểm vào biểu đồ lịch sử giá.
-   * Tự giới hạn tối đa 20 điểm để biểu đồ không bị chật.
-   */
   private void addChartPoint(String label, double price) {
     if (chartSeries == null) return;
     Platform.runLater(() -> {
@@ -866,18 +819,24 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
     if (lastSlash >= 0) filename = rawPath.substring(lastSlash + 1);
     return SERVER_BASE_URL + "/images/" + filename;
   }
-  private static final DateTimeFormatter[] TIMESTAMP_PARSERS = {
-        DateTimeFormatter.ISO_LOCAL_DATE_TIME,                         // handles T + optional millis
-        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"),            // space separator
-        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"),        // space + millis
-        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"),          // explicit T, no millis
-        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"),      // explicit T + millis
-  };
 
+  private static final DateTimeFormatter[] TIMESTAMP_PARSERS = {
+        DateTimeFormatter.ISO_LOCAL_DATE_TIME,
+        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"),
+        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"),
+        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"),
+        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"),
+  };
 
   // chức năng auto-bid: bật/tắt, đồng bộ trạng thái với server, và cập nhật UI tương ứng
   @FXML
   private void handleToggleAutoBid() {
+      // ✅ Tránh bấm liên tục
+      if (isAutoBidProcessing) {
+          System.out.println("[BiddingRoom] Auto-bid đang xử lý, vui lòng chờ...");
+          return;
+      }
+
       if (currentItem == null) {
           showAlert("Lỗi", "Chưa có sản phẩm đấu giá.");
           return;
@@ -888,104 +847,231 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
           return;
       }
 
+      isAutoBidProcessing = true;
+      if (btnAutoBid != null) {
+          btnAutoBid.setDisable(true);  // ✅ Disable nút khi đang xử lý
+      }
+
+      // ✅ TẮT AUTO-BID
       if (isAutoBidActive) {
+          System.out.println("[BiddingRoom] Tắt auto-bid cho auction: " + currentItem.getAuctionId());
           AuctionFacade.getInstance().cancelAutoBid(currentItem.getAuctionId(), new ApiCallback<JsonObject>() {
               @Override
               public void onSuccess(JsonObject result) {
                   Platform.runLater(() -> {
+                      System.out.println("[BiddingRoom] Tắt auto-bid thành công");
                       isAutoBidActive = false;
                       updateAutoBidUI(false);
-                      showAlert("Thành công", "Đã tắt auto-bid.");
+                      
+                      String message = "Đã tắt auto-bid.";
+                      if (result != null && result.has("message")) {
+                          message = result.get("message").getAsString();
+                      }
+                      
+                      showAlert("Thành công", message);
+                      syncAutoBidStatus();
+                      
+                      // ✅ Reset flag và enable nút
+                      isAutoBidProcessing = false;
+                      if (btnAutoBid != null) {
+                          btnAutoBid.setDisable(false);
+                      }
                   });
               }
 
               @Override
               public void onError(String errorMessage) {
-                  Platform.runLater(() -> showAlert("Lỗi", errorMessage));
+                  Platform.runLater(() -> {
+                      System.err.println("[BiddingRoom] Lỗi tắt auto-bid: " + errorMessage);
+                      showAlert("Lỗi", "Không thể tắt auto-bid: " + errorMessage);
+                      syncAutoBidStatus();
+                      
+                      // ✅ Reset flag và enable nút
+                      isAutoBidProcessing = false;
+                      if (btnAutoBid != null) {
+                          btnAutoBid.setDisable(false);
+                      }
+                  });
               }
           });
           return;
       }
 
-      String raw = txtAutoMaxAmount.getText() == null ? "" : txtAutoMaxAmount.getText().trim();
-      if (raw.isEmpty()) {
+      // ✅ BẬT AUTO-BID
+      String raw = txtAutoMaxAmount != null && txtAutoMaxAmount.getText() != null
+              ? txtAutoMaxAmount.getText().trim()
+              : "";
+
+      if (raw.isBlank()) {
           showAlert("Lỗi", "Vui lòng nhập giá trần auto-bid.");
+          isAutoBidProcessing = false;
+          if (btnAutoBid != null) {
+              btnAutoBid.setDisable(false);
+          }
           return;
       }
 
       try {
           double maxAmount = Double.parseDouble(raw);
           if (maxAmount <= displayedCurrentPrice) {
-              showAlert("Lỗi", "Giá trần phải lớn hơn giá hiện tại.");
+              showAlert("Lỗi", "Giá trần phải lớn hơn giá hiện tại (" + formatVnd(displayedCurrentPrice) + ")");
+              isAutoBidProcessing = false;
+              if (btnAutoBid != null) {
+                  btnAutoBid.setDisable(false);
+              }
               return;
           }
 
+          System.out.println("[BiddingRoom] Bật auto-bid: maxAmount=" + maxAmount + ", auctionId=" + currentItem.getAuctionId());
+          
           AuctionFacade.getInstance().setupAutoBid(currentItem.getAuctionId(), maxAmount, new ApiCallback<JsonObject>() {
               @Override
               public void onSuccess(JsonObject result) {
                   Platform.runLater(() -> {
+                      System.out.println("[BiddingRoom] Bật auto-bid thành công");
                       isAutoBidActive = true;
                       updateAutoBidUI(true);
-                      showAlert("Thành công", "Đã bật auto-bid.");
+
+                      String message = "Đã bật auto-bid với giá trần: " + formatVnd(maxAmount);
+                      boolean autoBidExecuted = false;
+
+                      try {
+                          if (result != null) {
+                              // Nếu message bị đẩy ra cấp root
+                              if (result.has("message") && !result.get("message").isJsonNull()) {
+                                  message = result.get("message").getAsString();
+                              }
+
+                              // Cập nhật kiểm tra trường hợp Facade đã bóc vỏ data
+                              if (result.has("data") && result.get("data").isJsonObject()) {
+                                  JsonObject data = result.getAsJsonObject("data");
+                                  autoBidExecuted = data.has("auto_bid_executed") && data.get("auto_bid_executed").getAsBoolean();
+                              } else if (result.has("auto_bid_executed")) {
+                                  autoBidExecuted = result.get("auto_bid_executed").getAsBoolean();
+                              }
+                          }
+                      } catch (Exception e) {
+                          System.err.println("[BiddingRoom] Lỗi parse response: " + e.getMessage());
+                      }
+
+                      showAlert("Thành công", message);
+
+                      if (autoBidExecuted) {
+                          System.out.println("[BiddingRoom] Auto-bid đã thực thi, cập nhật user info");
+                          loadCurrentUserInfo();
+                      }
+                      
+                      // ✅ Clear text field khi bật thành công
+                      if (txtAutoMaxAmount != null) {
+                          txtAutoMaxAmount.clear();
+                      }
+                      
+                      syncAutoBidStatus();
+                      
+                      // ✅ Reset flag và enable nút
+                      isAutoBidProcessing = false;
+                      if (btnAutoBid != null) {
+                          btnAutoBid.setDisable(false);
+                      }
                   });
               }
 
               @Override
               public void onError(String errorMessage) {
-                  Platform.runLater(() -> showAlert("Lỗi", errorMessage));
+                  Platform.runLater(() -> {
+                      System.err.println("[BiddingRoom] Lỗi bật auto-bid: " + errorMessage);
+                      showAlert("Lỗi", "Không thể bật auto-bid: " + errorMessage);
+                      syncAutoBidStatus();
+                      
+                      // ✅ Reset flag và enable nút
+                      isAutoBidProcessing = false;
+                      if (btnAutoBid != null) {
+                          btnAutoBid.setDisable(false);
+                      }
+                  });
               }
           });
 
       } catch (NumberFormatException e) {
-          showAlert("Lỗi", "Giá trần không hợp lệ.");
+          System.err.println("[BiddingRoom] Giá trần không hợp lệ: " + raw);
+          showAlert("Lỗi", "Giá trần không hợp lệ. Vui lòng nhập số.");
+          isAutoBidProcessing = false;
+          if (btnAutoBid != null) {
+              btnAutoBid.setDisable(false);
+          }
       }
   }
 
   private void updateAutoBidUI(boolean active) {
-      if (btnAutoBid == null || txtAutoMaxAmount == null) return;
+      if (btnAutoBid == null) return;
 
       if (active) {
-          btnAutoBid.setText("TẮT AUTO-BID");
-          btnAutoBid.setStyle("-fx-background-color: #c0392b; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;");
-          txtAutoMaxAmount.setDisable(true);
+          // ✅ AUTO-BID ĐANG HOẠT ĐỘNG - Hiển thị nút TẮT
+          btnAutoBid.setText("❌ TẮT AUTO-BID");
+          btnAutoBid.setStyle("-fx-background-color: #c0392b; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-font-size: 13; -fx-padding: 12; -fx-cursor: hand;");
+          btnAutoBid.setDisable(false);  // ✅ Đảm bảo nút vẫn clickable
+          
+          // Disable text field khi auto-bid active
+          if (txtAutoMaxAmount != null) {
+              txtAutoMaxAmount.setDisable(true);
+              txtAutoMaxAmount.setStyle("-fx-text-fill: #95a5a6; -fx-control-inner-background: #ecf0f1; -fx-opacity: 0.7;");
+          }
       } else {
-          btnAutoBid.setText("BẬT AUTO-BID");
-          btnAutoBid.setStyle("-fx-background-color: #d35400; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;");
-          txtAutoMaxAmount.setDisable(false);
+          // ✅ AUTO-BID TẮT - Hiển thị nút BẬT
+          btnAutoBid.setText("⚡ BẬT AUTO-BID");
+          btnAutoBid.setStyle("-fx-background-color: #d35400; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-font-size: 13; -fx-padding: 12; -fx-cursor: hand;");
+          btnAutoBid.setDisable(false);  // ✅ Đảm bảo nút vẫn clickable
+          
+          // Enable text field khi auto-bid tắt
+          if (txtAutoMaxAmount != null) {
+              txtAutoMaxAmount.setDisable(false);
+              txtAutoMaxAmount.setStyle("-fx-opacity: 1.0;");
+          }
       }
   }
 
   private void syncAutoBidStatus() {
       if (currentItem == null) return;
-
       AuctionFacade.getInstance().getAutoBidStatus(currentItem.getAuctionId(), new ApiCallback<JsonObject>() {
           @Override
           public void onSuccess(JsonObject result) {
               Platform.runLater(() -> {
                   boolean active = false;
-                  if (result != null && result.has("data") && result.get("data").isJsonObject()) {
-                      JsonObject data = result.getAsJsonObject("data");
-                      active = data.has("active") && data.get("active").getAsBoolean();
-                      if (active && data.has("max_amount") && txtAutoMaxAmount != null) {
-                          txtAutoMaxAmount.setText(String.valueOf(data.get("max_amount").getAsDouble()));
+                  double maxAmount = 0;
+                   
+                  if (result != null) {
+                      // SỬA LỖI Ở ĐÂY: Hỗ trợ cả trường hợp chưa bóc và đã bóc lớp "data"
+                      if (result.has("data") && result.get("data").isJsonObject()) {
+                          JsonObject data = result.getAsJsonObject("data");
+                          active = data.has("active") && data.get("active").getAsBoolean();
+                          if (data.has("max_amount")) {
+                              maxAmount = data.get("max_amount").getAsDouble();
+                          }
+                      } else {
+                          // Xử lý khi AuctionFacade đã bóc lớp "data", result chính là dữ liệu bên trong
+                          active = result.has("active") && result.get("active").getAsBoolean();
+                          if (result.has("max_amount")) {
+                              maxAmount = result.get("max_amount").getAsDouble();
+                          }
                       }
                   }
+                  
+                  System.out.println("[BiddingRoom] Auto-bid status: active=" + active + ", maxAmount=" + maxAmount);
+                  
                   isAutoBidActive = active;
                   updateAutoBidUI(active);
+                  
+                  // Cập nhật text field với giá trần từ server
+                  if (active && txtAutoMaxAmount != null && maxAmount > 0) {
+                      txtAutoMaxAmount.setText(formatVnd(maxAmount));
+                  }
               });
           }
 
           @Override
           public void onError(String errorMessage) {
-              System.err.println("[BiddingRoom] Không load được trạng thái auto-bid: " + errorMessage);
+              System.err.println("[BiddingRoom] Lỗi load trạng thái auto-bid: " + errorMessage);
           }
       });
-  }
-
-  @Override
-  public void onAutoBidNotice(int auctionId, int userId, String message) {
-      if (currentUser != null && currentUser.getId() == userId) {
-          Platform.runLater(() -> showAlert("Auto-Bid", message));
-      }
   }
 }

@@ -43,8 +43,11 @@ public class AutoBidDAO {
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, auctionId);
             ps.setInt(2, userId);
-            return ps.executeUpdate() > 0;
+            int rowsAffected = ps.executeUpdate();
+            System.out.println("[AutoBidDAO.removeAutoBid] Deleted " + rowsAffected + " rows for auctionId=" + auctionId + ", userId=" + userId);
+            return rowsAffected > 0;
         } catch (Exception e) {
+            System.err.println("[AutoBidDAO.removeAutoBid] ERROR: " + e.getMessage());
             e.printStackTrace();
             return false;
         }

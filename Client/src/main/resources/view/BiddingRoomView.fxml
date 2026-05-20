@@ -152,15 +152,18 @@
 
                         <TextField fx:id="txtAutoMaxAmount"
                                 prefHeight="40.0"
+                                minWidth="200.0"
                                 promptText="Nhập giá trần auto-bid (VNĐ)"
                                 style="-fx-background-radius: 5; -fx-padding: 10; -fx-font-size: 12;" />
 
                         <Button fx:id="btnAutoBid"
                                 text="BẬT AUTO-BID"
                                 onAction="#handleToggleAutoBid"
-                                prefHeight="45.0"
+                                prefHeight="48.0"
+                                minHeight="48.0"
                                 maxWidth="Infinity"
-                                style="-fx-background-color: #d35400; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand; -fx-font-size: 13;" />
+                                wrapText="true"
+                                style="-fx-background-color: #d35400; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand; -fx-font-size: 13; -fx-padding: 12;" />
                     </children>
                 </VBox>
             </children>
