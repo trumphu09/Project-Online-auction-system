@@ -3,8 +3,7 @@ package com.auction.service;
 
 import com.auction.controller.AuctionController;
 import com.auction.service.AuctionService;
-import com.auction.service.ItemService;
-import com.auction.server.models.ItemDTO;
+import com.auction.server.dao.BidsDAO.BidResult;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,8 +12,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.Map;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -23,9 +21,6 @@ public class AuctionControllerTest {
 
     @Mock
     private AuctionService auctionService;
-
-    @Mock
-    private ItemService itemService;
 
     private AuctionController auctionController;
     private final Gson gson = new Gson();
@@ -47,8 +42,9 @@ public class AuctionControllerTest {
 
     @Test
     void testHandlePlaceBid_Success() {
+        BidResult bidResult = new BidResult(true, false, null, "Thành công: Đã chốt giá $200.0");
         when(auctionService.placeBid(1, 2, 200.0))
-                .thenReturn("Thành công: Đã chốt giá $200.0");
+                .thenReturn(bidResult);
 
         JsonObject req = new JsonObject();
         req.addProperty("auction_id", 1);
@@ -58,13 +54,15 @@ public class AuctionControllerTest {
         JsonObject respObj = gson.fromJson(response, JsonObject.class);
 
         assertEquals("success", respObj.get("status").getAsString());
+        assertEquals("Thành công: Đã chốt giá $200.0", respObj.get("message").getAsString());
         verify(auctionService).placeBid(1, 2, 200.0);
     }
 
     @Test
     void testHandlePlaceBid_Failure() {
+        BidResult bidResult = new BidResult(false, false, null, "Thất bại: Giá không đủ cao, phiên đã đóng, hoặc số dư không đủ!");
         when(auctionService.placeBid(1, 2, 10.0))
-                .thenReturn("Thất bại: Giá không đủ cao, phiên đã đóng, hoặc số dư không đủ!");
+                .thenReturn(bidResult);
 
         JsonObject req = new JsonObject();
         req.addProperty("auction_id", 1);
@@ -74,6 +72,7 @@ public class AuctionControllerTest {
         JsonObject respObj = gson.fromJson(response, JsonObject.class);
 
         assertEquals("error", respObj.get("status").getAsString());
+        assertEquals("Thất bại: Giá không đủ cao, phiên đã đóng, hoặc số dư không đủ!", respObj.get("message").getAsString());
     }
 
     @Test
@@ -112,8 +111,9 @@ public class AuctionControllerTest {
 
     @Test
     void testHandlePlaceBid_ZeroAmount() {
+        BidResult bidResult = new BidResult(false, false, null, "Lỗi: Số tiền không hợp lệ!");
         when(auctionService.placeBid(1, 2, 0.0))
-                .thenReturn("Lỗi: Số tiền không hợp lệ!");
+                .thenReturn(bidResult);
 
         JsonObject req = new JsonObject();
         req.addProperty("auction_id", 1);
@@ -126,20 +126,50 @@ public class AuctionControllerTest {
     }
 
     // =============================================
-    // handleGetAuctionStatus() / handleGetAuctionData()
+    // handlePlaceBid() với time extension
     // =============================================
 
     @Test
-    void testHandleGetAuctionData_ValidId() {
-        // AuctionService.placeBid() thường kiểm tra qua DAO, test này check controller parse đúng id
+    void testHandlePlaceBid_WithTimeExtension() {
+        LocalDateTime newEndTime = LocalDateTime.now().plusMinutes(5);
+        BidResult bidResult = new BidResult(true, true, newEndTime, "Thành công: Đã chốt giá $150.0 - Thời gian gia hạn");
+        when(auctionService.placeBid(3, 5, 150.0))
+                .thenReturn(bidResult);
+
         JsonObject req = new JsonObject();
-        req.addProperty("auction_id", 5);
-        req.addProperty("amount", 100.0);
+        req.addProperty("auction_id", 3);
+        req.addProperty("amount", 150.0);
 
-        when(auctionService.placeBid(5, 1, 100.0)).thenReturn("Thành công: Đã chốt giá $100.0");
+        String response = auctionController.handlePlaceBid(gson.toJson(req), 5);
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
 
-        String response = auctionController.handlePlaceBid(gson.toJson(req), 1);
+        assertEquals("success", respObj.get("status").getAsString());
+        assertTrue(respObj.getAsJsonObject("data").get("time_extended").getAsBoolean());
+        assertEquals(3, respObj.getAsJsonObject("data").get("auction_id").getAsInt());
+        assertEquals(150.0, respObj.getAsJsonObject("data").get("amount").getAsDouble());
+    }
 
-        verify(auctionService).placeBid(5, 1, 100.0);
+    @Test
+    void testHandlePlaceBid_NegativeAmount() {
+        BidResult bidResult = new BidResult(false, false, null, "Lỗi: Số tiền không hợp lệ!");
+        when(auctionService.placeBid(1, 2, -50.0))
+                .thenReturn(bidResult);
+
+        JsonObject req = new JsonObject();
+        req.addProperty("auction_id", 1);
+        req.addProperty("amount", -50.0);
+
+        String response = auctionController.handlePlaceBid(gson.toJson(req), 2);
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
+
+        assertEquals("error", respObj.get("status").getAsString());
+    }
+
+    @Test
+    void testHandlePlaceBid_NullRequest() {
+        String response = auctionController.handlePlaceBid(null, 2);
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
+
+        assertEquals("error", respObj.get("status").getAsString());
     }
 }
