@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.lang.reflect.Field;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -63,16 +64,18 @@ public class AuctionServiceTest {
         UserDTO bidder = new UserDTO();
         bidder.setUsername("bidder");
 
+        BidResult bidResult = new BidResult(true, false, null, "Thành công: Đã chốt giá $100.0");
+        when(bidsDAO.executeBidDetailed(auctionId, bidderId, amount)).thenReturn(bidResult);
         when(userDAO.getUserById(bidderId)).thenReturn(bidder);
-        when(bidsDAO.executeBid(auctionId, bidderId, amount)).thenReturn(true);
 
         // Act
         BidResult result = auctionService.placeBid(auctionId, bidderId, amount);
 
         // Assert
-        assertEquals("Thành công: Đã chốt giá $100.0", result);
-        verify(bidsDAO).executeBid(auctionId, bidderId, amount);
-        // Now this verification will work because AuctionManager.getInstance() returns our mock
+        assertNotNull(result);
+        assertTrue(result.isSuccess());
+        assertEquals("Thành công: Đã chốt giá $100.0", result.getMessage());
+        verify(bidsDAO).executeBidDetailed(auctionId, bidderId, amount);
         verify(auctionManager).broadcastUpdate(eq("NEW_BID"), any(Map.class));
     }
 
@@ -82,8 +85,10 @@ public class AuctionServiceTest {
         BidResult result = auctionService.placeBid(1, 1, 0);
 
         // Assert
-        assertEquals("Lỗi: Số tiền không hợp lệ!", result);
-        verify(bidsDAO, never()).executeBid(anyInt(), anyInt(), anyDouble());
+        assertNotNull(result);
+        assertFalse(result.isSuccess());
+        assertEquals("Lỗi: Số tiền không hợp lệ!", result.getMessage());
+        verify(bidsDAO, never()).executeBidDetailed(anyInt(), anyInt(), anyDouble());
     }
 
     @Test
@@ -95,15 +100,56 @@ public class AuctionServiceTest {
         UserDTO bidder = new UserDTO();
         bidder.setUsername("bidder");
 
+        BidResult bidResult = new BidResult(false, false, null, "Thất bại: Giá không đủ cao, phiên đã đóng, hoặc số dư không đủ!");
+        when(bidsDAO.executeBidDetailed(auctionId, bidderId, amount)).thenReturn(bidResult);
         when(userDAO.getUserById(bidderId)).thenReturn(bidder);
-        when(bidsDAO.executeBid(auctionId, bidderId, amount)).thenReturn(false);
 
         // Act
         BidResult result = auctionService.placeBid(auctionId, bidderId, amount);
 
         // Assert
-        assertEquals("Thất bại: Giá không đủ cao, phiên đã đóng, hoặc số dư không đủ!", result);
-        verify(bidsDAO).executeBid(auctionId, bidderId, amount);
+        assertNotNull(result);
+        assertFalse(result.isSuccess());
+        assertEquals("Thất bại: Giá không đủ cao, phiên đã đóng, hoặc số dư không đủ!", result.getMessage());
+        verify(bidsDAO).executeBidDetailed(auctionId, bidderId, amount);
         verify(auctionManager, never()).broadcastUpdate(anyString(), any(Map.class));
+    }
+
+    @Test
+    void testPlaceBidWithTimeExtension() {
+        // Arrange
+        int auctionId = 1;
+        int bidderId = 1;
+        double amount = 150.0;
+        LocalDateTime newEndTime = LocalDateTime.now().plusMinutes(1);
+        UserDTO bidder = new UserDTO();
+        bidder.setUsername("bidder");
+
+        BidResult bidResult = new BidResult(true, true, newEndTime, "Thành công: Đã chốt giá $150.0 - Thời gian gia hạn");
+        when(bidsDAO.executeBidDetailed(auctionId, bidderId, amount)).thenReturn(bidResult);
+        when(userDAO.getUserById(bidderId)).thenReturn(bidder);
+
+        // Act
+        BidResult result = auctionService.placeBid(auctionId, bidderId, amount);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.isSuccess());
+        assertTrue(result.isTimeExtended());
+        assertNotNull(result.getNewEndTime());
+        verify(bidsDAO).executeBidDetailed(auctionId, bidderId, amount);
+        verify(auctionManager, times(2)).broadcastUpdate(anyString(), any(Map.class));
+    }
+
+    @Test
+    void testPlaceBidWithNegativeAmount() {
+        // Act
+        BidResult result = auctionService.placeBid(1, 1, -50.0);
+
+        // Assert
+        assertNotNull(result);
+        assertFalse(result.isSuccess());
+        assertEquals("Lỗi: Số tiền không hợp lệ!", result.getMessage());
+        verify(bidsDAO, never()).executeBidDetailed(anyInt(), anyInt(), anyDouble());
     }
 }
