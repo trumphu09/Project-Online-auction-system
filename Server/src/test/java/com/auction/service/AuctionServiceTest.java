@@ -1,6 +1,7 @@
 package com.auction.service;
 
 import com.auction.server.dao.BidsDAO;
+import com.auction.server.dao.BidsDAO.BidResult;
 import com.auction.server.dao.AuctionDAO;
 import com.auction.server.dao.UserDAO;
 import com.auction.server.models.AuctionManager;
@@ -66,7 +67,7 @@ public class AuctionServiceTest {
         when(bidsDAO.executeBid(auctionId, bidderId, amount)).thenReturn(true);
 
         // Act
-        String result = auctionService.placeBid(auctionId, bidderId, amount);
+        BidResult result = auctionService.placeBid(auctionId, bidderId, amount);
 
         // Assert
         assertEquals("Thành công: Đã chốt giá $100.0", result);
@@ -78,7 +79,7 @@ public class AuctionServiceTest {
     @Test
     void testPlaceBidWithInvalidAmount() {
         // Act
-        String result = auctionService.placeBid(1, 1, 0);
+        BidResult result = auctionService.placeBid(1, 1, 0);
 
         // Assert
         assertEquals("Lỗi: Số tiền không hợp lệ!", result);
@@ -98,7 +99,7 @@ public class AuctionServiceTest {
         when(bidsDAO.executeBid(auctionId, bidderId, amount)).thenReturn(false);
 
         // Act
-        String result = auctionService.placeBid(auctionId, bidderId, amount);
+        BidResult result = auctionService.placeBid(auctionId, bidderId, amount);
 
         // Assert
         assertEquals("Thất bại: Giá không đủ cao, phiên đã đóng, hoặc số dư không đủ!", result);
