@@ -1,4 +1,4 @@
-USE defaultdb;
+USE online_auction;
 
 -- 1. Users (chung)
 CREATE TABLE users (
@@ -15,7 +15,7 @@ CREATE TABLE users (
 CREATE TABLE bidders (
     user_id INT PRIMARY KEY,
     account_balance DOUBLE DEFAULT 0,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    CONSTRAINT fk_bidders_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- 3. Sellers (riêng cho seller)
@@ -24,7 +24,7 @@ CREATE TABLE sellers (
     total_rating DOUBLE DEFAULT 0,
     sale_count INT DEFAULT 0,
     account_balance DOUBLE DEFAULT 0,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    CONSTRAINT fk_sellers_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- 4. Items (sản phẩm)
@@ -38,8 +38,6 @@ CREATE TABLE items (
     category VARCHAR(50) NOT NULL, -- Sẽ lưu giá trị 'ART', 'ELECTRONICS', hoặc 'VEHICLE'
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     image_path VARCHAR(255),    
-    
-    
     CONSTRAINT fk_items_seller FOREIGN KEY (seller_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -82,8 +80,8 @@ CREATE TABLE bids (
     bidder_id INT NOT NULL,
     bid_amount DOUBLE NOT NULL,
     bid_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (auction_id) REFERENCES auctions(id),
-    FOREIGN KEY (bidder_id) REFERENCES bidders(user_id)
+    CONSTRAINT fk_bids_auction FOREIGN KEY (auction_id) REFERENCES auctions(id) ON DELETE CASCADE,
+    CONSTRAINT fk_bids_bidder FOREIGN KEY (bidder_id) REFERENCES bidders(user_id) ON DELETE CASCADE
 );
 
 -- 9. Payments (thanh toán)
@@ -109,11 +107,12 @@ CREATE TABLE auctions(
     current_max_price DOUBLE DEFAULT 0,
     highest_bidder_id INT DEFAULT NULL,
     end_time DATETIME NOT NULL,
-    status ENUM('OPEN', 'RUNNING', 'FINISHED', 'PAID', 'CANCELED') DEFAULT 'OPEN',
+    status ENUM('OPEN', 'RUNNING', 'FINISHED', 'PAID', 'CANCELLED') DEFAULT 'OPEN',
     has_extended TINYINT(1) DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     start_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    price_step DOUBLE DEFAULT 1000;
+    price_step DOUBLE DEFAULT 1000,
+
     CONSTRAINT fk_auctions_item FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE,
     CONSTRAINT fk_auctions_seller FOREIGN KEY (seller_id) REFERENCES sellers(user_id) ON DELETE CASCADE,
     CONSTRAINT fk_auctions_highest_bidder FOREIGN KEY (highest_bidder_id) REFERENCES bidders(user_id)

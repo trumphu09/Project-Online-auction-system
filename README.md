@@ -1,201 +1,297 @@
-# 🔨 Hệ Thống Đấu Giá Trực Tuyến (Online Auction System)
+# 🏷️ Project-Online-auction-system
 
-![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=java&logoColor=white)
-![JavaFX](https://img.shields.io/badge/JavaFX-FF9E0F?style=for-the-badge&logo=java&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
-![SparkJava](https://img.shields.io/badge/SparkJava-000000?style=for-the-badge)
-![WebSocket](https://img.shields.io/badge/WebSocket-010101?style=for-the-badge)
-![HikariCP](https://img.shields.io/badge/HikariCP-Connection_Pooling-00B4AB?style=for-the-badge)
-
-Dự án Hệ thống Đấu giá Trực tuyến là bài tập lớn môn Lập trình nâng cao. Hệ thống áp dụng kiến trúc Client-Server, sử dụng JavaFX cho giao diện người dùng, SparkJava cho RESTful API, WebSocket cho tính năng cập nhật giá thời gian thực (Real-time), và MySQL để quản lý dữ liệu.
+Hệ thống đấu giá trực tuyến theo mô hình **Client–Server**, xây dựng bằng Java thuần.  
+Cho phép nhiều người dùng tham gia đặt giá theo thời gian thực, quản lý sản phẩm đa danh mục, đấu giá tự động, thanh toán tự động khi kết thúc phiên nếu có người thắng, và đánh giá người bán sau khi phiên kết thúc.
 
 ---
 
-## 1. Khả năng áp dụng lý thuyết & Kiến trúc phần mềm
-Dự án được xây dựng dựa trên các nền tảng kiến thức cốt lõi và các tiêu chuẩn khắt khe trong thiết kế phần mềm:
+## 📖 Mô tả bài toán & Phạm vi hệ thống
 
-* **Tư duy Hướng đối tượng (OOP) & SOLID:**
-    * **Tuân thủ tuyệt đối OCP (Open/Closed Principle):** Hệ thống khởi tạo và truy vấn dữ liệu được thiết kế dạng "Plug-and-Play". Khi cần bán thêm loại sản phẩm mới (ví dụ: Bất động sản), chỉ cần đăng ký Class mới vào hệ thống mà **không cần sửa đổi** bất kỳ câu lệnh `switch-case` hay `if-else` nào ở các lớp lõi.
-    * **Đa hình (Polymorphism):** Xử lý chung các loại sản phẩm (`Art`, `Electronics`, `Vehicle`) và vai trò người dùng (`Bidder`, `Seller`, `Admin`) qua các Interface/Abstract Class.
-* **Mẫu thiết kế (Design Patterns) nâng cao:**
-    * **Factory & Registry Pattern:** Sử dụng `ItemFactory` kết hợp với Bộ đăng ký (Registry Map) để tự động phân luồng và lắp ráp các đối tượng `Item` một cách linh hoạt (Dynamic Instantiation).
-    * **Strategy Pattern:** Lớp `ItemDAO` đóng vai trò Context, ủy quyền việc Ghi/Đọc dữ liệu bảng con cho các chiến lược `IItemSubDAO` tương ứng (`ArtDAO`, `VehicleDAO`), giúp mã nguồn sạch và dễ bảo trì.
-    * **DAO Pattern (Data Access Object):** Tách biệt hoàn toàn logic SQL khỏi logic nghiệp vụ.
-    * **Singleton Pattern:** Quản lý tập trung `DatabaseConnection`, `AuctionManager`.
-    * **Observer Pattern:** Phát sóng (broadcast) trạng thái đấu giá ngay lập tức tới tất cả Client qua `WebSocket`.
-* **Cơ sở dữ liệu & Quản lý kết nối (Connection Pooling):** * Thiết kế CSDL mô hình **Class Table Inheritance** với 10 bảng chuẩn hóa cao (tránh NULL thừa).
-    * Áp dụng thư viện **HikariCP** để quản lý Connection Pooling, khắc phục lỗi thắt cổ chai, hỗ trợ đa luồng xử lý đồng thời hàng ngàn truy vấn (High Concurrency).
-    * Quản lý **Transaction (Rollback/Commit)** chặt chẽ cùng kỹ thuật khóa dòng (`FOR UPDATE`) để chống xung đột luồng tranh mua, tranh thanh toán.
+Hệ thống gồm ba vai trò chính:
 
----
+- **Bidder (Người mua):** Xem danh sách sản phẩm, tìm kiếm/lọc theo phân loại, vào phòng đấu giá, đặt giá thủ công hoặc đăng ký đấu giá tự động (Auto-Bid), theo dõi sản phẩm yêu thích (Watchlist), xem bảng lịch sử giá, nạp tiền, thanh toán tự động và đánh giá người bán.
+- **Seller (Người bán):** Đăng bán sản phẩm thuộc các danh mục (Xe cộ, Nghệ thuật, Điện tử), cập nhật, tạo tự động phiên đấu giá và quản lý phiên đấu giá của mình.
+- **Admin (Quản trị viên):** Quản lý toàn bộ tài khoản người dùng (khóa/mở khóa), quản lý tất cả sản phẩm trong hệ thống.
 
-## 2. Tiến độ hiện tại (Đạt 90%)
-
-* **Database & Tầng DAO:**
-    * Hoàn thiện Schema MySQL (10 bảng) và toàn bộ các lớp DAO.
-    * Đã refactor thành công tầng DAO chuẩn OCP. Áp dụng cấu trúc `try-with-resources` nghiêm ngặt để chống rò rỉ bộ nhớ (Memory Leak).
-* **Backend (Server):** * Xây dựng thành công `AuctionManager` (dùng `ExecutorService`) xử lý tự động đấu giá đa luồng.
-    * Mở cổng WebSocket chạy độc lập cho Real-time Bidding.
-* **Client (UI):** Dựng xong toàn bộ màn hình bằng JavaFX (Login, Product, BiddingRoom, Seller/Admin Dashboard).
-* **Giao tiếp (API):** Hoàn thiện bộ Model/DTO đồng nhất. 
+**Tính năng đặc trưng:**
+- Giá đấu cập nhật **realtime** qua WebSocket — không cần refresh trang.
+- **Auto-Bid:** đặt giá tự động khi bị vượt, chỉ có 1 người được cầm giá cao nhất auto-bid.
+- **Tự động đóng phiên & chuyển tiền:** `AuctionStatusScheduler` chạy nền mỗi giây, tự chuyển tiền cho Seller khi phiên kết thúc.
+- **Giam tiền an toàn:** tạm thời cầm tiền của người cầm giá cao nhất.
+- **Gia hạn thời gian:** phiên tự cộng thêm thời gian nếu có bid vào gần cuối.
 
 ---
 
-## 3. Kế hoạch hoàn thiện (Giai đoạn nước rút)
+## 🛠️ Công nghệ sử dụng
 
-* **Tích hợp API:** Khởi chạy `SparkJava` trên Server. Nối `ApiClient` ở giao diện JavaFX vào các API này để thay thế hoàn toàn dữ liệu Mock tĩnh.
-* **Ghép nối WebSocket:** Hoàn thiện luồng giao diện cập nhật tiền trực tiếp tại phòng đấu giá (`BiddingRoom`).
+| Thành phần | Công nghệ | Phiên bản |
+|---|---|---|
+| Ngôn ngữ | Java | 17 |
+| Giao diện Client | JavaFX + FXML | 17 |
+| HTTP Server | Embedded Apache Tomcat | 9.0.83 |
+| WebSocket | Java-WebSocket (org.java_websocket) | 1.5.4 |
+| Tuần tự hóa JSON | Gson | 2.10.1 |
+| Cơ sở dữ liệu | MySQL | 8.0+ |
+| Connection Pool | HikariCP | 5.1.0 |
+| Mã hóa mật khẩu | jBCrypt | 0.4 |
+| Build tool | Apache Maven | 3.8+ |
+| HTTP Client (Client-side) | java.net.http.HttpClient | Java 11+ |
+| Xác thực | Session-based (HTTP Cookie + HttpSession) | — |
+| Testing | JUnit 5 + Mockito | 5.10 / 5.5 |
 
 ---
 
-## 4. Phân công công việc
+## ⚙️ Yêu cầu môi trường
 
-| STT | Họ và tên | Vai trò | Trách nhiệm chính |
-| :---: | :--- | :--- | :--- |
-| 1 | **Thiện** | API Developer | Xây dựng REST API (SparkJava), xử lý JSON (Gson), thiết kế các Endpoints giao tiếp. |
-| 2 | **Toàn** | Backend / Logic | Xây dựng WebSocket Server, quản lý phiên đấu giá (`AuctionManager`), xử lý đa luồng. |
-| 3 | **Thành** | Database Architect | Thiết kế MySQL, thiết kế tầng DAO chuẩn OCP, cấu hình HikariCP, quản lý Transaction SQL. |
-| 4 | **Đại** | Client / UI | Thiết kế giao diện JavaFX, xử lý luồng sự kiện UI bất đồng bộ, tích hợp `ApiClient`. |
+| Yêu cầu | Phiên bản tối thiểu |
+|---|---|
+| JDK | **17** trở lên (đã kiểm thử với JDK 17 và JDK 21) |
+| Apache Maven | 3.8 trở lên |
+| MySQL | 8.0 trở lên |
+| RAM | 512 MB (khuyến nghị 1 GB) |
+| OS | Windows 10+, Ubuntu 20.04+, macOS 12+ |
+
+> **Lưu ý JavaFX:** Client sử dụng `javafx-maven-plugin` để tự động xử lý module path và native libraries. Không cần cài JavaFX SDK riêng — plugin sẽ tải đúng bản native cho hệ điều hành hiện tại qua Maven.
 
 ---
 
-## 5. Sơ đồ Thiết kế Lớp (UML Class Diagram - Core Architecture)
+## 📁 Cấu trúc thư mục
 
-Sơ đồ dưới đây minh họa kiến trúc OCP và các Mẫu thiết kế được áp dụng tại tầng xử lý lõi của Server.
+```
+Project-Online-auction-system/
+│
+├── README.md
+├── API_USAGE_GUIDE.md
+│
+├── Client/
+│   ├── pom.xml
+│   └── src/
+│       └── main/
+│           ├── java/com/auction/client/
+│           │   ├── controllers/          # Xử lý giao diện JavaFX
+│           │   │   ├── AdminController.java
+│           │   │   ├── BiddingRoomController.java
+│           │   │   ├── BidHistoryController.java
+│           │   │   ├── LoginController.java
+│           │   │   ├── ProductViewController.java
+│           │   │   ├── RegisterController.java
+│           │   │   └── SellerController.java
+│           │   ├── model/dto/            # DTO trao đổi dữ liệu
+│           │   ├── network/              # HTTP Client, WebSocket Client
+│           │   │   ├── ApiService.java
+│           │   │   └── AuctionWebSocketClient.java
+│           │   ├── service/              # Business logic phía client
+│           │   ├── util/                 # Tiện ích hỗ trợ UI
+│           │   ├── Main.java             # Entry point
+│           │   └── MainApp.java          # JavaFX Application
+│           └── resources/view/           # File FXML giao diện
+│
+├── Server/
+│   ├── pom.xml
+│   ├── database.sql                      # Script khởi tạo CSDL
+│   └── src/main/java/com/auction/
+│       ├── controller/                   # Điều phối request HTTP
+│       ├── service/                      # Xử lý nghiệp vụ (AuctionService, BidService, …)
+│       └── server/
+│           ├── dao/                      # Truy cập CSDL (UserDAO, ItemDAO, BidsDAO, …)
+│           ├── filters/                  # AuthFilter – xác thực request
+│           ├── models/                   # Entity + DTO
+│           ├── scheduler/                # AuctionStatusScheduler
+│           ├── servlets/                 # REST API endpoints
+│           ├── websocket/                # AuctionWebSocketServer
+│           ├── utils/
+│           └── AuctionServer.java        # Khởi động Server (entry point)
+│
+└── uploads/                              # Ảnh sản phẩm (tự tạo khi Server khởi động)
+```
 
-```mermaid
-classDiagram
-    %% ==========================================
-    %% 1. TẦNG CLIENT - JAVAFX (Giao diện & Xử lý bất đồng bộ)
-    %% ==========================================
-    class BiddingRoomController {
-        <<JavaFX UI>>
-        -lblPrice: Label
-        -btnBid: Button
-        +handleBidAction()
-        +updateUIRafely() "Dùng Platform.runLater()"
-    }
+---
 
-    class ApiClient {
-        <<HTTP Client>>
-        +postRequest(url, jsonBody) Response
-        +getRequest(url) Response
-    }
+## 🗄️ Cấu hình Database
 
-    class WebSocketClient {
-        <<Real-time>>
-        +connectToServer()
-        +sendBidAmount(amount)
-        +onMessageReceived(data)
-    }
+### Bước 1 — Tạo database
 
-    BiddingRoomController --> ApiClient : Gọi API (Login, Lấy đồ)
-    BiddingRoomController --> WebSocketClient : Truyền giá trực tiếp
-    WebSocketClient ..> BiddingRoomController : Gọi updateUIRafely()
+Đăng nhập MySQL và tạo database:
 
-    %% ==========================================
-    %% 2. TẦNG MẠNG (Giao thức truyền tải)
-    %% ==========================================
-    class Internet {
-        <<Network Layer>>
-        +HTTP_REST_API
-        +WebSocket_WSS
-    }
-    ApiClient --|> Internet : JSON (Port 8080)
-    WebSocketClient --|> Internet : Binary/Text (Port 8081)
+```sql
+CREATE DATABASE online_auction CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
 
-    %% ==========================================
-    %% 3. TẦNG SERVER - ROUTER & REAL-TIME
-    %% ==========================================
-    class SparkJavaRouter {
-        <<API Gateway>>
-        +post("/api/login", LoginHandler)
-        +post("/api/items", ItemHandler)
-    }
+### Bước 2 — Import schema
 
-    class AuctionWebSocketServer {
-        <<Observer>>
-        -connectedClients: List
-        +onOpen()
-        +onMessage()
-        +broadcastToAll()
-    }
+```bash
+mysql -u root -p online_auction < Server/database.sql
+```
 
-    Internet --|> SparkJavaRouter : Request
-    Internet --|> AuctionWebSocketServer : Socket Stream
+### Bước 3 — Cập nhật thông tin kết nối
 
-    %% ==========================================
-    %% 4. TẦNG BUSINESS LOGIC & FACTORY (Chuẩn OCP)
-    %% ==========================================
-    class AuctionManager {
-        <<Singleton>>
-        -executor: ExecutorService "Thread Pool"
-        +processBidRequest() "Xử lý kẹt xe đa luồng"
-    }
+Mở file `Server/src/main/java/com/auction/server/dao/DatabaseConnection.java` và chỉnh:
 
-    class ItemFactory {
-        <<Registry Pattern>>
-        -registry: Map~String, Class~
-        +registerItemType()
-        +getClassByCategory()
-    }
+```java
+config.setJdbcUrl("jdbc:mysql://localhost:3306/online_auction?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh");
+config.setUsername("root");      // ← đổi thành username của bạn
+config.setPassword("123456");    // ← đổi thành password của bạn
+```
 
-    SparkJavaRouter --> ItemFactory : Map JSON -> Object
-    AuctionWebSocketServer --> AuctionManager : Ném giá vào hàng đợi
+---
 
-    %% ==========================================
-    %% 5. TẦNG DAO & DATABASE (Lõi thao tác dữ liệu)
-    %% ==========================================
-    class DatabaseConnection {
-        <<Singleton>>
-        -dataSource: HikariDataSource
-        +getInstance()
-        +getConnection() Connection
-    }
+## 🔨 Hướng dẫn Build
 
-    class BidsDAO {
-        +executeBid(auctionId, userId, amount)
-        "Dùng FOR UPDATE & Rollback"
-    }
+### Bước 1 — Clone repository
 
-    class ItemDAO {
-        +addItem(ItemDTO)
-        +getAllItems()
-    }
+```bash
+git clone https://github.com/trumphu09/Project-Online-auction-system.git
+cd Project-Online-auction-system
+```
 
-    class IItemSubDAO {
-        <<Strategy Interface>>
-        +insertSubItem(conn, item)
-        +fetchSubItem()
-    }
-    
-    class ArtDAO
-    class VehicleDAO
-    class ElectronicsDAO
+### Bước 2 — Build Server
 
-    %% Ráp nối DAO
-    ItemDAO o-- IItemSubDAO : Phân nhánh OCP
-    IItemSubDAO <|.. ArtDAO : Implements
-    IItemSubDAO <|.. VehicleDAO : Implements
-    IItemSubDAO <|.. ElectronicsDAO : Implements
+```bash
+cd Server
+mvn clean package -DskipTests
+```
 
-    AuctionManager --> BidsDAO : Ghi lịch sử & trừ tiền
-    SparkJavaRouter --> ItemDAO : Lưu sản phẩm mới
+### Bước 3 — Build Client
 
-    %% Tất cả DAO đều phải mượn ống nước từ HikariCP
-    BidsDAO ..> DatabaseConnection : mượn Connection
-    ItemDAO ..> DatabaseConnection : mượn Connection
-    IItemSubDAO ..> DatabaseConnection : dùng chung Connection cha
+```bash
+# Windows
+cd ..\Client
+mvn clean package -DskipTests
 
-    %% ==========================================
-    %% 6. TẦNG VẬT LÝ (Database)
-    %% ==========================================
-    class MySQL {
-        <<Database>>
-        +Table_Users
-        +Table_Items
-        +Table_Artworks
-        +Table_Bids
-    }
+# Linux / macOS
+cd ../Client
+mvn clean package -DskipTests
+```
 
-    DatabaseConnection --> MySQL : HikariCP (Max 50 Connections)
+---
+
+## 🖥️ Hướng dẫn chạy
+
+> ⚠️ **Trình tự bắt buộc:** MySQL → Server → Client(s)
+
+### 1. Khởi động MySQL
+
+Đảm bảo MySQL đang chạy và database `online_auction` đã được import (xem phần Cấu hình Database).
+
+### 2. Khởi động Server
+
+**Server phải được khởi động TRƯỚC khi mở bất kỳ Client nào.**
+
+```bash
+# Windows / Linux / macOS
+cd Server
+mvn exec:java -Dexec.mainClass="com.auction.server.AuctionServer"
+```
+
+Kết quả khi Server khởi động thành công:
+
+```
+=== AUCTION SERVER STARTING ===
+[AuctionServer] Upload directory set to: .../uploads
+✓ [HTTP API] Web Server đang chạy ở cổng 8080!
+✓ [WEBSOCKET] Server started on port 8081
+[SCHEDULER] Hệ thống tự động quản lý phiên đấu giá đã khởi động!
+```
+
+Các cổng sử dụng:
+- **8080** — HTTP REST API (Tomcat)
+- **8081** — WebSocket realtime broadcast
+
+### 3. Khởi động Client(s)
+
+Client sử dụng `javafx-maven-plugin` — lệnh `mvn javafx:run` tự xử lý module path JavaFX trên mọi hệ điều hành, không cần cài JavaFX SDK riêng.
+
+Mở **nhiều terminal/cửa sổ lệnh riêng biệt**, mỗi cửa sổ chạy một Client độc lập:
+
+```bash
+# Terminal 1 — Client 1 (Windows / Linux / macOS — cú pháp giống nhau)
+cd Client
+mvn javafx:run
+
+# Terminal 2 — Client 2 (mở terminal/tab mới)
+cd Client
+mvn javafx:run
+
+# Terminal 3 — Client 3 (tương tự)
+cd Client
+mvn javafx:run
+```
+
+> **Lưu ý:** Lần chạy đầu tiên Maven sẽ tải `javafx-maven-plugin` và native JavaFX libs phù hợp với OS của bạn (~vài chục MB). Các lần sau sẽ chạy ngay lập tức từ local cache.
+
+---
+
+## 🌐 Chạy Client từ máy khác (khác LAN)
+
+Nếu Server và Client **không cùng máy**, cần đổi `localhost` thành IP của máy chạy Server tại hai file sau trong Client:
+
+| File | Dòng cần sửa |
+|---|---|
+| `Client/src/main/java/com/auction/client/network/ApiService.java` | `private final String BASE_URL = "http://<SERVER_IP>:8080/api";` |
+| `Client/src/main/java/com/auction/client/network/AuctionWebSocketClient.java` | `private static final String WS_URL = "ws://<SERVER_IP>:8081";` |
+
+Sau khi sửa, build lại Client: `mvn clean package -DskipTests`, rồi `mvn javafx:run`.
+
+---
+
+## ✅ Danh sách chức năng đã hoàn thành
+
+### Xác thực & Tài khoản
+- [x] Đăng nhập bằng email + mật khẩu (mật khẩu mã hóa BCrypt, lưu session cookie)
+- [x] Đăng xuất, hủy session
+- [x] Đăng ký tài khoản với vai trò: SELLER, BIDDER
+- [x] Nạp tiền vào tài khoản (Deposit)
+- [x] Hiển thị thông tin cá nhân (User Profile)
+
+### Sản phẩm & Danh mục
+- [x] Xem danh sách sản phẩm 
+- [x] Tìm kiếm sản phẩm theo từ khóa
+- [x] Lọc sản phẩm theo danh mục (VEHICLE, ART, ELECTRONICS, GENERAL)
+- [x] Xem chi tiết sản phẩm (thông tin đặc thù theo từng loại)
+- [x] Upload ảnh sản phẩm từ Client lên Server (base64 → file)
+- [x] Người bán thêm mới / cập nhật sản phẩm của mình
+- [x] Watchlist — theo dõi sản phẩm yêu thích (tính năng sáng tạo)
+
+### Phiên Đấu giá
+- [x] Tạo phiên đấu giá (Seller đặt giá khởi điểm, bước giá, thời gian)
+- [x] Đặt giá thủ công (Place Bid) với kiểm tra hợp lệ
+- [x] Đặt giá tự động (Auto-Bid) — tự động bid khi bị vượt, theo mức giá tối đa
+- [x] Cập nhật giá realtime qua WebSocket đến tất cả Client trong phòng
+- [x] Biểu đồ lịch sử giá (LineChart) cập nhật theo thời gian thực
+- [x] Đồng hồ đếm ngược đến khi kết thúc phiên
+- [x] Tự động kích hoạt phiên (OPEN → RUNNING) khi đến giờ bắt đầu
+- [x] Tự động đóng phiên (RUNNING → FINISHED) và chuyển tiền khi hết giờ
+- [x] Gia hạn thêm thời gian khi có bid gần lúc kết thúc
+- [x] Giam tiền an toàn, tự động giam tiền của người đấu giá khi đặt giá thành công
+
+### Thanh toán & Đánh giá
+- [x] Tự động thanh toán sau khi thắng phiên đấu giá
+- [x] Đánh giá người bán (SellerRating) bằng sao sau khi kết thúc phiên
+- [x] Xem danh sách vật phẩm đã thắng (My Won Items)
+- [x] Xem danh sách bid đang hoạt động (My Active Bids)
+
+### Admin
+- [x] Quản lý toàn bộ người dùng: xem, khóa/mở khóa tài khoản
+- [x] Quản lý toàn bộ sản phẩm trong hệ thống
+
+### Testing
+- [x] Unit test Server: AuctionService, BidService, ItemService, PaymentService, UserService
+- [x] Unit test Client: ItemDTO, UserDTO, RegisterValidator
+- [x] Integration test: AuctionController, UserController, WatchlistController
+
+---
+
+## 🔗 Tài liệu liên quan
+
+- 📄 **Báo cáo PDF:** [*(BÁO CÁO)*](https://drive.google.com/file/d/1UlRyY0RSwEwptj8O1y1zsziGr3Tqpz2m/view?usp=drive_link)
+- 🎬 **Video Demo:** [*(VIDEO DEMO)*](https://drive.google.com/file/d/1khqk1LHRvCWxBKezDj3pk8PV3Fj389Q1/view?usp=drive_link)
+- 📘 **API Usage Guide:** `API_USAGE_GUIDE.md`
+
+---
+
+## ⚠️ Lưu ý quan trọng
+
+1. **Đường dẫn ảnh:** Thư mục `uploads/` sẽ được tự tạo tại thư mục gốc của Server khi khởi động.
+2. **Cùng mạng:** Server và Client hiện chỉ chạy trên cùng mạng LAN/localhost. Nếu cần chạy Client từ máy khác, đổi địa chỉ `localhost` theo hướng dẫn ở mục "Chạy Client từ máy khác" phía trên.
+3. **Timezone:** Cả Server và Client đều set `Asia/Ho_Chi_Minh` tự động khi khởi động.
+4. **Firewall:** Đảm bảo port **8080** (HTTP) và **8081** (WebSocket) không bị firewall chặn khi chạy đa máy.

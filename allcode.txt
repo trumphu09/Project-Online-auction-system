@@ -63,7 +63,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_25" project-jdk-name="25 (2)" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_21" project-jdk-name="ms-21" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project> 
@@ -73,6 +73,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Project-Online-auction-system.iml" filepath="$PROJECT_DIR$/.idea/Project-Online-auction-system.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Client/testjavafx.iml" filepath="$PROJECT_DIR$/Client/testjavafx.iml" />
     </modules>
   </component>
 </project> 
@@ -185,8 +186,8 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -194,12 +195,12 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>21</version>
+            <version>17</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>21</version>
+            <version>17</version>
         </dependency>
         <dependency>
             <groupId>org.java-websocket</groupId>
@@ -210,6 +211,32 @@
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.10.1</version>
+        </dependency>
+
+        <!-- Test Dependencies -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.10.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.10.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.5.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>5.5.0</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project> 
@@ -1613,13 +1640,19 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
                       boolean autoBidExecuted = false;
 
                       try {
-                          if (result != null && result.has("message") && !result.get("message").isJsonNull()) {
-                              message = result.get("message").getAsString();
-                          }
+                          if (result != null) {
+                              // Nếu message bị đẩy ra cấp root
+                              if (result.has("message") && !result.get("message").isJsonNull()) {
+                                  message = result.get("message").getAsString();
+                              }
 
-                          if (result != null && result.has("data") && result.get("data").isJsonObject()) {
-                              JsonObject data = result.getAsJsonObject("data");
-                              autoBidExecuted = data.has("auto_bid_executed") && data.get("auto_bid_executed").getAsBoolean();
+                              // Cập nhật kiểm tra trường hợp Facade đã bóc vỏ data
+                              if (result.has("data") && result.get("data").isJsonObject()) {
+                                  JsonObject data = result.getAsJsonObject("data");
+                                  autoBidExecuted = data.has("auto_bid_executed") && data.get("auto_bid_executed").getAsBoolean();
+                              } else if (result.has("auto_bid_executed")) {
+                                  autoBidExecuted = result.get("auto_bid_executed").getAsBoolean();
+                              }
                           }
                       } catch (Exception e) {
                           System.err.println("[BiddingRoom] Lỗi parse response: " + e.getMessage());
@@ -1703,19 +1736,27 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
 
   private void syncAutoBidStatus() {
       if (currentItem == null) return;
-
       AuctionFacade.getInstance().getAutoBidStatus(currentItem.getAuctionId(), new ApiCallback<JsonObject>() {
           @Override
           public void onSuccess(JsonObject result) {
               Platform.runLater(() -> {
                   boolean active = false;
                   double maxAmount = 0;
-                  
-                  if (result != null && result.has("data") && result.get("data").isJsonObject()) {
-                      JsonObject data = result.getAsJsonObject("data");
-                      active = data.has("active") && data.get("active").getAsBoolean();
-                      if (data.has("max_amount")) {
-                          maxAmount = data.get("max_amount").getAsDouble();
+                   
+                  if (result != null) {
+                      // SỬA LỖI Ở ĐÂY: Hỗ trợ cả trường hợp chưa bóc và đã bóc lớp "data"
+                      if (result.has("data") && result.get("data").isJsonObject()) {
+                          JsonObject data = result.getAsJsonObject("data");
+                          active = data.has("active") && data.get("active").getAsBoolean();
+                          if (data.has("max_amount")) {
+                              maxAmount = data.get("max_amount").getAsDouble();
+                          }
+                      } else {
+                          // Xử lý khi AuctionFacade đã bóc lớp "data", result chính là dữ liệu bên trong
+                          active = result.has("active") && result.get("active").getAsBoolean();
+                          if (result.has("max_amount")) {
+                              maxAmount = result.get("max_amount").getAsDouble();
+                          }
                       }
                   }
                   
@@ -1734,20 +1775,8 @@ public class BiddingRoomController extends BaseController implements BidUpdateLi
           @Override
           public void onError(String errorMessage) {
               System.err.println("[BiddingRoom] Lỗi load trạng thái auto-bid: " + errorMessage);
-              // Không hiển thị alert, chỉ log error
           }
       });
-  }
-
-  @Override
-  public void onAutoBidNotice(int auctionId, int userId, String message) {
-      if (currentUser != null && currentUser.getId() == userId) {
-          Platform.runLater(() -> {
-              showAlert("Auto-Bid", message);
-              loadCurrentUserInfo();
-              syncAutoBidStatus();
-          });
-      }
   }
 } 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\main\java\com\auction\client\controllers\BidHistoryController.java ===  
@@ -5784,6 +5813,384 @@ public class ItemCard extends VBox {
     </right>
 
 </BorderPane> 
+// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\test\java\model\dto\ItemDTOTest.java ===  
+package model.dto;
+
+import com.auction.client.model.dto.ItemDTO;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * Test các DTO model phía Client.
+ * Không phụ thuộc JavaFX nên chạy được trong CI/headless.
+ */
+public class ItemDTOTest {
+
+    @Test
+    void testDefaultValues() {
+        ItemDTO item = new ItemDTO();
+        assertEquals(0, item.getId());
+        assertNull(item.getName());
+        assertNull(item.getDescription());
+        assertEquals(0.0, item.getStartingPrice());
+        assertNull(item.getCategory());
+    }
+
+    @Test
+    void testSetAndGetId() {
+        ItemDTO item = new ItemDTO();
+        item.setId(10);
+        assertEquals(10, item.getId());
+    }
+
+    @Test
+    void testSetAndGetName() {
+        ItemDTO item = new ItemDTO();
+        item.setName("iPhone 15 Pro");
+        assertEquals("iPhone 15 Pro", item.getName());
+    }
+
+    @Test
+    void testSetAndGetDescription() {
+        ItemDTO item = new ItemDTO();
+        item.setDescription("Mô tả sản phẩm");
+        assertEquals("Mô tả sản phẩm", item.getDescription());
+    }
+
+    @Test
+    void testSetAndGetStartingPrice() {
+        ItemDTO item = new ItemDTO();
+        item.setStartingPrice(25_000_000.0);
+        assertEquals(25_000_000.0, item.getStartingPrice());
+    }
+
+    @Test
+    void testSetAndGetCategory() {
+        ItemDTO item = new ItemDTO();
+        item.setCategory("ELECTRONICS");
+        assertEquals("ELECTRONICS", item.getCategory());
+    }
+
+    @Test
+    void testSetAndGetAuctionId() {
+        ItemDTO item = new ItemDTO();
+        item.setAuctionId(42);
+        assertEquals(42, item.getAuctionId());
+    }
+
+    @Test
+    void testSetAndGetCurrentMaxPrice() {
+        ItemDTO item = new ItemDTO();
+        item.setCurrentMaxPrice(30_000_000.0);
+        assertEquals(30_000_000.0, item.getCurrentMaxPrice());
+    }
+
+    @Test
+    void testSetAndGetPriceStep() {
+        ItemDTO item = new ItemDTO();
+        item.setPriceStep(500_000.0);
+        assertEquals(500_000.0, item.getPriceStep());
+    }
+
+    @Test
+    void testSetAndGetSellerId() {
+        ItemDTO item = new ItemDTO();
+        item.setSellerId(7);
+        assertEquals(7, item.getSellerId());
+    }
+
+    @Test
+    void testSetAndGetStatus() {
+        ItemDTO item = new ItemDTO();
+        item.setStatus("RUNNING");
+        assertEquals("RUNNING", item.getStatus());
+    }
+
+    @Test
+    void testSetAndGetImagePath() {
+        ItemDTO item = new ItemDTO();
+        item.setImagePath("/uploads/img.jpg");
+        assertEquals("/uploads/img.jpg", item.getImagePath());
+    }
+
+    @Test
+    void testSetAndGetStartTime() {
+        ItemDTO item = new ItemDTO();
+        item.setStartTime("2025-01-01T08:00:00");
+        assertEquals("2025-01-01T08:00:00", item.getStartTime());
+    }
+
+    @Test
+    void testSetAndGetEndTime() {
+        ItemDTO item = new ItemDTO();
+        item.setEndTime("2025-01-07T20:00:00");
+        assertEquals("2025-01-07T20:00:00", item.getEndTime());
+    }
+
+    @Test
+    void testHighestBidderId() {
+        ItemDTO item = new ItemDTO();
+        item.setHighestBidderId(99);
+        assertEquals(99, item.getHighestBidderId());
+    }
+
+    @Test
+    void testAuctionIdZeroByDefault() {
+        ItemDTO item = new ItemDTO();
+        assertEquals(0, item.getAuctionId());
+    }
+
+    @Test
+    void testCurrentMaxPriceZeroByDefault() {
+        ItemDTO item = new ItemDTO();
+        assertEquals(0.0, item.getCurrentMaxPrice());
+    }
+
+    @Test
+    void testMultipleFieldsAtOnce() {
+        ItemDTO item = new ItemDTO();
+        item.setId(10);
+        item.setName("MacBook Air");
+        item.setCategory("ELECTRONICS");
+        item.setStartingPrice(15_000_000.0);
+        item.setCurrentMaxPrice(18_000_000.0);
+        item.setPriceStep(200_000.0);
+        item.setStatus("OPEN");
+        item.setSellerId(3);
+        item.setAuctionId(7);
+
+        assertEquals(10, item.getId());
+        assertEquals("MacBook Air", item.getName());
+        assertEquals("ELECTRONICS", item.getCategory());
+        assertEquals(15_000_000.0, item.getStartingPrice());
+        assertEquals(18_000_000.0, item.getCurrentMaxPrice());
+        assertEquals(200_000.0, item.getPriceStep());
+        assertEquals("OPEN", item.getStatus());
+        assertEquals(3, item.getSellerId());
+        assertEquals(7, item.getAuctionId());
+    }
+
+    @Test
+    void testOverwriteExistingValues() {
+        ItemDTO item = new ItemDTO();
+        item.setName("Tên cũ");
+        item.setName("Tên mới");
+        assertEquals("Tên mới", item.getName());
+    }
+
+    @Test
+    void testCategoryAllCategories() {
+        ItemDTO e = new ItemDTO(); e.setCategory("ELECTRONICS");
+        ItemDTO v = new ItemDTO(); v.setCategory("VEHICLE");
+        ItemDTO a = new ItemDTO(); a.setCategory("ART");
+
+        assertEquals("ELECTRONICS", e.getCategory());
+        assertEquals("VEHICLE", v.getCategory());
+        assertEquals("ART", a.getCategory());
+    }
+} 
+// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\test\java\model\dto\UserDTOTest.java ===  
+package model.dto;
+
+import com.auction.client.model.dto.UserDTO;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * Test UserDTO phía Client.
+ * Không có dependency JavaFX nên chạy được trong CI/headless.
+ */
+public class UserDTOTest {
+
+    @Test
+    void testDefaultValues() {
+        UserDTO user = new UserDTO();
+        assertEquals(0, user.getId());
+        assertNull(user.getUsername());
+        assertNull(user.getEmail());
+        assertNull(user.getRole());
+    }
+
+    @Test
+    void testSetAndGetId() {
+        UserDTO user = new UserDTO();
+        user.setId(5);
+        assertEquals(5, user.getId());
+    }
+
+    @Test
+    void testSetAndGetUsername() {
+        UserDTO user = new UserDTO();
+        user.setUsername("nguyen_van_a");
+        assertEquals("nguyen_van_a", user.getUsername());
+    }
+
+    @Test
+    void testSetAndGetEmail() {
+        UserDTO user = new UserDTO();
+        user.setEmail("test@gmail.com");
+        assertEquals("test@gmail.com", user.getEmail());
+    }
+
+    @Test
+    void testSetAndGetRole() {
+        UserDTO user = new UserDTO();
+        user.setRole("BIDDER");
+        assertEquals("BIDDER", user.getRole());
+    }
+
+
+
+    @Test
+    void testSetAndGetSaleCount() {
+        UserDTO user = new UserDTO();
+        user.setSaleCount(10);
+        assertEquals(10, user.getSaleCount());
+    }
+
+    @Test
+    void testIsSellerRole() {
+        UserDTO user = new UserDTO();
+        user.setRole("SELLER");
+        assertEquals("SELLER", user.getRole());
+        assertNotEquals("BIDDER", user.getRole());
+    }
+}
+ 
+// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\src\test\java\validation\RegisterValidatorTest.java ===  
+package validation;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * Test riêng phần validation logic của RegisterController.
+ * Tách logic ra để test không cần khởi động JavaFX.
+ *
+ * Để dùng: tạo class RegisterValidator (hoặc test trực tiếp logic inline).
+ * Ở đây mình test các business rule tương ứng với code trong RegisterController:
+ *   - Email phải kết thúc bằng "@gmail.com"
+ *   - Username và password không được rỗng
+ */
+public class RegisterValidatorTest {
+
+    // ---- Helper replicate logic từ RegisterController ----
+    private boolean isValidEmail(String email) {
+        return email != null && email.endsWith("@gmail.com");
+    }
+
+    private boolean isValidInput(String username, String password) {
+        return username != null && !username.trim().isEmpty()
+                && password != null && !password.trim().isEmpty();
+    }
+
+    // =============================================
+    // Email validation
+    // =============================================
+
+    @Test
+    void testValidGmailEmail() {
+        assertTrue(isValidEmail("nguyen@gmail.com"));
+    }
+
+    @Test
+    void testInvalidEmail_NotGmail() {
+        assertFalse(isValidEmail("nguyen@yahoo.com"));
+    }
+
+    @Test
+    void testInvalidEmail_NoAt() {
+        assertFalse(isValidEmail("nguyengmail.com"));
+    }
+
+    @Test
+    void testInvalidEmail_Empty() {
+        assertFalse(isValidEmail(""));
+    }
+
+    @Test
+    void testInvalidEmail_Null() {
+        assertFalse(isValidEmail(null));
+    }
+
+    @Test
+    void testValidEmail_WithDots() {
+        assertTrue(isValidEmail("nguyen.van.a@gmail.com"));
+    }
+
+    @Test
+    void testValidEmail_WithNumbers() {
+        assertTrue(isValidEmail("user123@gmail.com"));
+    }
+
+    // =============================================
+    // Input validation (username + password)
+    // =============================================
+
+    @Test
+    void testValidUsernameAndPassword() {
+        assertTrue(isValidInput("user123", "pass456"));
+    }
+
+    @Test
+    void testEmptyUsername() {
+        assertFalse(isValidInput("", "pass456"));
+    }
+
+    @Test
+    void testBlankUsername() {
+        assertFalse(isValidInput("   ", "pass456"));
+    }
+
+    @Test
+    void testNullUsername() {
+        assertFalse(isValidInput(null, "pass456"));
+    }
+
+    @Test
+    void testEmptyPassword() {
+        assertFalse(isValidInput("user123", ""));
+    }
+
+    @Test
+    void testBlankPassword() {
+        assertFalse(isValidInput("user123", "   "));
+    }
+
+    @Test
+    void testNullPassword() {
+        assertFalse(isValidInput("user123", null));
+    }
+
+    @Test
+    void testBothNull() {
+        assertFalse(isValidInput(null, null));
+    }
+
+    @Test
+    void testBothEmpty() {
+        assertFalse(isValidInput("", ""));
+    }
+} 
+// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\.idea\misc.xml ===  
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_25" default="true" project-jdk-name="25" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+</project> 
+// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\.idea\modules.xml ===  
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/main.iml" filepath="$PROJECT_DIR$/main.iml" />
+    </modules>
+  </component>
+</project> 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Client\target\classes\view\AdminView.fxml ===  
 <?xml version="1.0" encoding="UTF-8"?>
 
@@ -6651,9 +7058,15 @@ public class ItemCard extends VBox {
             <version>1.5.4</version>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.5.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -6669,7 +7082,7 @@ public class ItemCard extends VBox {
     </dependencies>
 </project> 
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\database.sql ===  
-USE defaultdb;
+USE online_auction;
 
 -- 1. Users (chung)
 CREATE TABLE users (
@@ -6686,7 +7099,7 @@ CREATE TABLE users (
 CREATE TABLE bidders (
     user_id INT PRIMARY KEY,
     account_balance DOUBLE DEFAULT 0,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    CONSTRAINT fk_bidders_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- 3. Sellers (riêng cho seller)
@@ -6695,7 +7108,7 @@ CREATE TABLE sellers (
     total_rating DOUBLE DEFAULT 0,
     sale_count INT DEFAULT 0,
     account_balance DOUBLE DEFAULT 0,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    CONSTRAINT fk_sellers_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- 4. Items (sản phẩm)
@@ -6709,8 +7122,6 @@ CREATE TABLE items (
     category VARCHAR(50) NOT NULL, -- Sẽ lưu giá trị 'ART', 'ELECTRONICS', hoặc 'VEHICLE'
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     image_path VARCHAR(255),    
-    
-    
     CONSTRAINT fk_items_seller FOREIGN KEY (seller_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -6753,8 +7164,8 @@ CREATE TABLE bids (
     bidder_id INT NOT NULL,
     bid_amount DOUBLE NOT NULL,
     bid_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (auction_id) REFERENCES auctions(id),
-    FOREIGN KEY (bidder_id) REFERENCES bidders(user_id)
+    CONSTRAINT fk_bids_auction FOREIGN KEY (auction_id) REFERENCES auctions(id) ON DELETE CASCADE,
+    CONSTRAINT fk_bids_bidder FOREIGN KEY (bidder_id) REFERENCES bidders(user_id) ON DELETE CASCADE
 );
 
 -- 9. Payments (thanh toán)
@@ -6780,11 +7191,12 @@ CREATE TABLE auctions(
     current_max_price DOUBLE DEFAULT 0,
     highest_bidder_id INT DEFAULT NULL,
     end_time DATETIME NOT NULL,
-    status ENUM('OPEN', 'RUNNING', 'FINISHED', 'PAID', 'CANCELED') DEFAULT 'OPEN',
+    status ENUM('OPEN', 'RUNNING', 'FINISHED', 'PAID', 'CANCELLED') DEFAULT 'OPEN',
     has_extended TINYINT(1) DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     start_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    price_step DOUBLE DEFAULT 1000;
+    price_step DOUBLE DEFAULT 1000,
+
     CONSTRAINT fk_auctions_item FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE,
     CONSTRAINT fk_auctions_seller FOREIGN KEY (seller_id) REFERENCES sellers(user_id) ON DELETE CASCADE,
     CONSTRAINT fk_auctions_highest_bidder FOREIGN KEY (highest_bidder_id) REFERENCES bidders(user_id)
@@ -7000,8 +7412,9 @@ public class BidderController {
 package com.auction.controller;
 
 import com.auction.server.factory.ItemFactory;
+import com.auction.server.models.BidTransactionDTO;
 import com.auction.server.models.ItemDTO;
-import com.auction.server.dao.ItemDAO;
+import com.auction.service.BidService;
 import com.auction.service.ItemService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -7016,10 +7429,12 @@ public class ItemController {
 
     private final Gson gson;
     private final ItemService itemService;
+    private final BidService bidService;
 
     public ItemController() {
         this.gson = new GsonBuilder().setPrettyPrinting().create();
         this.itemService = ItemService.getInstance();
+        this.bidService = BidService.getInstance();
     }
 
     /**
@@ -7189,6 +7604,16 @@ public class ItemController {
         } catch (Exception e) {
             e.printStackTrace();
             return createResponse("error", "Lỗi server khi lấy chi tiết sản phẩm.", null);
+        }
+    }
+
+    public String handleGetBidHistory(int itemId) {
+        try {
+            List<BidTransactionDTO> history = bidService.getBidHistory(itemId);
+            return createResponse("success", "Lấy lịch sử đấu giá thành công.", gson.toJsonTree(history));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return createResponse("error", "Lỗi server khi lấy lịch sử đấu giá.", null);
         }
     }
 
@@ -12973,27 +13398,21 @@ public class DepositAPI extends HttpServlet {
 // === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\main\java\com\auction\server\servlets\GetBidHistoryAPI.java ===  
 package com.auction.server.servlets;
 
-import com.auction.server.dao.BidsDAO;
-import com.auction.server.models.BidTransactionDTO;
+import com.auction.controller.ItemController;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.auction.server.utils.LocalDateTimeAdapter;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class GetBidHistoryAPI extends HttpServlet {
 
-    private final BidsDAO bidsDAO = new BidsDAO();
-    private final Gson gson = new GsonBuilder()
-            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-            .create();
+    private final ItemController itemController = new ItemController();
+    private final Gson gson = new GsonBuilder().create();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -13022,11 +13441,9 @@ public class GetBidHistoryAPI extends HttpServlet {
                 return;
             }
 
-            List<BidTransactionDTO> history = bidsDAO.getBidHistoryByItemId(itemId);
-
-            String historyJson = gson.toJson(history);
+            String jsonResponse = itemController.handleGetBidHistory(itemId);
             resp.setStatus(HttpServletResponse.SC_OK);
-            resp.getWriter().write(historyJson);
+            resp.getWriter().write(jsonResponse);
 
         } catch (NumberFormatException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -15080,5 +15497,1535 @@ public class UserService {
     public boolean hasRatedSeller(int auctionId, int bidderId) {
         if (auctionId <= 0 || bidderId <= 0) return false;
         return sellerDAO.hasRatedSeller(auctionId, bidderId);
+    }
+} 
+// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\test\java\com\auction\service\AuctionControllerTest.java ===  
+package com.auction.service;
+
+
+import com.auction.controller.AuctionController;
+import com.auction.service.AuctionService;
+import com.auction.server.dao.BidsDAO.BidResult;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.lang.reflect.Field;
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+public class AuctionControllerTest {
+
+    @Mock
+    private AuctionService auctionService;
+
+    private AuctionController auctionController;
+    private final Gson gson = new Gson();
+
+    @BeforeEach
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this);
+        auctionController = new AuctionController();
+
+        // Inject mock services vào controller
+        Field auctionServiceField = AuctionController.class.getDeclaredField("auctionService");
+        auctionServiceField.setAccessible(true);
+        auctionServiceField.set(auctionController, auctionService);
+    }
+
+    // =============================================
+    // handlePlaceBid()
+    // =============================================
+
+    @Test
+    void testHandlePlaceBid_Success() {
+        BidResult bidResult = new BidResult(true, false, null, "Thành công: Đã chốt giá $200.0");
+        when(auctionService.placeBid(1, 2, 200.0))
+                .thenReturn(bidResult);
+
+        JsonObject req = new JsonObject();
+        req.addProperty("auction_id", 1);
+        req.addProperty("amount", 200.0);
+
+        String response = auctionController.handlePlaceBid(gson.toJson(req), 2);
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
+
+        assertEquals("success", respObj.get("status").getAsString());
+        assertEquals("Thành công: Đã chốt giá $200.0", respObj.get("message").getAsString());
+        verify(auctionService).placeBid(1, 2, 200.0);
+    }
+
+    @Test
+    void testHandlePlaceBid_Failure() {
+        BidResult bidResult = new BidResult(false, false, null, "Thất bại: Giá không đủ cao, phiên đã đóng, hoặc số dư không đủ!");
+        when(auctionService.placeBid(1, 2, 10.0))
+                .thenReturn(bidResult);
+
+        JsonObject req = new JsonObject();
+        req.addProperty("auction_id", 1);
+        req.addProperty("amount", 10.0);
+
+        String response = auctionController.handlePlaceBid(gson.toJson(req), 2);
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
+
+        assertEquals("error", respObj.get("status").getAsString());
+        assertEquals("Thất bại: Giá không đủ cao, phiên đã đóng, hoặc số dư không đủ!", respObj.get("message").getAsString());
+    }
+
+    @Test
+    void testHandlePlaceBid_MissingAuctionId() {
+        JsonObject req = new JsonObject();
+        req.addProperty("amount", 200.0);
+        // Thiếu auction_id
+
+        String response = auctionController.handlePlaceBid(gson.toJson(req), 2);
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
+
+        assertEquals("error", respObj.get("status").getAsString());
+        verify(auctionService, never()).placeBid(anyInt(), anyInt(), anyDouble());
+    }
+
+    @Test
+    void testHandlePlaceBid_MissingAmount() {
+        JsonObject req = new JsonObject();
+        req.addProperty("auction_id", 1);
+        // Thiếu amount
+
+        String response = auctionController.handlePlaceBid(gson.toJson(req), 2);
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
+
+        assertEquals("error", respObj.get("status").getAsString());
+        verify(auctionService, never()).placeBid(anyInt(), anyInt(), anyDouble());
+    }
+
+    @Test
+    void testHandlePlaceBid_InvalidJson() {
+        String response = auctionController.handlePlaceBid("not-valid-json", 2);
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
+
+        assertEquals("error", respObj.get("status").getAsString());
+    }
+
+    @Test
+    void testHandlePlaceBid_ZeroAmount() {
+        BidResult bidResult = new BidResult(false, false, null, "Lỗi: Số tiền không hợp lệ!");
+        when(auctionService.placeBid(1, 2, 0.0))
+                .thenReturn(bidResult);
+
+        JsonObject req = new JsonObject();
+        req.addProperty("auction_id", 1);
+        req.addProperty("amount", 0.0);
+
+        String response = auctionController.handlePlaceBid(gson.toJson(req), 2);
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
+
+        assertEquals("error", respObj.get("status").getAsString());
+    }
+
+    // =============================================
+    // handlePlaceBid() với time extension
+    // =============================================
+
+    @Test
+    void testHandlePlaceBid_WithTimeExtension() {
+        LocalDateTime newEndTime = LocalDateTime.now().plusMinutes(5);
+        BidResult bidResult = new BidResult(true, true, newEndTime, "Thành công: Đã chốt giá $150.0 - Thời gian gia hạn");
+        when(auctionService.placeBid(3, 5, 150.0))
+                .thenReturn(bidResult);
+
+        JsonObject req = new JsonObject();
+        req.addProperty("auction_id", 3);
+        req.addProperty("amount", 150.0);
+
+        String response = auctionController.handlePlaceBid(gson.toJson(req), 5);
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
+
+        assertEquals("success", respObj.get("status").getAsString());
+        assertTrue(respObj.getAsJsonObject("data").get("time_extended").getAsBoolean());
+        assertEquals(3, respObj.getAsJsonObject("data").get("auction_id").getAsInt());
+        assertEquals(150.0, respObj.getAsJsonObject("data").get("amount").getAsDouble());
+    }
+
+    @Test
+    void testHandlePlaceBid_NegativeAmount() {
+        BidResult bidResult = new BidResult(false, false, null, "Lỗi: Số tiền không hợp lệ!");
+        when(auctionService.placeBid(1, 2, -50.0))
+                .thenReturn(bidResult);
+
+        JsonObject req = new JsonObject();
+        req.addProperty("auction_id", 1);
+        req.addProperty("amount", -50.0);
+
+        String response = auctionController.handlePlaceBid(gson.toJson(req), 2);
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
+
+        assertEquals("error", respObj.get("status").getAsString());
+    }
+
+    @Test
+    void testHandlePlaceBid_NullRequest() {
+        String response = auctionController.handlePlaceBid(null, 2);
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
+
+        assertEquals("error", respObj.get("status").getAsString());
+    }
+} 
+// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\test\java\com\auction\service\AuctionServiceTest.java ===  
+package com.auction.service;
+
+import com.auction.server.dao.BidsDAO;
+import com.auction.server.dao.BidsDAO.BidResult;
+import com.auction.server.dao.AuctionDAO;
+import com.auction.server.dao.UserDAO;
+import com.auction.server.models.AuctionManager;
+import com.auction.server.models.UserDTO;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.lang.reflect.Field;
+import java.time.LocalDateTime;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+public class AuctionServiceTest {
+
+    @Mock
+    private BidsDAO bidsDAO;
+    @Mock
+    private AuctionDAO auctionDAO;
+    @Mock
+    private UserDAO userDAO;
+    @Mock
+    private AuctionManager auctionManager;
+
+    private AuctionService auctionService;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this);
+        auctionService = AuctionService.getInstance();
+
+        // Inject mocks into AuctionService
+        Field bidsDaoField = AuctionService.class.getDeclaredField("bidsDAO");
+        bidsDaoField.setAccessible(true);
+        bidsDaoField.set(auctionService, bidsDAO);
+
+        Field auctionDaoField = AuctionService.class.getDeclaredField("auctionDAO");
+        auctionDaoField.setAccessible(true);
+        auctionDaoField.set(auctionService, auctionDAO);
+
+        Field userDaoField = AuctionService.class.getDeclaredField("userDAO");
+        userDaoField.setAccessible(true);
+        userDaoField.set(auctionService, userDAO);
+
+        // Inject the mock auctionManager into the AuctionManager's static instance field
+        Field amInstanceField = AuctionManager.class.getDeclaredField("instance");
+        amInstanceField.setAccessible(true);
+        amInstanceField.set(null, auctionManager); // Set static field
+    }
+
+    @Test
+    void testPlaceBidWithValidAmount() {
+        // Arrange
+        int auctionId = 1;
+        int bidderId = 1;
+        double amount = 100.0;
+        UserDTO bidder = new UserDTO();
+        bidder.setUsername("bidder");
+
+        BidResult bidResult = new BidResult(true, false, null, "Thành công: Đã chốt giá $100.0");
+        when(bidsDAO.executeBidDetailed(auctionId, bidderId, amount)).thenReturn(bidResult);
+        when(userDAO.getUserById(bidderId)).thenReturn(bidder);
+
+        // Act
+        BidResult result = auctionService.placeBid(auctionId, bidderId, amount);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.isSuccess());
+        assertEquals("Thành công: Đã chốt giá $100.0", result.getMessage());
+        verify(bidsDAO).executeBidDetailed(auctionId, bidderId, amount);
+        verify(auctionManager).broadcastUpdate(eq("NEW_BID"), any(Map.class));
+    }
+
+    @Test
+    void testPlaceBidWithInvalidAmount() {
+        // Act
+        BidResult result = auctionService.placeBid(1, 1, 0);
+
+        // Assert
+        assertNotNull(result);
+        assertFalse(result.isSuccess());
+        assertEquals("Lỗi: Số tiền không hợp lệ!", result.getMessage());
+        verify(bidsDAO, never()).executeBidDetailed(anyInt(), anyInt(), anyDouble());
+    }
+
+    @Test
+    void testPlaceBidWhenBidFails() {
+        // Arrange
+        int auctionId = 1;
+        int bidderId = 1;
+        double amount = 100.0;
+        UserDTO bidder = new UserDTO();
+        bidder.setUsername("bidder");
+
+        BidResult bidResult = new BidResult(false, false, null, "Thất bại: Giá không đủ cao, phiên đã đóng, hoặc số dư không đủ!");
+        when(bidsDAO.executeBidDetailed(auctionId, bidderId, amount)).thenReturn(bidResult);
+        when(userDAO.getUserById(bidderId)).thenReturn(bidder);
+
+        // Act
+        BidResult result = auctionService.placeBid(auctionId, bidderId, amount);
+
+        // Assert
+        assertNotNull(result);
+        assertFalse(result.isSuccess());
+        assertEquals("Thất bại: Giá không đủ cao, phiên đã đóng, hoặc số dư không đủ!", result.getMessage());
+        verify(bidsDAO).executeBidDetailed(auctionId, bidderId, amount);
+        verify(auctionManager, never()).broadcastUpdate(anyString(), any(Map.class));
+    }
+
+    @Test
+    void testPlaceBidWithTimeExtension() {
+        // Arrange
+        int auctionId = 1;
+        int bidderId = 1;
+        double amount = 150.0;
+        LocalDateTime newEndTime = LocalDateTime.now().plusMinutes(1);
+        UserDTO bidder = new UserDTO();
+        bidder.setUsername("bidder");
+
+        BidResult bidResult = new BidResult(true, true, newEndTime, "Thành công: Đã chốt giá $150.0 - Thời gian gia hạn");
+        when(bidsDAO.executeBidDetailed(auctionId, bidderId, amount)).thenReturn(bidResult);
+        when(userDAO.getUserById(bidderId)).thenReturn(bidder);
+
+        // Act
+        BidResult result = auctionService.placeBid(auctionId, bidderId, amount);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.isSuccess());
+        assertTrue(result.isTimeExtended());
+        assertNotNull(result.getNewEndTime());
+        verify(bidsDAO).executeBidDetailed(auctionId, bidderId, amount);
+        verify(auctionManager, times(2)).broadcastUpdate(anyString(), any(Map.class));
+    }
+
+    @Test
+    void testPlaceBidWithNegativeAmount() {
+        // Act
+        BidResult result = auctionService.placeBid(1, 1, -50.0);
+
+        // Assert
+        assertNotNull(result);
+        assertFalse(result.isSuccess());
+        assertEquals("Lỗi: Số tiền không hợp lệ!", result.getMessage());
+        verify(bidsDAO, never()).executeBidDetailed(anyInt(), anyInt(), anyDouble());
+    }
+} 
+// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\test\java\com\auction\service\BidServiceTest.java ===  
+package com.auction.service;
+
+import com.auction.server.AuctionServer;
+import com.auction.server.dao.BidsDAO;
+import com.auction.server.dao.DatabaseConnection;
+import com.auction.server.dao.ItemDAO;
+import com.auction.server.models.AuctionStatus;
+import com.auction.server.models.BidTransactionDTO;
+import com.auction.server.models.Item;
+import com.auction.server.models.ItemDTO; // Import ItemDTO
+import com.auction.server.websocket.AuctionWebSocketServer;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+
+import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+public class BidServiceTest {
+
+    // --- Mocks for all external dependencies ---
+    @Mock private BidsDAO bidsDAO;
+    @Mock private ItemDAO itemDAO;
+    @Mock private ItemDTO mockedItem; // CHANGED: Mock ItemDTO instead of Item
+    @Mock private AuctionWebSocketServer webSocketServer;
+    @Mock private DatabaseConnection databaseConnection;
+    @Mock private Connection mockJdbcConnection;
+    @Mock private PreparedStatement mockPreparedStatement;
+
+    // --- Test subject ---
+    private BidService bidService;
+
+    // --- Mockito helpers ---
+    private AutoCloseable openMocks;
+    private MockedStatic<AuctionServer> mockedAuctionServer;
+    private MockedStatic<DatabaseConnection> mockedDbConnection;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        openMocks = MockitoAnnotations.openMocks(this);
+
+        // Step 1: Mock all static Singleton getters BEFORE any code uses them.
+        mockedAuctionServer = Mockito.mockStatic(AuctionServer.class);
+        mockedAuctionServer.when(AuctionServer::getWebSocketServer).thenReturn(webSocketServer);
+
+        mockedDbConnection = Mockito.mockStatic(DatabaseConnection.class);
+        mockedDbConnection.when(DatabaseConnection::getInstance).thenReturn(databaseConnection);
+        when(databaseConnection.getConnection()).thenReturn(mockJdbcConnection);
+        
+        // Teach mockJdbcConnection to return a mock PreparedStatement
+        when(mockJdbcConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        // Teach mockPreparedStatement to do nothing for set methods and return 1 for executeUpdate
+        doNothing().when(mockPreparedStatement).setInt(anyInt(), anyInt());
+        doNothing().when(mockPreparedStatement).setDouble(anyInt(), anyDouble());
+        doNothing().when(mockPreparedStatement).setString(anyInt(), anyString());
+        doNothing().when(mockPreparedStatement).setObject(anyInt(), any());
+        when(mockPreparedStatement.executeUpdate()).thenReturn(1); // Assume 1 row affected for successful operations
+
+        // Step 2: Now it's safe to get the service instance.
+        bidService = BidService.getInstance();
+
+        // Step 3: Replace the service's internal DAOs with our @Mock DAOs.
+        Field bidsDaoField = BidService.class.getDeclaredField("bidsDAO");
+        bidsDaoField.setAccessible(true);
+        bidsDaoField.set(bidService, bidsDAO);
+
+        Field itemDaoField = BidService.class.getDeclaredField("itemDAO");
+        itemDaoField.setAccessible(true);
+        itemDaoField.set(bidService, itemDAO);
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        // Clean up static mocks and regular mocks to prevent test pollution
+        mockedAuctionServer.close();
+        mockedDbConnection.close();
+        openMocks.close();
+    }
+
+    @Test
+    void testGetBidHistoryWithValidItemId() {
+        // Arrange
+        List<BidTransactionDTO> history = Collections.singletonList(new BidTransactionDTO(1, 1, "testuser", 100.0, LocalDateTime.now()));
+        when(bidsDAO.getBidHistoryByItemId(1)).thenReturn(history);
+
+        // Act
+        List<BidTransactionDTO> result = bidService.getBidHistory(1);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(bidsDAO).getBidHistoryByItemId(1);
+    }
+
+    @Test
+    void testProcessBidSuccess() {
+        // Arrange
+        int itemId = 1;
+        int userId = 1;
+        double bidAmount = 100.0;
+        double newMaxPriceForBroadcast = bidAmount; 
+
+        when(bidsDAO.executeBid(itemId, userId, bidAmount)).thenReturn(true);
+        when(itemDAO.extendAuctionTimeIfNeeded(itemId)).thenReturn(true);
+        when(itemDAO.getItemById(itemId)).thenReturn(mockedItem);
+
+        // --- Teach the mocked item how to behave for all relevant getters ---
+        when(mockedItem.getId()).thenReturn(itemId);
+        when(mockedItem.getCurrentMaxPrice()).thenReturn(newMaxPriceForBroadcast); 
+        when(mockedItem.getSellerId()).thenReturn(2);
+        when(mockedItem.getHighestBidderId()).thenReturn(userId);
+        // ItemDTO uses String for status, not AuctionStatus enum
+        when(mockedItem.getStatus()).thenReturn(AuctionStatus.RUNNING.name()); 
+        when(mockedItem.getStartingPrice()).thenReturn(50.0);
+        when(mockedItem.getName()).thenReturn("Test Item");
+        when(mockedItem.getDescription()).thenReturn("A test item");
+        when(mockedItem.getCategory()).thenReturn("Electronics");
+        when(mockedItem.getStartTime()).thenReturn(LocalDateTime.now().minusDays(1).toString()); // ItemDTO uses String for time
+        when(mockedItem.getEndTime()).thenReturn(LocalDateTime.now().plusDays(1).toString()); // ItemDTO uses String for time
+
+        // Act
+        boolean result = bidService.processBid(itemId, userId, bidAmount);
+
+        // Assert
+        assertTrue(result);
+        verify(bidsDAO).executeBid(itemId, userId, bidAmount);
+        verify(itemDAO).extendAuctionTimeIfNeeded(itemId);
+        verify(webSocketServer).broadcastPriceUpdate(itemId, newMaxPriceForBroadcast);
+    }
+
+    @Test
+    void testProcessBidFailure() {
+        // Arrange
+        int itemId = 1;
+        int userId = 1;
+        double bidAmount = 100.0;
+        when(bidsDAO.executeBid(itemId, userId, bidAmount)).thenReturn(false);
+
+        // Act
+        boolean result = bidService.processBid(itemId, userId, bidAmount);
+
+        // Assert
+        assertFalse(result);
+        verify(bidsDAO).executeBid(itemId, userId, bidAmount);
+        verify(itemDAO, never()).extendAuctionTimeIfNeeded(anyInt());
+        verify(webSocketServer, never()).broadcastPriceUpdate(anyInt(), anyDouble());
+    }
+} 
+// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\test\java\com\auction\service\ItemServiceTest.java ===  
+package com.auction.service;
+
+import com.auction.server.dao.ItemDAO;
+import com.auction.server.models.AuctionManager;
+import com.auction.server.models.ItemDTO;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+public class ItemServiceTest {
+
+    @Mock
+    private ItemDAO itemDAO;
+
+    @Mock
+    private AuctionManager auctionManager;
+
+    private ItemService itemService;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this);
+        itemService = ItemService.getInstance();
+
+        Field itemDaoField = ItemService.class.getDeclaredField("itemDAO");
+        itemDaoField.setAccessible(true);
+        itemDaoField.set(itemService, itemDAO);
+
+        // Inject mock AuctionManager singleton
+        Field amInstanceField = AuctionManager.class.getDeclaredField("instance");
+        amInstanceField.setAccessible(true);
+        amInstanceField.set(null, auctionManager);
+    }
+
+    // =============================================
+    // getAllItems()
+    // =============================================
+
+    @Test
+    void testGetAllItems_ReturnsCorrectMap() {
+        ItemDTO item1 = new ItemDTO();
+        item1.setName("Laptop");
+        when(itemDAO.getAllItems(1, 10)).thenReturn(Collections.singletonList(item1));
+        when(itemDAO.getTotalItemCount()).thenReturn(1);
+
+        Map<String, Object> result = itemService.getAllItems(1, 10);
+
+        assertNotNull(result);
+        assertEquals(1, result.get("totalItems"));
+        assertEquals(1, result.get("currentPage"));
+        List<?> items = (List<?>) result.get("items");
+        assertEquals(1, items.size());
+        verify(itemDAO).getAllItems(1, 10);
+    }
+
+    @Test
+    void testGetAllItems_DAOReturnsNull_ReturnsEmptyList() {
+        when(itemDAO.getAllItems(1, 10)).thenReturn(null);
+        when(itemDAO.getTotalItemCount()).thenReturn(0);
+
+        Map<String, Object> result = itemService.getAllItems(1, 10);
+
+        assertNotNull(result);
+        List<?> items = (List<?>) result.get("items");
+        assertTrue(items.isEmpty());
+    }
+
+    @Test
+    void testGetAllItems_TotalPagesCalculation() {
+        when(itemDAO.getAllItems(1, 5)).thenReturn(Collections.emptyList());
+        when(itemDAO.getTotalItemCount()).thenReturn(11);
+
+        Map<String, Object> result = itemService.getAllItems(1, 5);
+
+        assertEquals(3, result.get("totalPages")); // ceil(11/5) = 3
+    }
+
+    // =============================================
+    // searchItems()
+    // =============================================
+
+    @Test
+    void testSearchItems_WithKeyword() {
+        ItemDTO item = new ItemDTO();
+        item.setName("iPhone 15");
+        when(itemDAO.searchItemsByKeyword("iphone")).thenReturn(Collections.singletonList(item));
+
+        List<ItemDTO> result = itemService.searchItems("iphone");
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(itemDAO).searchItemsByKeyword("iphone");
+    }
+
+    @Test
+    void testSearchItems_EmptyKeyword_ReturnsAll() {
+        when(itemDAO.getAllItems(1, 50)).thenReturn(Collections.emptyList());
+
+        List<ItemDTO> result = itemService.searchItems("");
+
+        verify(itemDAO).getAllItems(1, 50);
+        verify(itemDAO, never()).searchItemsByKeyword(anyString());
+    }
+
+    @Test
+    void testSearchItems_NullKeyword_ReturnsAll() {
+        when(itemDAO.getAllItems(1, 50)).thenReturn(Collections.emptyList());
+
+        List<ItemDTO> result = itemService.searchItems(null);
+
+        verify(itemDAO).getAllItems(1, 50);
+    }
+
+    @Test
+    void testSearchItems_KeywordWithSpaces_Trimmed() {
+        when(itemDAO.searchItemsByKeyword("watch")).thenReturn(Collections.emptyList());
+
+        itemService.searchItems("  watch  ");
+
+        verify(itemDAO).searchItemsByKeyword("watch");
+    }
+
+    // =============================================
+    // getItemsByCategory()
+    // =============================================
+
+    @Test
+    void testGetItemsByCategory_ValidCategory() {
+        ItemDTO item = new ItemDTO();
+        item.setCategory("ELECTRONICS");
+        when(itemDAO.getItemsByCategory("ELECTRONICS")).thenReturn(Collections.singletonList(item));
+
+        List<ItemDTO> result = itemService.getItemsByCategory("electronics");
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(itemDAO).getItemsByCategory("ELECTRONICS"); // phải uppercase
+    }
+
+    @Test
+    void testGetItemsByCategory_NullCategory_ReturnsEmpty() {
+        List<ItemDTO> result = itemService.getItemsByCategory(null);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(itemDAO, never()).getItemsByCategory(anyString());
+    }
+
+    @Test
+    void testGetItemsByCategory_EmptyCategory_ReturnsEmpty() {
+        List<ItemDTO> result = itemService.getItemsByCategory("");
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    // =============================================
+    // addNewItem()
+    // =============================================
+
+    @Test
+    void testAddNewItem_Success() {
+        ItemDTO item = new ItemDTO();
+        item.setName("MacBook Pro");
+        item.setStartingPrice(1000.0);
+        item.setCategory("ELECTRONICS");
+        when(itemDAO.addItem(item)).thenReturn(true);
+
+        String result = itemService.addNewItem(item);
+
+        assertTrue(result.startsWith("Thành công"));
+        verify(itemDAO).addItem(item);
+        verify(auctionManager).broadcastUpdate(eq("NEW_ITEM"), any());
+    }
+
+    @Test
+    void testAddNewItem_NullItem() {
+        String result = itemService.addNewItem(null);
+
+        assertTrue(result.startsWith("Thất bại"));
+        verify(itemDAO, never()).addItem(any());
+    }
+
+    @Test
+    void testAddNewItem_EmptyName() {
+        ItemDTO item = new ItemDTO();
+        item.setName("");
+        item.setStartingPrice(100.0);
+        item.setCategory("ART");
+
+        String result = itemService.addNewItem(item);
+
+        assertTrue(result.startsWith("Thất bại"));
+        verify(itemDAO, never()).addItem(any());
+    }
+
+    @Test
+    void testAddNewItem_NullName() {
+        ItemDTO item = new ItemDTO();
+        item.setName(null);
+        item.setStartingPrice(100.0);
+        item.setCategory("ART");
+
+        String result = itemService.addNewItem(item);
+
+        assertTrue(result.startsWith("Thất bại"));
+    }
+
+    @Test
+    void testAddNewItem_InvalidPrice() {
+        ItemDTO item = new ItemDTO();
+        item.setName("Laptop");
+        item.setStartingPrice(0.0);
+        item.setCategory("ELECTRONICS");
+
+        String result = itemService.addNewItem(item);
+
+        assertTrue(result.startsWith("Thất bại"));
+        verify(itemDAO, never()).addItem(any());
+    }
+
+    @Test
+    void testAddNewItem_NegativePrice() {
+        ItemDTO item = new ItemDTO();
+        item.setName("Laptop");
+        item.setStartingPrice(-500.0);
+        item.setCategory("ELECTRONICS");
+
+        String result = itemService.addNewItem(item);
+
+        assertTrue(result.startsWith("Thất bại"));
+    }
+
+    @Test
+    void testAddNewItem_MissingCategory() {
+        ItemDTO item = new ItemDTO();
+        item.setName("Laptop");
+        item.setStartingPrice(500.0);
+        item.setCategory("");
+
+        String result = itemService.addNewItem(item);
+
+        assertTrue(result.startsWith("Thất bại"));
+    }
+
+    @Test
+    void testAddNewItem_DAOFails() {
+        ItemDTO item = new ItemDTO();
+        item.setName("Laptop");
+        item.setStartingPrice(500.0);
+        item.setCategory("ELECTRONICS");
+        when(itemDAO.addItem(item)).thenReturn(false);
+
+        String result = itemService.addNewItem(item);
+
+        assertTrue(result.startsWith("Thất bại"));
+        verify(auctionManager, never()).broadcastUpdate(anyString(), any());
+    }
+
+    // =============================================
+    // deleteItem()
+    // =============================================
+
+    @Test
+    void testDeleteItem_Success() {
+        when(itemDAO.deleteItem(1)).thenReturn(true);
+
+        String result = itemService.deleteItem(1);
+
+        assertTrue(result.startsWith("Thành công"));
+        verify(itemDAO).deleteItem(1);
+    }
+
+    @Test
+    void testDeleteItem_NotFound() {
+        when(itemDAO.deleteItem(99)).thenReturn(false);
+
+        String result = itemService.deleteItem(99);
+
+        assertTrue(result.startsWith("Thất bại"));
+    }
+
+    @Test
+    void testDeleteItem_InvalidId() {
+        String result = itemService.deleteItem(0);
+
+        assertTrue(result.startsWith("Thất bại"));
+        verify(itemDAO, never()).deleteItem(anyInt());
+    }
+
+    @Test
+    void testDeleteItem_NegativeId() {
+        String result = itemService.deleteItem(-1);
+
+        assertTrue(result.startsWith("Thất bại"));
+        verify(itemDAO, never()).deleteItem(anyInt());
+    }
+
+    // =============================================
+    // getItemDetails()
+    // =============================================
+
+    @Test
+    void testGetItemDetails_ValidId() {
+        ItemDTO item = new ItemDTO();
+        item.setId(5);
+        item.setName("iPhone");
+        when(itemDAO.getItemById(5)).thenReturn(item);
+
+        ItemDTO result = itemService.getItemDetails(5);
+
+        assertNotNull(result);
+        assertEquals(5, result.getId());
+        verify(itemDAO).getItemById(5);
+    }
+
+    @Test
+    void testGetItemDetails_InvalidId() {
+        ItemDTO result = itemService.getItemDetails(0);
+
+        assertNull(result);
+        verify(itemDAO, never()).getItemById(anyInt());
+    }
+
+    @Test
+    void testGetItemDetails_NotFound() {
+        when(itemDAO.getItemById(999)).thenReturn(null);
+
+        ItemDTO result = itemService.getItemDetails(999);
+
+        assertNull(result);
+    }
+
+    // =============================================
+    // getItemsBySeller()
+    // =============================================
+
+    @Test
+    void testGetItemsBySeller_ValidSeller() {
+        ItemDTO item = new ItemDTO();
+        when(itemDAO.getItemsBySellerId(1)).thenReturn(Collections.singletonList(item));
+
+        List<ItemDTO> result = itemService.getItemsBySeller(1);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(itemDAO).getItemsBySellerId(1);
+    }
+} 
+// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\test\java\com\auction\service\PaymentServiceTest.java ===  
+package com.auction.service;
+
+import com.auction.server.dao.PaymentDAO;
+import com.auction.server.models.Payment;
+import com.auction.server.models.PaymentStatus;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.lang.reflect.Field;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+public class PaymentServiceTest {
+
+    @Mock
+    private PaymentDAO paymentDAO;
+
+    private PaymentService paymentService;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this);
+        paymentService = PaymentService.getInstance();
+
+        // Inject mock qua reflection
+        Field paymentDaoField = PaymentService.class.getDeclaredField("paymentDAO");
+        paymentDaoField.setAccessible(true);
+        paymentDaoField.set(paymentService, paymentDAO);
+    }
+
+    // =============================================
+    // createInvoice()
+    // =============================================
+
+    @Test
+    void testCreateInvoice_Success() {
+        when(paymentDAO.createPaymentInvoice(1, 2, 3, 500.0)).thenReturn(true);
+
+        String result = paymentService.createInvoice(1, 2, 3, 500.0);
+
+        assertTrue(result.startsWith("Thành công"));
+        verify(paymentDAO).createPaymentInvoice(1, 2, 3, 500.0);
+    }
+
+    @Test
+    void testCreateInvoice_DAOFails() {
+        when(paymentDAO.createPaymentInvoice(1, 2, 3, 500.0)).thenReturn(false);
+
+        String result = paymentService.createInvoice(1, 2, 3, 500.0);
+
+        assertTrue(result.startsWith("Thất bại"));
+        verify(paymentDAO).createPaymentInvoice(1, 2, 3, 500.0);
+    }
+
+    @Test
+    void testCreateInvoice_InvalidAuctionId() {
+        String result = paymentService.createInvoice(0, 2, 3, 500.0);
+
+        assertTrue(result.startsWith("Thất bại"));
+        verify(paymentDAO, never()).createPaymentInvoice(anyInt(), anyInt(), anyInt(), anyDouble());
+    }
+
+    @Test
+    void testCreateInvoice_InvalidBidderId() {
+        String result = paymentService.createInvoice(1, 0, 3, 500.0);
+
+        assertTrue(result.startsWith("Thất bại"));
+        verify(paymentDAO, never()).createPaymentInvoice(anyInt(), anyInt(), anyInt(), anyDouble());
+    }
+
+    @Test
+    void testCreateInvoice_InvalidSellerId() {
+        String result = paymentService.createInvoice(1, 2, 0, 500.0);
+
+        assertTrue(result.startsWith("Thất bại"));
+        verify(paymentDAO, never()).createPaymentInvoice(anyInt(), anyInt(), anyInt(), anyDouble());
+    }
+
+    @Test
+    void testCreateInvoice_BidderSameAsSeller() {
+        String result = paymentService.createInvoice(1, 5, 5, 500.0);
+
+        assertTrue(result.startsWith("Thất bại"));
+        verify(paymentDAO, never()).createPaymentInvoice(anyInt(), anyInt(), anyInt(), anyDouble());
+    }
+
+    @Test
+    void testCreateInvoice_AmountZero() {
+        String result = paymentService.createInvoice(1, 2, 3, 0.0);
+
+        assertTrue(result.startsWith("Thất bại"));
+        verify(paymentDAO, never()).createPaymentInvoice(anyInt(), anyInt(), anyInt(), anyDouble());
+    }
+
+    @Test
+    void testCreateInvoice_NegativeAmount() {
+        String result = paymentService.createInvoice(1, 2, 3, -100.0);
+
+        assertTrue(result.startsWith("Thất bại"));
+        verify(paymentDAO, never()).createPaymentInvoice(anyInt(), anyInt(), anyInt(), anyDouble());
+    }
+
+    // =============================================
+    // executePayment()
+    // =============================================
+
+    @Test
+    void testExecutePayment_Success() {
+        when(paymentDAO.processPayment(1)).thenReturn(true);
+
+        String result = paymentService.executePayment(1);
+
+        assertTrue(result.startsWith("Thành công"));
+        verify(paymentDAO).processPayment(1);
+    }
+
+    @Test
+    void testExecutePayment_Failure() {
+        when(paymentDAO.processPayment(1)).thenReturn(false);
+
+        String result = paymentService.executePayment(1);
+
+        assertTrue(result.startsWith("Thất bại"));
+        verify(paymentDAO).processPayment(1);
+    }
+
+    @Test
+    void testExecutePayment_InvalidId() {
+        String result = paymentService.executePayment(0);
+
+        assertTrue(result.startsWith("Thất bại"));
+        verify(paymentDAO, never()).processPayment(anyInt());
+    }
+
+    @Test
+    void testExecutePayment_NegativeId() {
+        String result = paymentService.executePayment(-5);
+
+        assertTrue(result.startsWith("Thất bại"));
+        verify(paymentDAO, never()).processPayment(anyInt());
+    }
+
+    // =============================================
+    // getUserPaymentHistory()
+    // =============================================
+
+    @Test
+    void testGetUserPaymentHistory_ValidUser() {
+        Payment p = new Payment(1, 10, 2, 3, 500.0, PaymentStatus.COMPLETED, LocalDateTime.now());
+        when(paymentDAO.getPaymentHistoryByUser(2)).thenReturn(Collections.singletonList(p));
+
+        List<Payment> result = paymentService.getUserPaymentHistory(2);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(paymentDAO).getPaymentHistoryByUser(2);
+    }
+
+    @Test
+    void testGetUserPaymentHistory_InvalidUserId() {
+        List<Payment> result = paymentService.getUserPaymentHistory(0);
+
+        assertNull(result);
+        verify(paymentDAO, never()).getPaymentHistoryByUser(anyInt());
+    }
+
+    @Test
+    void testGetUserPaymentHistory_NegativeUserId() {
+        List<Payment> result = paymentService.getUserPaymentHistory(-1);
+
+        assertNull(result);
+        verify(paymentDAO, never()).getPaymentHistoryByUser(anyInt());
+    }
+
+    @Test
+    void testGetUserPaymentHistory_EmptyList() {
+        when(paymentDAO.getPaymentHistoryByUser(99)).thenReturn(Collections.emptyList());
+
+        List<Payment> result = paymentService.getUserPaymentHistory(99);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(paymentDAO).getPaymentHistoryByUser(99);
+    }
+} 
+// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\test\java\com\auction\service\UserControllerTest.java ===  
+package com.auction.service;
+
+import com.auction.controller.UserController;
+import com.auction.server.dao.UserDAO;
+import com.auction.server.models.UserDTO;
+import com.auction.server.models.UserRole;
+import com.auction.service.UserService;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+public class UserControllerTest {
+
+    @Mock
+    private UserService userService;
+
+    private UserController userController;
+    private final Gson gson = new Gson();
+
+    @BeforeEach
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this);
+        userController = new UserController();
+
+        // Inject mock UserService vào controller qua reflection
+        Field serviceField = UserController.class.getDeclaredField("userService");
+        serviceField.setAccessible(true);
+        serviceField.set(userController, userService);
+    }
+
+    // =============================================
+    // handleLogin()
+    // =============================================
+
+    @Test
+    void testHandleLogin_Success() {
+        Map<String, Object> userDetails = new HashMap<>();
+        userDetails.put("userId", 1);
+        userDetails.put("role", "BIDDER");
+        when(userService.login("user@gmail.com", "pass123")).thenReturn(userDetails);
+
+        JsonObject req = new JsonObject();
+        req.addProperty("email", "user@gmail.com");
+        req.addProperty("password", "pass123");
+
+        String response = userController.handleLogin(gson.toJson(req));
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
+
+        assertEquals("success", respObj.get("status").getAsString());
+        verify(userService).login("user@gmail.com", "pass123");
+    }
+
+    @Test
+    void testHandleLogin_WrongCredentials() {
+        when(userService.login("wrong@gmail.com", "wrong")).thenReturn(null);
+
+        JsonObject req = new JsonObject();
+        req.addProperty("email", "wrong@gmail.com");
+        req.addProperty("password", "wrong");
+
+        String response = userController.handleLogin(gson.toJson(req));
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
+
+        assertEquals("error", respObj.get("status").getAsString());
+    }
+
+    @Test
+    void testHandleLogin_MissingEmail() {
+        JsonObject req = new JsonObject();
+        req.addProperty("password", "pass123");
+
+        String response = userController.handleLogin(gson.toJson(req));
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
+
+        assertEquals("error", respObj.get("status").getAsString());
+        verify(userService, never()).login(anyString(), anyString());
+    }
+
+    @Test
+    void testHandleLogin_MissingPassword() {
+        JsonObject req = new JsonObject();
+        req.addProperty("email", "user@gmail.com");
+
+        String response = userController.handleLogin(gson.toJson(req));
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
+
+        assertEquals("error", respObj.get("status").getAsString());
+        verify(userService, never()).login(anyString(), anyString());
+    }
+
+    @Test
+    void testHandleLogin_InvalidJson() {
+        String response = userController.handleLogin("not-json");
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
+
+        assertEquals("error", respObj.get("status").getAsString());
+    }
+
+    @Test
+    void testHandleLogin_BannedUser() {
+        Map<String, Object> userDetails = new HashMap<>();
+        userDetails.put("banned", true);
+        when(userService.login("banned@gmail.com", "pass")).thenReturn(userDetails);
+
+        JsonObject req = new JsonObject();
+        req.addProperty("email", "banned@gmail.com");
+        req.addProperty("password", "pass");
+
+        String response = userController.handleLogin(gson.toJson(req));
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
+
+        assertEquals("error", respObj.get("status").getAsString());
+    }
+
+    // =============================================
+    // handleRegister()
+    // =============================================
+
+    @Test
+    void testHandleRegister_Success() {
+        when(userService.register("newuser", "pass123", "new@gmail.com", UserRole.BIDDER)).thenReturn(true);
+
+        JsonObject req = new JsonObject();
+        req.addProperty("username", "newuser");
+        req.addProperty("password", "pass123");
+        req.addProperty("email", "new@gmail.com");
+        req.addProperty("role", "BIDDER");
+
+        String response = userController.handleRegister(gson.toJson(req));
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
+
+        assertEquals("success", respObj.get("status").getAsString());
+        verify(userService).register("newuser", "pass123", "new@gmail.com", UserRole.BIDDER);
+    }
+
+    @Test
+    void testHandleRegister_DuplicateUser() {
+        when(userService.register(anyString(), anyString(), anyString(), any())).thenReturn(false);
+
+        JsonObject req = new JsonObject();
+        req.addProperty("username", "existing");
+        req.addProperty("password", "pass");
+        req.addProperty("email", "exist@gmail.com");
+
+        String response = userController.handleRegister(gson.toJson(req));
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
+
+        assertEquals("error", respObj.get("status").getAsString());
+    }
+
+    @Test
+    void testHandleRegister_MissingUsername() {
+        JsonObject req = new JsonObject();
+        req.addProperty("password", "pass");
+        req.addProperty("email", "test@gmail.com");
+
+        String response = userController.handleRegister(gson.toJson(req));
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
+
+        assertEquals("error", respObj.get("status").getAsString());
+        verify(userService, never()).register(anyString(), anyString(), anyString(), any());
+    }
+
+    @Test
+    void testHandleRegister_DefaultRoleIsBidder() {
+        when(userService.register("user", "pass", "user@gmail.com", UserRole.BIDDER)).thenReturn(true);
+
+        JsonObject req = new JsonObject();
+        req.addProperty("username", "user");
+        req.addProperty("password", "pass");
+        req.addProperty("email", "user@gmail.com");
+        // Không gửi role -> phải default là BIDDER
+
+        userController.handleRegister(gson.toJson(req));
+
+        verify(userService).register("user", "pass", "user@gmail.com", UserRole.BIDDER);
+    }
+
+    @Test
+    void testHandleRegister_InvalidJson() {
+        String response = userController.handleRegister("broken-json{{{");
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
+
+        assertEquals("error", respObj.get("status").getAsString());
+    }
+
+    // =============================================
+    // handleGetProfile()
+    // =============================================
+
+    @Test
+    void testHandleGetProfile_ValidUser() {
+        UserDTO user = new UserDTO();
+        user.setId(1);
+        user.setUsername("testuser");
+        when(userService.getProfile(1)).thenReturn(user);
+
+        String response = userController.handleGetProfile(1);
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
+
+        assertEquals("success", respObj.get("status").getAsString());
+        verify(userService).getProfile(1);
+    }
+
+    @Test
+    void testHandleGetProfile_UserNotFound() {
+        when(userService.getProfile(999)).thenReturn(null);
+
+        String response = userController.handleGetProfile(999);
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
+
+        assertEquals("error", respObj.get("status").getAsString());
+    }
+
+    // =============================================
+    // handleChangePassword()
+    // =============================================
+
+    @Test
+    void testHandleChangePassword_Success() {
+        when(userService.changePassword(1, "oldPass", "newPass")).thenReturn(true);
+
+        JsonObject req = new JsonObject();
+        req.addProperty("oldPassword", "oldPass");
+        req.addProperty("newPassword", "newPass");
+
+        String response = userController.handleChangePassword(1, gson.toJson(req));
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
+
+        assertEquals("success", respObj.get("status").getAsString());
+    }
+
+    @Test
+    void testHandleChangePassword_WrongOldPassword() {
+        when(userService.changePassword(1, "wrong", "newPass")).thenReturn(false);
+
+        JsonObject req = new JsonObject();
+        req.addProperty("oldPassword", "wrong");
+        req.addProperty("newPassword", "newPass");
+
+        String response = userController.handleChangePassword(1, gson.toJson(req));
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
+
+        assertEquals("error", respObj.get("status").getAsString());
+    }
+
+    @Test
+    void testHandleChangePassword_MissingField() {
+        JsonObject req = new JsonObject();
+        req.addProperty("oldPassword", "oldPass");
+        // Thiếu newPassword
+
+        String response = userController.handleChangePassword(1, gson.toJson(req));
+        JsonObject respObj = gson.fromJson(response, JsonObject.class);
+
+        assertEquals("error", respObj.get("status").getAsString());
+        verify(userService, never()).changePassword(anyInt(), anyString(), anyString());
+    }
+} 
+// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\test\java\com\auction\service\UserServiceTest.java ===  
+package com.auction.service;
+
+import com.auction.server.dao.UserDAO;
+import com.auction.server.models.UserDTO;
+import com.auction.server.models.UserRole;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+public class UserServiceTest {
+
+    @Mock
+    private UserDAO userDAO;
+
+    private UserService userService;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this);
+        userService = UserService.getInstance();
+
+        // --- Inject mock using reflection ---
+        Field userDaoField = UserService.class.getDeclaredField("userDAO");
+        userDaoField.setAccessible(true);
+        userDaoField.set(userService, userDAO);
+    }
+
+    @Test
+    void testLoginWithValidCredentials() {
+        // Arrange
+        String email = "test@example.com";
+        String password = "password";
+        Map<String, Object> expected = new HashMap<>();
+        expected.put("userId", 1);
+        when(userDAO.loginUser(email, password)).thenReturn(expected);
+
+        // Act
+        Map<String, Object> result = userService.login(email, password);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.get("userId"));
+        verify(userDAO).loginUser(email, password);
+    }
+
+    @Test
+    void testLoginWithInvalidCredentials() {
+        // Arrange
+        when(userDAO.loginUser("wrong@email.com", "wrong")).thenReturn(null);
+
+        // Act
+        Map<String, Object> result = userService.login("wrong@email.com", "wrong");
+
+        // Assert
+        assertNull(result);
+        verify(userDAO).loginUser("wrong@email.com", "wrong");
+    }
+
+    @Test
+    void testRegisterWithValidData() {
+        // Arrange
+        when(userDAO.registerUser("username", "password", "email@example.com", UserRole.BIDDER)).thenReturn(true);
+
+        // Act
+        boolean result = userService.register("username", "password", "email@example.com", UserRole.BIDDER);
+
+        // Assert
+        assertTrue(result);
+        verify(userDAO).registerUser("username", "password", "email@example.com", UserRole.BIDDER);
+    }
+
+    @Test
+    void testRegisterWithNullUsername() {
+        // Act
+        boolean result = userService.register(null, "password", "email@example.com", UserRole.BIDDER);
+
+        // Assert
+        assertFalse(result);
+        verify(userDAO, never()).registerUser(any(), any(), any(), any());
+    }
+
+    @Test
+    void testGetProfileWithValidUserId() {
+        // Arrange
+        UserDTO user = new UserDTO();
+        user.setId(1);
+        when(userDAO.getUserById(1)).thenReturn(user);
+
+        // Act
+        UserDTO result = userService.getProfile(1);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.getId());
+        verify(userDAO).getUserById(1);
+    }
+
+    @Test
+    void testGetProfileWithInvalidUserId() {
+        // Act
+        UserDTO result = userService.getProfile(0);
+
+        // Assert
+        assertNull(result);
+        verify(userDAO, never()).getUserById(anyInt());
+    }
+} 
+// === FILE: C:\Users\admin\Documents\Project-Online-auction-system\Server\src\test\java\com\auction\service\WatchlistControllerTest.java ===  
+package com.auction.service;
+
+import com.auction.controller.WatchlistController;
+import com.auction.server.dao.WatchlistDAO;
+import com.auction.server.models.ItemDTO;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+public class WatchlistControllerTest {
+
+    @Mock
+    private WatchlistDAO watchlistDAO;
+
+    private WatchlistController watchlistController;
+    private MockedStatic<WatchlistDAO> mockedWatchlistDAO;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+
+        mockedWatchlistDAO = Mockito.mockStatic(WatchlistDAO.class);
+        mockedWatchlistDAO.when(WatchlistDAO::getInstance).thenReturn(watchlistDAO);
+
+        watchlistController = WatchlistController.getInstance();
+    }
+
+    @org.junit.jupiter.api.AfterEach
+    void tearDown() {
+        mockedWatchlistDAO.close();
+    }
+
+    // =============================================
+    // handleAddToWatchlist()
+    // =============================================
+
+    @Test
+    void testHandleAddToWatchlist_Success() {
+        when(watchlistDAO.addToWatchlist(1, 10)).thenReturn(true);
+
+        Map<String, Object> result = watchlistController.handleAddToWatchlist(1, 10);
+
+        assertEquals("success", result.get("status"));
+        verify(watchlistDAO).addToWatchlist(1, 10);
+    }
+
+    @Test
+    void testHandleAddToWatchlist_AlreadyExists() {
+        when(watchlistDAO.addToWatchlist(1, 10)).thenReturn(false);
+
+        Map<String, Object> result = watchlistController.handleAddToWatchlist(1, 10);
+
+        assertEquals("error", result.get("status"));
+        verify(watchlistDAO).addToWatchlist(1, 10);
+    }
+
+    // =============================================
+    // handleGetWatchlist()
+    // =============================================
+
+    @Test
+    void testHandleGetWatchlist_WithItems() {
+        ItemDTO item1 = new ItemDTO();
+        item1.setName("Laptop");
+        ItemDTO item2 = new ItemDTO();
+        item2.setName("iPhone");
+        when(watchlistDAO.getWatchlistByUserId(1)).thenReturn(Arrays.asList(item1, item2));
+
+        Map<String, Object> result = watchlistController.handleGetWatchlist(1);
+
+        assertEquals("success", result.get("status"));
+        List<?> items = (List<?>) result.get("data");
+        assertEquals(2, items.size());
+        verify(watchlistDAO).getWatchlistByUserId(1);
+    }
+
+    @Test
+    void testHandleGetWatchlist_EmptyWatchlist() {
+        when(watchlistDAO.getWatchlistByUserId(2)).thenReturn(Collections.emptyList());
+
+        Map<String, Object> result = watchlistController.handleGetWatchlist(2);
+
+        assertEquals("success", result.get("status"));
+        List<?> items = (List<?>) result.get("data");
+        assertTrue(items.isEmpty());
     }
 } 
