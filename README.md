@@ -272,7 +272,7 @@ Sau khi sửa, build lại Client: `mvn clean package -DskipTests`, rồi chạy
 - [x] Tự động đóng phiên (RUNNING → FINISHED) và chuyển tiền khi hết giờ
 - [x] Giam tiền an toàn, tự động giam tiền của người đấu giá khi đặt giá thành công 
 - [x] Gia hạn thêm 1 phút khi có bid trong ≤ 15 giây trước khi kết thúc(tính năng nâng cao)
-- [x] Biểu đồ đườn giá realtime(tính năng nâng cao)
+- [x] Biểu đồ đường giá realtime(tính năng nâng cao)
 - [x] Đặt giá tự động (Auto-Bid) — tự động bid khi bị vượt, theo mức giá tối đa(tính năng nâng cao)
 
 ### Thanh toán & Đánh giá
