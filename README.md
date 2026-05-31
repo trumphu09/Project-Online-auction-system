@@ -9,17 +9,16 @@ Cho phép nhiều người dùng tham gia đặt giá theo thời gian thực, q
 
 Hệ thống gồm ba vai trò chính:
 
-- **Bidder (Người mua):** Xem danh sách sản phẩm, tìm kiếm/lọc theo phân loại, vào phòng đấu giá, đặt giá thủ công hoặc đăng ký đấu giá tự động (Auto-Bid), theo dõi sản phẩm yêu thích (Watchlist), xem bảng lịch sử giá, nạp tiền, thanh toán tự động và đánh giá người bán.
-- **Seller (Người bán):** Đăng bán sản phẩm thuộc các danh mục (Xe cộ, Nghệ thuật, Điện tử), cập nhật, tạo tự động phiên đấu giá và quản lý phiên đấu giá của mình.
+- **Bidder (Người mua):** Xem danh sách sản phẩm, tìm kiếm/lọc theo phân loại, vào phòng đấu giá, đặt giá thủ công hoặc đăng ký đấu giá tự động (Auto-Bid), theo dõi sản phẩm yêu thích (Watchlist), xem lịch sử giá, nạp tiền, thanh toán tự động và đánh giá người bán.
+- **Seller (Người bán):** Đăng bán sản phẩm thuộc các danh mục (Xe cộ, Nghệ thuật, Điện tử), cập nhật, tạo và quản lý phiên đấu giá của mình, upload ảnh sản phẩm.
 - **Admin (Quản trị viên):** Quản lý toàn bộ tài khoản người dùng (khóa/mở khóa), quản lý tất cả sản phẩm trong hệ thống.
 
 **Tính năng đặc trưng:**
-- Giá đấu cập nhật **realtime** qua WebSocket — không cần refresh trang.
-- **Auto-Bid:** đặt giá tự động khi bị vượt, chỉ có 1 người được cầm giá cao nhất auto-bid.
-- **Tự động đóng phiên & chuyển tiền:** `AuctionStatusScheduler` chạy nền mỗi giây, tự chuyển tiền cho Seller khi phiên kết thúc.
-- **Giam tiền an toàn:** tạm thời cầm tiền của người cầm giá cao nhất.
-- **Gia hạn thời gian:** phiên tự cộng thêm thời gian nếu có bid vào gần cuối.
-
+- Giá đấu cập nhật realtime qua WebSocket — không cần refresh trang.
+- Auto-Bid: đặt giá tự động khi bị vượt, chỉ có 1 người được cầm giá cao nhất auto-bid.
+- Tự động đóng phiên & tạo hóa đơn: AuctionStatusScheduler chạy nền mỗi giây để quản lý trạng thái phiên đấu giá.
+- Đảm bảo toàn vẹn tài chính: sử dụng transaction và SQL FOR UPDATE khi xử lý đặt giá.
+- Gia hạn thời gian: phiên tự cộng thêm 1 phút nếu có bid trong vòng ≤ 15 giây trước khi kết thúc.
 ---
 
 ## 🛠️ Công nghệ sử dụng
@@ -50,8 +49,7 @@ Hệ thống gồm ba vai trò chính:
 | MySQL | 8.0 trở lên |
 | RAM | 512 MB (khuyến nghị 1 GB) |
 | OS | Windows 10+, Ubuntu 20.04+, macOS 12+ |
-
-> **Lưu ý JavaFX:** Client sử dụng `javafx-maven-plugin` để tự động xử lý module path và native libraries. Không cần cài JavaFX SDK riêng — plugin sẽ tải đúng bản native cho hệ điều hành hiện tại qua Maven.
+| IDE | IntelliJ IDEA (khuyến nghị) hoặc Eclipse |
 
 ---
 
@@ -80,7 +78,7 @@ Project-Online-auction-system/
 │           │   ├── network/              # HTTP Client, WebSocket Client
 │           │   │   ├── ApiService.java
 │           │   │   └── AuctionWebSocketClient.java
-│           │   ├── service/              # Business logic phía client
+│           │   ├── service/              # Business logic phía client (AuctionFacade)
 │           │   ├── util/                 # Tiện ích hỗ trợ UI
 │           │   ├── Main.java             # Entry point
 │           │   └── MainApp.java          # JavaFX Application
@@ -94,12 +92,13 @@ Project-Online-auction-system/
 │       ├── service/                      # Xử lý nghiệp vụ (AuctionService, BidService, …)
 │       └── server/
 │           ├── dao/                      # Truy cập CSDL (UserDAO, ItemDAO, BidsDAO, …)
+│           ├── factory/                  # ItemFactory, UserFactory – tạo đúng subtype
 │           ├── filters/                  # AuthFilter – xác thực request
-│           ├── models/                   # Entity + DTO
+│           ├── models/                   # Entity + DTO + AuctionManager (Singleton)
 │           ├── scheduler/                # AuctionStatusScheduler
-│           ├── servlets/                 # REST API endpoints
+│           ├── servlets/                 # 21 REST API endpoints
 │           ├── websocket/                # AuctionWebSocketServer
-│           ├── utils/
+│           ├── utils/                    # LocalDateTimeAdapter
 │           └── AuctionServer.java        # Khởi động Server (entry point)
 │
 └── uploads/                              # Ảnh sản phẩm (tự tạo khi Server khởi động)
@@ -122,6 +121,10 @@ CREATE DATABASE online_auction CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```bash
 mysql -u root -p online_auction < Server/database.sql
 ```
+
+> **Lưu ý:** File `database.sql` bắt đầu bằng `USE online_auction;` — đảm bảo đã tạo database đúng tên trước khi import.
+
+Schema sẽ tạo **13 bảng**: `users`, `bidders`, `sellers`, `items`, `artworks`, `electronics`, `vehicles`, `auctions`, `bids`, `payments`, `seller_ratings`, `auto_bids`, `watchlist`.
 
 ### Bước 3 — Cập nhật thông tin kết nối
 
@@ -177,10 +180,18 @@ mvn clean package -DskipTests
 
 **Server phải được khởi động TRƯỚC khi mở bất kỳ Client nào.**
 
+**Cách khuyến nghị — chạy từ IDE (IntelliJ IDEA / Eclipse):**
+
+Mở project `Server/` trong IDE, tìm file `AuctionServer.java` (`com.auction.server.AuctionServer`) và nhấn **Run**.
+
+**Hoặc chạy từ dòng lệnh** (sau khi đã build xong ở bước trên):
+
 ```bash
-# Windows / Linux / macOS
 cd Server
-mvn exec:java -Dexec.mainClass="com.auction.server.AuctionServer"
+java -cp target/server-1.0-SNAPSHOT.jar:target/dependency/* com.auction.server.AuctionServer
+
+# Windows (dùng ; thay vì :)
+java -cp "target/server-1.0-SNAPSHOT.jar;target/dependency/*" com.auction.server.AuctionServer
 ```
 
 Kết quả khi Server khởi động thành công:
@@ -194,30 +205,28 @@ Kết quả khi Server khởi động thành công:
 ```
 
 Các cổng sử dụng:
-- **8080** — HTTP REST API (Tomcat)
+- **8080** — HTTP REST API (Tomcat Embedded)
 - **8081** — WebSocket realtime broadcast
 
 ### 3. Khởi động Client(s)
 
-Client sử dụng `javafx-maven-plugin` — lệnh `mvn javafx:run` tự xử lý module path JavaFX trên mọi hệ điều hành, không cần cài JavaFX SDK riêng.
+**Cách khuyến nghị — chạy từ IDE:**
 
-Mở **nhiều terminal/cửa sổ lệnh riêng biệt**, mỗi cửa sổ chạy một Client độc lập:
+Mở project `Client/` trong IDE, tìm file `Main.java` (`com.auction.client.Main`) và nhấn **Run**.
+
+Để mở nhiều Client cùng lúc, trong IntelliJ IDEA vào **Run → Edit Configurations**, tích **Allow multiple instances**, rồi chạy nhiều lần.
+
+**Hoặc mở nhiều terminal, mỗi terminal một Client:**
 
 ```bash
-# Terminal 1 — Client 1 (Windows / Linux / macOS — cú pháp giống nhau)
+# Terminal 1 — Client 1
 cd Client
-mvn javafx:run
+java -cp "target/testjavafx-1.0-SNAPSHOT.jar:target/dependency/*" com.auction.client.Main
 
-# Terminal 2 — Client 2 (mở terminal/tab mới)
+# Terminal 2 — Client 2 (mở terminal mới)
 cd Client
-mvn javafx:run
-
-# Terminal 3 — Client 3 (tương tự)
-cd Client
-mvn javafx:run
+java -cp "target/testjavafx-1.0-SNAPSHOT.jar:target/dependency/*" com.auction.client.Main
 ```
-
-> **Lưu ý:** Lần chạy đầu tiên Maven sẽ tải `javafx-maven-plugin` và native JavaFX libs phù hợp với OS của bạn (~vài chục MB). Các lần sau sẽ chạy ngay lập tức từ local cache.
 
 ---
 
@@ -230,7 +239,7 @@ Nếu Server và Client **không cùng máy**, cần đổi `localhost` thành I
 | `Client/src/main/java/com/auction/client/network/ApiService.java` | `private final String BASE_URL = "http://<SERVER_IP>:8080/api";` |
 | `Client/src/main/java/com/auction/client/network/AuctionWebSocketClient.java` | `private static final String WS_URL = "ws://<SERVER_IP>:8081";` |
 
-Sau khi sửa, build lại Client: `mvn clean package -DskipTests`, rồi `mvn javafx:run`.
+Sau khi sửa, build lại Client: `mvn clean package -DskipTests`, rồi chạy lại từ IDE hoặc dòng lệnh.
 
 ---
 
@@ -244,9 +253,9 @@ Sau khi sửa, build lại Client: `mvn clean package -DskipTests`, rồi `mvn j
 - [x] Hiển thị thông tin cá nhân (User Profile)
 
 ### Sản phẩm & Danh mục
-- [x] Xem danh sách sản phẩm 
+- [x] Xem danh sách sản phẩm
 - [x] Tìm kiếm sản phẩm theo từ khóa
-- [x] Lọc sản phẩm theo danh mục (VEHICLE, ART, ELECTRONICS, GENERAL)
+- [x] Lọc sản phẩm theo danh mục (VEHICLE, ART, ELECTRONICS)
 - [x] Xem chi tiết sản phẩm (thông tin đặc thù theo từng loại)
 - [x] Upload ảnh sản phẩm từ Client lên Server (base64 → file)
 - [x] Người bán thêm mới / cập nhật sản phẩm của mình
@@ -257,11 +266,10 @@ Sau khi sửa, build lại Client: `mvn clean package -DskipTests`, rồi `mvn j
 - [x] Đặt giá thủ công (Place Bid) với kiểm tra hợp lệ
 - [x] Đặt giá tự động (Auto-Bid) — tự động bid khi bị vượt, theo mức giá tối đa
 - [x] Cập nhật giá realtime qua WebSocket đến tất cả Client trong phòng
-- [x] Biểu đồ lịch sử giá (LineChart) cập nhật theo thời gian thực
 - [x] Đồng hồ đếm ngược đến khi kết thúc phiên
 - [x] Tự động kích hoạt phiên (OPEN → RUNNING) khi đến giờ bắt đầu
 - [x] Tự động đóng phiên (RUNNING → FINISHED) và chuyển tiền khi hết giờ
-- [x] Gia hạn thêm thời gian khi có bid gần lúc kết thúc
+- [x] Gia hạn thêm 1 phút khi có bid trong ≤ 15 giây trước khi kết thúc
 - [x] Giam tiền an toàn, tự động giam tiền của người đấu giá khi đặt giá thành công
 
 ### Thanh toán & Đánh giá
@@ -283,15 +291,16 @@ Sau khi sửa, build lại Client: `mvn clean package -DskipTests`, rồi `mvn j
 
 ## 🔗 Tài liệu liên quan
 
-- 📄 **Báo cáo PDF:** [*(BÁO CÁO)*](https://drive.google.com/file/d/1UlRyY0RSwEwptj8O1y1zsziGr3Tqpz2m/view?usp=drive_link)
-- 🎬 **Video Demo:** [*(VIDEO DEMO)*](https://drive.google.com/file/d/1khqk1LHRvCWxBKezDj3pk8PV3Fj389Q1/view?usp=drive_link)
+- 📄 **Báo cáo PDF:** [*BÁO CÁO*](https://drive.google.com/file/d/1lQ_kTwWDZs6oWKKs06lfjqM3JqSUVcre/view?usp=sharing)
+- 🎬 **Video Demo:** [*VIDEO DEMO*](https://drive.google.com/file/d/1khqk1LHRvCWxBKezDj3pk8PV3Fj389Q1/view?usp=drive_link)
 - 📘 **API Usage Guide:** `API_USAGE_GUIDE.md`
 
 ---
 
 ## ⚠️ Lưu ý quan trọng
 
-1. **Đường dẫn ảnh:** Thư mục `uploads/` sẽ được tự tạo tại thư mục gốc của Server khi khởi động.
+1. **Đường dẫn ảnh:** Thư mục `uploads/` sẽ được tự tạo tại thư mục làm việc của Server khi khởi động (`user.dir/uploads`).
 2. **Cùng mạng:** Server và Client hiện chỉ chạy trên cùng mạng LAN/localhost. Nếu cần chạy Client từ máy khác, đổi địa chỉ `localhost` theo hướng dẫn ở mục "Chạy Client từ máy khác" phía trên.
-3. **Timezone:** Cả Server và Client đều set `Asia/Ho_Chi_Minh` tự động khi khởi động.
+3. **Timezone:** Cả Server và Client đều tự động set `Asia/Ho_Chi_Minh` khi khởi động.
 4. **Firewall:** Đảm bảo port **8080** (HTTP) và **8081** (WebSocket) không bị firewall chặn khi chạy đa máy.
+5. **Chạy từ IDE:** Cách đơn giản và ổn định nhất là chạy `AuctionServer.java` (Server) và `Main.java` (Client) trực tiếp từ IntelliJ IDEA hoặc Eclipse sau khi đã import đúng project Maven.
