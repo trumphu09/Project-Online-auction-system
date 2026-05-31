@@ -293,7 +293,7 @@ Sau khi sửa, build lại Client: `mvn clean package -DskipTests`, rồi chạy
 
 ## 🔗 Tài liệu liên quan
 
-- 📄 **Báo cáo PDF:** [*BÁO CÁO*](https://drive.google.com/file/d/1lQ_kTwWDZs6oWKKs06lfjqM3JqSUVcre/view?usp=sharing)
+- 📄 **Báo cáo PDF:** [*BÁO CÁO*](https://drive.google.com/file/d/1uIEd1bAQm2HFdWy-v60oBvezUvMDhCa8/view?usp=sharing)
 - 🎬 **Video Demo:** [*VIDEO DEMO*](https://drive.google.com/file/d/1khqk1LHRvCWxBKezDj3pk8PV3Fj389Q1/view?usp=drive_link)
 - 📘 **API Usage Guide:** `API_USAGE_GUIDE.md`
 
