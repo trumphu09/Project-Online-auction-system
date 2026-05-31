@@ -266,13 +266,14 @@ Sau khi sửa, build lại Client: `mvn clean package -DskipTests`, rồi chạy
 ### Phiên Đấu giá
 - [x] Tạo phiên đấu giá (Seller đặt giá khởi điểm, bước giá, thời gian)
 - [x] Đặt giá thủ công (Place Bid) với kiểm tra hợp lệ
-- [x] Đặt giá tự động (Auto-Bid) — tự động bid khi bị vượt, theo mức giá tối đa
 - [x] Cập nhật giá realtime qua WebSocket đến tất cả Client trong phòng
 - [x] Đồng hồ đếm ngược đến khi kết thúc phiên
 - [x] Tự động kích hoạt phiên (OPEN → RUNNING) khi đến giờ bắt đầu
 - [x] Tự động đóng phiên (RUNNING → FINISHED) và chuyển tiền khi hết giờ
-- [x] Gia hạn thêm 1 phút khi có bid trong ≤ 15 giây trước khi kết thúc
-- [x] Giam tiền an toàn, tự động giam tiền của người đấu giá khi đặt giá thành công
+- [x] Giam tiền an toàn, tự động giam tiền của người đấu giá khi đặt giá thành công 
+- [x] Gia hạn thêm 1 phút khi có bid trong ≤ 15 giây trước khi kết thúc(tính năng nâng cao)
+- [x] Biểu đồ đườn giá realtime(tính năng nâng cao)
+- [x] Đặt giá tự động (Auto-Bid) — tự động bid khi bị vượt, theo mức giá tối đa(tính năng nâng cao)
 
 ### Thanh toán & Đánh giá
 - [x] Tự động thanh toán sau khi thắng phiên đấu giá
