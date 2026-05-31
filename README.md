@@ -232,11 +232,12 @@ java -cp "target/testjavafx-1.0-SNAPSHOT.jar:target/dependency/*" com.auction.cl
 
 ## 🌐 Chạy Client từ máy khác (khác LAN)
 
-Nếu Server và Client **không cùng máy**, cần đổi `localhost` thành IP của máy chạy Server tại hai file sau trong Client:
+Nếu Server và Client **không cùng máy**, cần đổi `localhost` thành IP của máy chạy Server tại ba file sau trong Client:
 
 | File | Dòng cần sửa |
 |---|---|
 | `Client/src/main/java/com/auction/client/network/ApiService.java` | `private final String BASE_URL = "http://<SERVER_IP>:8080/api";` |
+| `Client/src/main/java/com/auction/client/util/ItemCard.java` | `private final String BASE_URL = "http://<SERVER_IP>:8080/api";` |
 | `Client/src/main/java/com/auction/client/network/AuctionWebSocketClient.java` | `private static final String WS_URL = "ws://<SERVER_IP>:8081";` |
 
 Sau khi sửa, build lại Client: `mvn clean package -DskipTests`, rồi chạy lại từ IDE hoặc dòng lệnh.
